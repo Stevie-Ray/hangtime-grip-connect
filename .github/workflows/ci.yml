@@ -17,11 +17,12 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Install dependencies
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: npm ci
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Format
         run: npm format:check
