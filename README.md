@@ -1,34 +1,11 @@
-<p align="center">
-  <img alt="Github Checks" src="https://badgen.net/github/checks/Stevie-Ray/motherboard/main"/>
-  <img alt="Github Stars" src="https://badgen.net/github/stars/Stevie-Ray/motherboard" />
-</p>
-
-<br />
-
-- [Motherboard](#motherboard)
-- [Development](#development)
-- [Commands](#commands)
-  - [With Docs](#with-docs)
-  - [With Preact](#with-preact)
-  - [With React](#with-react)
-  - [With Remix](#with-remix)
-  - [With Next](#with-next)
-  - [With Svelte](#with-svelte)
-  - [With Vanilla JS](#with-vanilla-js)
-  - [With Vue](#with-vue)
-  - [With Solid](#with-solid)
-  - [With Qwik](#with-qwik)
-- [License](#license)
-
 ## Motherboard
 
-A little yet powerful framework agnostic headless library to use Griptonite Motherboard on the web. Examples are written
-with Preact, React, Svelte, Vanilla JS and Vue.
+A Web Bluetooth API Griptonite Motherboard interface
 
-- ✅ Connect / Disconnect
-- ✅ Read stream
+- ✅ Connect with your Motherboard
+- ✅ Read the data
 - ✅ Calibrate
-- ✅ Output data
+- ✅ Get creative
 
 ## Development
 

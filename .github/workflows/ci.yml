@@ -10,6 +10,7 @@ jobs:
     strategy:
       matrix:
         node: [18, 20]
+    env:
 
     steps:
       - name: Checkout
