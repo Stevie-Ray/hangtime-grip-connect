@@ -1,0 +1,11 @@
+{
+  "name": "@motherboard/core",
+  "version": "0.0.1",
+  "description": "A Web Bluetooth API implementation of the Griptonite Motherboard",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
+  "license": "MIT"
+}

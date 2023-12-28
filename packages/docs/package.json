@@ -1,0 +1,12 @@
+{
+  "name": "@motherboard/docs",
+  "private": true,
+  "scripts": {
+    "docs:dev": "vitepress dev src --open --host",
+    "docs:build": "vitepress build src",
+    "docs:preview": "vitepress preview src"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.33"
+  }
+}
