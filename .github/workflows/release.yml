@@ -18,13 +18,13 @@ jobs:
         with:
           node-version: 18
       - run: npm ci
-      - name: Publish packages
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: npm release
-          commit: "Update versions"
-          title: "Update versions"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+#      - name: Publish packages
+#        id: changesets
+#        uses: changesets/action@v1
+#        with:
+#          publish: npm release
+#          commit: "Update versions"
+#          title: "Update versions"
+#        env:
+#          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+#          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
