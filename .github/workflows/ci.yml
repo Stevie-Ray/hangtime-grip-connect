@@ -7,22 +7,14 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [18, 20]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
       - name: Format
         run: npm format:check
