@@ -8,9 +8,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "@motherboard/core": "^0.0.1"
+  },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
   },
   "workspaces": [
     "example"
@@ -18,19 +21,5 @@
   "main": "index.js",
   "directories": {
     "example": "example"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@motherboard/core": "^0.0.1",
-    "esbuild": "^0.19.10",
-    "fsevents": "^2.3.3",
-    "nanoid": "^3.3.7",
-    "picocolors": "^1.0.0",
-    "postcss": "^8.4.32",
-    "rollup": "^4.9.1",
-    "source-map-js": "^1.0.2"
-  },
-  "description": ""
+  }
 }
