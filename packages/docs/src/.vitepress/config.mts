@@ -5,7 +5,7 @@ const pkg = require("@motherboard/core/package.json")
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Web Motherboard",
+  title: "Motherboard",
   description: "A Web Bluetooth API Griptonite Motherboard interface",
   base: "/motherboard/",
   themeConfig: {
@@ -24,8 +24,12 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: "Guide",
+        text: "Introduction",
         items: [{ text: "Get started", link: "/get-started" }],
+      },
+      {
+        text: "Integrations",
+        items: [{ text: "Vite", link: "/examples/vite" }],
       }
     ],
 
