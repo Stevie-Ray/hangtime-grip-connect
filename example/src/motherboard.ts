@@ -1,4 +1,4 @@
-import Motherboard, { connect, read, write, disconnect } from "@motherboard/core"
+import Motherboard, { connect, read, write, disconnect } from "@hangtime/motherboard"
 
 export function setupMotherboard(element: HTMLButtonElement) {
   element.addEventListener("click", () =>
