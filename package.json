@@ -20,7 +20,7 @@
     "example"
   ],
   "dependencies": {
-    "@motherboard/core": "^0.0.1",
+    "@motherboard/core": "^0.0.2",
     "@motherboard/docs": "*"
   },
   "devDependencies": {
