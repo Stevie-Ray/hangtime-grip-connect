@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --list-different .",
     "docs:dev": "npm run docs:dev --workspace ./packages/docs",
+    "docs:preview": "npm run docs:preview --workspace ./packages/docs",
     "docs:build": "npm run docs:build --workspace ./packages/docs"
   },
   "workspaces": [

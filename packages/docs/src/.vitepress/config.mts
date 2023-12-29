@@ -7,6 +7,7 @@ const pkg = require("@motherboard/core/package.json")
 export default defineConfig({
   title: "Web Motherboard",
   description: "A Web Bluetooth API Griptonite Motherboard interface",
+  base: "/motherboard/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
