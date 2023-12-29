@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/motherboard",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength https://griptonite.io/motherboard/",
   "main": "src/index.ts",
   "scripts": {
