@@ -4,7 +4,8 @@ layout: home
 
 hero:
   name: "Web Motherboard"
-  tagline: A Web Bluetooth API Griptonite Motherboard interface
+  tagline: A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength.
+
   actions:
     - theme: brand
       text: Get Started

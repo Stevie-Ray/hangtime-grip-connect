@@ -1,6 +1,6 @@
 # Get Started
 
-Web Motherboard is a small Web Bluetooth API utility to connect with the Griptonite Motherboard.
+A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength.
 
 ## Installation
 
@@ -26,14 +26,14 @@ $ bun add @hangtime/motherboard
 
 ## Example usage
 
-Simply importing the utilities you need from `@motherboard/core`
+Simply importing the utilities you need from `@hangtime/motherboard`
 
 ```html
 <button id="bluetooth" type="button">Connect Motherboard</button>
 ```
 
 ```js
-import Motherboard, { connect, read, write, disconnect } from "@motherboard/core"
+import Motherboard, { connect, read, write, disconnect } from "@hangtime/motherboard"
 
 const bluetoothButton = document.querySelector("#bluetooth")
 
