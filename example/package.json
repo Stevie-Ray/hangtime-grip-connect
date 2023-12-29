@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/motherboard": "^0.0.2"
+    "@hangtime/motherboard": "^0.0.3"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
