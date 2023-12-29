@@ -7,15 +7,19 @@ Web Motherboard is a small Web Bluetooth API utility to connect with the Gripton
 ::: code-group
 
 ```sh [npm]
-$ npm install @motherboard/core
+$ npm install@hangtime/motherboard
 ```
 
 ```sh [pnpm]
-$ pnpm add @motherboard/core
+$ pnpm add @hangtime/motherboard
 ```
 
 ```sh [yarn]
-$ yarn add @motherboard/core
+$ yarn add @hangtime/motherboard
+```
+
+```sh [bun]
+$ bun add @hangtime/motherboard
 ```
 
 :::

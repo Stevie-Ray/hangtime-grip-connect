@@ -1,11 +1,29 @@
 {
-  "name": "@motherboard/core",
+  "name": "@hangtime/motherboard",
   "version": "0.0.1",
-  "description": "A Web Bluetooth API implementation of the Griptonite Motherboard",
+  "description": "A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength https://griptonite.io/motherboard/",
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc --build"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stevie-Ray/motherboard.git"
+  },
+  "keywords": [
+    "climbing",
+    "bluetooth",
+    "griptonite",
+    "hangboard",
+    "hangboarding",
+    "beastmaker",
+    "motherboard"
+  ],
+  "bugs": {
+    "url": "https://github.com/Stevie-Ray/motherboard/issues"
+  },
+  "homepage": "https://stevie-ray.github.io/motherboard/"
 }
