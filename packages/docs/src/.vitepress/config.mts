@@ -30,7 +30,7 @@ export default defineConfig({
       {
         text: "Integrations",
         items: [{ text: "Vite", link: "/examples/vite" }],
-      }
+      },
     ],
 
     socialLinks: [{ icon: "github", link: "https://github.com/Stevie-Ray/motherboard" }],

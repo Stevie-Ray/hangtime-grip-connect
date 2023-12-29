@@ -32,7 +32,7 @@ const motherboard: Motherboard = {}
 /**
  * disconnect
  */
-const disconnect = (): void => {
+export const disconnect = (): void => {
   if (!motherboard.device) return
   if (motherboard.device.gatt?.connected) {
     motherboard.device.gatt?.disconnect()
@@ -47,9 +47,15 @@ const onDisconnected = (event: Event): void => {
   const device = event.target as BluetoothDevice
   console.log(`Device ${device.name} is disconnected.`)
 }
+// Define the callback function type
+type NotifyCallback = (data: object) => void
+
+// Initialize the callback variable
+let notifyCallback: NotifyCallback
 /**
  * handleNotifications
  * @param event
+ * @param onNotify
  */
 const handleNotifications = (event: Event): void => {
   const characteristic = event.target as BluetoothRemoteGATTCharacteristic
@@ -79,10 +85,10 @@ const handleNotifications = (event: Event): void => {
       "cycle",
       "unknown",
       "eleven",
-      "trippin1",
+      "dynamic1",
       "pressure1",
       "left",
-      "trippin2",
+      "dynamic2",
       "pressure2",
       "right",
     ]
@@ -94,20 +100,28 @@ const handleNotifications = (event: Event): void => {
         dataObject[key] = parsedDecimalArray[index]
       })
     }
-    // Print the formatted string on the screen
-    console.log(dataObject)
+    // Call the onNotify function with the data
+    if (notifyCallback) {
+      notifyCallback(dataObject)
+    }
+    // TODO: handle 14 byte data
   } else if (characteristic.value!.byteLength === 14) {
-    console.log(characteristic.value!.byteLength, parsedDecimalArray)
+    // Call the onNotify function with the data
+    if (notifyCallback) {
+      notifyCallback({ byteLength: characteristic.value!.byteLength, data: parsedDecimalArray })
+    }
   } else {
-    console.log(characteristic.value!.byteLength, parsedDecimalArray)
+    // TODO: handle x byte data
+    if (notifyCallback) {
+      notifyCallback({ byteLength: characteristic.value!.byteLength, data: parsedDecimalArray })
+    }
   }
 }
-/**
- * getCharacteristic
- * @param service
- * @param uuid
- * @returns Promise<void>
- */
+// Export a function to set the callback
+export const notify = (callback: NotifyCallback) => {
+  notifyCallback = callback
+}
+
 /**
  * getCharacteristic
  * @param service
@@ -159,12 +173,11 @@ const getCharacteristic = (service: BluetoothRemoteGATTService, uuid: string): P
       })
   })
 }
-
 /**
  * connect
  * @param onSuccess
  */
-const connect = async (onSuccess: () => void): Promise<void> => {
+export const connect = async (onSuccess: () => void): Promise<void> => {
   try {
     const device = await navigator.bluetooth.requestDevice({
       filters: [
@@ -231,30 +244,31 @@ const connect = async (onSuccess: () => void): Promise<void> => {
  * read
  * @param characteristic
  */
-const read = (characteristic: BluetoothRemoteGATTCharacteristic | undefined): Promise<void> => {
+export const read = (characteristic: BluetoothRemoteGATTCharacteristic | undefined): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (motherboard.device?.gatt?.connected) {
       if (characteristic) {
         characteristic
           .readValue()
           .then((value) => {
+            let decodedValue
+            const decoder = new TextDecoder("utf-8")
             switch (characteristic.uuid) {
               case BATTERY_CHARACTERISTIC_UUID:
-                console.log(characteristic.uuid, value.getUint8(0))
+                decodedValue = value.getUint8(0)
                 break
               default:
-                // eslint-disable-next-line no-case-declarations
-                const decoder = new TextDecoder("utf-8")
-                console.log(characteristic.uuid, decoder.decode(value))
+                decodedValue = decoder.decode(value)
                 break
             }
+            notifyCallback({ uuid: characteristic.uuid, value: decodedValue })
             resolve()
           })
           .catch((error) => {
             reject(error)
           })
       } else {
-        reject(new Error("Characteristics is undefined"))
+        reject(new Error("Characteristic is undefined"))
       }
     } else {
       reject(new Error("Device is not connected"))
@@ -266,7 +280,7 @@ const read = (characteristic: BluetoothRemoteGATTCharacteristic | undefined): Pr
  * @param characteristic
  * @param message
  */
-const write = (
+export const write = (
   characteristic: BluetoothRemoteGATTCharacteristic | undefined,
   message: string,
   duration: number = 0,
@@ -275,7 +289,6 @@ const write = (
     if (motherboard.device?.gatt?.connected) {
       const encoder = new TextEncoder()
       if (characteristic) {
-        console.log(characteristic.uuid, message)
         characteristic
           .writeValue(encoder.encode(message))
           .then(() => {
@@ -294,7 +307,4 @@ const write = (
     }
   })
 }
-
 export default motherboard
-
-export { disconnect, connect, read, write }
