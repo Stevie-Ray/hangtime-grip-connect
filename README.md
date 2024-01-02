@@ -1,8 +1,8 @@
 ## Motherboard
 
 A Web Bluetooth API for the [Griptonite Motherboard](https://griptonite.io/motherboard/) - Patented Technology
-[GB2584759](https://www.ipo.gov.uk/types/patent/p-os/p-find/p-ipsum/Case/PublicationNumber/GB2584759)
-[Beastmaker](https://www.beastmaker.co.uk/) used by climbers to improve finger strength.
+[GB2584759](https://www.ipo.gov.uk/types/patent/p-os/p-find/p-ipsum/Case/PublicationNumber/GB2584759) in combination
+with the [Beastmaker](https://www.beastmaker.co.uk/) used by climbers to improve finger strength.
 
 - ✅ Connect with a Griptonite Motherboard
 - ✅ Read / Write / Notify over Bluetooth
