@@ -1,12 +1,13 @@
 ## Motherboard
 
-A Web Bluetooth API for the [Griptonite Motherboard](https://griptonite.io/motherboard/) +
+A Web Bluetooth API for the [Griptonite Motherboard](https://griptonite.io/motherboard/) - Patented Technology
+[GB2584759](https://www.ipo.gov.uk/types/patent/p-os/p-find/p-ipsum/Case/PublicationNumber/GB2584759)
 [Beastmaker](https://www.beastmaker.co.uk/) used by climbers to improve finger strength.
 
-- ✅ Connect with a Motherboard
-- ✅ Read/write data
-- ❎ Calibrate
-- ❎ Output weight
+- ✅ Connect with a Griptonite Motherboard
+- ✅ Read / Write / Notify over Bluetooth
+- ➡️ Calibrate Motherboard
+- ➡️ Output weight/force stream
 
 ## Development
 
@@ -66,6 +67,12 @@ bluetoothButton.addEventListener("click", () => {
   })
 })
 ```
+
+## Roadmap
+
+The project aims to develop a client capable of connecting to Force-Sensing Hangboards / Plates with Bluetooth
+compatibility, such as the [Climbro](https://climbro.com/), [SmartBoard](https://www.smartboard-climbing.com/) or
+[Entralpi](https://entralpi.com/)
 
 ## License
 
