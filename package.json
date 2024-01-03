@@ -24,7 +24,7 @@
     "example"
   ],
   "dependencies": {
-    "@motherboard/core": "^0.0.3",
+    "@motherboard/core": "^0.0.4",
     "@motherboard/docs": "*"
   },
   "devDependencies": {

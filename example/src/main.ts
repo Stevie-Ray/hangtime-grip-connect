@@ -1,7 +1,7 @@
 import "./style.css"
 import typescriptLogo from "./typescript.svg"
 import viteLogo from "/vite.svg"
-import { setupMotherboard } from "./motherboard.ts"
+import { setupMotherboard, setupEntralpi, setupTindeq } from "./devices.ts"
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
@@ -13,7 +13,9 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     </a>
     <h1>Vite + TypeScript</h1>
     <div class="card">
-      <button id="bluetooth" type="button">Connect Motherboard</button>
+      <button id="motherboard" type="button">Connect Motherboard</button>
+      <button id="entralpi" type="button">Connect Entralpi</button>
+      <button id="tindeq" type="button">Connect Tindeq</button>
     </div>
     <p class="read-the-docs">
       Click on the Vite and TypeScript logos to learn more
@@ -21,4 +23,6 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
 `
 
-setupMotherboard(document.querySelector<HTMLButtonElement>("#bluetooth")!)
+setupMotherboard(document.querySelector<HTMLButtonElement>("#motherboard")!)
+setupEntralpi(document.querySelector<HTMLButtonElement>("#entralpi")!)
+setupTindeq(document.querySelector<HTMLButtonElement>("#tindeq")!)

@@ -3,8 +3,10 @@
 layout: home
 
 hero:
-  name: "Motherboard"
-  tagline: A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength.
+  name: "Force-Sensing Climbing Training"
+  tagline:
+    A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength
+    measurement.
 
   actions:
     - theme: brand
@@ -15,10 +17,12 @@ hero:
       link: https://github.com/Stevie-Ray/motherboard
 
 features:
-  - title: Connect with your Motherboard
-    details: Setup a Bluetooth connection between your device and your Griptonite Motherboard
+  - title: Connect with your device
+    details:
+      Setup a Bluetooth connection between your device and the Moterboard, Climbro, SmartBoard, Entralpi or Tindeq
+      Progressor
   - title: Read the data
-    details: See the data that is being transmitted by the Griptonite Motherboard
+    details: Output the raw data that is being transmitted by the Force-Sensing device
   - title: Get creative
-    details: Use your Beastmaker hangboard to start a countdown, create your own app, you name it
+    details: Use your hangboard to start a countdown, create your own app, you name it
 ---

@@ -1,6 +1,10 @@
 # Get Started
 
-A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength.
+The objective of this project is to create a client that can establish connections with various Force-Sensing
+Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the
+[Moterboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
+[SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
+[Tindeq Progressor](https://tindeq.com/).
 
 ## Installation
 
@@ -24,47 +28,48 @@ $ bun add @hangtime/motherboard
 
 :::
 
-## Example usage
+## Example usage (Motherboard)
 
-Simply importing the utilities you need from `@hangtime/motherboard`
+Simply importing the utilities you need from `@hangtime/motherboard`. Devices that are currenlty supported:
+`Motherboard`, `Tindeq` and `Entralpi`.
 
 ```html
-<button id="bluetooth" type="button">Connect Motherboard</button>
+<button id="motherboard" type="button">Connect Motherboard</button>
 ```
 
 ```js
-import Motherboard, { connect, disconnect, read, write, notify } from "@hangtime/motherboard"
+import { Motherboard, connect, disconnect, read, write, notify } from "@hangtime/motherboard"
 
-const bluetoothButton = document.querySelector("#bluetooth")
+const motherboardButton = document.querySelector("#motherboard")
 
-bluetoothButton.addEventListener("click", () => {
-  connect(async () => {
+motherboardButton.addEventListener("click", () => {
+  connect(Motherboard, async () => {
     // Listen for notifications
     notify((data) => {
       console.log(data)
     })
 
     // read battery + device info
-    await read(Motherboard.bat)
-    await read(Motherboard.devMn)
-    await read(Motherboard.devHr)
-    await read(Motherboard.devFr)
+    await read(Motherboard, "battery", "level")
+    await read(Motherboard, "device", "manufacturer")
+    await read(Motherboard, "device", "hardware")
+    await read(Motherboard, "device", "firmware")
 
     // Calibrate?
-    await write(Motherboard.uartTx, "C", 5000)
+    await write(Motherboard, "uart", "tx", "C", 5000)
 
     // Read stream?
-    await write(Motherboard.led01, "1", 2500)
-    await write(Motherboard.led02, "0", 2500)
-    await write(Motherboard.uartTx, "S30", 5000)
+    await write(Motherboard, "unknown", "01", "1", 2500)
+    await write(Motherboard, "unknown", "02", "0", 2500)
+    await write(Motherboard, "uart", "tx", "S30", 5000)
 
     // Read stream (2x)?
-    await write(Motherboard.led01, "0", 2500)
-    await write(Motherboard.led02, "1", 2500)
-    await write(Motherboard.uartTx, "S30", 5000)
+    await write(Motherboard, "unknown", "01", "0", 2500)
+    await write(Motherboard, "unknown", "02", "1", 2500)
+    await write(Motherboard, "uart", "tx", "S30", 5000)
 
     // disconnect from device after we are done
-    disconnect()
+    disconnect(Motherboard)
   })
 })
 ```

@@ -5,8 +5,9 @@ const pkg = require("@motherboard/core/package.json")
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Motherboard",
-  description: "A Web Bluetooth API Griptonite Motherboard interface",
+  title: "Force-Sensing Climbing Training",
+  description:
+    "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement",
   base: "/motherboard/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
