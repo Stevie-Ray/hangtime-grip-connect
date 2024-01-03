@@ -1,7 +1,7 @@
 import { createRequire } from "node:module"
 import { defineConfig } from "vitepress"
 const require = createRequire(import.meta.url)
-const pkg = require("@motherboard/core/package.json")
+const pkg = require("@grip-connect/core/package.json")
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
