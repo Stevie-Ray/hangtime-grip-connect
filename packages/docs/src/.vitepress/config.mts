@@ -5,7 +5,7 @@ const pkg = require("@hangtime/grip-connect/package.json")
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Force-Sensing Climbing Training",
+  title: "Grip Connect",
   description:
     "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement",
   base: "/hangtime-grip-connect/",
