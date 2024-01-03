@@ -19,7 +19,7 @@ hero:
 features:
   - title: Connect with your device
     details:
-      Setup a Bluetooth connection between your device and the Moterboard, Climbro, SmartBoard, Entralpi or Tindeq
+      Setup a Bluetooth connection between your device and the Motherboard, Climbro, SmartBoard, Entralpi or Tindeq
       Progressor
   - title: Read the data
     details: Output the raw data that is being transmitted by the Force-Sensing device

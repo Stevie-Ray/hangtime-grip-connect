@@ -2,7 +2,7 @@
 
 The objective of this project is to create a client that can establish connections with various Force-Sensing
 Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the
-[Moterboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
+[Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
 [SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
 [Tindeq Progressor](https://tindeq.com/).
 
@@ -30,7 +30,7 @@ $ bun add @hangtime/motherboard
 
 ## Example usage (Motherboard)
 
-Simply importing the utilities you need from `@hangtime/motherboard`. Devices that are currenlty supported:
+Simply importing the utilities you need from `@hangtime/motherboard`. Devices that are currently supported:
 `Motherboard`, `Tindeq` and `Entralpi`.
 
 ```html
