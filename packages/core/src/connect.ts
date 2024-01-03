@@ -1,4 +1,4 @@
-import { Device } from "./types"
+import { Device } from "./devices/types"
 import { notifyCallback } from "./notify"
 
 /**
@@ -16,10 +16,9 @@ const onDisconnected = (event: Event, board: Device): void => {
  * @param event
  * @param onNotify
  */
-const handleNotifications = (event: Event): void => {
+const handleNotifications = (event: Event, board: Device): void => {
   const characteristic = event.target as BluetoothRemoteGATTCharacteristic
   const receivedData = new Uint8Array(characteristic.value!.buffer)
-
   // Create an array to store the parsed decimal values
   const decimalArray: number[] = []
 
@@ -30,49 +29,50 @@ const handleNotifications = (event: Event): void => {
   // Convert the decimal array to a string representation
   const receivedString: string = String.fromCharCode(...decimalArray)
 
-  // Split the string into pairs of characters
-  const hexPairs: RegExpMatchArray | null = receivedString.match(/.{1,2}/g)
+  if (board.name === "Motherboard") {
+    // Split the string into pairs of characters
+    const hexPairs: RegExpMatchArray | null = receivedString.match(/.{1,2}/g)
+    // Convert each hexadecimal pair to decimal
+    const parsedDecimalArray: number[] | undefined = hexPairs?.map((hexPair) => parseInt(hexPair, 16))
+    // Handle different types of data
+    if (characteristic.value!.byteLength === 20) {
+      const elementKeys = [
+        "frames",
+        "cycle",
+        "unknown",
+        "eleven",
+        "dynamic1",
+        "pressure1",
+        "left",
+        "dynamic2",
+        "pressure2",
+        "right",
+      ]
+      const dataObject = {}
 
-  // Convert each hexadecimal pair to decimal
-  const parsedDecimalArray: number[] | undefined = hexPairs?.map((hexPair) => parseInt(hexPair, 16))
-
-  // Handle different types of data
-  if (characteristic.value!.byteLength === 20) {
-    // Define keys for the elements
-    const elementKeys = [
-      "frames",
-      "cycle",
-      "unknown",
-      "eleven",
-      "dynamic1",
-      "pressure1",
-      "left",
-      "dynamic2",
-      "pressure2",
-      "right",
-    ]
-    // Create a single object with keys and values
-    const dataObject = {}
-
-    if (parsedDecimalArray) {
-      elementKeys.forEach((key, index) => {
-        dataObject[key] = parsedDecimalArray[index]
-      })
+      if (parsedDecimalArray) {
+        elementKeys.forEach((key, index) => {
+          dataObject[key] = parsedDecimalArray[index]
+        })
+      }
+      if (notifyCallback) {
+        notifyCallback({ uuid: characteristic.uuid, value: dataObject })
+      }
+    } else if (characteristic.value!.byteLength === 14) {
+      // TODO: handle 14 byte data
+      // notifyCallback({ uuid: characteristic.uuid, value: characteristic.value!.getInt8(0) / 100 })
     }
-    // Call the onNotify function with the data
+  } else if (board.name === "ENTRALPI") {
+    // TODO: handle Entralpi notify
+    // characteristic.value!.getInt16(0) / 100;
     if (notifyCallback) {
-      notifyCallback(dataObject)
+      notifyCallback({ uuid: characteristic.uuid, value: receivedString })
     }
-    // TODO: handle 14 byte data
-  } else if (characteristic.value!.byteLength === 14) {
-    // Call the onNotify function with the data
-    if (notifyCallback) {
-      notifyCallback({ byteLength: characteristic.value!.byteLength, data: parsedDecimalArray })
-    }
+  } else if (board.name === "Tindeq") {
+    // TODO: handle Tindeq notify
   } else {
-    // TODO: handle x byte data
     if (notifyCallback) {
-      notifyCallback({ byteLength: characteristic.value!.byteLength, data: parsedDecimalArray })
+      notifyCallback({ uuid: characteristic.uuid, value: receivedString })
     }
   }
 }
@@ -144,7 +144,9 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
               // notify
               if (element.id === "rx") {
                 matchingCharacteristic.startNotifications()
-                matchingCharacteristic.addEventListener("characteristicvaluechanged", handleNotifications)
+                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event) =>
+                  handleNotifications(event, board),
+                )
               }
             }
           } else {

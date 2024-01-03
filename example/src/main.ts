@@ -23,6 +23,15 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
 `
 
-setupMotherboard(document.querySelector<HTMLButtonElement>("#motherboard")!)
-setupEntralpi(document.querySelector<HTMLButtonElement>("#entralpi")!)
-setupTindeq(document.querySelector<HTMLButtonElement>("#tindeq")!)
+setupMotherboard(
+  document.querySelector<HTMLButtonElement>("#motherboard")!,
+  document.querySelector<HTMLDivElement>(".read-the-docs")!,
+)
+setupEntralpi(
+  document.querySelector<HTMLButtonElement>("#entralpi")!,
+  document.querySelector<HTMLDivElement>(".read-the-docs")!,
+)
+setupTindeq(
+  document.querySelector<HTMLButtonElement>("#tindeq")!,
+  document.querySelector<HTMLDivElement>(".read-the-docs")!,
+)

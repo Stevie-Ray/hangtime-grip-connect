@@ -1,4 +1,4 @@
-export { Motherboard, Entralpi, Tindeq } from "./devices"
+export { Motherboard, Entralpi, Tindeq } from "./devices/index"
 
 export { connect } from "./connect"
 

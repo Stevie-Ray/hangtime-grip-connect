@@ -1,4 +1,4 @@
-import { Device } from "./types"
+import { Device } from "./devices/types"
 import { notifyCallback } from "./notify"
 import { getCharacteristic } from "./characteristic"
 

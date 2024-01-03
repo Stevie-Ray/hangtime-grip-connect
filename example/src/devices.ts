@@ -1,13 +1,22 @@
 import { Motherboard, Entralpi, Tindeq, connect, disconnect, read, write, notify } from "@hangtime/motherboard"
 
-export function setupMotherboard(element: HTMLButtonElement) {
+export function outputvalue(element: HTMLDivElement, data: string) {
+  element.innerHTML = data
+}
+
+export function setupMotherboard(element: HTMLButtonElement, outputElement: HTMLDivElement) {
   element.addEventListener("click", () => {
     return connect(Motherboard, async () => {
       // Listen for notifications
-      notify((data: object) => {
-        console.log(data)
+      notify((data: { value?: string }) => {
+        if (data && data.value) {
+          if (typeof data.value === "object") {
+            outputvalue(outputElement, JSON.stringify(data.value))
+          } else {
+            outputvalue(outputElement, data.value)
+          }
+        }
       })
-
       // read battery + device info
       await read(Motherboard, "battery", "level")
       await read(Motherboard, "device", "manufacturer")
@@ -17,12 +26,12 @@ export function setupMotherboard(element: HTMLButtonElement) {
       // Calibrate?
       await write(Motherboard, "uart", "tx", "C", 5000)
 
-      // Read stream?
+      // // Read value?
       await write(Motherboard, "unknown", "01", "1", 2500)
       await write(Motherboard, "unknown", "02", "0", 2500)
       await write(Motherboard, "uart", "tx", "S30", 5000)
-
-      // Read stream (2x)?
+      //
+      // // Read value (2x)?
       await write(Motherboard, "unknown", "01", "0", 2500)
       await write(Motherboard, "unknown", "02", "1", 2500)
       await write(Motherboard, "uart", "tx", "S30", 5000)
@@ -33,12 +42,16 @@ export function setupMotherboard(element: HTMLButtonElement) {
   })
 }
 
-export function setupEntralpi(element: HTMLButtonElement) {
+export function setupEntralpi(element: HTMLButtonElement, outputElement: HTMLDivElement) {
   element.addEventListener("click", () => {
     return connect(Entralpi, async () => {
       // Listen for notifications
-      notify((data: object) => {
-        console.log(data)
+      // Listen for notifications
+      notify((data: { value?: string }) => {
+        if (data && data.value) {
+          console.log(data.value)
+          outputvalue(outputElement, data.value)
+        }
       })
       // disconnect from device after we are done
       disconnect(Entralpi)
@@ -46,12 +59,16 @@ export function setupEntralpi(element: HTMLButtonElement) {
   })
 }
 
-export function setupTindeq(element: HTMLButtonElement) {
+export function setupTindeq(element: HTMLButtonElement, outputElement: HTMLDivElement) {
   element.addEventListener("click", () => {
     return connect(Tindeq, async () => {
       // Listen for notifications
-      notify((data: object) => {
-        console.log(data)
+      // Listen for notifications
+      notify((data: { value?: string }) => {
+        if (data && data.value) {
+          console.log(data.value)
+          outputvalue(outputElement, data.value)
+        }
       })
 
       // TARE_SCALE (0x64): 'd'
