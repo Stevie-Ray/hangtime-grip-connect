@@ -21,20 +21,20 @@ Hangboards/Plates used by climbers for strength measurement. Examples of such ha
 ## Development
 
 ```bash
-git clone https://github.com/Stevie-Ray/motherboard
-cd motherboard
+git clone https://github.com/Stevie-Ray/hangtime-grip-connect
+cd hangtime-grip-connect
 npm install
 ```
 
 ## Install
 
 ```sh [npm]
-$ npm install @hangtime/motherboard
+$ npm install @hangtime/grip-connect
 ```
 
 ## Example usage (Motherboard)
 
-Simply importing the utilities you need from `@hangtime/motherboard`. Devices that are currently supported:
+Simply importing the utilities you need from `@hangtime/grip-connect`. Devices that are currently supported:
 `Motherboard`, `Tindeq` and `Entralpi`.
 
 ```html
@@ -42,7 +42,7 @@ Simply importing the utilities you need from `@hangtime/motherboard`. Devices th
 ```
 
 ```js
-import { Motherboard, connect, disconnect, read, write, notify } from "@hangtime/motherboard"
+import { Motherboard, connect, disconnect, read, write, notify } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 

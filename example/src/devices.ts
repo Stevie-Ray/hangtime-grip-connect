@@ -1,4 +1,4 @@
-import { Motherboard, Entralpi, Tindeq, connect, disconnect, read, write, notify } from "@hangtime/motherboard"
+import { Motherboard, Entralpi, Tindeq, connect, disconnect, read, write, notify } from "@hangtime/grip-connect"
 
 export function outputvalue(element: HTMLDivElement, data: string) {
   element.innerHTML = data

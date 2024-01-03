@@ -1,5 +1,5 @@
 {
-  "name": "motherboard",
+  "name": "grip-connect",
   "private": true,
   "repository": {
     "type": "git"
@@ -24,14 +24,14 @@
     "example"
   ],
   "dependencies": {
-    "@motherboard/core": "^0.0.5",
-    "@motherboard/docs": "*"
+    "@grip-connect/docs": "*",
+    "@hangtime/grip-connect": "^0.0.5"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5",
+    "@types/node": "^20.10.6",
     "@types/web-bluetooth": "^0.0.20",
-    "@typescript-eslint/eslint-plugin": "^6.16.0",
-    "@typescript-eslint/parser": "^6.16.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
     "eslint": "^8.56.0",
     "prettier": "^3.1.1",
     "ts-node": "^10.9.2",

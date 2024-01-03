@@ -14,7 +14,7 @@ hero:
       link: /get-started
     - theme: alt
       text: View on Github
-      link: https://github.com/Stevie-Ray/motherboard
+      link: https://github.com/Stevie-Ray/hangtime-grip-connect
 
 features:
   - title: Connect with your device

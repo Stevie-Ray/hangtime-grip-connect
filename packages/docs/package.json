@@ -1,5 +1,5 @@
 {
-  "name": "@motherboard/docs",
+  "name": "@grip-connect/docs",
   "private": true,
   "scripts": {
     "docs:dev": "vitepress dev src --open --host",

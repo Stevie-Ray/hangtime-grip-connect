@@ -1,7 +1,7 @@
 {
-  "name": "@hangtime/motherboard",
+  "name": "@hangtime/grip-connect",
   "version": "0.0.5",
-  "description": "A Web Bluetooth API for the Griptonite Motherboard + Beastmaker used by climbers to improve finger strength https://griptonite.io/motherboard/",
+  "description": "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the Motherboard, Climbro, SmartBoard, Entralpi or Tindeq Progressor",
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc --build"
@@ -11,7 +11,7 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Stevie-Ray/motherboard.git"
+    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
   },
   "keywords": [
     "climbing",
@@ -23,7 +23,7 @@
     "motherboard"
   ],
   "bugs": {
-    "url": "https://github.com/Stevie-Ray/motherboard/issues"
+    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
   },
-  "homepage": "https://stevie-ray.github.io/motherboard/"
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
 }

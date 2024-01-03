@@ -8,7 +8,7 @@ export default defineConfig({
   title: "Force-Sensing Climbing Training",
   description:
     "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement",
-  base: "/motherboard/",
+  base: "/hangtime-grip-connect/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -17,7 +17,7 @@ export default defineConfig({
         items: [
           {
             text: "Changelog",
-            link: "https://github.com/Stevie-Ray/motherboard",
+            link: "https://github.com/Stevie-Ray/hangtime-grip-connect",
           },
         ],
       },
@@ -34,6 +34,6 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: "github", link: "https://github.com/Stevie-Ray/motherboard" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/Stevie-Ray/hangtime-grip-connect" }],
   },
 })

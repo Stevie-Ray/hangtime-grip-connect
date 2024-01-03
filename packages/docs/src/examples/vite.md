@@ -13,6 +13,6 @@ aside: false
 
 That's it! You're ready to connect to your Force Force-Sensing Hangboard/Plate . 🚀✨ :::
 
-[Edit on StackBlitz](https://stackblitz.com/github/Stevie-Ray/motherboard/tree/main/example?file=src%2Fdevices.ts)
+[Edit on StackBlitz](https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/example?file=src%2Fdevices.ts)
 
-<iframe src="https://stackblitz.com/github/Stevie-Ray/motherboard/tree/main/example?embed=1&file=src%2Fdevices.ts&theme=dark" allow="bluetooth" width="100%" height="600px" style="margin-top: 2rem"></iframe>
+<iframe src="https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/example?embed=1&file=src%2Fdevices.ts&theme=dark" allow="bluetooth" width="100%" height="600px" style="margin-top: 2rem"></iframe>
