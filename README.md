@@ -1,7 +1,9 @@
-# Force-Sensing Climbing Training
+# Grip Connect
 
-The objective of this project is to create a client that can establish connections with various Force-Sensing
-Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the
+**Force-Sensing Climbing Training**
+
+The objective of this project is to create a client that can establish connections with various Force-Sensing Hangboards
+/ Plates used by climbers for strength measurement. Examples of such hangboards include the
 [Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
 [SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
 [Tindeq Progressor](https://tindeq.com/)
