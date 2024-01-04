@@ -48,12 +48,12 @@ const handleNotifications = (event: Event, board: Device): void => {
         "pressure2",
         "right",
       ]
-      const dataObject = {}
+      const dataObject: { [key: string]: number } = {};
 
       if (parsedDecimalArray) {
-        elementKeys.forEach((key, index) => {
-          dataObject[key] = parsedDecimalArray[index]
-        })
+        elementKeys.forEach((key: string, index: number) => {
+          dataObject[key] = parsedDecimalArray[index];
+        });
       }
       if (notifyCallback) {
         notifyCallback({ uuid: characteristic.uuid, value: dataObject })

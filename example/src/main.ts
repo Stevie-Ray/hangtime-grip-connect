@@ -1,7 +1,7 @@
 import "./style.css"
 import typescriptLogo from "./typescript.svg"
 import viteLogo from "/vite.svg"
-import { setupMotherboard, setupEntralpi, setupTindeq } from "./devices.ts"
+import { setupMotherboard, setupEntralpi, setupTindeq } from "./devices"
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>

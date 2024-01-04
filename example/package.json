@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.0.5"
+    "@hangtime/grip-connect": "^0.0.6"
   },
   "devDependencies": {
     "typescript": "^5.3.3",

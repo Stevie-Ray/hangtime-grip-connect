@@ -16,8 +16,9 @@
     "dev:example": "npm run dev --workspace ./example",
     "preview:docs": "npm run docs:preview --workspace ./packages/docs",
     "preview:example": "npm run docs:preview --workspace ././example",
+    "build:core": "npm run build --workspace ./packages/core",
     "build:docs": "npm run docs:build --workspace ./packages/docs",
-    "build:example": "npm run docs:build --workspace ./example"
+    "build:example": "npm run build --workspace ./example"
   },
   "workspaces": [
     "packages/*",
@@ -25,7 +26,7 @@
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.0.5"
+    "@hangtime/grip-connect": "^0.0.6"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",

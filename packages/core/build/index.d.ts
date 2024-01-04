@@ -1,18 +1,6 @@
-/// <reference types="web-bluetooth" />
-interface Motherboard {
-  device?: BluetoothDevice
-  devSn?: BluetoothRemoteGATTCharacteristic
-  devFr?: BluetoothRemoteGATTCharacteristic
-  devHr?: BluetoothRemoteGATTCharacteristic
-  devMn?: BluetoothRemoteGATTCharacteristic
-  bat?: BluetoothRemoteGATTCharacteristic
-  led01?: BluetoothRemoteGATTCharacteristic
-  led02?: BluetoothRemoteGATTCharacteristic
-  uartTx?: BluetoothRemoteGATTCharacteristic
-  uartRx?: BluetoothRemoteGATTCharacteristic
-}
-declare const motherboard: Motherboard
-declare const connect: () => void
-declare const disconnect: () => void
-export default motherboard
-export { disconnect, connect }
+export { Motherboard, Entralpi, Tindeq } from "./devices/index";
+export { connect } from "./connect";
+export { disconnect } from "./disconnect";
+export { notify } from "./notify";
+export { read } from "./read";
+export { write } from "./write";
