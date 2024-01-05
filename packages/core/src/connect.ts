@@ -83,7 +83,7 @@ const handleNotifications = (event: Event, board: Device): void => {
  * @param event
  * @param board
  */
-const onConnected = async (event: Event, board: Device, onSuccess: () => void): Promise<void> => {
+const onConnected = async (board: Device, onSuccess: () => void): Promise<void> => {
   try {
     const services = await server?.getPrimaryServices()
 
@@ -177,7 +177,7 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
 
     board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
 
-    board.device.addEventListener("gattserverconnected", (event) => onConnected(event, board, onSuccess))
+    board.device.addEventListener("gattserverconnected", () => onConnected(board, onSuccess))
   } catch (error) {
     console.error(error)
   }
