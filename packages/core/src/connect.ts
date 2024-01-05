@@ -161,9 +161,12 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
       })
     }
 
+    console.log(board.device)
+    console.log(filters, deviceServices)
+
     const device = await navigator.bluetooth.requestDevice({
       filters: filters,
-      optionalServices: deviceServices,
+      optionalServices: deviceServices
     })
 
     board.device = device
