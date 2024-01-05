@@ -168,12 +168,16 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
 
     board.device = device
 
+    console.log(board.device)
+
     if (!board.device.gatt) {
       console.error("GATT is not available on this device")
       return
     }
 
     server = await board.device?.gatt?.connect()
+
+    console.log(server)
 
     board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
 
