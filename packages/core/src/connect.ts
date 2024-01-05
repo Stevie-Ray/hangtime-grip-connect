@@ -1,6 +1,8 @@
 import { Device } from "./devices/types"
 import { notifyCallback } from "./notify"
 
+let server: BluetoothRemoteGATTServer
+
 /**
  * onDisconnected
  * @param board
@@ -48,12 +50,12 @@ const handleNotifications = (event: Event, board: Device): void => {
         "pressure2",
         "right",
       ]
-      const dataObject: { [key: string]: number } = {};
+      const dataObject: { [key: string]: number } = {}
 
       if (parsedDecimalArray) {
         elementKeys.forEach((key: string, index: number) => {
-          dataObject[key] = parsedDecimalArray[index];
-        });
+          dataObject[key] = parsedDecimalArray[index]
+        })
       }
       if (notifyCallback) {
         notifyCallback({ uuid: characteristic.uuid, value: dataObject })
@@ -77,70 +79,12 @@ const handleNotifications = (event: Event, board: Device): void => {
   }
 }
 /**
- * Return all service UUIDs
- * @param device
+ * onConnected
+ * @param event
+ * @param board
  */
-function getAllServiceUUIDs(device: Device) {
-  return device.services.map((service) => service.uuid)
-}
-/**
- * connect
- * @param device
- * @param onSuccess
- */
-export const connect = async (board: Device, onSuccess: () => void): Promise<void> => {
+const onConnected = async (event: Event, board: Device, onSuccess: () => void): Promise<void> => {
   try {
-    const deviceServices = getAllServiceUUIDs(board)
-
-    // setup filter list
-    const filters = []
-
-    if (board.name) {
-      filters.push({
-        name: board.name,
-      })
-    }
-    if (board.companyId) {
-      filters.push({
-        manufacturerData: [
-          {
-            companyIdentifier: board.companyId,
-          },
-        ],
-      })
-    }
-
-    const device = await navigator.bluetooth.requestDevice({
-      filters: filters,
-      optionalServices: deviceServices,
-    })
-
-    board.device = device
-
-    board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
-
-    // Check if device.gatt is defined before calling connect()
-    if (!device.gatt) {
-      console.error("GATT is not available on this device");
-      return;
-    }
-
-    const server = await device.gatt.connect()
-
-    // Wrap the GATT server connection in a Promise
-    const gattConnectedPromise = new Promise<void>((resolve, reject) => {
-      device.addEventListener("gattserverconnected", () => {
-        resolve();
-      });
-
-      device.addEventListener("gattserverdisconnected", () => {
-        reject(`Gatt Server Disconnected`);
-      });
-    });
-
-    // Wait for the GATT server to be connected
-    await gattConnectedPromise;
-
     const services = await server?.getPrimaryServices()
 
     if (!services || services.length === 0) {
@@ -176,7 +120,64 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
         }
       }
     }
+
+    // Call the onSuccess callback after successful connection and setup
     onSuccess()
+  } catch (error) {
+    console.error(error)
+  }
+}
+/**
+ * Return all service UUIDs
+ * @param device
+ */
+function getAllServiceUUIDs(device: Device) {
+  return device.services.map((service) => service.uuid)
+}
+/**
+ * Connect to the BluetoothDevice
+ * @param device
+ * @param onSuccess
+ */
+export const connect = async (board: Device, onSuccess: () => void): Promise<void> => {
+  try {
+    const deviceServices = getAllServiceUUIDs(board)
+
+    // setup filter list
+    const filters = []
+
+    if (board.name) {
+      filters.push({
+        name: board.name,
+      })
+    }
+    if (board.companyId) {
+      filters.push({
+        manufacturerData: [
+          {
+            companyIdentifier: board.companyId,
+          },
+        ],
+      })
+    }
+
+    const device = await navigator.bluetooth.requestDevice({
+      filters: filters,
+      optionalServices: deviceServices,
+    })
+
+    board.device = device
+
+    if (!board.device.gatt) {
+      console.error("GATT is not available on this device")
+      return
+    }
+
+    server = await board.device?.gatt?.connect()
+
+    board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
+
+    board.device.addEventListener("gattserverconnected", (event) => onConnected(event, board, onSuccess))
   } catch (error) {
     console.error(error)
   }
