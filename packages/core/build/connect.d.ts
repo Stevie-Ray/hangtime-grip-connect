@@ -1,6 +1,6 @@
 import { Device } from "./devices/types";
 /**
- * connect
+ * Connect to the BluetoothDevice
  * @param device
  * @param onSuccess
  */

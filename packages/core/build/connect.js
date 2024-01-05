@@ -1,4 +1,5 @@
 import { notifyCallback } from "./notify";
+let server;
 /**
  * onDisconnected
  * @param board
@@ -76,43 +77,12 @@ const handleNotifications = (event, board) => {
     }
 };
 /**
- * Return all service UUIDs
- * @param device
+ * onConnected
+ * @param event
+ * @param board
  */
-function getAllServiceUUIDs(device) {
-    return device.services.map((service) => service.uuid);
-}
-/**
- * connect
- * @param device
- * @param onSuccess
- */
-export const connect = async (board, onSuccess) => {
+const onConnected = async (board, onSuccess) => {
     try {
-        const deviceServices = getAllServiceUUIDs(board);
-        // setup filter list
-        const filters = [];
-        if (board.name) {
-            filters.push({
-                name: board.name,
-            });
-        }
-        if (board.companyId) {
-            filters.push({
-                manufacturerData: [
-                    {
-                        companyIdentifier: board.companyId,
-                    },
-                ],
-            });
-        }
-        const device = await navigator.bluetooth.requestDevice({
-            filters: filters,
-            optionalServices: deviceServices,
-        });
-        board.device = device;
-        device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board));
-        const server = await device.gatt?.connect();
         const services = await server?.getPrimaryServices();
         if (!services || services.length === 0) {
             console.error("No services found");
@@ -141,7 +111,61 @@ export const connect = async (board, onSuccess) => {
                 }
             }
         }
+        // Call the onSuccess callback after successful connection and setup
         onSuccess();
+    }
+    catch (error) {
+        console.error(error);
+    }
+};
+/**
+ * Return all service UUIDs
+ * @param device
+ */
+function getAllServiceUUIDs(device) {
+    console.log(device.services);
+    return device.services.map((service) => service.uuid);
+}
+/**
+ * Connect to the BluetoothDevice
+ * @param device
+ * @param onSuccess
+ */
+export const connect = async (board, onSuccess) => {
+    try {
+        const deviceServices = getAllServiceUUIDs(board);
+        // setup filter list
+        const filters = [];
+        if (board.name) {
+            filters.push({
+                name: board.name,
+            });
+        }
+        if (board.companyId) {
+            filters.push({
+                manufacturerData: [
+                    {
+                        companyIdentifier: board.companyId,
+                    },
+                ],
+            });
+        }
+        console.log(board.device);
+        console.log(filters, deviceServices);
+        const device = await navigator.bluetooth.requestDevice({
+            filters: filters,
+            optionalServices: deviceServices
+        });
+        board.device = device;
+        console.log(board.device);
+        if (!board.device.gatt) {
+            console.error("GATT is not available on this device");
+            return;
+        }
+        server = await board.device?.gatt?.connect();
+        console.log(server);
+        board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board));
+        board.device.addEventListener("gattserverconnected", () => onConnected(board, onSuccess));
     }
     catch (error) {
         console.error(error);
