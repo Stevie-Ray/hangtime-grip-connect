@@ -117,9 +117,30 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
 
     board.device = device
 
-    device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
+    board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
 
-    const server = await device.gatt?.connect()
+    // Check if device.gatt is defined before calling connect()
+    if (!device.gatt) {
+      console.error("GATT is not available on this device");
+      return;
+    }
+
+    const server = await device.gatt.connect()
+
+    // Wrap the GATT server connection in a Promise
+    const gattConnectedPromise = new Promise<void>((resolve, reject) => {
+      device.addEventListener("gattserverconnected", () => {
+        resolve();
+      });
+
+      device.addEventListener("gattserverdisconnected", () => {
+        reject(`Gatt Server Disconnected`);
+      });
+    });
+
+    // Wait for the GATT server to be connected
+    await gattConnectedPromise;
+
     const services = await server?.getPrimaryServices()
 
     if (!services || services.length === 0) {
