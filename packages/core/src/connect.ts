@@ -132,6 +132,7 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
  * @param device
  */
 function getAllServiceUUIDs(device: Device) {
+  console.log(device.services)
   return device.services.map((service) => service.uuid)
 }
 /**
