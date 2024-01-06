@@ -8,7 +8,7 @@ The objective of this project is to create a client that can establish connectio
 [SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
 [Tindeq Progressor](https://tindeq.com/)
 
-Demo: [grip-connect.vercel.app](https://grip-connect.vercel.app/)
+Demo: [grip-connect.vercel.app](https://grip-connect.vercel.app/) Docs: [stevie-ray.github.io/hangtime-grip-connect](https://stevie-ray.github.io/hangtime-grip-connect/)
 
 ## Roadmap
 
