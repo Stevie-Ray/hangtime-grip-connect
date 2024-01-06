@@ -1,12 +1,13 @@
 # Get Started
 
-The objective of this project is to create a client that can establish connections with various Force-Sensing
-Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the
+The objective of this project is to create a Web Bluetooth API client that can establish connections with various
+Force-Sensing Hangboards / Plates used by climbers for strength measurement. Examples of such hangboards include the
 [Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
 [SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
-[Tindeq Progressor](https://tindeq.com/).
+[Tindeq Progressor](https://tindeq.com/)
 
-Demo: [grip-connect.vercel.app](https://grip-connect.vercel.app/)
+[Try it out](https://grip-connect.vercel.app/) - [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
+[Browser Support](https://caniuse.com/web-bluetooth)
 
 ## Installation
 

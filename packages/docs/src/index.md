@@ -5,8 +5,8 @@ layout: home
 hero:
   name: "Force-Sensing Climbing Training"
   tagline:
-    A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength
-    measurement.
+    A Web Bluetooth API client that can establish connections with various Force-Sensing Hangboards/Plates used by
+    climbers for strength measurement.
 
   actions:
     - theme: brand
