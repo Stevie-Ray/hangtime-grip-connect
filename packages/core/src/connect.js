@@ -91,6 +91,8 @@ const onConnected = async (board, onSuccess) => {
         for (const service of services) {
             const matchingService = board.services.find((boardService) => boardService.uuid === service.uuid);
             if (matchingService) {
+                // Android bug: Introduce a delay before getting characteristics
+                await new Promise((resolve) => setTimeout(resolve, 100));
                 const characteristics = await service.getCharacteristics();
                 for (const characteristic of matchingService.characteristics) {
                     const matchingCharacteristic = characteristics.find((char) => char.uuid === characteristic.uuid);
