@@ -13,6 +13,9 @@ hero:
       text: Get Started
       link: /get-started
     - theme: alt
+      text: Try on Vercel
+      link: https://grip-connect.vercel.app/
+    - theme: alt
       text: View on Github
       link: https://github.com/Stevie-Ray/hangtime-grip-connect
 

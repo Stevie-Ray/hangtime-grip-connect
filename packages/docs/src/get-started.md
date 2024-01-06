@@ -6,6 +6,8 @@ Hangboards/Plates used by climbers for strength measurement. Examples of such ha
 [SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
 [Tindeq Progressor](https://tindeq.com/).
 
+Demo: [grip-connect.vercel.app](https://grip-connect.vercel.app/)
+
 ## Installation
 
 ::: code-group
@@ -50,13 +52,13 @@ motherboardButton.addEventListener("click", () => {
     })
 
     // read battery + device info
-    await read(Motherboard, "battery", "level")
-    await read(Motherboard, "device", "manufacturer")
-    await read(Motherboard, "device", "hardware")
-    await read(Motherboard, "device", "firmware")
+    await read(Motherboard, "battery", "level", 1000)
+    await read(Motherboard, "device", "manufacturer", 1000)
+    await read(Motherboard, "device", "hardware", 1000)
+    await read(Motherboard, "device", "firmware", 1000)
 
     // Calibrate?
-    await write(Motherboard, "uart", "tx", "C", 5000)
+    await write(Motherboard, "uart", "tx", "C", 10000)
 
     // Read stream?
     await write(Motherboard, "unknown", "01", "1", 2500)
