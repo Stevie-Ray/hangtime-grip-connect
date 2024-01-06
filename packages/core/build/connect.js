@@ -91,6 +91,8 @@ const onConnected = async (board, onSuccess) => {
         for (const service of services) {
             const matchingService = board.services.find((boardService) => boardService.uuid === service.uuid);
             if (matchingService) {
+                // Android bug: Introduce a delay before getting characteristics
+                await new Promise((resolve) => setTimeout(resolve, 100));
                 const characteristics = await service.getCharacteristics();
                 for (const characteristic of matchingService.characteristics) {
                     const matchingCharacteristic = characteristics.find((char) => char.uuid === characteristic.uuid);
@@ -123,7 +125,6 @@ const onConnected = async (board, onSuccess) => {
  * @param device
  */
 function getAllServiceUUIDs(device) {
-    console.log(device.services);
     return device.services.map((service) => service.uuid);
 }
 /**
@@ -150,22 +151,20 @@ export const connect = async (board, onSuccess) => {
                 ],
             });
         }
-        console.log(board.device);
-        console.log(filters, deviceServices);
         const device = await navigator.bluetooth.requestDevice({
             filters: filters,
             optionalServices: deviceServices
         });
         board.device = device;
-        console.log(board.device);
         if (!board.device.gatt) {
             console.error("GATT is not available on this device");
             return;
         }
         server = await board.device?.gatt?.connect();
-        console.log(server);
         board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board));
-        board.device.addEventListener("gattserverconnected", () => onConnected(board, onSuccess));
+        if (server.connected) {
+            await onConnected(board, onSuccess);
+        }
     }
     catch (error) {
         console.error(error);

@@ -22,7 +22,7 @@ export function setupMotherboard(element, outputElement) {
             await read(Motherboard, "device", "hardware", 1000);
             await read(Motherboard, "device", "firmware", 1000);
             // Calibrate?
-            await write(Motherboard, "uart", "tx", "C", 5000);
+            await write(Motherboard, "uart", "tx", "C", 10000);
             // // Read value?
             await write(Motherboard, "unknown", "01", "1", 2500);
             await write(Motherboard, "unknown", "02", "0", 2500);

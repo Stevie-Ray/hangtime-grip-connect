@@ -24,7 +24,7 @@ export function setupMotherboard(element: HTMLButtonElement, outputElement: HTML
       await read(Motherboard, "device", "firmware", 1000)
 
       // Calibrate?
-      await write(Motherboard, "uart", "tx", "C", 5000)
+      await write(Motherboard, "uart", "tx", "C", 10000)
 
       // // Read value?
       await write(Motherboard, "unknown", "01", "1", 2500)
