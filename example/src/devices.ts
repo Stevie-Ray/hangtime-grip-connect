@@ -18,10 +18,10 @@ export function setupMotherboard(element: HTMLButtonElement, outputElement: HTML
         }
       })
       // read battery + device info
-      await read(Motherboard, "battery", "level")
-      await read(Motherboard, "device", "manufacturer")
-      await read(Motherboard, "device", "hardware")
-      await read(Motherboard, "device", "firmware")
+      await read(Motherboard, "battery", "level", 1000)
+      await read(Motherboard, "device", "manufacturer", 1000)
+      await read(Motherboard, "device", "hardware", 1000)
+      await read(Motherboard, "device", "firmware", 1000)
 
       // Calibrate?
       await write(Motherboard, "uart", "tx", "C", 5000)

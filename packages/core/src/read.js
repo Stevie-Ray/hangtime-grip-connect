@@ -4,7 +4,7 @@ import { getCharacteristic } from "./characteristic";
  * read
  * @param characteristic
  */
-export const read = (board, serviceId, characteristicId) => {
+export const read = (board, serviceId, characteristicId, duration = 0) => {
     return new Promise((resolve, reject) => {
         if (board.device?.gatt?.connected) {
             const characteristic = getCharacteristic(board, serviceId, characteristicId);
@@ -22,8 +22,12 @@ export const read = (board, serviceId, characteristicId) => {
                             decodedValue = decoder.decode(value);
                             break;
                     }
-                    notifyCallback({ uuid: characteristic.uuid, value: decodedValue });
-                    resolve();
+                    if (notifyCallback) {
+                        notifyCallback({ uuid: characteristic.uuid, value: decodedValue });
+                    }
+                    setTimeout(() => {
+                        resolve();
+                    }, duration);
                 })
                     .catch((error) => {
                     reject(error);
