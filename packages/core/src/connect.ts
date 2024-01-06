@@ -132,7 +132,6 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
  * @param device
  */
 function getAllServiceUUIDs(device: Device) {
-  console.log(device.services)
   return device.services.map((service) => service.uuid)
 }
 /**
@@ -162,17 +161,12 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
       })
     }
 
-    console.log(board.device)
-    console.log(filters, deviceServices)
-
     const device = await navigator.bluetooth.requestDevice({
       filters: filters,
       optionalServices: deviceServices
     })
 
     board.device = device
-
-    console.log(board.device)
 
     if (!board.device.gatt) {
       console.error("GATT is not available on this device")
@@ -181,11 +175,11 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
 
     server = await board.device?.gatt?.connect()
 
-    console.log(server)
-
     board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
 
-    board.device.addEventListener("gattserverconnected", () => onConnected(board, onSuccess))
+    if (server.connected) {
+      await onConnected(board, onSuccess);
+    }
   } catch (error) {
     console.error(error)
   }
