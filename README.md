@@ -13,7 +13,7 @@ Force-Sensing Hangboards / Plates used by climbers for strength measurement. Exa
 
 ## Roadmap
 
-- ✅ Griptonte Motherboard
+- ✅ Griptonite Motherboard
   - ✅️ Connect with devices
   - ✅️ Read / Write / Notify using Bluetooth
   - ➡️ Calibrate Devices
