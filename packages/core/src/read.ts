@@ -6,7 +6,12 @@ import { getCharacteristic } from "./characteristic"
  * read
  * @param characteristic
  */
-export const read = (board: Device, serviceId: string, characteristicId: string, duration: number = 0): Promise<void> => {
+export const read = (
+  board: Device,
+  serviceId: string,
+  characteristicId: string,
+  duration: number = 0,
+): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (board.device?.gatt?.connected) {
       const characteristic = getCharacteristic(board, serviceId, characteristicId)

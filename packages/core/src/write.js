@@ -10,8 +10,9 @@ export const write = (board, serviceId, characteristicId, message, duration = 0)
             const encoder = new TextEncoder();
             const characteristic = getCharacteristic(board, serviceId, characteristicId);
             if (characteristic) {
+                const value = message + "\n";
                 characteristic
-                    .writeValue(encoder.encode(message))
+                    .writeValue(encoder.encode(value))
                     .then(() => {
                     setTimeout(() => {
                         resolve();

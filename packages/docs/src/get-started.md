@@ -58,19 +58,18 @@ motherboardButton.addEventListener("click", () => {
     await read(Motherboard, "device", "hardware", 1000)
     await read(Motherboard, "device", "firmware", 1000)
 
-    // Calibrate?
-    await write(Motherboard, "uart", "tx", "C", 10000)
+    // recalibrate
+    await write(Motherboard, "uart", "tx", "", 0)
+    await write(Motherboard, "uart", "tx", "", 0)
+    await write(Motherboard, "uart", "tx", "", 1000)
 
-    // Read stream?
-    await write(Motherboard, "unknown", "01", "1", 2500)
-    await write(Motherboard, "unknown", "02", "0", 2500)
-    await write(Motherboard, "uart", "tx", "S30", 5000)
+    await write(Motherboard, "uart", "tx", "C3,0,0,0'", 5000)
 
-    // Read stream (2x)?
-    await write(Motherboard, "unknown", "01", "0", 2500)
-    await write(Motherboard, "unknown", "02", "1", 2500)
-    await write(Motherboard, "uart", "tx", "S30", 5000)
+    // start stream
+    await write(Motherboard, "uart", "tx", "S20", 15000)
 
+    // end stream
+    await write(Motherboard, "uart", "tx", "", 0)
     // disconnect from device after we are done
     disconnect(Motherboard)
   })

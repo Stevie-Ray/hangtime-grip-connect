@@ -1,7 +1,9 @@
 import { Device } from "./devices/types"
 import { notifyCallback } from "./notify"
+import { handleMotherboardData } from "./devices/moterboard"
 
 let server: BluetoothRemoteGATTServer
+const receiveBuffer: number[] = []
 
 /**
  * onDisconnected
@@ -20,61 +22,35 @@ const onDisconnected = (event: Event, board: Device): void => {
  */
 const handleNotifications = (event: Event, board: Device): void => {
   const characteristic = event.target as BluetoothRemoteGATTCharacteristic
-  const receivedData = new Uint8Array(characteristic.value!.buffer)
-  // Create an array to store the parsed decimal values
-  const decimalArray: number[] = []
+  const value = characteristic.value
+  if (value) {
+    if (board.name === "Motherboard") {
+      if (value) {
+        for (let i = 0; i < value.byteLength; i++) {
+          receiveBuffer.push(value.getUint8(i))
+        }
 
-  // Iterate through each byte and convert to decimal
-  for (let i = 0; i < receivedData.length; i++) {
-    decimalArray.push(receivedData[i])
-  }
-  // Convert the decimal array to a string representation
-  const receivedString: string = String.fromCharCode(...decimalArray)
-
-  if (board.name === "Motherboard") {
-    // Split the string into pairs of characters
-    const hexPairs: RegExpMatchArray | null = receivedString.match(/.{1,2}/g)
-    // Convert each hexadecimal pair to decimal
-    const parsedDecimalArray: number[] | undefined = hexPairs?.map((hexPair) => parseInt(hexPair, 16))
-    // Handle different types of data
-    if (characteristic.value!.byteLength === 20) {
-      const elementKeys = [
-        "frames",
-        "cycle",
-        "unknown",
-        "eleven",
-        "dynamic1",
-        "pressure1",
-        "left",
-        "dynamic2",
-        "pressure2",
-        "right",
-      ]
-      const dataObject: { [key: string]: number } = {}
-
-      if (parsedDecimalArray) {
-        elementKeys.forEach((key: string, index: number) => {
-          dataObject[key] = parsedDecimalArray[index]
-        })
+        let idx: number
+        while ((idx = receiveBuffer.indexOf(10)) >= 0) {
+          const line = receiveBuffer.splice(0, idx + 1).slice(0, -1) // Combine and remove LF
+          if (line.length > 0 && line[line.length - 1] === 13) line.pop() // Remove CR
+          const decoder = new TextDecoder("utf-8")
+          const receivedString = decoder.decode(new Uint8Array(line))
+          handleMotherboardData(characteristic.uuid, receivedString)
+        }
       }
+    } else if (board.name === "ENTRALPI") {
+      // TODO: handle Entralpi notify
+      // characteristic.value!.getInt16(0) / 100;
       if (notifyCallback) {
-        notifyCallback({ uuid: characteristic.uuid, value: dataObject })
+        notifyCallback({ uuid: characteristic.uuid, value: value })
       }
-    } else if (characteristic.value!.byteLength === 14) {
-      // TODO: handle 14 byte data
-      // notifyCallback({ uuid: characteristic.uuid, value: characteristic.value!.getInt8(0) / 100 })
-    }
-  } else if (board.name === "ENTRALPI") {
-    // TODO: handle Entralpi notify
-    // characteristic.value!.getInt16(0) / 100;
-    if (notifyCallback) {
-      notifyCallback({ uuid: characteristic.uuid, value: receivedString })
-    }
-  } else if (board.name === "Tindeq") {
-    // TODO: handle Tindeq notify
-  } else {
-    if (notifyCallback) {
-      notifyCallback({ uuid: characteristic.uuid, value: receivedString })
+    } else if (board.name === "Tindeq") {
+      // TODO: handle Tindeq notify
+    } else {
+      if (notifyCallback) {
+        notifyCallback({ uuid: characteristic.uuid, value: value })
+      }
     }
   }
 }
@@ -97,7 +73,7 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
 
       if (matchingService) {
         // Android bug: Introduce a delay before getting characteristics
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         const characteristics = await service.getCharacteristics()
 
@@ -166,7 +142,7 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
 
     const device = await navigator.bluetooth.requestDevice({
       filters: filters,
-      optionalServices: deviceServices
+      optionalServices: deviceServices,
     })
 
     board.device = device
@@ -181,7 +157,7 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
     board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
 
     if (server.connected) {
-      await onConnected(board, onSuccess);
+      await onConnected(board, onSuccess)
     }
   } catch (error) {
     console.error(error)

@@ -23,7 +23,7 @@
     "stripInternal": true,
     "ignoreDeprecations": "5.0",
     "suppressImplicitAnyIndexErrors": true,
-    "types": []
+    "types": [],
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }

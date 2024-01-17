@@ -4,6 +4,6 @@
   "compilerOptions": {
     "tsBuildInfoFile": "node_modules/.cache/.tsbuildinfo",
     "types": ["web-bluetooth"],
-    "outDir": "./build"
-  }
+    "outDir": "./build",
+  },
 }

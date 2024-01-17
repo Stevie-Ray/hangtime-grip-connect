@@ -19,8 +19,9 @@ export const write = (
       const characteristic = getCharacteristic(board, serviceId, characteristicId)
 
       if (characteristic) {
+        const value = message + "\n"
         characteristic
-          .writeValue(encoder.encode(message))
+          .writeValue(encoder.encode(value))
           .then(() => {
             setTimeout(() => {
               resolve()

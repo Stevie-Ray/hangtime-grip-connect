@@ -26,15 +26,15 @@
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.0.7"
+    "@hangtime/grip-connect": "^0.0.8"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
+    "@types/node": "^20.11.5",
     "@types/web-bluetooth": "^0.0.20",
-    "@typescript-eslint/eslint-plugin": "^6.17.0",
-    "@typescript-eslint/parser": "^6.17.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
-    "prettier": "^3.1.1",
+    "prettier": "^3.2.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
