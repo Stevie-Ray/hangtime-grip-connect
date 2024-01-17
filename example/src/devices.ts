@@ -28,7 +28,7 @@ export function setupMotherboard(element: HTMLButtonElement, outputElement: HTML
       await write(Motherboard, "uart", "tx", "", 0)
       await write(Motherboard, "uart", "tx", "", 1000)
 
-      await write(Motherboard, "uart", "tx", "C3,0,0,0'", 5000)
+      await write(Motherboard, "uart", "tx", "C3,0,0,0", 5000)
 
       // start stream
       await write(Motherboard, "uart", "tx", "S20", 15000)
