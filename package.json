@@ -5,7 +5,7 @@
     "type": "git"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "scripts": {
     "build": "tsc --build --verbose",
     "lint": "npm run lint:check -- --fix",
