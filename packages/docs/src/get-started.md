@@ -58,15 +58,11 @@ motherboardButton.addEventListener("click", () => {
     await read(Motherboard, "device", "hardware", 1000)
     await read(Motherboard, "device", "firmware", 1000)
 
-    // recalibrate
-    await write(Motherboard, "uart", "tx", "", 0)
-    await write(Motherboard, "uart", "tx", "", 0)
-    await write(Motherboard, "uart", "tx", "", 1000)
-
-    await write(Motherboard, "uart", "tx", "C3,0,0,0", 5000)
+    // read calibration (required before reading data)
+    await write(Motherboard, "uart", "tx", "C", 5000)
 
     // start stream
-    await write(Motherboard, "uart", "tx", "S20", 15000)
+    await write(Motherboard, "uart", "tx", "S30", 15000)
 
     // end stream
     await write(Motherboard, "uart", "tx", "", 0)
