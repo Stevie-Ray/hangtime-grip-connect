@@ -87,35 +87,47 @@ export const Motherboard = {
  * @param calibration
  */
 const applyCalibration = (sample, calibration) => {
-    const zeroCalib = calibration[0][2];
-    let sgn = 1;
+    // Extract the calibrated value for the zero point
+    const zeroCalibration = calibration[0][2];
+    // Initialize sign as positive
+    let sign = 1;
+    // Initialize the final calibrated value
     let final = 0;
-    if (sample < zeroCalib) {
-        sgn = -1;
-        sample = 2 * zeroCalib - sample;
+    // If the sample value is less than the zero calibration point
+    if (sample < zeroCalibration) {
+        // Change the sign to negative
+        sign = -1;
+        // Reflect the sample around the zero calibration point
+        sample = 2 * zeroCalibration - sample;
     }
+    // Iterate through the calibration data
     for (let i = 1; i < calibration.length; i++) {
-        const calibStart = calibration[i - 1][2];
-        const calibEnd = calibration[i][2];
-        if (sample < calibEnd) {
+        // Extract the lower and upper bounds of the current calibration range
+        const calibrationStart = calibration[i - 1][2];
+        const calibrationEnd = calibration[i][2];
+        // If the sample value is within the current calibration range
+        if (sample < calibrationEnd) {
+            // Interpolate to get the calibrated value within the range
             final =
                 calibration[i - 1][1] +
-                    ((sample - calibStart) / (calibEnd - calibStart)) * (calibration[i][1] - calibration[i - 1][1]);
+                    ((sample - calibrationStart) / (calibrationEnd - calibrationStart)) * (calibration[i][1] - calibration[i - 1][1]);
             break;
         }
     }
-    return sgn * final;
+    // Return the calibrated value with the appropriate sign (positive/negative)
+    return sign * final;
 };
 /**
  * handleMotherboardData
- * @param line
+ * @param uuid - Unique identifier
+ * @param receivedString - Received data string
  */
 export function handleMotherboardData(uuid, receivedString) {
     const receivedTime = Date.now();
     // Check if the line is entirely hex characters
-    const allHex = /^[0-9A-Fa-f]+$/g.test(receivedString);
-    // Decide if this is a streaming packet
-    if (allHex && receivedString.length === PACKET_LENGTH) {
+    const isAllHex = /^[0-9A-Fa-f]+$/g.test(receivedString);
+    // Handle streaming packet
+    if (isAllHex && receivedString.length === PACKET_LENGTH) {
         // Base-16 decode the string: convert hex pairs to byte values
         const bytes = Array.from({ length: receivedString.length / 2 }, (_, i) => Number(`0x${receivedString.substring(i * 2, i * 2 + 2)}`));
         // Translate header into packet, number of samples from the packet length
@@ -126,9 +138,15 @@ export function handleMotherboardData(uuid, receivedString) {
             samples: [],
             masses: [],
         };
+        const dataView = new DataView(new Uint8Array(bytes).buffer);
         for (let i = 0; i < NUM_SAMPLES; i++) {
             const sampleStart = 4 + 3 * i;
-            packet.samples[i] = bytes[sampleStart] | (bytes[sampleStart + 1] << 8) | (bytes[sampleStart + 2] << 16);
+            // Use DataView to read the 24-bit unsigned integer
+            const rawValue = dataView.getUint8(sampleStart) |
+                (dataView.getUint8(sampleStart + 1) << 8) |
+                (dataView.getUint8(sampleStart + 2) << 16);
+            // Ensure unsigned 32-bit integer
+            packet.samples[i] = rawValue >>> 0;
             if (packet.samples[i] >= 0x7fffff) {
                 packet.samples[i] -= 0x1000000;
             }
@@ -146,11 +164,12 @@ export function handleMotherboardData(uuid, receivedString) {
                 massTotal: Math.max(-1000, left + right + center).toFixed(3),
                 massLeft: Math.max(-1000, left).toFixed(3),
                 massRight: Math.max(-1000, right).toFixed(3),
-                massCentre: Math.max(-1000, center).toFixed(3),
+                massCenter: Math.max(-1000, center).toFixed(3),
             },
         });
     }
     else if ((receivedString.match(/,/g) || []).length === 3) {
+        console.log(receivedString);
         // if the returned notification is a calibration string add them to the array
         const parts = receivedString.split(",");
         const numericParts = parts.map((x) => parseFloat(x));
