@@ -1,5 +1,5 @@
 import "./style.css"
-import { setupChart, setupMotherboard, setupEntralpi, setupTindeq } from "./devices"
+import { setupChart, setupDevice } from "./devices"
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
@@ -7,21 +7,20 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <h2>Vite + TypeScript example</h2>
     <canvas class="chart"></canvas>
     <div class="card">
-      <button id="motherboard" type="button">Connect Motherboard</button>
-      <button id="entralpi" type="button">Connect Entralpi</button>
-      <button id="tindeq" type="button">Connect Tindeq</button>
+      <select id="deviceSelect">
+        <option>Select device</option>
+        <option value="motherboard">Motherboard</option>
+        <option value="entralpi">Entralpi</option>
+        <option value="tindeq">Tindeq</option>
+      </select>
     </div>
     <p class="output"></p>
   </div>
 `
 
-setupMotherboard(
-  document.querySelector<HTMLButtonElement>("#motherboard")!,
+setupDevice(
+  document.querySelector<HTMLSelectElement>("#deviceSelect")!,
   document.querySelector<HTMLDivElement>(".output")!,
 )
-setupEntralpi(
-  document.querySelector<HTMLButtonElement>("#entralpi")!,
-  document.querySelector<HTMLDivElement>(".output")!,
-)
-setupTindeq(document.querySelector<HTMLButtonElement>("#tindeq")!, document.querySelector<HTMLDivElement>(".output")!)
+
 setupChart(document.querySelector<HTMLCanvasElement>(".chart")!)
