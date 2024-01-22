@@ -9,11 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.0.9"
+    "@hangtime/grip-connect": "^0.0.10",
+    "chart.js": "^4.4.1"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "vite": "^5.0.11"
+    "vite": "^5.0.12"
   },
   "workspaces": [
     "example"

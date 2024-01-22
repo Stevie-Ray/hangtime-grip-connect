@@ -1,19 +1,31 @@
 import { Motherboard, Entralpi, Tindeq, connect, disconnect, read, write, notify } from "@hangtime/grip-connect"
+import { Chart } from "chart.js/auto"
 
-export function outputvalue(element: HTMLDivElement, data: string) {
+const chartData: number[] = []
+let chartElement: HTMLCanvasElement | null = null
+let chart: Chart | null = null
+
+export function outputValue(element: HTMLDivElement, data: string) {
   element.innerHTML = data
+}
+
+interface massObject {
+  massTotal?: string
+  massRight?: string
+  massLeft?: string
 }
 
 export function setupMotherboard(element: HTMLButtonElement, outputElement: HTMLDivElement) {
   element.addEventListener("click", () => {
     return connect(Motherboard, async () => {
       // Listen for notifications
-      notify((data: { value?: string }) => {
+      notify((data: { value?: massObject }) => {
         if (data && data.value) {
-          if (typeof data.value === "object") {
-            outputvalue(outputElement, JSON.stringify(data.value))
+          if (data.value.massTotal !== undefined) {
+            addData(data.value.massTotal)
+            outputValue(outputElement, JSON.stringify(data.value))
           } else {
-            outputvalue(outputElement, data.value)
+            console.log(data.value)
           }
         }
       })
@@ -24,10 +36,10 @@ export function setupMotherboard(element: HTMLButtonElement, outputElement: HTML
       await read(Motherboard, "device", "firmware", 1000)
 
       // read calibration (required before reading data)
-      await write(Motherboard, "uart", "tx", "C", 5000)
+      await write(Motherboard, "uart", "tx", "C", 2500)
 
       // start stream
-      await write(Motherboard, "uart", "tx", "S30", 15000)
+      await write(Motherboard, "uart", "tx", "S30", 25000)
 
       // end stream
       await write(Motherboard, "uart", "tx", "", 0)
@@ -45,7 +57,7 @@ export function setupEntralpi(element: HTMLButtonElement, outputElement: HTMLDiv
       notify((data: { value?: string }) => {
         if (data && data.value) {
           console.log(data.value)
-          outputvalue(outputElement, data.value)
+          outputValue(outputElement, data.value)
         }
       })
       // disconnect from device after we are done
@@ -62,7 +74,7 @@ export function setupTindeq(element: HTMLButtonElement, outputElement: HTMLDivEl
       notify((data: { value?: string }) => {
         if (data && data.value) {
           console.log(data.value)
-          outputvalue(outputElement, data.value)
+          outputValue(outputElement, data.value)
         }
       })
 
@@ -85,4 +97,66 @@ export function setupTindeq(element: HTMLButtonElement, outputElement: HTMLDivEl
       disconnect(Tindeq)
     })
   })
+}
+
+export function setupChart(element: HTMLCanvasElement) {
+  chartElement = element
+  if (chartElement) {
+    chart = new Chart(chartElement, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            data: chartData,
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        animation: false,
+        elements: {
+          point: {
+            radius: 0,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {},
+        },
+        scales: {
+          x: {
+            display: false,
+          },
+          y: {
+            min: 0,
+            max: 100,
+          },
+        },
+      },
+    })
+  }
+}
+
+function addData(data: string) {
+  if (chart) {
+    const numericData = parseFloat(data)
+    if (!isNaN(numericData)) {
+      chart.data.labels?.push("")
+      if (chart.data.labels && chart.data.labels.length >= 100) {
+        chart.data.labels.shift()
+      }
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(numericData)
+        if (dataset.data.length >= 100) {
+          dataset.data.shift()
+        }
+      })
+      chart.update()
+    } else {
+      console.error("Invalid numeric data:", data)
+    }
+  }
 }

@@ -91,40 +91,41 @@ export const Motherboard: Device = {
  */
 const applyCalibration = (sample: number, calibration: number[][]): number => {
   // Extract the calibrated value for the zero point
-  const zeroCalibration: number = calibration[0][2];
+  const zeroCalibration: number = calibration[0][2]
 
   // Initialize sign as positive
-  let sign: number = 1;
+  let sign: number = 1
 
   // Initialize the final calibrated value
-  let final: number = 0;
+  let final: number = 0
 
   // If the sample value is less than the zero calibration point
   if (sample < zeroCalibration) {
     // Change the sign to negative
-    sign = -1;
+    sign = -1
 
     // Reflect the sample around the zero calibration point
-    sample = 2 * zeroCalibration - sample;
+    sample = 2 * zeroCalibration - sample
   }
 
   // Iterate through the calibration data
   for (let i = 1; i < calibration.length; i++) {
     // Extract the lower and upper bounds of the current calibration range
-    const calibrationStart: number = calibration[i - 1][2];
-    const calibrationEnd: number = calibration[i][2];
+    const calibrationStart: number = calibration[i - 1][2]
+    const calibrationEnd: number = calibration[i][2]
 
     // If the sample value is within the current calibration range
     if (sample < calibrationEnd) {
       // Interpolate to get the calibrated value within the range
       final =
         calibration[i - 1][1] +
-        ((sample - calibrationStart) / (calibrationEnd - calibrationStart)) * (calibration[i][1] - calibration[i - 1][1]);
-      break;
+        ((sample - calibrationStart) / (calibrationEnd - calibrationStart)) *
+          (calibration[i][1] - calibration[i - 1][1])
+      break
     }
   }
   // Return the calibrated value with the appropriate sign (positive/negative)
-  return sign * final;
+  return sign * final
 }
 
 interface Packet {
@@ -138,19 +139,19 @@ interface Packet {
 /**
  * handleMotherboardData
  * @param uuid - Unique identifier
- * @param receivedString - Received data string
+ * @param receivedData - Received data string
  */
-export function handleMotherboardData(uuid: string, receivedString: string): void {
+export function handleMotherboardData(uuid: string, receivedData: string): void {
   const receivedTime: number = Date.now()
 
   // Check if the line is entirely hex characters
-  const isAllHex: boolean = /^[0-9A-Fa-f]+$/g.test(receivedString);
+  const isAllHex: boolean = /^[0-9A-Fa-f]+$/g.test(receivedData)
 
   // Handle streaming packet
-  if (isAllHex && receivedString.length === PACKET_LENGTH) {
+  if (isAllHex && receivedData.length === PACKET_LENGTH) {
     // Base-16 decode the string: convert hex pairs to byte values
-    const bytes: number[] = Array.from({ length: receivedString.length / 2 }, (_, i) =>
-      Number(`0x${receivedString.substring(i * 2, i * 2 + 2)}`),
+    const bytes: number[] = Array.from({ length: receivedData.length / 2 }, (_, i) =>
+      Number(`0x${receivedData.substring(i * 2, i * 2 + 2)}`),
     )
 
     // Translate header into packet, number of samples from the packet length
@@ -162,20 +163,21 @@ export function handleMotherboardData(uuid: string, receivedString: string): voi
       masses: [],
     }
 
-    const dataView = new DataView(new Uint8Array(bytes).buffer);
+    const dataView = new DataView(new Uint8Array(bytes).buffer)
 
     for (let i = 0; i < NUM_SAMPLES; i++) {
       const sampleStart: number = 4 + 3 * i
       // Use DataView to read the 24-bit unsigned integer
-      const rawValue = dataView.getUint8(sampleStart) |
+      const rawValue =
+        dataView.getUint8(sampleStart) |
         (dataView.getUint8(sampleStart + 1) << 8) |
-        (dataView.getUint8(sampleStart + 2) << 16);
+        (dataView.getUint8(sampleStart + 2) << 16)
 
       // Ensure unsigned 32-bit integer
-      packet.samples[i] = rawValue >>> 0;
+      packet.samples[i] = rawValue >>> 0
 
       if (packet.samples[i] >= 0x7fffff) {
-        packet.samples[i] -= 0x1000000;
+        packet.samples[i] -= 0x1000000
       }
 
       // TODO: make sure device is calibrated
@@ -196,16 +198,14 @@ export function handleMotherboardData(uuid: string, receivedString: string): voi
         massCenter: Math.max(-1000, center).toFixed(3),
       },
     })
-  } else if ((receivedString.match(/,/g) || []).length === 3) {
-    console.log(receivedString)
+  } else if ((receivedData.match(/,/g) || []).length === 3) {
+    console.log(receivedData)
     // if the returned notification is a calibration string add them to the array
-    const parts: string[] = receivedString.split(",")
+    const parts: string[] = receivedData.split(",")
     const numericParts: number[] = parts.map((x) => parseFloat(x))
     ;(CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
   } else {
     // unhanded data
-    console.log(receivedString)
+    console.log(receivedData)
   }
 }
-
-

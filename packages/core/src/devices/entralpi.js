@@ -1,3 +1,4 @@
+import { notifyCallback } from "../notify";
 export const Entralpi = {
     name: "ENTRALPI",
     services: [
@@ -50,3 +51,16 @@ export const Entralpi = {
         },
     ],
 };
+/**
+ * handleEntralpiData
+ * @param uuid - Unique identifier
+ * @param receivedData - Received data string
+ */
+export function handleEntralpiData(uuid, receivedData) {
+    notifyCallback({
+        uuid,
+        value: {
+            massTotal: receivedData,
+        },
+    });
+}

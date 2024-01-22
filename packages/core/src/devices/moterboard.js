@@ -110,7 +110,8 @@ const applyCalibration = (sample, calibration) => {
             // Interpolate to get the calibrated value within the range
             final =
                 calibration[i - 1][1] +
-                    ((sample - calibrationStart) / (calibrationEnd - calibrationStart)) * (calibration[i][1] - calibration[i - 1][1]);
+                    ((sample - calibrationStart) / (calibrationEnd - calibrationStart)) *
+                        (calibration[i][1] - calibration[i - 1][1]);
             break;
         }
     }
@@ -120,16 +121,16 @@ const applyCalibration = (sample, calibration) => {
 /**
  * handleMotherboardData
  * @param uuid - Unique identifier
- * @param receivedString - Received data string
+ * @param receivedData - Received data string
  */
-export function handleMotherboardData(uuid, receivedString) {
+export function handleMotherboardData(uuid, receivedData) {
     const receivedTime = Date.now();
     // Check if the line is entirely hex characters
-    const isAllHex = /^[0-9A-Fa-f]+$/g.test(receivedString);
+    const isAllHex = /^[0-9A-Fa-f]+$/g.test(receivedData);
     // Handle streaming packet
-    if (isAllHex && receivedString.length === PACKET_LENGTH) {
+    if (isAllHex && receivedData.length === PACKET_LENGTH) {
         // Base-16 decode the string: convert hex pairs to byte values
-        const bytes = Array.from({ length: receivedString.length / 2 }, (_, i) => Number(`0x${receivedString.substring(i * 2, i * 2 + 2)}`));
+        const bytes = Array.from({ length: receivedData.length / 2 }, (_, i) => Number(`0x${receivedData.substring(i * 2, i * 2 + 2)}`));
         // Translate header into packet, number of samples from the packet length
         const packet = {
             received: receivedTime,
@@ -168,15 +169,15 @@ export function handleMotherboardData(uuid, receivedString) {
             },
         });
     }
-    else if ((receivedString.match(/,/g) || []).length === 3) {
-        console.log(receivedString);
+    else if ((receivedData.match(/,/g) || []).length === 3) {
+        console.log(receivedData);
         // if the returned notification is a calibration string add them to the array
-        const parts = receivedString.split(",");
+        const parts = receivedData.split(",");
         const numericParts = parts.map((x) => parseFloat(x));
         CALIBRATION[numericParts[0]].push(numericParts.slice(1));
     }
     else {
         // unhanded data
-        console.log(receivedString);
+        console.log(receivedData);
     }
 }

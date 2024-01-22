@@ -1,5 +1,6 @@
 import { notifyCallback } from "./notify";
 import { handleMotherboardData } from "./devices/moterboard";
+import { handleEntralpiData } from "./devices/entralpi";
 let server;
 const receiveBuffer = [];
 /**
@@ -22,27 +23,22 @@ const handleNotifications = (event, board) => {
     const value = characteristic.value;
     if (value) {
         if (board.name === "Motherboard") {
-            if (value) {
-                for (let i = 0; i < value.byteLength; i++) {
-                    receiveBuffer.push(value.getUint8(i));
-                }
-                let idx;
-                while ((idx = receiveBuffer.indexOf(10)) >= 0) {
-                    const line = receiveBuffer.splice(0, idx + 1).slice(0, -1); // Combine and remove LF
-                    if (line.length > 0 && line[line.length - 1] === 13)
-                        line.pop(); // Remove CR
-                    const decoder = new TextDecoder("utf-8");
-                    const receivedString = decoder.decode(new Uint8Array(line));
-                    handleMotherboardData(characteristic.uuid, receivedString);
-                }
+            for (let i = 0; i < value.byteLength; i++) {
+                receiveBuffer.push(value.getUint8(i));
+            }
+            let idx;
+            while ((idx = receiveBuffer.indexOf(10)) >= 0) {
+                const line = receiveBuffer.splice(0, idx + 1).slice(0, -1); // Combine and remove LF
+                if (line.length > 0 && line[line.length - 1] === 13)
+                    line.pop(); // Remove CR
+                const decoder = new TextDecoder("utf-8");
+                const receivedData = decoder.decode(new Uint8Array(line));
+                handleMotherboardData(characteristic.uuid, receivedData);
             }
         }
         else if (board.name === "ENTRALPI") {
-            // TODO: handle Entralpi notify
-            // characteristic.value!.getInt16(0) / 100;
-            if (notifyCallback) {
-                notifyCallback({ uuid: characteristic.uuid, value: value });
-            }
+            const receivedData = value.getInt16(0) / 100;
+            handleEntralpiData(characteristic.uuid, receivedData);
         }
         else if (board.name === "Tindeq") {
             // TODO: handle Tindeq notify

@@ -3,6 +3,6 @@ export declare const Motherboard: Device;
 /**
  * handleMotherboardData
  * @param uuid - Unique identifier
- * @param receivedString - Received data string
+ * @param receivedData - Received data string
  */
-export declare function handleMotherboardData(uuid: string, receivedString: string): void;
+export declare function handleMotherboardData(uuid: string, receivedData: string): void;

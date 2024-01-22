@@ -1,5 +1,9 @@
 import { Motherboard, Entralpi, Tindeq, connect, disconnect, read, write, notify } from "@hangtime/grip-connect";
-export function outputvalue(element, data) {
+import { Chart } from "chart.js/auto";
+const chartData = [];
+let chartElement = null;
+let chart = null;
+export function outputValue(element, data) {
     element.innerHTML = data;
 }
 export function setupMotherboard(element, outputElement) {
@@ -8,11 +12,12 @@ export function setupMotherboard(element, outputElement) {
             // Listen for notifications
             notify((data) => {
                 if (data && data.value) {
-                    if (typeof data.value === "object") {
-                        outputvalue(outputElement, JSON.stringify(data.value));
+                    if (data.value.massTotal !== undefined) {
+                        addData(data.value.massTotal);
+                        outputValue(outputElement, JSON.stringify(data.value));
                     }
                     else {
-                        outputvalue(outputElement, data.value);
+                        console.log(data.value);
                     }
                 }
             });
@@ -22,9 +27,9 @@ export function setupMotherboard(element, outputElement) {
             await read(Motherboard, "device", "hardware", 1000);
             await read(Motherboard, "device", "firmware", 1000);
             // read calibration (required before reading data)
-            await write(Motherboard, "uart", "tx", "C", 5000);
+            await write(Motherboard, "uart", "tx", "C", 2500);
             // start stream
-            await write(Motherboard, "uart", "tx", "S30", 15000);
+            await write(Motherboard, "uart", "tx", "S30", 25000);
             // end stream
             await write(Motherboard, "uart", "tx", "", 0);
             // disconnect from device after we are done
@@ -40,7 +45,7 @@ export function setupEntralpi(element, outputElement) {
             notify((data) => {
                 if (data && data.value) {
                     console.log(data.value);
-                    outputvalue(outputElement, data.value);
+                    outputValue(outputElement, data.value);
                 }
             });
             // disconnect from device after we are done
@@ -56,7 +61,7 @@ export function setupTindeq(element, outputElement) {
             notify((data) => {
                 if (data && data.value) {
                     console.log(data.value);
-                    outputvalue(outputElement, data.value);
+                    outputValue(outputElement, data.value);
                 }
             });
             // TARE_SCALE (0x64): 'd'
@@ -77,4 +82,65 @@ export function setupTindeq(element, outputElement) {
             disconnect(Tindeq);
         });
     });
+}
+export function setupChart(element) {
+    chartElement = element;
+    if (chartElement) {
+        chart = new Chart(chartElement, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        data: chartData,
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                animation: false,
+                elements: {
+                    point: {
+                        radius: 0,
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {},
+                },
+                scales: {
+                    x: {
+                        display: false,
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                    },
+                },
+            },
+        });
+    }
+}
+function addData(data) {
+    if (chart) {
+        const numericData = parseFloat(data);
+        if (!isNaN(numericData)) {
+            chart.data.labels?.push("");
+            if (chart.data.labels && chart.data.labels.length >= 100) {
+                chart.data.labels.shift();
+            }
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(numericData);
+                if (dataset.data.length >= 100) {
+                    dataset.data.shift();
+                }
+            });
+            chart.update();
+        }
+        else {
+            console.error("Invalid numeric data:", data);
+        }
+    }
 }
