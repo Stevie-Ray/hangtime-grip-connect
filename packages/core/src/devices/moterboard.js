@@ -159,15 +159,17 @@ export function handleMotherboardData(uuid, receivedData) {
         const left = packet.masses[0];
         const center = packet.masses[1];
         const right = packet.masses[2];
-        notifyCallback({
-            uuid,
-            value: {
-                massTotal: Math.max(-1000, left + right + center).toFixed(3),
-                massLeft: Math.max(-1000, left).toFixed(3),
-                massRight: Math.max(-1000, right).toFixed(3),
-                massCenter: Math.max(-1000, center).toFixed(3),
-            },
-        });
+        if (notifyCallback) {
+            notifyCallback({
+                uuid,
+                value: {
+                    massTotal: Math.max(-1000, left + right + center).toFixed(3),
+                    massLeft: Math.max(-1000, left).toFixed(3),
+                    massRight: Math.max(-1000, right).toFixed(3),
+                    massCenter: Math.max(-1000, center).toFixed(3),
+                },
+            });
+        }
     }
     else if ((receivedData.match(/,/g) || []).length === 3) {
         console.log(receivedData);

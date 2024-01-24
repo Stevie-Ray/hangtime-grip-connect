@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "@grip-connect/flappy-bird",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,18 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.0.10",
-    "chart.js": "^4.4.1"
+    "@hangtime/grip-connect": "^0.0.10"
   },
   "devDependencies": {
     "typescript": "^5.3.3",
     "vite": "^5.0.12"
   },
   "workspaces": [
-    "example"
+    "examples"
   ],
-  "main": "index.js",
   "directories": {
-    "example": "example"
+    "example": "examples"
   }
 }

@@ -60,10 +60,12 @@ export const Entralpi: Device = {
  * @param receivedData - Received data string
  */
 export function handleEntralpiData(uuid: string, receivedData: number): void {
-  notifyCallback({
-    uuid,
-    value: {
-      massTotal: receivedData,
-    },
-  })
+  if (notifyCallback) {
+    notifyCallback({
+      uuid,
+      value: {
+        massTotal: receivedData,
+      },
+    })
+  }
 }

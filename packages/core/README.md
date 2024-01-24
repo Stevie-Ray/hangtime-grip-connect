@@ -100,6 +100,7 @@ A special thank you to:
 
 - [@CassimLadha](https://github.com/CassimLadha) for sharing insights on reading the Motherboards data.
 - [@donaldharvey](https://github.com/donaldharvey) for a valuable example on connecting to the motherboard.
+- [@ecstrema](https://github.com/ecstrema) for providing an example on how to play games with the entralpi.
 
 ## Disclamer
 

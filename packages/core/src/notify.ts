@@ -6,5 +6,6 @@ export let notifyCallback: NotifyCallback
 
 // Export a function to set the callback
 export const notify = (callback: NotifyCallback) => {
+  console.log(callback)
   notifyCallback = callback
 }

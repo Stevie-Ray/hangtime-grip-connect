@@ -13,16 +13,22 @@
     "format": "prettier --write .",
     "format:check": "prettier --list-different .",
     "dev:docs": "npm run docs:dev --workspace ./packages/docs",
-    "dev:example": "npm run dev --workspace ./example",
+    "dev:examples:chart": "npm run dev --workspace ./examples/chart",
+    "dev:examples:flappy-bird": "npm run dev --workspace ./examples/flappy-bird",
+    "dev:examples:pong": "npm run dev --workspace ./examples/pong",
     "preview:docs": "npm run docs:preview --workspace ./packages/docs",
-    "preview:example": "npm run docs:preview --workspace ././example",
+    "preview:examples:chart": "npm run docs:preview --workspace ./examples/chart",
+    "preview:examples:flappy-bird": "npm run docs:preview --workspace ./examples/flappy-bird",
+    "preview:examples:pong": "npm run docs:preview --workspace ./examples/pong",
     "build:core": "npm run build --workspace ./packages/core",
     "build:docs": "npm run docs:build --workspace ./packages/docs",
-    "build:example": "npm run build --workspace ./example"
+    "build:examples:chart": "npm run build --workspace ./examples/chart",
+    "build:examples:flappy-bird": "npm run build --workspace ./examples/flappy-bird",
+    "build:examples:pong": "npm run build --workspace ./examples/pong"
   },
   "workspaces": [
     "packages/*",
-    "example"
+    "examples/*"
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
