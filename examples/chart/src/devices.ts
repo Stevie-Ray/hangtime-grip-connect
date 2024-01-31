@@ -33,16 +33,16 @@ export function setupDevice(element: HTMLSelectElement, outputElement: HTMLDivEl
           }
         })
         // read battery + device info
-        await read(Motherboard, "battery", "level", 1000)
-        await read(Motherboard, "device", "manufacturer", 1000)
-        await read(Motherboard, "device", "hardware", 1000)
-        await read(Motherboard, "device", "firmware", 1000)
+        await read(Motherboard, "battery", "level", 250)
+        await read(Motherboard, "device", "manufacturer", 250)
+        await read(Motherboard, "device", "hardware", 250)
+        await read(Motherboard, "device", "firmware", 250)
 
         // read calibration (required before reading data)
         await write(Motherboard, "uart", "tx", "C", 2500)
 
-        // start stream
-        await write(Motherboard, "uart", "tx", "S30", 25000)
+        // start streaming for a minute
+        await write(Motherboard, "uart", "tx", "S30", 60000)
 
         // end stream
         await write(Motherboard, "uart", "tx", "", 0)

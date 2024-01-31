@@ -105,7 +105,7 @@ const applyCalibration = (sample: number, calibration: number[][]): number => {
     sign = -1
 
     // Reflect the sample around the zero calibration point
-    sample = 2 * zeroCalibration - sample
+    sample = /* 2 * zeroCalibration */ -sample
   }
 
   // Iterate through the calibration data
@@ -184,7 +184,10 @@ export function handleMotherboardData(uuid: string, receivedData: string): void 
       if (!CALIBRATION[0].length) return
       packet.masses[i] = applyCalibration(packet.samples[i], CALIBRATION[i])
     }
-
+    // invert center and right values
+    packet.masses[1] *= -1;
+    packet.masses[2] *= -1;
+    // map to variables
     const left: number = packet.masses[0]
     const center: number = packet.masses[1]
     const right: number = packet.masses[2]
@@ -192,10 +195,10 @@ export function handleMotherboardData(uuid: string, receivedData: string): void 
       notifyCallback({
         uuid,
         value: {
-          massTotal: Math.max(-1000, left + right + center).toFixed(3),
-          massLeft: Math.max(-1000, left).toFixed(3),
-          massRight: Math.max(-1000, right).toFixed(3),
-          massCenter: Math.max(-1000, center).toFixed(3),
+          massTotal: Math.max(-1000, left + right + center).toFixed(1),
+          massLeft: Math.max(-1000, left).toFixed(1),
+          massRight: Math.max(-1000, right).toFixed(1),
+          massCenter: Math.max(-1000, center).toFixed(1),
         },
       })
     }

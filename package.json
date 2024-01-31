@@ -7,7 +7,6 @@
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "license": "BSD-2-Clause",
   "scripts": {
-    "build": "tsc --build --verbose",
     "lint": "npm run lint:check -- --fix",
     "lint:check": "eslint . --ignore-path .gitignore",
     "format": "prettier --write .",
@@ -20,6 +19,7 @@
     "preview:examples:chart": "npm run docs:preview --workspace ./examples/chart",
     "preview:examples:flappy-bird": "npm run docs:preview --workspace ./examples/flappy-bird",
     "preview:examples:pong": "npm run docs:preview --workspace ./examples/pong",
+    "build": "tsc --build --verbose",
     "build:core": "npm run build --workspace ./packages/core",
     "build:docs": "npm run docs:build --workspace ./packages/docs",
     "build:examples:chart": "npm run build --workspace ./examples/chart",
@@ -35,10 +35,10 @@
     "@hangtime/grip-connect": "^0.0.10"
   },
   "devDependencies": {
-    "@types/node": "^20.11.6",
+    "@types/node": "^20.11.14",
     "@types/web-bluetooth": "^0.0.20",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
     "eslint": "^8.56.0",
     "prettier": "^3.2.4",
     "ts-node": "^10.9.2",

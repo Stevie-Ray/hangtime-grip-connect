@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the Motherboard, Climbro, SmartBoard, Entralpi or Tindeq Progressor",
   "main": "src/index.ts",
   "scripts": {
