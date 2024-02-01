@@ -22,25 +22,29 @@ const onDisconnected = (event: Event, board: Device): void => {
  * @param onNotify
  */
 const handleNotifications = (event: Event, board: Device): void => {
-  const characteristic = event.target as BluetoothRemoteGATTCharacteristic
-  const value = characteristic.value
+  const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
+  const value: DataView | undefined = characteristic.value
   if (value) {
     if (board.name === "Motherboard") {
-      for (let i = 0; i < value.byteLength; i++) {
+      for (let i: number = 0; i < value.byteLength; i++) {
         receiveBuffer.push(value.getUint8(i))
       }
 
       let idx: number
       while ((idx = receiveBuffer.indexOf(10)) >= 0) {
-        const line = receiveBuffer.splice(0, idx + 1).slice(0, -1) // Combine and remove LF
+        const line: number[] = receiveBuffer.splice(0, idx + 1).slice(0, -1) // Combine and remove LF
         if (line.length > 0 && line[line.length - 1] === 13) line.pop() // Remove CR
-        const decoder = new TextDecoder("utf-8")
-        const receivedData = decoder.decode(new Uint8Array(line))
+        const decoder: TextDecoder = new TextDecoder("utf-8")
+        const receivedData: string = decoder.decode(new Uint8Array(line))
         handleMotherboardData(characteristic.uuid, receivedData)
       }
     } else if (board.name === "ENTRALPI") {
-      const receivedData: number = value.getInt16(0) / 100
-      handleEntralpiData(characteristic.uuid, receivedData)
+      if (value.buffer) {
+        const buffer: ArrayBuffer = value.buffer
+        const rawData: DataView = new DataView(buffer)
+        const receivedData: number = rawData.getUint16(0) / 100
+        handleEntralpiData(characteristic.uuid, receivedData)
+      }
     } else if (board.name === "Tindeq") {
       // TODO: handle Tindeq notify
     } else {
@@ -57,7 +61,7 @@ const handleNotifications = (event: Event, board: Device): void => {
  */
 const onConnected = async (board: Device, onSuccess: () => void): Promise<void> => {
   try {
-    const services = await server?.getPrimaryServices()
+    const services: BluetoothRemoteGATTService[] = await server?.getPrimaryServices()
 
     if (!services || services.length === 0) {
       console.error("No services found")

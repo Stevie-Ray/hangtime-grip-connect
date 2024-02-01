@@ -37,8 +37,12 @@ const handleNotifications = (event, board) => {
             }
         }
         else if (board.name === "ENTRALPI") {
-            const receivedData = value.getInt16(0) / 100;
-            handleEntralpiData(characteristic.uuid, receivedData);
+            if (value.buffer) {
+                const buffer = value.buffer;
+                const rawData = new DataView(buffer);
+                const receivedData = rawData.getUint16(0) / 100;
+                handleEntralpiData(characteristic.uuid, receivedData);
+            }
         }
         else if (board.name === "Tindeq") {
             // TODO: handle Tindeq notify

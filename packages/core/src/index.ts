@@ -1,4 +1,6 @@
-export { Motherboard, Entralpi, Tindeq } from "./devices/index"
+export { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq } from "./devices/index"
+
+export { calibrate } from "./calibrate"
 
 export { connect } from "./connect"
 
@@ -8,4 +10,7 @@ export { notify } from "./notify"
 
 export { read } from "./read"
 
-export { write } from "./write"
+export { stream } from "./stream"
+
+// WARNING: Writing to device can seriously damage the device
+// export { write } from "./write"

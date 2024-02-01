@@ -8,8 +8,10 @@ document.querySelector("#app").innerHTML = `
     <div class="card">
       <select id="deviceSelect">
         <option>Select device</option>
-        <option value="motherboard">Motherboard</option>
+        <option value="climbro" disabled>Climbro</option>
         <option value="entralpi">Entralpi</option>
+        <option value="motherboard">Motherboard</option>
+        <option value="smartboard" disabled>SmartBoard</option>
         <option value="tindeq">Tindeq</option>
       </select>
     </div>

@@ -1,4 +1,4 @@
-import { Motherboard, Entralpi, Tindeq, connect, disconnect, read, write, notify } from "@hangtime/grip-connect";
+import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, calibrate, connect, disconnect, notify, read, stream, } from "@hangtime/grip-connect";
 import { Chart } from "chart.js/auto";
 const chartData = [];
 let chartElement = null;
@@ -9,6 +9,44 @@ export function outputValue(element, data) {
 export function setupDevice(element, outputElement) {
     element.addEventListener("change", () => {
         const selectedDevice = element.value;
+        if (selectedDevice === "climbro") {
+            return connect(Climbro, async () => {
+                // Listen for notifications
+                notify((data) => {
+                    if (data && data.value) {
+                        if (data.value.massTotal !== undefined) {
+                            outputValue(outputElement, JSON.stringify(data.value));
+                        }
+                        else {
+                            console.log(data.value);
+                        }
+                    }
+                });
+                // disconnect from device after we are done
+                disconnect(Climbro);
+            });
+        }
+        if (selectedDevice === "entralpi") {
+            return connect(Entralpi, async () => {
+                // Listen for notifications
+                notify((data) => {
+                    if (data && data.value) {
+                        if (data.value.massTotal !== undefined) {
+                            addData(data.value.massTotal);
+                            outputValue(outputElement, JSON.stringify(data.value));
+                        }
+                        else {
+                            console.log(data.value);
+                        }
+                    }
+                });
+                setTimeout(() => {
+                    // the entralpi will automatically start streaming
+                }, 60000);
+                // disconnect from device after we are done
+                disconnect(Entralpi);
+            });
+        }
         if (selectedDevice === "motherboard") {
             return connect(Motherboard, async () => {
                 // Listen for notifications
@@ -29,22 +67,19 @@ export function setupDevice(element, outputElement) {
                 await read(Motherboard, "device", "hardware", 250);
                 await read(Motherboard, "device", "firmware", 250);
                 // read calibration (required before reading data)
-                await write(Motherboard, "uart", "tx", "C", 2500);
+                await calibrate(Motherboard);
                 // start streaming for a minute
-                await write(Motherboard, "uart", "tx", "S30", 60000);
-                // end stream
-                await write(Motherboard, "uart", "tx", "", 0);
+                await stream(Motherboard, 60000);
                 // disconnect from device after we are done
                 disconnect(Motherboard);
             });
         }
-        if (selectedDevice === "entralpi") {
-            return connect(Entralpi, async () => {
+        if (selectedDevice === "smartboard") {
+            return connect(SmartBoard, async () => {
                 // Listen for notifications
                 notify((data) => {
                     if (data && data.value) {
                         if (data.value.massTotal !== undefined) {
-                            addData(data.value.massTotal);
                             outputValue(outputElement, JSON.stringify(data.value));
                         }
                         else {
@@ -53,12 +88,11 @@ export function setupDevice(element, outputElement) {
                     }
                 });
                 // disconnect from device after we are done
-                disconnect(Entralpi);
+                disconnect(SmartBoard);
             });
         }
         if (selectedDevice === "tindeq") {
             return connect(Tindeq, async () => {
-                // Listen for notifications
                 // Listen for notifications
                 notify((data) => {
                     if (data && data.value) {
@@ -66,20 +100,8 @@ export function setupDevice(element, outputElement) {
                         outputValue(outputElement, data.value);
                     }
                 });
-                // TARE_SCALE (0x64): 'd'
-                // START_WEIGHT_MEAS (0x65): 'e'
-                // STOP_WEIGHT_MEAS (0x66): 'f'
-                // START_PEAK_RFD_MEAS (0x67): 'g'
-                // START_PEAK_RFD_MEAS_SERIES (0x68): 'h'
-                // ADD_CALIB_POINT (0x69): 'i'
-                // SAVE_CALIB (0x6A): 'j'
-                // GET_APP_VERSION (0x6B): 'k'
-                // GET_ERR_INFO (0x6C): 'l'
-                // CLR_ERR_INFO (0x6D): 'm'
-                // SLEEP (0x6E): 'n'
-                // GET_BATT_VLTG (0x6F): 'o'
-                await write(Tindeq, "progressor", "tx", "e", 10000);
-                await write(Tindeq, "progressor", "tx", "f", 0);
+                // start streaming for a minute
+                await stream(Tindeq, 60000);
                 // disconnect from device after we are done
                 disconnect(Tindeq);
             });

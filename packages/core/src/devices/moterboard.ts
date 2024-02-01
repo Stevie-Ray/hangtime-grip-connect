@@ -185,8 +185,8 @@ export function handleMotherboardData(uuid: string, receivedData: string): void 
       packet.masses[i] = applyCalibration(packet.samples[i], CALIBRATION[i])
     }
     // invert center and right values
-    packet.masses[1] *= -1;
-    packet.masses[2] *= -1;
+    packet.masses[1] *= -1
+    packet.masses[2] *= -1
     // map to variables
     const left: number = packet.masses[0]
     const center: number = packet.masses[1]
