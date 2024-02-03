@@ -15,13 +15,16 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <option value="smartboard" disabled>SmartBoard</option>
         <option value="tindeq">Tindeq</option>
       </select>
+      <button id="stop">Stop</button>
     </div>
+    
     <p class="output"></p>
   </div>
 `
 
 setupDevice(
   document.querySelector<HTMLSelectElement>("#deviceSelect")!,
+  document.querySelector<HTMLButtonElement>("#stop")!,
   document.querySelector<HTMLDivElement>(".output")!,
 )
 

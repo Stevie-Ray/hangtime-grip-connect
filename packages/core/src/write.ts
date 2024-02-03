@@ -22,9 +22,11 @@ export const write = (
         characteristic
           .writeValue(encoder.encode(message))
           .then(() => {
-            setTimeout(() => {
-              resolve()
-            }, duration)
+            if (duration !== 0) {
+              setTimeout(() => {
+                resolve()
+              }, duration)
+            }
           })
           .catch((error) => {
             reject(error)

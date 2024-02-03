@@ -10,6 +10,7 @@ import {
   notify,
   read,
   stream,
+  stop,
 } from "@hangtime/grip-connect"
 import { Chart } from "chart.js/auto"
 
@@ -27,7 +28,7 @@ interface massObject {
   massLeft?: string
 }
 
-export function setupDevice(element: HTMLSelectElement, outputElement: HTMLDivElement) {
+export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonElement, outputElement: HTMLDivElement) {
   element.addEventListener("change", () => {
     const selectedDevice = element.value
 
@@ -94,10 +95,10 @@ export function setupDevice(element: HTMLSelectElement, outputElement: HTMLDivEl
         await calibration(Motherboard)
 
         // start streaming for a minute
-        await stream(Motherboard, 60000)
+        await stream(Motherboard)
 
         // disconnect from device after we are done
-        disconnect(Motherboard)
+        // disconnect(Motherboard)
       })
     }
 
@@ -128,10 +129,21 @@ export function setupDevice(element: HTMLSelectElement, outputElement: HTMLDivEl
           }
         })
         // start streaming for a minute
-        await stream(Tindeq, 60000)
+        await stream(Tindeq)
         // disconnect from device after we are done
-        disconnect(Tindeq)
+        // disconnect(Tindeq)
       })
+    }
+  })
+
+  stopElement.addEventListener("click", async () => {
+    const selectedDevice = element.value
+
+    if (selectedDevice === "motherboard") {
+      await stop(Motherboard)
+    }
+    if (selectedDevice === "tindeq") {
+      await stop(Tindeq)
     }
   })
 }

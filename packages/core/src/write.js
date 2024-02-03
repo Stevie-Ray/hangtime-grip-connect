@@ -13,9 +13,11 @@ export const write = (board, serviceId, characteristicId, message, duration = 0)
                 characteristic
                     .writeValue(encoder.encode(message))
                     .then(() => {
-                    setTimeout(() => {
-                        resolve();
-                    }, duration);
+                    if (duration !== 0) {
+                        setTimeout(() => {
+                            resolve();
+                        }, duration);
+                    }
                 })
                     .catch((error) => {
                     reject(error);

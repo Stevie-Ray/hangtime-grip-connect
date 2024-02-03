@@ -14,9 +14,11 @@ document.querySelector("#app").innerHTML = `
         <option value="smartboard" disabled>SmartBoard</option>
         <option value="tindeq">Tindeq</option>
       </select>
+      <button id="stop">Stop</button>
     </div>
+    
     <p class="output"></p>
   </div>
 `;
-setupDevice(document.querySelector("#deviceSelect"), document.querySelector(".output"));
+setupDevice(document.querySelector("#deviceSelect"), document.querySelector("#stop"), document.querySelector(".output"));
 setupChart(document.querySelector(".chart"));

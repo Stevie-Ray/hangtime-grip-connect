@@ -1,4 +1,4 @@
-import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, calibration, connect, disconnect, notify, read, stream, } from "@hangtime/grip-connect";
+import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, calibration, connect, disconnect, notify, read, stream, stop } from "@hangtime/grip-connect";
 import { Chart } from "chart.js/auto";
 const chartData = [];
 let chartElement = null;
@@ -6,7 +6,7 @@ let chart = null;
 export function outputValue(element, data) {
     element.innerHTML = data;
 }
-export function setupDevice(element, outputElement) {
+export function setupDevice(element, stopElement, outputElement) {
     element.addEventListener("change", () => {
         const selectedDevice = element.value;
         if (selectedDevice === "climbro") {
@@ -69,7 +69,7 @@ export function setupDevice(element, outputElement) {
                 // read calibration (required before reading data)
                 await calibration(Motherboard);
                 // start streaming for a minute
-                await stream(Motherboard, 60000);
+                await stream(Motherboard, 5000);
                 // disconnect from device after we are done
                 disconnect(Motherboard);
             });
@@ -105,6 +105,12 @@ export function setupDevice(element, outputElement) {
                 // disconnect from device after we are done
                 disconnect(Tindeq);
             });
+        }
+    });
+    stopElement.addEventListener("click", async () => {
+        const selectedDevice = element.value;
+        if (selectedDevice === "motherboard") {
+            await stop(Motherboard);
         }
     });
 }
