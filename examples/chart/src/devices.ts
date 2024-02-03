@@ -4,7 +4,7 @@ import {
   Motherboard,
   SmartBoard,
   Tindeq,
-  calibrate,
+  calibration,
   connect,
   disconnect,
   notify,
@@ -91,7 +91,7 @@ export function setupDevice(element: HTMLSelectElement, outputElement: HTMLDivEl
         await read(Motherboard, "device", "firmware", 250)
 
         // read calibration (required before reading data)
-        await calibrate(Motherboard)
+        await calibration(Motherboard)
 
         // start streaming for a minute
         await stream(Motherboard, 60000)

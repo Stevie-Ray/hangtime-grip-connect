@@ -32,10 +32,10 @@
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.0.10"
+    "@hangtime/grip-connect": "^0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.14",
+    "@types/node": "^20.11.16",
     "@types/web-bluetooth": "^0.0.20",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",

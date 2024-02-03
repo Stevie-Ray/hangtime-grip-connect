@@ -1,16 +1,17 @@
 import { Device } from "./devices/types"
 import { Motherboard } from "./devices"
+import { MotherboardCommands } from "./commands"
 import { write } from "./write"
 
 /**
- * read calibration
+ * write command to get calibration
  * @param board
  */
-export const calibrate = async (board: Device): Promise<void> => {
+export const calibration = async (board: Device): Promise<void> => {
   if (!board.device) return
   if (board.device.gatt?.connected) {
     if (board.name === "Motherboard") {
-      await write(Motherboard, "uart", "tx", "C", 2500)
+      await write(Motherboard, "uart", "tx", String(MotherboardCommands.GET_CALIBRATION), 2500)
     }
   }
 }

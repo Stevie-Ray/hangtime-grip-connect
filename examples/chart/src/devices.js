@@ -1,4 +1,4 @@
-import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, calibrate, connect, disconnect, notify, read, stream, } from "@hangtime/grip-connect";
+import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, calibration, connect, disconnect, notify, read, stream, } from "@hangtime/grip-connect";
 import { Chart } from "chart.js/auto";
 const chartData = [];
 let chartElement = null;
@@ -67,7 +67,7 @@ export function setupDevice(element, outputElement) {
                 await read(Motherboard, "device", "hardware", 250);
                 await read(Motherboard, "device", "firmware", 250);
                 // read calibration (required before reading data)
-                await calibrate(Motherboard);
+                await calibration(Motherboard);
                 // start streaming for a minute
                 await stream(Motherboard, 60000);
                 // disconnect from device after we are done

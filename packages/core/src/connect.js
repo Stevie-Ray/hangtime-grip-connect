@@ -1,5 +1,5 @@
 import { notifyCallback } from "./notify";
-import { handleMotherboardData } from "./devices/moterboard";
+import { handleMotherboardData } from "./devices/motherboard";
 import { handleEntralpiData } from "./devices/entralpi";
 let server;
 const receiveBuffer = [];

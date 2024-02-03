@@ -1,6 +1,8 @@
 import { Device } from "./devices/types"
 import { Motherboard, Tindeq } from "./devices"
+import { MotherboardCommands, TindeqCommands } from "./commands"
 import { write } from "./write"
+import { stop } from "./stop"
 
 /**
  * stream output
@@ -12,15 +14,19 @@ export const stream = async (board: Device, duration: number = 0): Promise<void>
     if (board.name === "Motherboard") {
       // TODO: add check if device is recalibrated
       // start stream
-      await write(Motherboard, "uart", "tx", "S30", duration)
+      await write(Motherboard, "uart", "tx", String(MotherboardCommands.START_WEIGHT_MEAS), duration)
       // end stream
-      await write(Motherboard, "uart", "tx", "", 0)
+      if (duration !== 0) {
+        await stop(Motherboard)
+      }
     }
     if (board.name === "Tindeq") {
       // start stream
-      await write(Tindeq, "progressor", "tx", "e", duration)
+      await write(Tindeq, "progressor", "tx", String(TindeqCommands.START_WEIGHT_MEAS), duration)
       // end stream
-      await write(Tindeq, "progressor", "tx", "f", 0)
+      if (duration !== 0) {
+        await stop(Tindeq)
+      }
     }
   }
 }

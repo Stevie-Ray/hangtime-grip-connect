@@ -63,7 +63,7 @@ Simply importing the utilities you need from `@hangtime/grip-connect`. Devices t
 ```
 
 ```js
-import { Motherboard, calibrate, connect, disconnect, notify, read, stream } from "@hangtime/grip-connect"
+import { Motherboard, calibration, connect, disconnect, notify, read, stream } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
@@ -74,19 +74,22 @@ motherboardButton.addEventListener("click", () => {
       console.log(data)
     })
 
-    // read battery + device info
+    // Read battery + device info
     await read(Motherboard, "battery", "level", 250)
     await read(Motherboard, "device", "manufacturer", 250)
     await read(Motherboard, "device", "hardware", 250)
     await read(Motherboard, "device", "firmware", 250)
 
-    // read calibration (required before reading data)
-    await calibrate(Motherboard)
+    // Read calibration (required before reading data)
+    await calibration(Motherboard)
 
-    // start streaming for a minute
+    // Start streaming (for a minute) remove parameter for a continues stream
     await stream(Motherboard, 60000)
 
-    // disconnect from device after we are done
+    // Manually call stop method if stream is continues
+    // await stop(Motherboard)
+
+    // Disconnect from device after we are done
     disconnect(Motherboard)
   })
 })
