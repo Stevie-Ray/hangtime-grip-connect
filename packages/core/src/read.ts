@@ -1,6 +1,7 @@
 import { Device } from "./devices/types"
 import { notifyCallback } from "./notify"
 import { getCharacteristic } from "./characteristic"
+import { isConnected } from "./is-connected"
 
 /**
  * read
@@ -13,7 +14,7 @@ export const read = (
   duration: number = 0,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    if (board.device?.gatt?.connected) {
+    if (isConnected(board)) {
       const characteristic = getCharacteristic(board, serviceId, characteristicId)
 
       if (characteristic) {

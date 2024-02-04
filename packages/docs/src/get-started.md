@@ -33,35 +33,30 @@ $ bun add @hangtime/grip-connect
 
 ## Example usage (Motherboard)
 
-Simply importing the utilities you need from `@hangtime/grip-connect`. Devices that are currently supported:
-`Motherboard`, `Tindeq` and `Entralpi`.
+Simply importing the utilities you need from `@hangtime/grip-connect`.
 
 ```html
 <button id="motherboard" type="button">Connect Motherboard</button>
 ```
 
 ```js
-import { Motherboard, calibration, connect, disconnect, notify, read, stream } from "@hangtime/grip-connect"
+import { Motherboard, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
 motherboardButton.addEventListener("click", () => {
   connect(Motherboard, async () => {
-    // Listen for notifications
+    // Listen for stream notifications
     notify((data) => {
+      // data: { massTotal: 0, massLeft: 0, massRight: 0, massCenter: 0 }
       console.log(data)
     })
 
     // Read battery + device info
-    await read(Motherboard, "battery", "level", 250)
-    await read(Motherboard, "device", "manufacturer", 250)
-    await read(Motherboard, "device", "hardware", 250)
-    await read(Motherboard, "device", "firmware", 250)
+    await battery(Motherboard)
+    await info(Motherboard)
 
-    // Read calibration (required before reading data)
-    await calibration(Motherboard)
-
-    // Start streaming (for a minute) remove parameter for a continues stream
+    // Start weight streaming (for a minute) remove parameter for a continues stream
     await stream(Motherboard, 60000)
 
     // Manually call stop method if stream is continues

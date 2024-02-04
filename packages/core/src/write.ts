@@ -1,5 +1,7 @@
 import { Device } from "./devices/types"
+import { isConnected } from "./is-connected"
 import { getCharacteristic } from "./characteristic"
+
 /**
  * write
  * @param characteristic
@@ -13,7 +15,7 @@ export const write = (
   duration: number = 0,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    if (board.device?.gatt?.connected) {
+    if (isConnected(board)) {
       const encoder = new TextEncoder()
 
       const characteristic = getCharacteristic(board, serviceId, characteristicId)

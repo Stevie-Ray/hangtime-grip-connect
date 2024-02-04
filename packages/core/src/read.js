@@ -1,12 +1,13 @@
 import { notifyCallback } from "./notify";
 import { getCharacteristic } from "./characteristic";
+import { isConnected } from "./is-connected";
 /**
  * read
  * @param characteristic
  */
 export const read = (board, serviceId, characteristicId, duration = 0) => {
     return new Promise((resolve, reject) => {
-        if (board.device?.gatt?.connected) {
+        if (isConnected(board)) {
             const characteristic = getCharacteristic(board, serviceId, characteristicId);
             if (characteristic) {
                 characteristic

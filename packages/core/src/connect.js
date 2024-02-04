@@ -1,6 +1,5 @@
 import { notifyCallback } from "./notify";
-import { handleMotherboardData } from "./devices/motherboard";
-import { handleEntralpiData } from "./devices/entralpi";
+import { handleMotherboardData } from "./data";
 let server;
 const receiveBuffer = [];
 /**
@@ -41,7 +40,14 @@ const handleNotifications = (event, board) => {
                 const buffer = value.buffer;
                 const rawData = new DataView(buffer);
                 const receivedData = rawData.getUint16(0) / 100;
-                handleEntralpiData(characteristic.uuid, receivedData);
+                if (notifyCallback) {
+                    notifyCallback({
+                        uuid: characteristic.uuid,
+                        value: {
+                            massTotal: receivedData,
+                        },
+                    });
+                }
             }
         }
         else if (board.name === "Tindeq") {
@@ -102,9 +108,9 @@ const onConnected = async (board, onSuccess) => {
  * Return all service UUIDs
  * @param device
  */
-function getAllServiceUUIDs(device) {
+const getAllServiceUUIDs = (device) => {
     return device.services.map((service) => service.uuid);
-}
+};
 /**
  * Connect to the BluetoothDevice
  * @param device

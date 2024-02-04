@@ -1,3 +1,4 @@
+import { isConnected } from "./is-connected";
 import { getCharacteristic } from "./characteristic";
 /**
  * write
@@ -6,7 +7,7 @@ import { getCharacteristic } from "./characteristic";
  */
 export const write = (board, serviceId, characteristicId, message, duration = 0) => {
     return new Promise((resolve, reject) => {
-        if (board.device?.gatt?.connected) {
+        if (isConnected(board)) {
             const encoder = new TextEncoder();
             const characteristic = getCharacteristic(board, serviceId, characteristicId);
             if (characteristic) {

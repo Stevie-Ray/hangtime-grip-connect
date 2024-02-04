@@ -1,15 +1,15 @@
 import { Device } from "./devices/types"
+import { write } from "./write"
+import { isConnected } from "./is-connected"
 import { Motherboard, Tindeq } from "./devices"
 import { MotherboardCommands, TindeqCommands } from "./commands"
-import { write } from "./write"
 
 /**
  * read calibration
  * @param board
  */
 export const stop = async (board: Device): Promise<void> => {
-  if (!board.device) return
-  if (board.device.gatt?.connected) {
+  if (isConnected(board)) {
     if (board.name === "Motherboard") {
       await write(Motherboard, "uart", "tx", String(MotherboardCommands.STOP_WEIGHT_MEAS), 0)
     }

@@ -4,11 +4,11 @@ import {
   Motherboard,
   SmartBoard,
   Tindeq,
-  calibration,
+  battery,
   connect,
   disconnect,
+  info,
   notify,
-  read,
   stream,
   stop,
 } from "@hangtime/grip-connect"
@@ -86,13 +86,8 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
           }
         })
         // read battery + device info
-        await read(Motherboard, "battery", "level", 250)
-        await read(Motherboard, "device", "manufacturer", 250)
-        await read(Motherboard, "device", "hardware", 250)
-        await read(Motherboard, "device", "firmware", 250)
-
-        // read calibration (required before reading data)
-        await calibration(Motherboard)
+        await battery(Motherboard)
+        await info(Motherboard)
 
         // start streaming for a minute
         await stream(Motherboard)
@@ -128,6 +123,9 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
             outputValue(outputElement, data.value)
           }
         })
+        await battery(Tindeq)
+        await info(Tindeq)
+
         // start streaming for a minute
         await stream(Tindeq)
         // disconnect from device after we are done

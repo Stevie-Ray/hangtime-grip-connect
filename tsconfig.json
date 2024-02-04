@@ -23,7 +23,7 @@
     "stripInternal": true,
     "ignoreDeprecations": "5.0",
     "suppressImplicitAnyIndexErrors": true,
-    "types": ["web-bluetooth"],
+    "types": ["web-bluetooth"]
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules"]
 }

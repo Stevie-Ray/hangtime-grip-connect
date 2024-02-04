@@ -1,5 +1,4 @@
 import { Device } from "./types"
-import { notifyCallback } from "../notify"
 
 export const Entralpi: Device = {
   name: "ENTRALPI",
@@ -52,20 +51,4 @@ export const Entralpi: Device = {
       characteristics: [],
     },
   ],
-}
-
-/**
- * handleEntralpiData
- * @param uuid - Unique identifier
- * @param receivedData - Received data string
- */
-export function handleEntralpiData(uuid: string, receivedData: number): void {
-  if (notifyCallback) {
-    notifyCallback({
-      uuid,
-      value: {
-        massTotal: receivedData,
-      },
-    })
-  }
 }

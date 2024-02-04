@@ -1,4 +1,4 @@
-import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, calibration, connect, disconnect, notify, read, stream, stop } from "@hangtime/grip-connect";
+import { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq, battery, connect, disconnect, info, notify, stream, stop, } from "@hangtime/grip-connect";
 import { Chart } from "chart.js/auto";
 const chartData = [];
 let chartElement = null;
@@ -62,16 +62,12 @@ export function setupDevice(element, stopElement, outputElement) {
                     }
                 });
                 // read battery + device info
-                await read(Motherboard, "battery", "level", 250);
-                await read(Motherboard, "device", "manufacturer", 250);
-                await read(Motherboard, "device", "hardware", 250);
-                await read(Motherboard, "device", "firmware", 250);
-                // read calibration (required before reading data)
-                await calibration(Motherboard);
+                await battery(Motherboard);
+                await info(Motherboard);
                 // start streaming for a minute
-                await stream(Motherboard, 5000);
+                await stream(Motherboard);
                 // disconnect from device after we are done
-                disconnect(Motherboard);
+                // disconnect(Motherboard)
             });
         }
         if (selectedDevice === "smartboard") {
@@ -100,10 +96,12 @@ export function setupDevice(element, stopElement, outputElement) {
                         outputValue(outputElement, data.value);
                     }
                 });
+                await battery(Tindeq);
+                await info(Tindeq);
                 // start streaming for a minute
-                await stream(Tindeq, 60000);
+                await stream(Tindeq);
                 // disconnect from device after we are done
-                disconnect(Tindeq);
+                // disconnect(Tindeq)
             });
         }
     });
@@ -111,6 +109,9 @@ export function setupDevice(element, stopElement, outputElement) {
         const selectedDevice = element.value;
         if (selectedDevice === "motherboard") {
             await stop(Motherboard);
+        }
+        if (selectedDevice === "tindeq") {
+            await stop(Tindeq);
         }
     });
 }

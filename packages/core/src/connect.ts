@@ -1,7 +1,6 @@
 import { Device } from "./devices/types"
 import { notifyCallback } from "./notify"
-import { handleMotherboardData } from "./devices/motherboard"
-import { handleEntralpiData } from "./devices/entralpi"
+import { handleMotherboardData } from "./data"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
@@ -43,7 +42,14 @@ const handleNotifications = (event: Event, board: Device): void => {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
         const receivedData: number = rawData.getUint16(0) / 100
-        handleEntralpiData(characteristic.uuid, receivedData)
+        if (notifyCallback) {
+          notifyCallback({
+            uuid: characteristic.uuid,
+            value: {
+              massTotal: receivedData,
+            },
+          })
+        }
       }
     } else if (board.name === "Tindeq") {
       // TODO: handle Tindeq notify
@@ -110,7 +116,7 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
  * Return all service UUIDs
  * @param device
  */
-function getAllServiceUUIDs(device: Device) {
+const getAllServiceUUIDs = (device: Device) => {
   return device.services.map((service) => service.uuid)
 }
 /**
