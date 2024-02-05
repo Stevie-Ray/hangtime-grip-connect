@@ -16,11 +16,9 @@ jobs:
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
-      - name: Go to subfolder
-        run: cd packages/core
       - name: Install dependencies and build
         run: npm ci && npm run build
-      - name: Publish package on NPM
-        run: npm publish --access public
+      - name: Go to subfolder and publish package
+        run: cd packages/core && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
