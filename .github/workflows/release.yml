@@ -1,23 +1,32 @@
 name: Publish Package to npmjs
 on:
-  push:
-    branches:
-      - main
-    release:
-      types: [created]
+  release:
+    types: [created]
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
-      - name: Install dependencies and build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format
+        run: npm format:check
+
+      - name: Lint
+        run: npm lint:check
+
+      - name: Build
         run: npm ci && npm run build
+
       - name: Go to subfolder and publish package
         run: cd packages/core && npm publish --access public
         env:

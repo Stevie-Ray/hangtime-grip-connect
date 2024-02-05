@@ -1,4 +1,4 @@
-name: CI
+name: Pull
 
 on:
   pull_request:
@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Install dependencies
         uses: actions/setup-node@v4
         with:
