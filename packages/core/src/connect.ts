@@ -53,6 +53,19 @@ const handleNotifications = (event: Event, board: Device): void => {
       }
     } else if (board.name === "Tindeq") {
       // TODO: handle Tindeq notify
+      if (value.buffer) {
+        const buffer: ArrayBuffer = value.buffer
+        const rawData: DataView = new DataView(buffer)
+        const receivedData: number = rawData.getUint8(1)
+        if (notifyCallback) {
+          notifyCallback({
+            uuid: characteristic.uuid,
+            value: {
+              massTotal: receivedData,
+            },
+          })
+        }
+      }
     } else {
       if (notifyCallback) {
         notifyCallback({ uuid: characteristic.uuid, value: value })
