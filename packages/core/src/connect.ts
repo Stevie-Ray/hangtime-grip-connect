@@ -56,7 +56,7 @@ const handleNotifications = (event: Event, board: Device): void => {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
-        const receivedData: number = rawData.getUint8(1)
+        const receivedData: number = rawData.getUint8(0)
         if (notifyCallback) {
           notifyCallback({
             uuid: characteristic.uuid,

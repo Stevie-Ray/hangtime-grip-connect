@@ -1,12 +1,67 @@
+import { Motherboard, Tindeq, Entralpi, connect, notify, stream, stop, isConnected } from "@hangtime/grip-connect"
+import { Device } from "@hangtime/grip-connect/src/devices/types"
+
+interface massObject {
+  massTotal: string
+  massRight?: string
+  massLeft?: string
+}
+
+let mass: number
+let device: Device = Motherboard
+
+function getBluetoothData() {
+  return connect(device, async () => {
+    // Listen for notifications
+    notify((data: { value?: massObject }) => {
+      if (data && data.value) {
+        if (data.value.massTotal !== undefined) {
+          mass = Number(data.value.massTotal)
+        } else {
+          console.log(data.value)
+        }
+      }
+    })
+
+    await stream(device)
+  })
+}
+
+export function setupDevice(element: HTMLSelectElement) {
+  element.addEventListener("change", () => {
+    const selectedDevice = element.value
+
+    if (selectedDevice === "motherboard") {
+      device = Motherboard
+    }
+    if (selectedDevice === "entralpi") {
+      device = Entralpi
+    }
+    if (selectedDevice === "tindeq") {
+      device = Tindeq
+    }
+    getBluetoothData()
+  })
+}
+
 const RAD: number = Math.PI / 180
 const scrn: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement
 const sctx: CanvasRenderingContext2D = scrn.getContext("2d") as CanvasRenderingContext2D
 scrn.tabIndex = 1
-scrn.addEventListener("click", () => {
+
+async function handleUserInput(): Promise<void> {
   switch (state.curr) {
     case state.getReady:
-      state.curr = state.Play
-      SFX.start.play()
+      if (isConnected(device)) {
+        stream(device)
+        state.curr = state.Play
+        SFX.start.play()
+      } else {
+        await getBluetoothData().then(() => {
+          state.curr = state.Play
+          SFX.start.play()
+        })
+      }
       break
     case state.Play:
       bird.flap()
@@ -20,27 +75,13 @@ scrn.addEventListener("click", () => {
       SFX.played = false
       break
   }
-})
+}
 
-scrn.onkeydown = function keyDown(e: KeyboardEvent) {
+scrn.addEventListener("click", handleUserInput)
+
+scrn.onkeydown = function keyDown(e: KeyboardEvent): void {
   if (e.key === " " || e.key === "w" || e.key === "ArrowUp") {
-    switch (state.curr) {
-      case state.getReady:
-        state.curr = state.Play
-        SFX.start.play()
-        break
-      case state.Play:
-        bird.flap()
-        break
-      case state.gameOver:
-        state.curr = state.getReady
-        bird.speed = 0
-        bird.y = 100
-        pipe.pipes = []
-        UI.score.curr = 0
-        SFX.played = false
-        break
-    }
+    handleUserInput()
   }
 }
 
@@ -173,7 +214,7 @@ const bird: {
     sctx.drawImage(this.animations[this.frame].sprite, -w / 2, -h / 2)
     sctx.restore()
   },
-  update: function () {
+  update: async function () {
     const r = parseFloat(String(this.animations[0].sprite.width)) / 2
     switch (state.curr) {
       case state.getReady:
@@ -183,10 +224,14 @@ const bird: {
         break
       case state.Play:
         this.frame += gameFrames % 5 == 0 ? 1 : 0
+        if (mass) {
+          const newy: number = (mass / 100) * scrn.height
+          this.y = Math.max(Math.min(newy, gnd.y - r), r)
+        }
         this.y += this.speed
         this.setRotation()
         this.speed += this.gravity
-        if (this.y + r >= gnd.y || this.collisioned()) {
+        if ((!isConnected(device) && this.y + r >= gnd.y) || this.collisioned()) {
           state.curr = state.gameOver
         }
         break
@@ -203,6 +248,9 @@ const bird: {
           if (!SFX.played) {
             SFX.die.play()
             SFX.played = true
+            if (isConnected(device)) {
+              await stop(device)
+            }
           }
         }
         break
