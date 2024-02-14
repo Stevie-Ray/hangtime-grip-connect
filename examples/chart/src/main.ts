@@ -13,7 +13,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <option value="entralpi">Entralpi</option>
         <option value="motherboard">Motherboard</option>
         <option value="smartboard" disabled>SmartBoard</option>
-        <option value="tindeq">Tindeq</option>
+        <option value="progressor">Progressor</option>
       </select>
       <button id="stop">Stop</button>
     </div>

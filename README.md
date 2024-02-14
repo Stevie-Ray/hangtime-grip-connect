@@ -94,13 +94,16 @@ motherboardButton.addEventListener("click", () => {
 A special thank you to:
 
 - [@CassimLadha](https://github.com/CassimLadha) for sharing insights on reading the Motherboards data.
-- [@donaldharvey](https://github.com/donaldharvey) for a valuable example on connecting to the motherboard.
-- [@ecstrema](https://github.com/ecstrema) for providing an example on how to play games with the entralpi.
+- [@donaldharvey](https://github.com/donaldharvey) for a valuable example on connecting to the Motherboard.
+- [@ecstrema](https://github.com/ecstrema) for providing [examples](https://github.com/ecstrema/entralpi-games) on how
+  to play games with the Entralpi.
+- [@StuartLittlefair](https://github.com/StuartLittlefair) for his
+  [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
 
-## Disclamer
+## Disclaimer
 
-THIS SOFTWARE IS NOT OFFICIALY SUPPORTED, SUPPLIED OR MAINTAINED BY THE DEVICE MANUFACTURER. BY USING THE SOFTWARE YOU
-ARE ACKNOWLEDGEING THIS AND UNDERSTAND THAT USING THIS SOFTWARE WILL INVALIDATE THE MANUFACTURERS WARRANTY.
+THIS SOFTWARE IS NOT OFFICIALLY SUPPORTED, SUPPLIED OR MAINTAINED BY THE DEVICE MANUFACTURER. BY USING THE SOFTWARE YOU
+ARE ACKNOWLEDGING THIS AND UNDERSTAND THAT USING THIS SOFTWARE WILL INVALIDATE THE MANUFACTURERS WARRANTY.
 
 ## License
 

@@ -2,6 +2,7 @@ import { Device } from "./devices/types"
 import { isConnected } from "./is-connected"
 import { getCharacteristic } from "./characteristic"
 
+export let lastWrite: string | null = null
 /**
  * write
  * @param characteristic
@@ -11,19 +12,21 @@ export const write = (
   board: Device,
   serviceId: string,
   characteristicId: string,
-  message: string,
+  message: string | undefined,
   duration: number = 0,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {
-      const encoder = new TextEncoder()
-
+      if (!message) return
       const characteristic = getCharacteristic(board, serviceId, characteristicId)
-
       if (characteristic) {
+        const encoder = new TextEncoder()
         characteristic
           .writeValue(encoder.encode(message))
           .then(() => {
+            // update last written message
+            lastWrite = message
+            // handle timeout
             if (duration !== 0) {
               setTimeout(() => {
                 resolve()

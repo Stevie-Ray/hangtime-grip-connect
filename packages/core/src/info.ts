@@ -2,8 +2,8 @@ import { Device } from "./devices/types"
 import { write } from "./write"
 import { read } from "./read"
 import { isConnected } from "./is-connected"
-import { Motherboard, Tindeq } from "./devices"
-import { MotherboardCommands, TindeqCommands } from "./commands"
+import { Motherboard, Progressor } from "./devices"
+import { MotherboardCommands, ProgressorCommands } from "./commands"
 
 /**
  * Get device information
@@ -15,11 +15,11 @@ export const info = async (board: Device): Promise<void> => {
       await read(Motherboard, "device", "manufacturer", 250)
       await read(Motherboard, "device", "hardware", 250)
       await read(Motherboard, "device", "firmware", 250)
-      await write(Motherboard, "uart", "tx", String(MotherboardCommands.GET_TEXT), 250)
-      await write(Motherboard, "uart", "tx", String(MotherboardCommands.GET_SERIAL), 250)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_TEXT, 250)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_SERIAL, 250)
     }
-    if (board.name === "Tindeq") {
-      await write(Tindeq, "progressor", "tx", String(TindeqCommands.GET_APP_VERSION), 250)
+    if (board.name && board.name.startsWith("Progressor")) {
+      await write(Progressor, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250)
     }
   }
 }

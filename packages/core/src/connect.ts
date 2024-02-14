@@ -1,6 +1,8 @@
 import { Device } from "./devices/types"
+import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { notifyCallback } from "./notify"
 import { handleMotherboardData } from "./data"
+import { lastWrite } from "./write"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
@@ -23,6 +25,19 @@ const onDisconnected = (event: Event, board: Device): void => {
 const handleNotifications = (event: Event, board: Device): void => {
   const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
   const value: DataView | undefined = characteristic.value
+
+  function _unpackFloat(bytes: Uint8Array) {
+    const view = new DataView(new ArrayBuffer(4))
+    for (let i = 0; i < 4; i++) {
+      view.setUint8(i, bytes[i])
+    }
+    return view.getFloat32(0, true)
+  }
+
+  // function _unpackInt(bytes: Uint8Array) {
+  //   return (bytes[1] << 8) + bytes[0];
+  // }
+
   if (value) {
     if (board.name === "Motherboard") {
       for (let i: number = 0; i < value.byteLength; i++) {
@@ -51,19 +66,51 @@ const handleNotifications = (event: Event, board: Device): void => {
           })
         }
       }
-    } else if (board.name === "Tindeq") {
-      // TODO: handle Tindeq notify
+    } else if (board.name && board.name.startsWith("Progressor")) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
-        const rawData: DataView = new DataView(buffer)
-        const receivedData: number = rawData.getUint8(0)
-        if (notifyCallback) {
-          notifyCallback({
-            uuid: characteristic.uuid,
-            value: {
-              massTotal: receivedData,
-            },
-          })
+        const rawData: Uint8Array = new Uint8Array(buffer)
+        const kind: number = rawData[0]
+        const tare: number = 0 // todo: add tare
+        if (kind === ProgressorResponses.WEIGHT_MEASURE) {
+          for (let i = 2; i < rawData.length; i += 6) {
+            const weight = _unpackFloat(rawData.slice(i, i + 4))
+            // let useconds = _unpackInt(rawData.slice(i + 4, i + 6));
+            // let now = useconds / 1.0e6;
+
+            if (notifyCallback) {
+              notifyCallback({
+                uuid: characteristic.uuid,
+                value: {
+                  massTotal: weight - tare,
+                },
+              })
+            }
+          }
+        } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
+          if (!lastWrite) return
+
+          let value: string = ""
+
+          if (lastWrite === ProgressorCommands.GET_BATT_VLTG) {
+            const vdd = new DataView(rawData.buffer, 2).getUint32(0, true)
+            value = `Battery level = ${vdd} [mV]`
+          } else if (lastWrite === ProgressorCommands.GET_FW_VERSION) {
+            value = new TextDecoder().decode(rawData.slice(2))
+          } else if (lastWrite === ProgressorCommands.GET_ERR_INFO) {
+            value = new TextDecoder().decode(rawData.slice(2))
+          }
+          if (notifyCallback) {
+            notifyCallback({ uuid: characteristic.uuid, value: value })
+          }
+        } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
+          if (notifyCallback) {
+            notifyCallback({ uuid: characteristic.uuid, value: "low power warning" })
+          }
+        } else {
+          if (notifyCallback) {
+            notifyCallback({ uuid: characteristic.uuid, value: `unknown message kind ${kind}` })
+          }
         }
       }
     } else {
@@ -145,9 +192,8 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
     const filters = []
 
     if (board.name) {
-      filters.push({
-        name: board.name,
-      })
+      const filterName = board.name === "Progressor" ? { namePrefix: board.name } : { name: board.name }
+      filters.push(filterName)
     }
     if (board.companyId) {
       filters.push({

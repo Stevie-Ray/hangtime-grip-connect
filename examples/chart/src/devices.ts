@@ -3,7 +3,7 @@ import {
   Entralpi,
   Motherboard,
   SmartBoard,
-  Tindeq,
+  Progressor,
   battery,
   connect,
   disconnect,
@@ -38,6 +38,7 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
         notify((data: { value?: massObject }) => {
           if (data && data.value) {
             if (data.value.massTotal !== undefined) {
+              addData(data.value.massTotal)
               outputValue(outputElement, JSON.stringify(data.value))
             } else {
               console.log(data.value)
@@ -89,7 +90,7 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
         await battery(Motherboard)
         await info(Motherboard)
 
-        // start streaming for a minute
+        // start streaming
         await stream(Motherboard)
 
         // disconnect from device after we are done
@@ -103,6 +104,7 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
         notify((data: { value?: massObject }) => {
           if (data && data.value) {
             if (data.value.massTotal !== undefined) {
+              addData(data.value.massTotal)
               outputValue(outputElement, JSON.stringify(data.value))
             } else {
               console.log(data.value)
@@ -114,22 +116,26 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
       })
     }
 
-    if (selectedDevice === "tindeq") {
-      return connect(Tindeq, async () => {
+    if (selectedDevice === "progressor") {
+      return connect(Progressor, async () => {
         // Listen for notifications
-        notify((data: { value?: string }) => {
+        notify((data: { value?: massObject }) => {
           if (data && data.value) {
-            console.log(data.value)
-            outputValue(outputElement, data.value)
+            if (data.value.massTotal !== undefined) {
+              addData(data.value.massTotal)
+              outputValue(outputElement, JSON.stringify(data.value))
+            } else {
+              console.log(data.value)
+            }
           }
         })
-        await battery(Tindeq)
-        await info(Tindeq)
+        await battery(Progressor)
+        await info(Progressor)
 
-        // start streaming for a minute
-        await stream(Tindeq)
+        // start streaming
+        await stream(Progressor)
         // disconnect from device after we are done
-        // disconnect(Tindeq)
+        // disconnect(Progressor)
       })
     }
   })
@@ -140,8 +146,8 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
     if (selectedDevice === "motherboard") {
       await stop(Motherboard)
     }
-    if (selectedDevice === "tindeq") {
-      await stop(Tindeq)
+    if (selectedDevice === "progressor") {
+      await stop(Progressor)
     }
   })
 }

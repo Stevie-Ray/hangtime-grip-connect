@@ -2,8 +2,8 @@ import { Device } from "./devices/types"
 import { isConnected } from "./is-connected"
 import { write } from "./write"
 import { stop } from "./stop"
-import { Motherboard, Tindeq } from "./devices"
-import { MotherboardCommands, TindeqCommands } from "./commands"
+import { Motherboard, Progressor } from "./devices"
+import { MotherboardCommands, ProgressorCommands } from "./commands"
 import { CALIBRATION } from "./data"
 import { calibration } from "./calibration"
 
@@ -19,18 +19,18 @@ export const stream = async (board: Device, duration: number = 0): Promise<void>
         await calibration(Motherboard)
       }
       // start stream
-      await write(Motherboard, "uart", "tx", String(MotherboardCommands.START_WEIGHT_MEAS), duration)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
       // end stream if duration is set
       if (duration !== 0) {
         await stop(Motherboard)
       }
     }
-    if (board.name === "Tindeq") {
+    if (board.name && board.name.startsWith("Progressor")) {
       // start stream
-      await write(Tindeq, "progressor", "tx", String(TindeqCommands.START_WEIGHT_MEAS), duration)
+      await write(Progressor, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
       // end stream if duration is set
       if (duration !== 0) {
-        await stop(Tindeq)
+        await stop(Progressor)
       }
     }
   }

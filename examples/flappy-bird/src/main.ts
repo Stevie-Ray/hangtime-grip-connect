@@ -10,7 +10,7 @@ document.querySelector<HTMLDivElement>("#controller")!.innerHTML += `
         <option value="entralpi">Entralpi</option>
         <option value="motherboard" selected>Motherboard</option>
         <option value="smartboard" disabled>SmartBoard</option>
-        <option value="tindeq">Tindeq</option>
+        <option value="progressor">Progressor</option>
       </select>
 `
 

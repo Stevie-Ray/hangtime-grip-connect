@@ -11,7 +11,7 @@ import { MotherboardCommands } from "./commands"
 export const calibration = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
     if (board.name === "Motherboard") {
-      await write(Motherboard, "uart", "tx", String(MotherboardCommands.GET_CALIBRATION), 2500)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500)
     }
   }
 }

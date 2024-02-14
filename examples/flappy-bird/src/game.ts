@@ -1,4 +1,4 @@
-import { Motherboard, Tindeq, Entralpi, connect, notify, stream, stop, isConnected } from "@hangtime/grip-connect"
+import { Motherboard, Progressor, Entralpi, connect, notify, stream, stop, isConnected } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/devices/types"
 
 interface massObject {
@@ -38,7 +38,7 @@ export function setupDevice(element: HTMLSelectElement) {
       device = Entralpi
     }
     if (selectedDevice === "tindeq") {
-      device = Tindeq
+      device = Progressor
     }
     getBluetoothData()
   })

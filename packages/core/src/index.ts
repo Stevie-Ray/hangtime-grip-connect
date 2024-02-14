@@ -1,4 +1,4 @@
-export { Climbro, Entralpi, Motherboard, SmartBoard, Tindeq } from "./devices/index"
+export { Climbro, Entralpi, Motherboard, SmartBoard, Progressor } from "./devices/index"
 
 export { battery } from "./battery"
 

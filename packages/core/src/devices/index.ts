@@ -6,4 +6,4 @@ export { Motherboard } from "./motherboard"
 
 export { SmartBoard } from "./smartboard"
 
-export { Tindeq } from "./tindeq"
+export { Progressor } from "./progressor"

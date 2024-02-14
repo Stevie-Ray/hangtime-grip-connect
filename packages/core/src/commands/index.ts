@@ -4,6 +4,6 @@ export { EntralpiCommands } from "./entralpi"
 
 export { MotherboardCommands } from "./motherboard"
 
-export { SmartBoardCommands } from "./smartboard"
+export { ProgressorCommands } from "./progressor"
 
-export { TindeqCommands } from "./tindeq"
+export { SmartBoardCommands } from "./smartboard"
