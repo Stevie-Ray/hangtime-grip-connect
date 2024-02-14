@@ -19,10 +19,10 @@ jobs:
         run: npm ci
 
       - name: Format
-        run: npm format:check
+        run: npm run format:check
 
       - name: Lint
-        run: npm lint:check
+        run: npm run lint:check
 
       - name: Build
         run: npm ci && npm run build
