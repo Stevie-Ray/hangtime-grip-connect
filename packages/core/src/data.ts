@@ -1,7 +1,7 @@
 import { notifyCallback } from "./notify"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { lastWrite } from "./write"
-import struct from "@aksel/structjs"
+import struct from "./struct"
 
 const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
@@ -145,7 +145,7 @@ export const handleProgressorData = (uuid: string, data: DataView): void => {
         notifyCallback({
           uuid: uuid,
           value: {
-            massTotal: Math.max(-1000, weight - tare).toFixed(1),
+            massTotal: Math.max(-1000, Number(weight) - tare).toFixed(1),
           },
         })
       }
