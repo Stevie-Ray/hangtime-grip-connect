@@ -1,7 +1,7 @@
 import { notifyCallback } from "./notify"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { lastWrite } from "./write"
-import struct from '@aksel/structjs'
+import struct from "@aksel/structjs"
 
 const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
@@ -137,9 +137,9 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
 
 export const handleProgressorData = (uuid: string, data: DataView): void => {
   const tare: number = 0 // todo: add tare
-  const [kind] = struct('<bb').unpack(data.buffer.slice(0, 2))
+  const [kind] = struct("<bb").unpack(data.buffer.slice(0, 2))
   if (kind === ProgressorResponses.WEIGHT_MEASURE) {
-    const iterable = struct('<fi').iter_unpack(data.buffer.slice(2))
+    const iterable = struct("<fi").iter_unpack(data.buffer.slice(2))
     for (const [weight] of iterable) {
       if (notifyCallback) {
         notifyCallback({
