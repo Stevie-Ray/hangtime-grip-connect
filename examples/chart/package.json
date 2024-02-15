@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.2.3",
+    "@hangtime/grip-connect": "^0.2.4",
     "chart.js": "^4.4.1"
   },
   "devDependencies": {

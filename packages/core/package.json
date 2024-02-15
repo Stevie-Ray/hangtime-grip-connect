@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement. Examples of such hangboards include the Griptonite Motherboard, Climbro, SmartBoard, Entralpi or Tindeq Progressor",
   "main": "src/index.ts",
   "scripts": {
@@ -19,13 +19,13 @@
     "hangboard",
     "hangboarding",
     "beastmaker",
-    "motherboard"
+    "motherboard",
+    "tindeq",
+    "progressor",
+    "entralpi"
   ],
   "bugs": {
     "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
   },
-  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/",
-  "dependencies": {
-    "@aksel/structjs": "^1.0.0"
-  }
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
 }
