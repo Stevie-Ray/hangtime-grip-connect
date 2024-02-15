@@ -37,7 +37,7 @@ export function setupDevice(element: HTMLSelectElement) {
     if (selectedDevice === "entralpi") {
       device = Entralpi
     }
-    if (selectedDevice === "tindeq") {
+    if (selectedDevice === "progressor") {
       device = Progressor
     }
     getBluetoothData()

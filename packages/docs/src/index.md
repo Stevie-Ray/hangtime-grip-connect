@@ -13,8 +13,11 @@ hero:
       text: Get Started
       link: /get-started
     - theme: alt
-      text: Try on Vercel
+      text: Example Force Chart
       link: https://grip-connect.vercel.app/
+    - theme: alt
+      text: Example Force Game
+      link: https://grip-connect-flappy-bird.vercel.app/
     - theme: alt
       text: View on Github
       link: https://github.com/Stevie-Ray/hangtime-grip-connect
@@ -22,8 +25,8 @@ hero:
 features:
   - title: Connect with your device
     details:
-      Setup a Bluetooth connection between your device and the Motherboard, Climbro, SmartBoard, Entralpi or Tindeq
-      Progressor
+      Setup a Bluetooth connection between your device and the Griptonite Motherboard, Climbro, SmartBoard, Entralpi or
+      Tindeq Progressor
   - title: Read the data
     details: Output the raw data that is being transmitted by the Force-Sensing device
   - title: Get creative

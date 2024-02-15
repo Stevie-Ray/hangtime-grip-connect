@@ -4,47 +4,16 @@
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
 Force-Sensing Hangboards / Plates used by climbers for strength measurement. Examples of such hangboards include the
-[Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
+[Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
 [SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
 [Tindeq Progressor](https://tindeq.com/)
 
-[Try it out](https://grip-connect.vercel.app/) - [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
+Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
-## Roadmap
+## Try it out
 
-**Help wanted:** Do you own any of these devices? Use Google Chrome's Bluetooth Internals
-`chrome://bluetooth-internals/#devices` and press `Start Scan` to look for your device, click on `Inspect` and share all
-available services with us.
-
-- ✅ Griptonite Motherboard
-  - ✅️ Connect with devices
-  - ✅️ Read / Write / Notify using Bluetooth
-  - ✅️ Output weight/force stream
-- ✅ Tindeq Progressor
-  - ✅️ Connect with devices
-  - ✅️ Read / Write / Notify using Bluetooth
-  - ✅️ Output weight/force stream
-- ✅ Entralpi
-  - ✅️ Connect with devices
-  - ✅️ Read / Write / Notify using Bluetooth
-  - ✅️️ Output weight/force stream
-- ➡️ Climbro
-  - ➡️ Connect with devices
-  - ➡️ Read / Write / Notify using Bluetooth
-  - ➡️ Output weight/force stream
-- ➡️ SmartBoard
-  - ➡️ Connect with devices
-  - ➡️ Read / Write / Notify using Bluetooth
-  - ➡️ Output weight/force stream
-
-## Development
-
-```bash
-git clone https://github.com/Stevie-Ray/hangtime-grip-connect
-cd hangtime-grip-connect
-npm install
-```
+[Chart](https://grip-connect.vercel.app/) - [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/)
 
 ## Install
 
@@ -87,6 +56,44 @@ motherboardButton.addEventListener("click", () => {
     disconnect(Motherboard)
   })
 })
+```
+
+## Roadmap
+
+**Help wanted:** Do you own any of these devices? Use Google Chrome's Bluetooth Internals
+`chrome://bluetooth-internals/#devices` and press `Start Scan` to look for your device, click on `Inspect` and share all
+available services with us.
+
+### Device support
+
+- ✅ Griptonite Motherboard
+- ✅ Tindeq Progressor
+- ✅ Entralpi
+- ➡️ Climbro
+- ➡️ SmartBoard
+
+### Features
+
+- ✅ Connect
+- ✅ Disconnect
+- ✅ Start data stream (live data)
+- ✅ Stop data stream
+- ✅ Battery status
+- ✅ Read calibration
+- ✅ Device info (firmware / serial etc.)
+- ✅ Check if device is connected
+- ➡️ Peak load
+- ➡️ Endurance
+- ➡️ Rate of Force Development (RFD)
+- ➡️ Repeaters
+- ➡️ Critical Force
+
+## Development
+
+```bash
+git clone https://github.com/Stevie-Ray/hangtime-grip-connect
+cd hangtime-grip-connect
+npm install
 ```
 
 ## Credits
