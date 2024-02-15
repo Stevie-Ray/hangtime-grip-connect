@@ -159,6 +159,7 @@ export default function struct(format: string) {
   const lu = (n: string, c: string): [number, number, (o: number) => FormatFn] => t[c](n ? parseInt(n, 10) : 1)
 
   while ((m = refmt.exec(format))) {
+    // eslint-disable-next-line no-extra-semi
     ;((r: number, s: number, f: (o: number) => FormatFn) => {
       for (let i = 0; i < r; ++i, size += s) {
         if (f) {
