@@ -1,0 +1,1 @@
+declare module '@aksel/structjs'

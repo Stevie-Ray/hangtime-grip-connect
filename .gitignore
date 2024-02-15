@@ -173,7 +173,3 @@ temp/
 e2e/report
 e2e/junit.xml
 e2e/results
-
-# Typescript Build files
-*.d.ts
-*.js
