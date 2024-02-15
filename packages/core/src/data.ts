@@ -1,4 +1,7 @@
 import { notifyCallback } from "./notify"
+import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
+import { lastWrite } from "./write"
+import struct from '@aksel/structjs'
 
 const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
@@ -129,5 +132,47 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
   } else {
     // unhanded data
     console.log(receivedData)
+  }
+}
+
+export const handleProgressorData = (uuid: string, data: DataView): void => {
+  const tare: number = 0 // todo: add tare
+  const [kind] = struct('<bb').unpack(data.buffer.slice(0, 2))
+  if (kind === ProgressorResponses.WEIGHT_MEASURE) {
+    const iterable = struct('<fi').iter_unpack(data.buffer.slice(2))
+    for (const [weight] of iterable) {
+      if (notifyCallback) {
+        notifyCallback({
+          uuid: uuid,
+          value: {
+            massTotal: Math.max(-1000, weight - tare).toFixed(1),
+          },
+        })
+      }
+    }
+  } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
+    if (!lastWrite) return
+
+    let value: string = ""
+
+    if (lastWrite === ProgressorCommands.GET_BATT_VLTG) {
+      const vdd = new DataView(data.buffer, 2).getUint32(0, true)
+      value = `Battery level = ${vdd} [mV]`
+    } else if (lastWrite === ProgressorCommands.GET_FW_VERSION) {
+      value = new TextDecoder().decode(data.buffer.slice(2))
+    } else if (lastWrite === ProgressorCommands.GET_ERR_INFO) {
+      value = new TextDecoder().decode(data.buffer.slice(2))
+    }
+    if (notifyCallback) {
+      notifyCallback({ uuid: uuid, value: value })
+    }
+  } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
+    if (notifyCallback) {
+      notifyCallback({ uuid: uuid, value: "low power warning" })
+    }
+  } else {
+    if (notifyCallback) {
+      notifyCallback({ uuid: uuid, value: `unknown message kind ${kind}` })
+    }
   }
 }
