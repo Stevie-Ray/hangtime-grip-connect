@@ -412,6 +412,21 @@ const Game: GameType = {
   },
 
   listen: function () {
+    document.addEventListener("touchstart", async function () {
+      if (Pong.running === false) {
+        if (isConnected(device)) {
+          stream(device)
+          Pong.running = true
+          window.requestAnimationFrame(Pong.loop)
+        } else {
+          await getBluetoothData().then(() => {
+            Pong.running = true
+            window.requestAnimationFrame(Pong.loop)
+          })
+        }
+      }
+    })
+
     document.addEventListener("keydown", async function (key) {
       // Handle the 'Press any key to begin' function and start the game.
       if (Pong.running === false) {
