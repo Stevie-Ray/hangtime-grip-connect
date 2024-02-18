@@ -8,7 +8,9 @@ interface massObject {
 }
 
 let mass: number
-let device: Device = Motherboard
+let weight: number = 75
+let difficulty: number = 0.5
+let device: Device = Progressor
 
 function getBluetoothData() {
   return connect(device, async () => {
@@ -41,6 +43,28 @@ export function setupDevice(element: HTMLSelectElement) {
       device = Progressor
     }
     getBluetoothData()
+  })
+}
+
+export function setupDifficulty(element: HTMLSelectElement) {
+  element.addEventListener("change", () => {
+    const selectedDifficulty = element.value
+
+    if (selectedDifficulty === "easy") {
+      difficulty = 0.75
+    }
+    if (selectedDifficulty === "normal") {
+      difficulty = 0.5
+    }
+    if (selectedDifficulty === "hard") {
+      difficulty = 0.25
+    }
+  })
+}
+
+export function setupWeight(element: HTMLInputElement) {
+  element.addEventListener("change", () => {
+    weight = Number(element.value)
   })
 }
 
@@ -158,6 +182,7 @@ const pipe: {
   moved: true,
   pipes: [],
   draw: function () {
+    this.gap = 50 + difficulty * 150
     for (let i = 0; i < this.pipes.length; i++) {
       const p = this.pipes[i]
       sctx.drawImage(this.top.sprite, p.x, p.y)
@@ -214,7 +239,7 @@ const bird: {
     sctx.drawImage(this.animations[this.frame].sprite, -w / 2, -h / 2)
     sctx.restore()
   },
-  update: async function () {
+  update: function () {
     const r = parseFloat(String(this.animations[0].sprite.width)) / 2
     switch (state.curr) {
       case state.getReady:
@@ -224,14 +249,13 @@ const bird: {
         break
       case state.Play:
         this.frame += gameFrames % 5 == 0 ? 1 : 0
-        if (mass) {
-          const newy: number = (mass / 100) * scrn.height
-          this.y = Math.max(Math.min(newy, gnd.y - r), r)
+        if (mass && this.y > 0) {
+          this.speed -= (this.thrust / weight) * (mass * difficulty)
         }
         this.y += this.speed
         this.setRotation()
         this.speed += this.gravity
-        if ((!isConnected(device) && this.y + r >= gnd.y) || this.collisioned()) {
+        if (this.y + r >= gnd.y || this.collisioned()) {
           state.curr = state.gameOver
         }
         break
@@ -248,9 +272,7 @@ const bird: {
           if (!SFX.played) {
             SFX.die.play()
             SFX.played = true
-            if (isConnected(device)) {
-              await stop(device)
-            }
+            stop(device)
           }
         }
         break

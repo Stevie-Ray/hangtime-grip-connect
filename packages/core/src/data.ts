@@ -1,5 +1,6 @@
 import { notifyCallback } from "./notify"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
+import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
 import struct from "./struct"
 
@@ -123,12 +124,13 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
         },
       })
     }
-  } else if ((receivedData.match(/,/g) || []).length === 3) {
-    console.log(receivedData)
-    // if the returned notification is a calibration string add them to the array
-    const parts: string[] = receivedData.split(",")
-    const numericParts: number[] = parts.map((x) => parseFloat(x))
-    ;(CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
+  } else if (lastWrite === MotherboardCommands.GET_CALIBRATION) {
+    // check data integrity
+    if ((receivedData.match(/,/g) || []).length === 3) {
+      const parts: string[] = receivedData.split(",")
+      const numericParts: number[] = parts.map((x) => parseFloat(x))
+      ;(CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
+    }
   } else {
     // unhanded data
     console.log(receivedData)

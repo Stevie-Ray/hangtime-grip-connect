@@ -34,7 +34,12 @@ body {
   margin: auto;
 }
 
-select {
+input {
+  max-width: 130px;
+}
+
+select,
+input {
   appearance: none;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -49,11 +54,16 @@ select {
   text-align: center;
   transition: border-color 0.25s;
 }
-select:hover {
+
+select:hover,
+input:hover {
   border-color: #646cff;
 }
+
 select:focus,
-select:focus-visible {
+select:focus-visible,
+input:focus,
+input:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 

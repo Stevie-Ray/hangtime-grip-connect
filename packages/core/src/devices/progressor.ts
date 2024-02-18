@@ -21,7 +21,7 @@ export const Progressor: Device = {
       ],
     },
     {
-      name: "Secure DFU Service",
+      name: "Nordic Device Firmware Update (DFU) Service",
       id: "dfu",
       uuid: "0000fe59-0000-1000-8000-00805f9b34fb",
       characteristics: [

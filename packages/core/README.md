@@ -13,7 +13,8 @@ Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 
 ## Try it out
 
-[Chart](https://grip-connect.vercel.app/) - [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/)
+[Chart](https://grip-connect.vercel.app/) - [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/) -
+[Pong](https://grip-connect-pong.vercel.app/)
 
 ## Install
 
@@ -104,6 +105,7 @@ A special thank you to:
 - [@donaldharvey](https://github.com/donaldharvey) for a valuable example on connecting to the Motherboard.
 - [@ecstrema](https://github.com/ecstrema) for providing [examples](https://github.com/ecstrema/entralpi-games) on how
   to play games with the Entralpi.
+- [Tindeq](https://tindeq.com/) for providing an open [Progressor API](https://tindeq.com/progressor_api/)
 - [@StuartLittlefair](https://github.com/StuartLittlefair) for his
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
 
