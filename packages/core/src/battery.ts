@@ -6,15 +6,21 @@ import { Motherboard, Progressor } from "./devices"
 import { ProgressorCommands } from "./commands"
 
 /**
- * Get Battery / Voltage information
- * @param board
+ * Retrieves battery or voltage information from the device.
+ * @param {Device} board - The device.
+ * @returns {Promise<void>} A Promise that resolves when the information is successfully retrieved.
  */
 export const battery = async (board: Device): Promise<void> => {
+  // Check if the device is connected
   if (isConnected(board)) {
+    // If the device is connected and it is a Motherboard device
     if (board.name === "Motherboard") {
+      // Read battery level information from the Motherboard
       await read(Motherboard, "battery", "level", 250)
     }
+    // If the device is connected and its name starts with "Progressor"
     if (board.name && board.name.startsWith("Progressor")) {
+      // Write command to get battery voltage information to the Progressor
       await write(Progressor, "progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250)
     }
   }

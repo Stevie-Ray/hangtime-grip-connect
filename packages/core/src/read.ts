@@ -4,8 +4,12 @@ import { getCharacteristic } from "./characteristic"
 import { isConnected } from "./is-connected"
 
 /**
- * read
- * @param characteristic
+ * Reads the value of the specified characteristic from the device.
+ * @param {Device} board - The device to read from.
+ * @param {string} serviceId - The service ID where the characteristic belongs.
+ * @param {string} characteristicId - The characteristic ID to read from.
+ * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
+ * @returns {Promise<void>} A promise that resolves when the read operation is completed.
  */
 export const read = (
   board: Device,
@@ -25,15 +29,18 @@ export const read = (
             const decoder = new TextDecoder("utf-8")
             switch (characteristicId) {
               case "level":
+                // TODO: This is Motherboard specific.
                 decodedValue = value.getUint8(0)
                 break
               default:
                 decodedValue = decoder.decode(value)
                 break
             }
+            // Notify callback if available
             if (notifyCallback) {
               notifyCallback({ uuid: characteristic.uuid, value: decodedValue })
             }
+            // Resolve after specified duration
             setTimeout(() => {
               resolve()
             }, duration)

@@ -1,5 +1,7 @@
 import { Device } from "./types"
-
+/**
+ * Represents a Tindeq Progressor device
+ */
 export const Progressor: Device = {
   name: "Progressor",
   services: [

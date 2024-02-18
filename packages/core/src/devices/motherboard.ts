@@ -1,5 +1,8 @@
 import { Device } from "./types"
 
+/**
+ * Represents a Griptonite Motherboard device
+ */
 export const Motherboard: Device = {
   name: "Motherboard",
   companyId: 0x2a29,

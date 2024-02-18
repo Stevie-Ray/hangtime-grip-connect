@@ -6,9 +6,9 @@ let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
 
 /**
- * onDisconnected
- * @param board
- * @param event
+ * Handles the 'disconnected' event.
+ * @param {Event} event - The 'disconnected' event.
+ * @param {Device} board - The device that is disconnected.
  */
 const onDisconnected = (event: Event, board: Device): void => {
   board.device = undefined
@@ -16,9 +16,9 @@ const onDisconnected = (event: Event, board: Device): void => {
   console.log(`Device ${device.name} is disconnected.`)
 }
 /**
- * handleNotifications
- * @param event
- * @param onNotify
+ * Handles notifications received from a characteristic.
+ * @param {Event} event - The notification event.
+ * @param {Device} board - The device associated with the characteristic.
  */
 const handleNotifications = (event: Event, board: Device): void => {
   const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
@@ -66,12 +66,13 @@ const handleNotifications = (event: Event, board: Device): void => {
   }
 }
 /**
- * onConnected
- * @param event
- * @param board
+ * Handles the 'connected' event.
+ * @param {Device} board - The connected device.
+ * @param {Function} onSuccess - Callback function to execute on successful connection.
  */
 const onConnected = async (board: Device, onSuccess: () => void): Promise<void> => {
   try {
+    // Connect to GATT server and set up characteristics
     const services: BluetoothRemoteGATTService[] = await server?.getPrimaryServices()
 
     if (!services || services.length === 0) {
@@ -118,19 +119,21 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
   }
 }
 /**
- * Return all service UUIDs
- * @param device
+ * Returns UUIDs of all services associated with the device.
+ * @param {Device} device - The device.
+ * @returns {string[]} Array of service UUIDs.
  */
 const getAllServiceUUIDs = (device: Device) => {
   return device.services.map((service) => service.uuid)
 }
 /**
- * Connect to the BluetoothDevice
- * @param device
- * @param onSuccess
+ * Connects to a Bluetooth device.
+ * @param {Device} board - The device to connect to.
+ * @param {Function} onSuccess - Callback function to execute on successful connection.
  */
 export const connect = async (board: Device, onSuccess: () => void): Promise<void> => {
   try {
+    // Request device and set up connection
     const deviceServices = getAllServiceUUIDs(board)
 
     // setup filter list

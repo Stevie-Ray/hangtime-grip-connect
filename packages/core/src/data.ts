@@ -4,21 +4,22 @@ import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
 import struct from "./struct"
 
+// Constants
 const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
 export const CALIBRATION = [[], [], [], []]
+
 /**
- * applyCalibration
- * @param sample
- * @param calibration
+ * Applies calibration to a sample value.
+ * @param {number} sample - The sample value to calibrate.
+ * @param {number[][]} calibration - The calibration data.
+ * @returns {number} The calibrated sample value.
  */
 const applyCalibration = (sample: number, calibration: number[][]): number => {
   // Extract the calibrated value for the zero point
   const zeroCalibration: number = calibration[0][2]
-
   // Initialize sign as positive
   let sign: number = 1
-
   // Initialize the final calibrated value
   let final: number = 0
 
@@ -26,7 +27,6 @@ const applyCalibration = (sample: number, calibration: number[][]): number => {
   if (sample < zeroCalibration) {
     // Change the sign to negative
     sign = -1
-
     // Reflect the sample around the zero calibration point
     sample = /* 2 * zeroCalibration */ -sample
   }
@@ -51,6 +51,7 @@ const applyCalibration = (sample: number, calibration: number[][]): number => {
   return sign * final
 }
 
+// Define the structure of a packet
 interface Packet {
   received: number
   sampleNum: number
@@ -60,10 +61,9 @@ interface Packet {
 }
 
 /**
- * handleMotherboardData
- *
- * @param uuid - Unique identifier
- * @param receivedData - Received data string
+ * Handles data received from the Motherboard device.
+ * @param {string} uuid - The unique identifier of the device.
+ * @param {string} receivedData - The received data string.
  */
 export const handleMotherboardData = (uuid: string, receivedData: string): void => {
   const receivedTime: number = Date.now()
@@ -103,7 +103,6 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
       if (packet.samples[i] >= 0x7fffff) {
         packet.samples[i] -= 0x1000000
       }
-      // if (!CALIBRATION[0].length) return
       packet.masses[i] = applyCalibration(packet.samples[i], CALIBRATION[i])
     }
     // invert center and right values
@@ -132,11 +131,16 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
       ;(CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
     }
   } else {
-    // unhanded data
+    // unhandled data
     console.log(receivedData)
   }
 }
 
+/**
+ * Handles data received from the Progressor device.
+ * @param {string} uuid - The unique identifier of the device.
+ * @param {DataView} data - The received data.
+ */
 export const handleProgressorData = (uuid: string, data: DataView): void => {
   const tare: number = 0 // todo: add tare
   const [kind] = struct("<bb").unpack(data.buffer.slice(0, 2))

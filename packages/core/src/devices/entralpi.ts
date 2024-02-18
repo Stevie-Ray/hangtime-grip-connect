@@ -1,5 +1,8 @@
 import { Device } from "./types"
 
+/**
+ * Represents a Entralpi device
+ */
 export const Entralpi: Device = {
   name: "ENTRALPI",
   services: [
