@@ -1,6 +1,5 @@
 import { Device } from "./devices/types"
-import { notifyCallback } from "./notify"
-import { handleMotherboardData, handleProgressorData } from "./data"
+import { handleEntralpiData, handleMotherboardData, handleProgressorData } from "./data"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
@@ -36,32 +35,23 @@ const handleNotifications = (event: Event, board: Device): void => {
         if (line.length > 0 && line[line.length - 1] === 13) line.pop() // Remove CR
         const decoder: TextDecoder = new TextDecoder("utf-8")
         const receivedData: string = decoder.decode(new Uint8Array(line))
-        handleMotherboardData(characteristic.uuid, receivedData)
+        handleMotherboardData(receivedData)
       }
     } else if (board.name === "ENTRALPI") {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
-        const receivedData: number = rawData.getUint16(0) / 100
-        if (notifyCallback) {
-          notifyCallback({
-            uuid: characteristic.uuid,
-            value: {
-              massTotal: receivedData,
-            },
-          })
-        }
+        const receivedData: string = (rawData.getUint16(0) / 100).toFixed(1)
+        handleEntralpiData(receivedData)
       }
     } else if (board.name && board.name.startsWith("Progressor")) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
-        handleProgressorData(characteristic.uuid, rawData)
+        handleProgressorData(rawData)
       }
     } else {
-      if (notifyCallback) {
-        notifyCallback({ uuid: characteristic.uuid, value: value })
-      }
+      console.log(value)
     }
   }
 }

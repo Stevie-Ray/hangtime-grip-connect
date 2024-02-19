@@ -12,6 +12,8 @@ import {
   stream,
   stop,
 } from "@hangtime/grip-connect"
+import { massObject } from "@hangtime/grip-connect/src/notify"
+import { Device } from "@hangtime/grip-connect/src/devices/types.ts"
 import { Chart } from "chart.js/auto"
 
 const chartData: number[] = []
@@ -22,122 +24,47 @@ export function outputValue(element: HTMLDivElement, data: string) {
   element.innerHTML = data
 }
 
-interface massObject {
-  massTotal?: string
-  massRight?: string
-  massLeft?: string
-}
-
 export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonElement, outputElement: HTMLDivElement) {
   element.addEventListener("change", () => {
     const selectedDevice = element.value
+    let device: Device = Motherboard
 
     if (selectedDevice === "climbro") {
-      return connect(Climbro, async () => {
-        // Listen for notifications
-        notify((data: { value?: massObject }) => {
-          if (data && data.value) {
-            if (data.value.massTotal !== undefined) {
-              addData(data.value.massTotal)
-              outputValue(outputElement, JSON.stringify(data.value))
-            } else {
-              console.log(data.value)
-            }
-          }
-        })
-        // disconnect from device after we are done
-        disconnect(Climbro)
-      })
+      device = Climbro
+    } else if (selectedDevice === "entralpi") {
+      device = Entralpi
+    } else if (selectedDevice === "motherboard") {
+      device = Motherboard
+    } else if (selectedDevice === "smartboard") {
+      device = SmartBoard
+    } else if (selectedDevice === "progressor") {
+      device = Progressor
     }
 
-    if (selectedDevice === "entralpi") {
-      return connect(Entralpi, async () => {
-        // Listen for notifications
-        notify((data: { value?: massObject }) => {
-          if (data && data.value) {
-            if (data.value.massTotal !== undefined) {
-              addData(data.value.massTotal)
-              outputValue(outputElement, JSON.stringify(data.value))
-            } else {
-              console.log(data.value)
-            }
-          }
-        })
+    return connect(device, async () => {
+      // Listen for notifications
+      notify((data: massObject) => {
+        if (data) {
+          addData(data.massTotal)
+          outputValue(outputElement, JSON.stringify(data))
+        }
+      })
 
+      // read battery + device info
+      await battery(device)
+      await info(device)
+
+      // start streaming
+      await stream(device)
+
+      if (device === Entralpi) {
         setTimeout(() => {
           // the entralpi will automatically start streaming
         }, 60000)
-
         // disconnect from device after we are done
-        disconnect(Entralpi)
-      })
-    }
-
-    if (selectedDevice === "motherboard") {
-      return connect(Motherboard, async () => {
-        // Listen for notifications
-        notify((data: { value?: massObject }) => {
-          if (data && data.value) {
-            if (data.value.massTotal !== undefined) {
-              addData(data.value.massTotal)
-              outputValue(outputElement, JSON.stringify(data.value))
-            } else {
-              console.log(data.value)
-            }
-          }
-        })
-        // read battery + device info
-        await battery(Motherboard)
-        await info(Motherboard)
-
-        // start streaming
-        await stream(Motherboard)
-
-        // disconnect from device after we are done
-        // disconnect(Motherboard)
-      })
-    }
-
-    if (selectedDevice === "smartboard") {
-      return connect(SmartBoard, async () => {
-        // Listen for notifications
-        notify((data: { value?: massObject }) => {
-          if (data && data.value) {
-            if (data.value.massTotal !== undefined) {
-              addData(data.value.massTotal)
-              outputValue(outputElement, JSON.stringify(data.value))
-            } else {
-              console.log(data.value)
-            }
-          }
-        })
-        // disconnect from device after we are done
-        disconnect(SmartBoard)
-      })
-    }
-
-    if (selectedDevice === "progressor") {
-      return connect(Progressor, async () => {
-        // Listen for notifications
-        notify((data: { value?: massObject }) => {
-          if (data && data.value) {
-            if (data.value.massTotal !== undefined) {
-              addData(data.value.massTotal)
-              outputValue(outputElement, JSON.stringify(data.value))
-            } else {
-              console.log(data.value)
-            }
-          }
-        })
-        await battery(Progressor)
-        await info(Progressor)
-
-        // start streaming
-        await stream(Progressor)
-        // disconnect from device after we are done
-        // disconnect(Progressor)
-      })
-    }
+        disconnect(device)
+      }
+    })
   })
 
   stopElement.addEventListener("click", async () => {

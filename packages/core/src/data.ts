@@ -1,12 +1,23 @@
 import { notifyCallback } from "./notify"
+// import { applyTare } from "./tare"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
 import struct from "./struct"
 
+// Interfaces
+interface MotherboardPacket {
+  received: number
+  sampleNum: number
+  battRaw: number
+  samples: number[]
+  masses: number[]
+}
+
 // Constants
 const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
+let MASS_MAX: string = "0"
 export const CALIBRATION = [[], [], [], []]
 
 /**
@@ -50,22 +61,11 @@ const applyCalibration = (sample: number, calibration: number[][]): number => {
   // Return the calibrated value with the appropriate sign (positive/negative)
   return sign * final
 }
-
-// Define the structure of a packet
-interface Packet {
-  received: number
-  sampleNum: number
-  battRaw: number
-  samples: number[]
-  masses: number[]
-}
-
 /**
  * Handles data received from the Motherboard device.
- * @param {string} uuid - The unique identifier of the device.
  * @param {string} receivedData - The received data string.
  */
-export const handleMotherboardData = (uuid: string, receivedData: string): void => {
+export const handleMotherboardData = (receivedData: string): void => {
   const receivedTime: number = Date.now()
 
   // Check if the line is entirely hex characters
@@ -79,7 +79,7 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
     )
 
     // Translate header into packet, number of samples from the packet length
-    const packet: Packet = {
+    const packet: MotherboardPacket = {
       received: receivedTime,
       sampleNum: new DataView(new Uint8Array(bytes).buffer).getUint16(0, true),
       battRaw: new DataView(new Uint8Array(bytes).buffer).getUint16(2, true),
@@ -108,21 +108,29 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
     // invert center and right values
     packet.masses[1] *= -1
     packet.masses[2] *= -1
-    // map to variables
-    const left: number = packet.masses[0]
-    const center: number = packet.masses[1]
-    const right: number = packet.masses[2]
-    if (notifyCallback) {
-      notifyCallback({
-        uuid,
-        value: {
-          massTotal: Math.max(-1000, left + right + center).toFixed(1),
-          massLeft: Math.max(-1000, left).toFixed(1),
-          massRight: Math.max(-1000, right).toFixed(1),
-          massCenter: Math.max(-1000, center).toFixed(1),
-        },
-      })
-    }
+
+    MASS_MAX = Math.max(
+      Number(MASS_MAX),
+      Math.max(
+        -1000,
+        packet.masses.reduce((a, b) => a + b, 0),
+      ),
+    ).toFixed(1)
+
+    // TODO: Apply tare adjustments
+    // packet.masses = applyTare(packet.masses)
+
+    // Notify with weight data
+    notifyCallback({
+      massTotal: Math.max(
+        -1000,
+        packet.masses.reduce((a, b) => a + b, 0),
+      ).toFixed(1),
+      massMax: MASS_MAX,
+      massLeft: Math.max(-1000, packet.masses[0]).toFixed(1),
+      massCenter: Math.max(-1000, packet.masses[1]).toFixed(1),
+      massRight: Math.max(-1000, packet.masses[2]).toFixed(1),
+    })
   } else if (lastWrite === MotherboardCommands.GET_CALIBRATION) {
     // check data integrity
     if ((receivedData.match(/,/g) || []).length === 3) {
@@ -138,23 +146,19 @@ export const handleMotherboardData = (uuid: string, receivedData: string): void 
 
 /**
  * Handles data received from the Progressor device.
- * @param {string} uuid - The unique identifier of the device.
  * @param {DataView} data - The received data.
  */
-export const handleProgressorData = (uuid: string, data: DataView): void => {
-  const tare: number = 0 // todo: add tare
+export const handleProgressorData = (data: DataView): void => {
+  const tare: number = 0 // Placeholder for tare value, replace with actual tare logic
   const [kind] = struct("<bb").unpack(data.buffer.slice(0, 2))
   if (kind === ProgressorResponses.WEIGHT_MEASURE) {
     const iterable = struct("<fi").iter_unpack(data.buffer.slice(2))
     for (const [weight] of iterable) {
-      if (notifyCallback) {
-        notifyCallback({
-          uuid: uuid,
-          value: {
-            massTotal: Math.max(-1000, Number(weight) - tare).toFixed(1),
-          },
-        })
-      }
+      MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
+      notifyCallback({
+        massMax: MASS_MAX,
+        massTotal: Math.max(-1000, Number(weight) - tare).toFixed(1),
+      })
     }
   } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
     if (!lastWrite) return
@@ -163,22 +167,27 @@ export const handleProgressorData = (uuid: string, data: DataView): void => {
 
     if (lastWrite === ProgressorCommands.GET_BATT_VLTG) {
       const vdd = new DataView(data.buffer, 2).getUint32(0, true)
-      value = `Battery level = ${vdd} [mV]`
+      value = `ℹ️ Battery level: ${vdd} mV`
     } else if (lastWrite === ProgressorCommands.GET_FW_VERSION) {
       value = new TextDecoder().decode(data.buffer.slice(2))
     } else if (lastWrite === ProgressorCommands.GET_ERR_INFO) {
       value = new TextDecoder().decode(data.buffer.slice(2))
     }
-    if (notifyCallback) {
-      notifyCallback({ uuid: uuid, value: value })
-    }
+    console.log(value)
   } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
-    if (notifyCallback) {
-      notifyCallback({ uuid: uuid, value: "low power warning" })
-    }
+    console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
   } else {
-    if (notifyCallback) {
-      notifyCallback({ uuid: uuid, value: `unknown message kind ${kind}` })
-    }
+    console.error(`❌ Error: Unknown message kind detected: ${kind}`)
   }
+}
+/**
+ * Handles data received from the Entralpi device.
+ * @param {string} receivedData - The received data string.
+ */
+export const handleEntralpiData = (receivedData: string): void => {
+  MASS_MAX = Math.max(Number(MASS_MAX), Number(receivedData)).toFixed(1)
+  notifyCallback({
+    massMax: MASS_MAX,
+    massTotal: Math.max(-1000, Number(receivedData)).toFixed(1),
+  })
 }

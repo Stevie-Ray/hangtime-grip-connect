@@ -1,5 +1,4 @@
 import { Device } from "./devices/types"
-import { notifyCallback } from "./notify"
 import { getCharacteristic } from "./characteristic"
 import { isConnected } from "./is-connected"
 
@@ -36,10 +35,8 @@ export const read = (
                 decodedValue = decoder.decode(value)
                 break
             }
-            // Notify callback if available
-            if (notifyCallback) {
-              notifyCallback({ uuid: characteristic.uuid, value: decodedValue })
-            }
+            // TODO: Create Read callback
+            console.log(decodedValue)
             // Resolve after specified duration
             setTimeout(() => {
               resolve()
