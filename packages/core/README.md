@@ -41,7 +41,7 @@ motherboardButton.addEventListener("click", () => {
   connect(Motherboard, async () => {
     // Listen for stream notifications
     notify((data) => {
-      // data: { massTotal: 0, massLeft: 0, massRight: 0, massCenter: 0 }
+      // { massTotal: 0, massMax: 0, massLeft: 0, massCenter: 0, massRight: 0 }
       console.log(data)
     })
 

@@ -13,7 +13,7 @@ import {
   stop,
 } from "@hangtime/grip-connect"
 import { massObject } from "@hangtime/grip-connect/src/notify"
-import { Device } from "@hangtime/grip-connect/src/devices/types.ts"
+import { Device } from "@hangtime/grip-connect/src/devices/types"
 import { Chart } from "chart.js/auto"
 
 const chartData: number[] = []
@@ -44,10 +44,8 @@ export function setupDevice(element: HTMLSelectElement, stopElement: HTMLButtonE
     return connect(device, async () => {
       // Listen for notifications
       notify((data: massObject) => {
-        if (data) {
-          addData(data.massTotal)
-          outputValue(outputElement, JSON.stringify(data))
-        }
+        addData(data.massTotal)
+        outputValue(outputElement, JSON.stringify(data))
       })
 
       // read battery + device info

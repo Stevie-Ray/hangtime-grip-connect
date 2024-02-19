@@ -1,11 +1,6 @@
 import { Motherboard, Progressor, Entralpi, connect, notify, stream, stop, isConnected } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/devices/types"
-
-interface massObject {
-  massTotal: string
-  massRight?: string
-  massLeft?: string
-}
+import { massObject } from "@hangtime/grip-connect/src/notify"
 
 let mass: number
 let weight: number = 75
@@ -15,14 +10,8 @@ let device: Device = Progressor
 function getBluetoothData() {
   return connect(device, async () => {
     // Listen for notifications
-    notify((data: { value?: massObject }) => {
-      if (data && data.value) {
-        if (data.value.massTotal !== undefined) {
-          mass = Number(data.value.massTotal)
-        } else {
-          console.log(data.value)
-        }
-      }
+    notify((data: massObject) => {
+      mass = Number(data.massTotal)
     })
 
     await stream(device)
