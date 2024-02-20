@@ -18,7 +18,11 @@ interface MotherboardPacket {
 const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
 let MASS_MAX: string = "0"
+let MASS_AVERAGE: string = "0"
+let MASS_TOTAL_SUM: number = 0;
+let DATAPOINT_COUNT: number = 0;
 export const CALIBRATION = [[], [], [], []]
+
 
 /**
  * Applies calibration to a sample value.
@@ -109,24 +113,33 @@ export const handleMotherboardData = (receivedData: string): void => {
     packet.masses[1] *= -1
     packet.masses[2] *= -1
 
+    const left: number = packet.masses[0]
+    const center: number = packet.masses[1]
+    const right: number = packet.masses[2]
+
     MASS_MAX = Math.max(
       Number(MASS_MAX),
-      Math.max(
-        -1000,
-        packet.masses.reduce((a, b) => a + b, 0),
-      ),
+      Math.max(-1000, left + center + right),
     ).toFixed(1)
 
-    // TODO: Apply tare adjustments
-    // packet.masses = applyTare(packet.masses)
+    // Update running sum and count
+    const currentMassTotal = Math.max(-1000, left + center + right);
+    MASS_TOTAL_SUM += currentMassTotal;
+    DATAPOINT_COUNT++;
 
+    // Calculate the average dynamically
+    MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1);
+
+    // TODO: Apply tare adjustments
+    // tares = applyTare(packet.masses)
+    // left += tares[0];
+    // center += tares[1];
+    // right += tares[2];
     // Notify with weight data
     notifyCallback({
-      massTotal: Math.max(
-        -1000,
-        packet.masses.reduce((a, b) => a + b, 0),
-      ).toFixed(1),
+      massTotal: Math.max(-1000, left + center + right).toFixed(1),
       massMax: MASS_MAX,
+      massAverage: MASS_AVERAGE,
       massLeft: Math.max(-1000, packet.masses[0]).toFixed(1),
       massCenter: Math.max(-1000, packet.masses[1]).toFixed(1),
       massRight: Math.max(-1000, packet.masses[2]).toFixed(1),
@@ -157,6 +170,7 @@ export const handleProgressorData = (data: DataView): void => {
       MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
       notifyCallback({
         massMax: MASS_MAX,
+        massAverage: MASS_AVERAGE,
         massTotal: Math.max(-1000, Number(weight) - tare).toFixed(1),
       })
     }
@@ -186,8 +200,16 @@ export const handleProgressorData = (data: DataView): void => {
  */
 export const handleEntralpiData = (receivedData: string): void => {
   MASS_MAX = Math.max(Number(MASS_MAX), Number(receivedData)).toFixed(1)
+  // Update running sum and count
+  const currentMassTotal = Math.max(-1000, Number(receivedData));
+  MASS_TOTAL_SUM += currentMassTotal;
+  DATAPOINT_COUNT++;
+
+  // Calculate the average dynamically
+  MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1);
   notifyCallback({
     massMax: MASS_MAX,
+    massAverage: MASS_AVERAGE,
     massTotal: Math.max(-1000, Number(receivedData)).toFixed(1),
   })
 }

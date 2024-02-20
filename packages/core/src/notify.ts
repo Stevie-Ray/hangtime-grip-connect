@@ -1,6 +1,7 @@
 export interface massObject {
   massTotal: string // The total mass.
   massMax: string // The total maximum mass.
+  massAverage: string // The total average mass.
   massLeft?: string // The mass on the left side (optional: Motherboard).
   massCenter?: string // The mass at the center (optional: Motherboard).
   massRight?: string // The mass on the right side (optional: Motherboard).
