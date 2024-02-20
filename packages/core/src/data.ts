@@ -164,6 +164,13 @@ export const handleProgressorData = (data: DataView): void => {
     const iterable = struct("<fi").iter_unpack(data.buffer.slice(2))
     for (const [weight] of iterable) {
       MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
+      // Update running sum and count
+      const currentMassTotal = Math.max(-1000, Number(weight))
+      MASS_TOTAL_SUM += currentMassTotal
+      DATAPOINT_COUNT++
+
+      // Calculate the average dynamically
+      MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
       notifyCallback({
         massMax: MASS_MAX,
         massAverage: MASS_AVERAGE,
