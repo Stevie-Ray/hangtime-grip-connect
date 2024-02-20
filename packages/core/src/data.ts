@@ -19,10 +19,9 @@ const PACKET_LENGTH: number = 32
 const NUM_SAMPLES: number = 3
 let MASS_MAX: string = "0"
 let MASS_AVERAGE: string = "0"
-let MASS_TOTAL_SUM: number = 0;
-let DATAPOINT_COUNT: number = 0;
+let MASS_TOTAL_SUM: number = 0
+let DATAPOINT_COUNT: number = 0
 export const CALIBRATION = [[], [], [], []]
-
 
 /**
  * Applies calibration to a sample value.
@@ -117,18 +116,15 @@ export const handleMotherboardData = (receivedData: string): void => {
     const center: number = packet.masses[1]
     const right: number = packet.masses[2]
 
-    MASS_MAX = Math.max(
-      Number(MASS_MAX),
-      Math.max(-1000, left + center + right),
-    ).toFixed(1)
+    MASS_MAX = Math.max(Number(MASS_MAX), Math.max(-1000, left + center + right)).toFixed(1)
 
     // Update running sum and count
-    const currentMassTotal = Math.max(-1000, left + center + right);
-    MASS_TOTAL_SUM += currentMassTotal;
-    DATAPOINT_COUNT++;
+    const currentMassTotal = Math.max(-1000, left + center + right)
+    MASS_TOTAL_SUM += currentMassTotal
+    DATAPOINT_COUNT++
 
     // Calculate the average dynamically
-    MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1);
+    MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
 
     // TODO: Apply tare adjustments
     // tares = applyTare(packet.masses)
@@ -201,12 +197,12 @@ export const handleProgressorData = (data: DataView): void => {
 export const handleEntralpiData = (receivedData: string): void => {
   MASS_MAX = Math.max(Number(MASS_MAX), Number(receivedData)).toFixed(1)
   // Update running sum and count
-  const currentMassTotal = Math.max(-1000, Number(receivedData));
-  MASS_TOTAL_SUM += currentMassTotal;
-  DATAPOINT_COUNT++;
+  const currentMassTotal = Math.max(-1000, Number(receivedData))
+  MASS_TOTAL_SUM += currentMassTotal
+  DATAPOINT_COUNT++
 
   // Calculate the average dynamically
-  MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1);
+  MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
   notifyCallback({
     massMax: MASS_MAX,
     massAverage: MASS_AVERAGE,
