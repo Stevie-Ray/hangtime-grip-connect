@@ -25,5 +25,7 @@ export const ProgressorCommands: Commands = {
 export const ProgressorResponses = {
   COMMAND_RESPONSE: 0,
   WEIGHT_MEASURE: 1,
-  LOW_BATTERY_WARNING: 2,
+  PEAK_RFD_MEAS: 2,
+  PEAK_RFD_MEAS_SERIES: 3,
+  LOW_BATTERY_WARNING: 4
 }
