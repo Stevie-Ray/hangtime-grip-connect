@@ -88,10 +88,10 @@ available services with us.
 - ✅ Read calibration
 - ✅ Device info (firmware / serial etc.)
 - ✅ Check if device is connected
-- ➡️ Peak load
+- ✅ Peak / Average load
+- ✅️ Tare / unladen weight
 - ➡️ Endurance
 - ➡️ Rate of Force Development (RFD)
-- ➡️ Repeaters
 - ➡️ Critical Force
 
 ## Development
