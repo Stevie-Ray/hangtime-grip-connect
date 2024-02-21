@@ -15,6 +15,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <option value="smartboard" disabled>SmartBoard</option>
         <option value="progressor">Progressor</option>
       </select>
+      <button id="tare">Tare (5sec)</button>
       <button id="stop">Stop</button>
     </div>
     
@@ -25,6 +26,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 setupDevice(
   document.querySelector<HTMLSelectElement>("#deviceSelect")!,
   document.querySelector<HTMLButtonElement>("#stop")!,
+  document.querySelector<HTMLButtonElement>("#tare")!,
   document.querySelector<HTMLDivElement>(".output")!,
 )
 

@@ -52,6 +52,9 @@ motherboardButton.addEventListener("click", () => {
     // Start weight streaming (for a minute) remove parameter for a continues stream
     await stream(Motherboard, 60000)
 
+    // Manualy tare the device when the stream is running
+    // await tare(5000)
+
     // Manually call stop method if stream is continues
     // await stop(Motherboard)
 

@@ -1,66 +1,76 @@
 /**
- * Array holding current tare values for each channel.
- * @type {number[]}
+ * Represents the current tare value for calibration.
+ * @type {number}
  */
-let tares: number[] = [0, 0, 0]
+let currentTare: number = 0
 
 /**
  * Represents the state of tare calibration.
- * If false, tare calibration is not active.
- * If true, tare calibration process is initiated.
- * If Date object, tare calibration process is ongoing and started at this date.
+ * - If `false`, tare calibration is not active.
+ * - If `true`, tare calibration process is initiated.
+ * - If `Date` object, tare calibration process is ongoing and started at this date.
  * @type {boolean | Date}
  */
-let tare: boolean | Date = false
+let runTare: boolean | Date = false
 
 /**
  * Array holding the samples collected during tare calibration.
- * @type {number[][]}
- */
-let tareSamples: number[][] = []
-
-/**
- * Array holding the newly calculated tare values.
  * @type {number[]}
  */
-let newTares: number[] = []
+let tareSamples: number[] = []
 
 /**
- * Apply tare calibration to the provided samples.
- * @param {number[]} samples - The samples to calibrate.
- * @param {number} time - The taring process duration time.
- * @returns {Promise<number[]>} A promise that resolves with the calibrated tare values.
+ * Array holding the sum of samples collected during tare calibration.
+ * @type {number}
  */
-export const applyTare = (samples: number[], time: number = 5000): number[] => {
-  if (tare) {
+let newTares: number = 0
+
+/**
+ * Duration time for tare calibration process.
+ * @type {number}
+ */
+let timeTare: number = 5000
+
+/**
+ * Initiates the tare calibration process.
+ * @param {number} time - The duration time for tare calibration process.
+ * @returns {Promise<void>} A Promise that resolves when tare calibration is initiated.
+ */
+export const tare = async (time: number = 5000): Promise<void> => {
+  runTare = true
+  timeTare = time
+  tareSamples = []
+}
+
+/**
+ * Apply tare calibration to the provided sample.
+ * @param {number} sample - The sample to calibrate.
+ * @returns {number} The calibrated tare value.
+ */
+export const applyTare = (sample: number): number => {
+  if (runTare) {
     // If taring process is initiated
-    if (typeof tare === "boolean" && tare === true) {
+    if (typeof runTare === "boolean" && runTare === true) {
       // If tare flag is true (first time), set it to the current date
-      tare = new Date()
-      // Initialize an array to store new tare values
-      newTares = [0, 0, 0]
+      runTare = new Date()
+      // Initialize the sum of new tare values
+      newTares = 0
     }
-    // Push current samples to tareSamples array
-    tareSamples.push([samples[0], samples[1], samples[2]])
+    // Push current sample to tareSamples array
+    tareSamples.push(sample)
     // Check if taring process duration has passed (defaults to 5 seconds)
-    if (typeof tare !== "boolean" && new Date().getTime() - (tare as Date).getTime() > time) {
-      // Calculate the average of tare samples for each channel
+    if (typeof runTare !== "boolean" && new Date().getTime() - (runTare as Date).getTime() > timeTare) {
+      // Calculate the sum of tare samples
       for (let i = 0; i < tareSamples.length; ++i) {
-        // Subtract the i-th sample value of each channel from newTares
-        newTares[0] -= tareSamples[i][0]
-        newTares[1] -= tareSamples[i][1]
-        newTares[2] -= tareSamples[i][2]
+        newTares += tareSamples[i]
       }
-      // Calculate the average for each channel by dividing the sum by the number of samples
-      newTares[0] /= tareSamples.length
-      newTares[1] /= tareSamples.length
-      newTares[2] /= tareSamples.length
-      // Update the tare values with the calculated averages
-      tares = [...newTares]
+      // Calculate the average by dividing the sum by the number of samples and update the tare value with the calculated average
+      currentTare = newTares / tareSamples.length
       // Reset tare related variables
-      tare = false
+      runTare = false
       tareSamples = []
     }
   }
-  return tares
+  // Apply tare correction to the sample and return the calibrated value
+  return currentTare
 }

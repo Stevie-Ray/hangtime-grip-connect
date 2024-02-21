@@ -1,5 +1,5 @@
 import { notifyCallback } from "./notify"
-// import { applyTare } from "./tare"
+import { applyTare } from "./tare"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
@@ -112,9 +112,14 @@ export const handleMotherboardData = (receivedData: string): void => {
     packet.masses[1] *= -1
     packet.masses[2] *= -1
 
-    const left: number = packet.masses[0]
-    const center: number = packet.masses[1]
-    const right: number = packet.masses[2]
+    let left: number = packet.masses[0]
+    let center: number = packet.masses[1]
+    let right: number = packet.masses[2]
+
+    // Tare correction
+    left -= applyTare(left)
+    center -= applyTare(center)
+    right -= applyTare(right)
 
     MASS_MAX = Math.max(Number(MASS_MAX), Math.max(-1000, left + center + right)).toFixed(1)
 
@@ -126,11 +131,6 @@ export const handleMotherboardData = (receivedData: string): void => {
     // Calculate the average dynamically
     MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
 
-    // TODO: Apply tare adjustments
-    // tares = applyTare(packet.masses)
-    // left += tares[0];
-    // center += tares[1];
-    // right += tares[2];
     // Notify with weight data
     notifyCallback({
       massTotal: Math.max(-1000, left + center + right).toFixed(1),
@@ -158,24 +158,29 @@ export const handleMotherboardData = (receivedData: string): void => {
  * @param {DataView} data - The received data.
  */
 export const handleProgressorData = (data: DataView): void => {
-  const tare: number = 0 // Placeholder for tare value, replace with actual tare logic
   const [kind] = struct("<bb").unpack(data.buffer.slice(0, 2))
   if (kind === ProgressorResponses.WEIGHT_MEASURE) {
-    const iterable = struct("<fi").iter_unpack(data.buffer.slice(2))
-    for (const [weight] of iterable) {
-      MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
-      // Update running sum and count
-      const currentMassTotal = Math.max(-1000, Number(weight))
-      MASS_TOTAL_SUM += currentMassTotal
-      DATAPOINT_COUNT++
+    const iterable: IterableIterator<unknown[]> = struct("<fi").iter_unpack(data.buffer.slice(2))
+    for (let [weight] of iterable) {
+      if (typeof weight === "number" && !isNaN(weight)) {
+        // Tare correction
+        weight -= applyTare(weight)
 
-      // Calculate the average dynamically
-      MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
-      notifyCallback({
-        massMax: MASS_MAX,
-        massAverage: MASS_AVERAGE,
-        massTotal: Math.max(-1000, Number(weight) - tare).toFixed(1),
-      })
+        MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
+        // Update running sum and count
+        const currentMassTotal = Math.max(-1000, Number(weight))
+        MASS_TOTAL_SUM += currentMassTotal
+        DATAPOINT_COUNT++
+
+        // Calculate the average dynamically
+        MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+
+        notifyCallback({
+          massMax: MASS_MAX,
+          massAverage: MASS_AVERAGE,
+          massTotal: Math.max(-1000, weight).toFixed(1),
+        })
+      }
     }
   } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
     if (!lastWrite) return
@@ -202,17 +207,26 @@ export const handleProgressorData = (data: DataView): void => {
  * @param {string} receivedData - The received data string.
  */
 export const handleEntralpiData = (receivedData: string): void => {
-  MASS_MAX = Math.max(Number(MASS_MAX), Number(receivedData)).toFixed(1)
+  let numericData = Number(receivedData)
+
+  // Tare correction
+  numericData -= applyTare(numericData)
+
+  // Update MASS_MAX
+  MASS_MAX = Math.max(Number(MASS_MAX), numericData).toFixed(1)
+
   // Update running sum and count
-  const currentMassTotal = Math.max(-1000, Number(receivedData))
+  const currentMassTotal = Math.max(-1000, numericData)
   MASS_TOTAL_SUM += currentMassTotal
   DATAPOINT_COUNT++
 
   // Calculate the average dynamically
   MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+
+  // Notify with weight data
   notifyCallback({
     massMax: MASS_MAX,
     massAverage: MASS_AVERAGE,
-    massTotal: Math.max(-1000, Number(receivedData)).toFixed(1),
+    massTotal: Math.max(-1000, numericData).toFixed(1),
   })
 }

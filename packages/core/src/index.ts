@@ -21,3 +21,4 @@ export { notify } from "./notify"
 // Export stream related functions
 export { stop } from "./stop"
 export { stream } from "./stream"
+export { tare } from "./tare"
