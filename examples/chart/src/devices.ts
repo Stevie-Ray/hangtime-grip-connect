@@ -2,7 +2,7 @@ import {
   Climbro,
   Entralpi,
   Motherboard,
-  SmartBoard,
+  mySmartBoard,
   Progressor,
   battery,
   connect,
@@ -45,7 +45,7 @@ export function setupDevice(
     } else if (selectedDevice === "motherboard") {
       device = Motherboard
     } else if (selectedDevice === "smartboard") {
-      device = SmartBoard
+      device = mySmartBoard
     } else if (selectedDevice === "progressor") {
       device = Progressor
     }

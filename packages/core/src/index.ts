@@ -1,5 +1,5 @@
 // Export device types
-export { Climbro, Entralpi, Motherboard, SmartBoard, Progressor } from "./devices/index"
+export { Climbro, Entralpi, Motherboard, mySmartBoard, MuscleMeter, Progressor } from "./devices/index"
 
 // Export battery related functions
 export { battery } from "./battery"

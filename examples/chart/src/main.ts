@@ -12,7 +12,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <option value="climbro" disabled>Climbro</option>
         <option value="entralpi">Entralpi</option>
         <option value="motherboard">Motherboard</option>
-        <option value="smartboard" disabled>SmartBoard</option>
+        <option value="smartboard" disabled>mySmartBoard</option>
         <option value="progressor">Progressor</option>
       </select>
       <button id="tare">Tare (5sec)</button>

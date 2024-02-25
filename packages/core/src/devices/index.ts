@@ -4,6 +4,8 @@ export { Entralpi } from "./entralpi"
 
 export { Motherboard } from "./motherboard"
 
-export { SmartBoard } from "./smartboard"
+export { mySmartBoard } from "./mysmartboard"
+
+export { MuscleMeter } from "./musclemeter"
 
 export { Progressor } from "./progressor"

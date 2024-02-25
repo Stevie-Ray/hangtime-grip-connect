@@ -27,5 +27,5 @@ export const ProgressorResponses = {
   WEIGHT_MEASURE: 1,
   PEAK_RFD_MEAS: 2,
   PEAK_RFD_MEAS_SERIES: 3,
-  LOW_BATTERY_WARNING: 4
+  LOW_BATTERY_WARNING: 4,
 }

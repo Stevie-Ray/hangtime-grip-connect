@@ -5,8 +5,8 @@
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
 Force-Sensing Hangboards / Plates used by climbers for strength measurement. Examples of such hangboards include the
 [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
-[SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
-[Tindeq Progressor](https://tindeq.com/)
+[mySmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/),
+[Tindeq Progressor](https://tindeq.com/) or [MAT Muscle Meter](https://www.matassessment.com/musclemeter)
 
 Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
@@ -76,7 +76,8 @@ available services with us.
 - ✅ Tindeq Progressor
 - ✅ Entralpi
 - ➡️ Climbro
-- ➡️ SmartBoard
+- ➡️ mySmartBoard
+- ➡️ Muscle Meter
 
 ### Features
 
