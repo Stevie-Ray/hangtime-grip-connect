@@ -1,10 +1,10 @@
 import { Device } from "./types"
 
 /**
- * Represents a Muscle Meter device
- * TODO: Add services, do you own a Muscle Meter? Help us!
+ * Represents a MAT Muscle Meter device
+ * TODO: Add services, do you own a MAT Muscle Meter? Help us!
  */
 export const MuscleMeter: Device = {
-  name: "Muscle Meter",
+  name: "MAT",
   services: [],
 }

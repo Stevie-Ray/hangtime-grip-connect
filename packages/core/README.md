@@ -77,7 +77,7 @@ available services with us.
 - ✅ Entralpi
 - ➡️ Climbro
 - ➡️ mySmartBoard
-- ➡️ Muscle Meter
+- ➡️ MAT Muscle Meter
 
 ### Features
 
