@@ -7,6 +7,9 @@ export { battery } from "./battery"
 // Export calibration function
 export { calibration } from "./calibration"
 
+// Export download function
+export { download } from "./download"
+
 // Export connection related functions
 export { connect } from "./connect"
 export { disconnect } from "./disconnect"

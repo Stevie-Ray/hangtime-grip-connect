@@ -3,16 +3,8 @@ import { applyTare } from "./tare"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
+import { DownloadPacket, DownloadPackets } from "./download"
 import struct from "./struct"
-
-// Interfaces
-interface MotherboardPacket {
-  received: number
-  sampleNum: number
-  battRaw: number
-  samples: number[]
-  masses: number[]
-}
 
 // Constants
 const PACKET_LENGTH: number = 32
@@ -82,7 +74,7 @@ export const handleMotherboardData = (receivedData: string): void => {
     )
 
     // Translate header into packet, number of samples from the packet length
-    const packet: MotherboardPacket = {
+    const packet: DownloadPacket = {
       received: receivedTime,
       sampleNum: new DataView(new Uint8Array(bytes).buffer).getUint16(0, true),
       battRaw: new DataView(new Uint8Array(bytes).buffer).getUint16(2, true),
@@ -111,6 +103,15 @@ export const handleMotherboardData = (receivedData: string): void => {
     // invert center and right values
     packet.masses[1] *= -1
     packet.masses[2] *= -1
+
+    // Add data to downloadable Array
+    DownloadPackets.push({
+      received: packet.received,
+      sampleNum: packet.battRaw,
+      battRaw: packet.received,
+      samples: [...packet.samples],
+      masses: [...packet.masses],
+    })
 
     let left: number = packet.masses[0]
     let center: number = packet.masses[1]
@@ -158,14 +159,25 @@ export const handleMotherboardData = (receivedData: string): void => {
  * @param {DataView} data - The received data.
  */
 export const handleProgressorData = (data: DataView): void => {
+  const receivedTime: number = Date.now()
   const [kind] = struct("<bb").unpack(data.buffer.slice(0, 2))
   if (kind === ProgressorResponses.WEIGHT_MEASURE) {
     const iterable: IterableIterator<unknown[]> = struct("<fi").iter_unpack(data.buffer.slice(2))
-    for (let [weight] of iterable) {
-      if (typeof weight === "number" && !isNaN(weight)) {
+    console.log(iterable)
+    // eslint-disable-next-line prefer-const
+    for (let [weight, seconds] of iterable) {
+      if (typeof weight === "number" && !isNaN(weight) && typeof seconds === "number" && !isNaN(seconds)) {
+        // Add data to downloadable Array: sample and mass are the same
+        DownloadPackets.push({
+          received: receivedTime,
+          sampleNum: seconds,
+          battRaw: 0,
+          samples: [weight],
+          masses: [weight],
+        })
         // Tare correction
         weight -= applyTare(weight)
-
+        // Check for max weight
         MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
         // Update running sum and count
         const currentMassTotal = Math.max(-1000, Number(weight))

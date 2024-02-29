@@ -27,7 +27,7 @@ export const write = (
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {
       // Check if message is provided
-      if (!message) {
+      if (message === undefined) {
         // If not provided, return without performing write operation
         return
       }

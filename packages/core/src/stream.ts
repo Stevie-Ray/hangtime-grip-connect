@@ -4,6 +4,7 @@ import { write } from "./write"
 import { stop } from "./stop"
 import { Motherboard, Progressor } from "./devices"
 import { MotherboardCommands, ProgressorCommands } from "./commands"
+import { emptyDownloadPackets } from "./download"
 import { CALIBRATION } from "./data"
 import { calibration } from "./calibration"
 
@@ -15,6 +16,9 @@ import { calibration } from "./calibration"
  */
 export const stream = async (board: Device, duration: number = 0): Promise<void> => {
   if (isConnected(board)) {
+    // Reset download packets
+    emptyDownloadPackets()
+    // Device specific logic
     if (board.name === "Motherboard") {
       // Read calibration data if not already available
       if (!CALIBRATION[0].length) {

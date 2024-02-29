@@ -7,6 +7,7 @@ import {
   battery,
   connect,
   disconnect,
+  download,
   info,
   notify,
   stream,
@@ -29,13 +30,14 @@ export function outputValue(element: HTMLDivElement, data: string) {
 }
 
 export function setupDevice(
-  element: HTMLSelectElement,
-  stopElement: HTMLButtonElement,
+  deviceElement: HTMLSelectElement,
   tareElement: HTMLButtonElement,
-  outputElement: HTMLDivElement,
+  downloadElement: HTMLButtonElement,
+  stopElement: HTMLButtonElement,
 ) {
-  element.addEventListener("change", () => {
-    const selectedDevice = element.value
+  // Device
+  deviceElement.addEventListener("change", () => {
+    const selectedDevice = deviceElement.value
     let device: Device = Motherboard
 
     if (selectedDevice === "climbro") {
@@ -55,7 +57,6 @@ export function setupDevice(
       notify((data: massObject) => {
         addData(data.massTotal, data.massMax, data.massAverage)
         chartHeight = Number(data.massMax)
-        outputValue(outputElement, JSON.stringify(data))
       })
 
       // read battery + device info
@@ -74,13 +75,17 @@ export function setupDevice(
       }
     })
   })
-
+  // Tare
   tareElement.addEventListener("click", async () => {
     await tare()
   })
-
+  // Download
+  downloadElement.addEventListener("click", async () => {
+    download()
+  })
+  // Stop
   stopElement.addEventListener("click", async () => {
-    const selectedDevice = element.value
+    const selectedDevice = deviceElement.value
 
     if (selectedDevice === "motherboard") {
       await stop(Motherboard)

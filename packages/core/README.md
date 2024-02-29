@@ -58,6 +58,9 @@ motherboardButton.addEventListener("click", () => {
     // Manually call stop method if stream is continues
     // await stop(Motherboard)
 
+    // Download data to CSV: format => timestamp, frame, battery, samples, masses
+    // download()
+
     // Disconnect from device after we are done
     disconnect(Motherboard)
   })
@@ -74,25 +77,24 @@ available services with us.
 
 - ✅ Griptonite Motherboard
 - ✅ Tindeq Progressor
-- ✅ Entralpi
+- ☑️ Entralpi (not verified)
 - ➡️ Climbro
 - ➡️ mySmartBoard
 - ➡️ MAT Muscle Meter
 
 ### Features
 
-- ✅ Connect
-- ✅ Disconnect
-- ✅ Start data stream (live data)
-- ✅ Stop data stream
+- ✅ Connect / Disconnect
+- ✅ Start / Stop data stream
 - ✅ Battery status
 - ✅ Read calibration
-- ✅ Device info (firmware / serial etc.)
+- ✅ Device info: firmware / serial etc.
 - ✅ Check if device is connected
 - ✅ Peak / Average load
 - ✅️ Tare / unladen weight
+- ✅️ Download data to CVS
 - ➡️ Endurance
-- ➡️ Rate of Force Development (RFD)
+- ➡️ Rate of Force Development: RFD
 - ➡️ Critical Force
 
 ## Development

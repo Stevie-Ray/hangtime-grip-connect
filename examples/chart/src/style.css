@@ -35,6 +35,10 @@ h1 {
   line-height: 1.1;
 }
 
+h1 a {
+  color: inherit;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -49,11 +53,6 @@ h1 {
 }
 .card {
   padding: 2em;
-}
-
-.output {
-  color: #888;
-  font-size: 1.25rem;
 }
 
 button {
