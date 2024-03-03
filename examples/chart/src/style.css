@@ -88,7 +88,7 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  height: 400px;
+  height: 320px;
   padding: 3rem 1rem;
   margin: 0 2rem;
 }
@@ -160,5 +160,11 @@ select:focus-visible {
 
   footer a {
     color: #213547;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .card {
+    height: 480px;
   }
 }
