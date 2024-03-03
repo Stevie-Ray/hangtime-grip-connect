@@ -85,17 +85,18 @@ h2 {
 
 #masses {
   display: flex;
-  gap: 1rem;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
   padding: 1rem;
+  min-height: 80px;
 }
 
 #masses div {
-  gap: 0.5rem;
   display: flex;
+  justify-content: center;
+  flex: 0 0 calc(33.33% - 1rem);
+  gap: 0.5rem;
+  margin: 0.5rem;
 }
 
 .chart {
@@ -188,5 +189,11 @@ select:focus-visible {
 @media only screen and (min-width: 768px) {
   .card {
     height: 480px;
+  }
+  #masses {
+    min-height: 40px;
+  }
+  #masses div {
+    flex: 0 0 auto;
   }
 }
