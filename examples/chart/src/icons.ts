@@ -1,5 +1,5 @@
 import { library, dom } from "@fortawesome/fontawesome-svg-core"
-import { faBluetooth, faGithub } from "@fortawesome/free-brands-svg-icons"
+import { faAndroid, faApple, faBluetooth, faGithub } from "@fortawesome/free-brands-svg-icons"
 import { faCopyright } from "@fortawesome/free-regular-svg-icons"
 import {
   faBook,
@@ -21,6 +21,8 @@ export function convertFontAwesome() {
  */
 export function setupFontAwesome() {
   library.add(
+    faAndroid,
+    faApple,
     faBluetooth,
     faBook,
     faCopyright,
