@@ -15,6 +15,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  height: 100%;
 }
 
 body {
@@ -23,7 +25,8 @@ body {
   flex-wrap: wrap;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100dvh;
 }
 
 header,
