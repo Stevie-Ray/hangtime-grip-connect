@@ -25,28 +25,60 @@ const massAverageData: number[] = []
 let chartElement: HTMLCanvasElement | null = null
 let chart: Chart | null = null
 let chartHeight: number = 0
-
-export function outputValue(element: HTMLDivElement, data: string) {
-  element.innerHTML = data
-}
-
+/**
+ * Sets up the device selection functionality and event listeners for streaming, tare, and download actions.
+ *
+ * @param {HTMLSelectElement} deviceElement - The HTML element for selecting the device.
+ * @param {HTMLButtonElement} streamElement - The HTML button element for streaming.
+ * @param {HTMLButtonElement} tareElement - The HTML button element for tare action.
+ * @param {HTMLButtonElement} downloadElement - The HTML button element for download action.
+ * @param {HTMLDivElement} massesElement - The HTML element to display mass information.
+ */
 export function setupDevice(
   deviceElement: HTMLSelectElement,
   streamElement: HTMLButtonElement,
   tareElement: HTMLButtonElement,
   downloadElement: HTMLButtonElement,
+  massesElement: HTMLDivElement,
 ) {
-  // Function to toggle button visibility
+  let isStreaming: boolean = true
+  let device: Device = Motherboard
+  /**
+   * Toggles the visibility of buttons.
+   *
+   * @param {boolean} visible - Whether to make the buttons visible or not.
+   */
   function toggleButtons(visible: boolean) {
     deviceElement.style.display = visible ? "none" : "inline-block"
     tareElement.style.display = visible ? "inline-block" : "none"
     downloadElement.style.display = visible ? "inline-block" : "none"
     streamElement.style.display = visible ? "inline-block" : "none"
   }
+  /**
+   * Adds mass data to the HTML element.
+   *
+   * @param {massObject} data - The mass data object.
+   */
+  function addMassHTML(data: massObject) {
+    if (!massesElement) return
+    // Clear existing content
+    massesElement.innerHTML = ""
 
-  let isStreaming: boolean = true
-  let device: Device = Motherboard
-
+    for (const property in data) {
+      if (Object.prototype.hasOwnProperty.call(data, property)) {
+        const valueString = data[property as keyof massObject]
+        if (valueString !== undefined) {
+          const value = parseFloat(valueString)
+          if (!isNaN(value)) {
+            const label = property.replace("mass", "")
+            const div = document.createElement("div")
+            div.innerHTML = `<label>${label}</label><strong>${value}<span>kg</span></strong>`
+            massesElement.appendChild(div)
+          }
+        }
+      }
+    }
+  }
   // Device
   deviceElement.addEventListener("change", () => {
     const selectedDevice = deviceElement.value
@@ -68,8 +100,11 @@ export function setupDevice(
       toggleButtons(true)
       // Listen for notifications
       notify((data: massObject) => {
-        addData(data.massTotal, data.massMax, data.massAverage)
+        // Chart
+        addChartData(data.massTotal, data.massMax, data.massAverage)
         chartHeight = Number(data.massMax)
+        // HTML
+        addMassHTML(data)
       })
 
       // read battery + device info
@@ -114,7 +149,11 @@ export function setupDevice(
     }
   })
 }
-
+/**
+ * Sets up the chart with the provided HTML canvas element.
+ *
+ * @param {HTMLCanvasElement} element - The HTML canvas element for the chart.
+ */
 export function setupChart(element: HTMLCanvasElement) {
   chartElement = element
   if (chartElement) {
@@ -171,7 +210,14 @@ export function setupChart(element: HTMLCanvasElement) {
     })
   }
 }
-function addData(mass: string, max: string, average: string) {
+/**
+ * Adds new data to the chart.
+ *
+ * @param {string} mass - The total mass data.
+ * @param {string} max - The maximum mass data.
+ * @param {string} average - The average mass data.
+ */
+function addChartData(mass: string, max: string, average: string) {
   if (chart) {
     const numericMass = parseFloat(mass)
     const numericMax = parseFloat(max)

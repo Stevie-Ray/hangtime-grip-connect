@@ -5,7 +5,7 @@ import { setupChart, setupDevice } from "./devices"
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div class="card">
     <canvas class="chart"></canvas>
-    <div>
+    <div class="input">
       <select id="deviceSelect">
         <option value="">Select device</option>
         <option value="climbro" disabled>Climbro</option>
@@ -29,6 +29,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       </button>
     </div>
   </div>
+  <div id="masses"></div>
 `
 
 setupDevice(
@@ -36,6 +37,7 @@ setupDevice(
   document.querySelector<HTMLButtonElement>("#stream")!,
   document.querySelector<HTMLButtonElement>("#tare")!,
   document.querySelector<HTMLButtonElement>("#download")!,
+  document.querySelector<HTMLDivElement>("#masses")!,
 )
 
 setupChart(document.querySelector<HTMLCanvasElement>(".chart")!)

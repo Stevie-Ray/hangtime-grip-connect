@@ -66,6 +66,10 @@ footer a:hover {
   color: #898989;
 }
 
+header {
+  padding-bottom: 1rem;
+}
+
 h1 {
   font-size: 3rem;
   margin: 0;
@@ -77,6 +81,21 @@ h2 {
   font-weight: normal;
   margin: 0;
   padding: 0 1rem;
+}
+
+#masses {
+  display: flex;
+  gap: 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem;
+}
+
+#masses div {
+  gap: 0.5rem;
+  display: flex;
 }
 
 .chart {
