@@ -3,10 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Grip Connect Example - Chart</title>
+    <title>Grip Connect</title>
   </head>
   <body>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZWEEFGC3J1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag("js", new Date())
+
+      gtag("config", "G-ZWEEFGC3J1")
+    </script>
+    <header>
+      <h1>Grip Connect</h1>
+      <h2><i class="fa-brands fa-bluetooth"></i> Web Bluetooth API Force-Sensing strength analysis for climbers</h2>
+    </header>
     <div id="app"></div>
+    <footer>
+      <small>
+        <a href="https://hangtime.stevie-ray.nl/" target="_blank"> <i class="fa-regular fa-copyright"></i> HangTime </a
+        >|
+        <a href="https://github.com/Stevie-Ray/hangtime-grip-connect" target="_blank">
+          <i class="fab fa-github"></i> Github </a
+        >|
+        <a href="https://stevie-ray.github.io/hangtime-grip-connect/" target="_blank">
+          <i class="fa-solid fa-book"></i> Documentation </a
+        >|
+        <a href="https://caniuse.com/web-bluetooth" target="_blank">
+          <i class="fa-solid fa-globe"></i> Browser Support </a
+        >|
+        <a href="https://grip-connect-flappy-bird.vercel.app/" target="_blank">
+          <i class="fa-solid fa-gamepad"></i> Flappy Bird </a
+        >|
+        <a href="https://grip-connect-pong.vercel.app/" target="_blank"> <i class="fa-solid fa-gamepad"></i> Pong </a>
+      </small>
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

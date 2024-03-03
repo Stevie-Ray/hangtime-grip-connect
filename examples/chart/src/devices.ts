@@ -17,6 +17,7 @@ import {
 import { massObject } from "@hangtime/grip-connect/src/notify"
 import { Device } from "@hangtime/grip-connect/src/devices/types"
 import { Chart } from "chart.js/auto"
+import { convertFontAwesome } from "./icons.ts"
 
 const massData: number[] = []
 const massMaxData: number[] = []
@@ -31,14 +32,24 @@ export function outputValue(element: HTMLDivElement, data: string) {
 
 export function setupDevice(
   deviceElement: HTMLSelectElement,
+  streamElement: HTMLButtonElement,
   tareElement: HTMLButtonElement,
   downloadElement: HTMLButtonElement,
-  stopElement: HTMLButtonElement,
 ) {
+  // Function to toggle button visibility
+  function toggleButtons(visible: boolean) {
+    deviceElement.style.display = visible ? "none" : "block"
+    tareElement.style.display = visible ? "block" : "none"
+    downloadElement.style.display = visible ? "block" : "none"
+    streamElement.style.display = visible ? "block" : "none"
+  }
+
+  let isStreaming: boolean = true
+  let device: Device = Motherboard
+
   // Device
   deviceElement.addEventListener("change", () => {
     const selectedDevice = deviceElement.value
-    let device: Device = Motherboard
 
     if (selectedDevice === "climbro") {
       device = Climbro
@@ -53,6 +64,8 @@ export function setupDevice(
     }
 
     return connect(device, async () => {
+      // Show buttons after device is connected
+      toggleButtons(true)
       // Listen for notifications
       notify((data: massObject) => {
         addData(data.massTotal, data.massMax, data.massAverage)
@@ -65,6 +78,7 @@ export function setupDevice(
 
       // start streaming
       await stream(device)
+      isStreaming = true
 
       if (device === Entralpi) {
         setTimeout(() => {
@@ -72,6 +86,8 @@ export function setupDevice(
         }, 60000)
         // disconnect from device after we are done
         disconnect(device)
+        // hide buttons
+        toggleButtons(false)
       }
     })
   })
@@ -83,15 +99,18 @@ export function setupDevice(
   downloadElement.addEventListener("click", async () => {
     download()
   })
-  // Stop
-  stopElement.addEventListener("click", async () => {
-    const selectedDevice = deviceElement.value
-
-    if (selectedDevice === "motherboard") {
-      await stop(Motherboard)
-    }
-    if (selectedDevice === "progressor") {
-      await stop(Progressor)
+  // Stop / Play
+  streamElement.addEventListener("click", async () => {
+    if (isStreaming) {
+      streamElement.innerHTML = "<i class='fa-solid fa-play'></i><span> Start</span>"
+      isStreaming = false
+      convertFontAwesome()
+      await stop(device)
+    } else {
+      streamElement.innerHTML = "<i class='fa-solid fa-stop'></i><span> Stop</span>"
+      isStreaming = true
+      convertFontAwesome()
+      await stream(device)
     }
   })
 }
