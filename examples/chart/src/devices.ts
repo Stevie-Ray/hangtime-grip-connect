@@ -38,10 +38,10 @@ export function setupDevice(
 ) {
   // Function to toggle button visibility
   function toggleButtons(visible: boolean) {
-    deviceElement.style.display = visible ? "none" : "block"
-    tareElement.style.display = visible ? "block" : "none"
-    downloadElement.style.display = visible ? "block" : "none"
-    streamElement.style.display = visible ? "block" : "none"
+    deviceElement.style.display = visible ? "none" : "inline-block"
+    tareElement.style.display = visible ? "inline-block" : "none"
+    downloadElement.style.display = visible ? "inline-block" : "none"
+    streamElement.style.display = visible ? "inline-block" : "none"
   }
 
   let isStreaming: boolean = true
@@ -124,18 +124,18 @@ export function setupChart(element: HTMLCanvasElement) {
         labels: [],
         datasets: [
           {
-            label: "Total Mass",
+            label: "Total",
             data: massData,
             borderWidth: 1,
           },
           {
-            label: "Mass Max",
+            label: "Max",
             fill: false,
             borderWidth: 1,
             data: massMaxData,
           },
           {
-            label: "Mass Average",
+            label: "Average",
             fill: false,
             borderDash: [5, 5],
             borderWidth: 1,
@@ -144,6 +144,8 @@ export function setupChart(element: HTMLCanvasElement) {
         ],
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         animation: false,
         elements: {
           point: {

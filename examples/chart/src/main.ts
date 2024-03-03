@@ -3,9 +3,9 @@ import { setupFontAwesome } from "./icons"
 import { setupChart, setupDevice } from "./devices"
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div>
+  <div class="card">
     <canvas class="chart"></canvas>
-    <div class="card">
+    <div>
       <select id="deviceSelect">
         <option value="">Select device</option>
         <option value="climbro" disabled>Climbro</option>

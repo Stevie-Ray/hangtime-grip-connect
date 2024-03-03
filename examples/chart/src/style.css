@@ -48,11 +48,11 @@ a:hover {
 
 footer small {
   gap: 1rem;
-  padding-bottom: 1rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
+  padding: 1rem;
 }
 
 footer a {
@@ -63,36 +63,34 @@ footer a:hover {
   color: #898989;
 }
 
-header {
-  padding: 1rem 0;
-}
-
 h1 {
   font-size: 3rem;
   margin: 0;
+  padding: 0 1rem;
 }
 
 h2 {
   font-size: 1.2rem;
   font-weight: normal;
   margin: 0;
+  padding: 0 1rem;
 }
 
 .chart {
-  background: #2e2e2e;
-  border-radius: 2rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 1024px;
-  margin: 0 2rem;
+  padding: 0 0.5rem;
 }
 
 .card {
+  background: #2e2e2e;
+  border-radius: 2rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 2em;
+  height: 400px;
+  padding: 3rem 1rem;
+  margin: 0 2rem;
 }
 
 button {
@@ -153,10 +151,10 @@ select:focus-visible {
 
   select,
   button {
-    background-color: #f9f9f9;
+    background-color: #e6e6e6;
   }
 
-  .chart {
+  .card {
     background-color: #f9f9f9;
   }
 
