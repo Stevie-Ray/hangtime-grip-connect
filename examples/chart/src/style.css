@@ -54,8 +54,9 @@ header {
 }
 
 h1 {
-  font-size: 2.875rem;
-  margin: 0;
+  font-size: 2rem;
+  margin-block-start: 0.25rem;
+  margin-block-end: 0;
   padding: 0 1rem;
   display: flex;
   justify-content: center;
@@ -64,17 +65,16 @@ h1 {
 }
 
 h2 {
-  font-size: 1.2rem;
+  font-size: 0.875rem;
   font-weight: normal;
-  margin: 0;
-  padding: 0 1.5rem;
+  margin: 0 4rem;
 }
 
 #masses {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  padding: 1rem;
+  padding-top: 1rem;
   min-height: 80px;
 }
 
@@ -150,12 +150,13 @@ select:focus-visible {
 }
 
 footer small {
-  gap: 0.75rem;
+  gap: 0.5rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 1rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
 }
 
 footer,
