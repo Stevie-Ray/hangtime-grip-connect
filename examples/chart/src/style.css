@@ -103,10 +103,17 @@ h2 {
   margin: 0 1rem;
 }
 
+.input {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+  justify-content: center;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 0.5em 1em;
   margin-bottom: 0.3rem;
   font-size: 1em;
   font-weight: 500;
@@ -114,6 +121,22 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 25px;
+}
+
+button small {
+  font-size: 0.425rem;
 }
 
 button:hover {

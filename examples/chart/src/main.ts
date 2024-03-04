@@ -16,16 +16,24 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <option value="progressor">Progressor</option>
       </select>
       <button id="stream" style="display:none;">
-        <i class="fa-solid fa-stop"></i>
-        <span> Stop</span>
+        <div>
+          <i class="fa-solid fa-stop"></i>
+        </div>
+        <div>Stop</div>
       </button>
       <button id="tare" style="display:none;">
-        <i class="fa-solid fa-scale-balanced"></i>
-        <span> Tare (5sec)</span>
+        <div>
+          <i class="fa-solid fa-scale-balanced"></i>
+          <small>5 sec</small>
+        </div>
+        <div>Tare</div>
       </button>
       <button id="download" style="display:none;">
-        <i class="fa-solid fa-download"></i>
-        <span> Download</span>
+        <div>
+          <i class="fa-solid fa-download"></i>
+          <small>CSV</small>
+        </div>
+        <div>Download</div>
       </button>
     </div>
   </div>

@@ -49,10 +49,10 @@ export function setupDevice(
    * @param {boolean} visible - Whether to make the buttons visible or not.
    */
   function toggleButtons(visible: boolean) {
-    deviceElement.style.display = visible ? "none" : "inline-block"
-    tareElement.style.display = visible ? "inline-block" : "none"
-    downloadElement.style.display = visible ? "inline-block" : "none"
-    streamElement.style.display = visible ? "inline-block" : "none"
+    deviceElement.style.display = visible ? "none" : "inline-flex"
+    tareElement.style.display = visible ? "inline-flex" : "none"
+    downloadElement.style.display = visible ? "inline-flex" : "none"
+    streamElement.style.display = visible ? "inline-flex" : "none"
   }
   /**
    * Adds mass data to the HTML element.
@@ -137,12 +137,12 @@ export function setupDevice(
   // Stop / Play
   streamElement.addEventListener("click", async () => {
     if (isStreaming) {
-      streamElement.innerHTML = "<i class='fa-solid fa-play'></i><span> Start</span>"
+      streamElement.innerHTML = "<div><i class='fa-solid fa-play'></i></div><div>Start</div>"
       isStreaming = false
       convertFontAwesome()
       await stop(device)
     } else {
-      streamElement.innerHTML = "<i class='fa-solid fa-stop'></i><span> Stop</span>"
+      streamElement.innerHTML = "<div><i class='fa-solid fa-stop'></i></div><div>Stop</div>"
       isStreaming = true
       convertFontAwesome()
       await stream(device)
