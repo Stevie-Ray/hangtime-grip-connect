@@ -50,13 +50,12 @@ a:hover {
 }
 
 header {
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 h1 {
   font-size: 2rem;
-  margin-block-start: 0.25rem;
-  margin-block-end: 0;
+  margin: 0;
   padding: 0 1rem;
   display: flex;
   justify-content: center;
@@ -67,14 +66,15 @@ h1 {
 h2 {
   font-size: 0.875rem;
   font-weight: normal;
-  margin: 0 4rem;
+  margin: 0 auto;
+  max-width: 240px;
 }
 
 #masses {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  padding-top: 1rem;
+  padding-top: 0.5rem;
   min-height: 80px;
 }
 
@@ -100,7 +100,7 @@ h2 {
   gap: 0.5rem;
   height: 320px;
   padding: 3rem 1rem;
-  margin: 0 2rem;
+  margin: 0 1rem;
 }
 
 button {
@@ -190,6 +190,7 @@ footer a:hover {
   footer a {
     color: #213547;
   }
+
   footer a:hover {
     color: #747bff;
   }
@@ -199,9 +200,11 @@ footer a:hover {
   .card {
     height: 480px;
   }
+
   #masses {
     min-height: 40px;
   }
+
   #masses div {
     flex: 0 0 auto;
   }
