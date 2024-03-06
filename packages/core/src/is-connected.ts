@@ -5,9 +5,9 @@ import { Device } from "./devices/types"
  * @param {Device} board - The device to check for connection.
  * @returns {boolean} A boolean indicating whether the device is connected.
  */
-export const isConnected = (board: Device): boolean => {
-  // Check if the device is available
-  if (!board.device) {
+export const isConnected = (board?: Device): boolean => {
+  // Check if the device is defined and available
+  if (!board?.device) {
     return false
   }
   // Check if the device is connected using optional chaining
