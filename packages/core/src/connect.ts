@@ -1,4 +1,4 @@
-import { Device } from "./devices/types"
+import type { Device } from "./devices/types"
 import { handleEntralpiData, handleMotherboardData, handleProgressorData } from "./data"
 
 let server: BluetoothRemoteGATTServer

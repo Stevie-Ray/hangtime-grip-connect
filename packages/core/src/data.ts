@@ -3,7 +3,8 @@ import { applyTare } from "./tare"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
-import { DownloadPacket, DownloadPackets } from "./download"
+import { DownloadPackets } from "./download"
+import type { DownloadPacket  } from "./download"
 import struct from "./struct"
 
 // Constants

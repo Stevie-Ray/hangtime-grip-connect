@@ -1,4 +1,4 @@
-import { Device } from "./devices/types"
+import type { Device } from "./devices/types"
 import { getCharacteristic } from "./characteristic"
 import { isConnected } from "./is-connected"
 

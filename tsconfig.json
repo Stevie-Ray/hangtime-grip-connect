@@ -11,6 +11,7 @@
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "preserve",
+    "verbatimModuleSyntax": true,
     //    "noEmit": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "target": "esnext",
@@ -22,7 +23,6 @@
     "strict": true,
     "stripInternal": true,
     "ignoreDeprecations": "5.0",
-    "suppressImplicitAnyIndexErrors": true,
     "types": ["web-bluetooth"]
   },
   "exclude": ["node_modules"]

@@ -1,4 +1,4 @@
-import { Device } from "./devices/types"
+import type { Device } from "./devices/types"
 
 /**
  * Retrieves the characteristic from the device's service.

@@ -1,4 +1,4 @@
-import { Device } from "./types"
+import type { Device } from "./types"
 
 /**
  * Represents a MAT Muscle Meter device

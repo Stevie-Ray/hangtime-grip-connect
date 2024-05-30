@@ -1,4 +1,4 @@
-import { Device } from "./devices/types"
+import type { Device } from "./devices/types"
 import { write } from "./write"
 import { read } from "./read"
 import { isConnected } from "./is-connected"
