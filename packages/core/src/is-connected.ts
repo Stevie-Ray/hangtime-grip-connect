@@ -1,4 +1,4 @@
-import type { Device } from "./devices/types"
+import type { Device } from "./types/devices"
 
 /**
  * Checks if a Bluetooth device is connected.

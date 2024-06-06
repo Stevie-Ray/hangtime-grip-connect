@@ -1,14 +1,4 @@
-/**
- * Represents a single data packet.
- */
-export interface DownloadPacket {
-  received: number // Timestamp of when the packet was received
-  sampleNum: number // Sample number
-  battRaw: number // Battery raw value
-  samples: number[] // Array of sample values
-  masses: number[] // Array of mass values
-}
-
+import type { DownloadPacket } from "./types/download"
 /**
  * Array of DownloadPacket entries.
  */

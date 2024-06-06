@@ -3,9 +3,9 @@ import { applyTare } from "./tare"
 import { ProgressorCommands, ProgressorResponses } from "./commands/progressor"
 import { MotherboardCommands } from "./commands"
 import { lastWrite } from "./write"
-import { DownloadPackets } from "./download"
-import type { DownloadPacket  } from "./download"
 import struct from "./struct"
+import { DownloadPackets } from "./download"
+import type { DownloadPacket } from "./types/download"
 
 // Constants
 const PACKET_LENGTH: number = 32

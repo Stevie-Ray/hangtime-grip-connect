@@ -1,4 +1,4 @@
-import type { Device } from "./types"
+import type { Device } from "../types/devices"
 /**
  * Represents a Tindeq Progressor device
  */

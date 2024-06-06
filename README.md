@@ -33,14 +33,14 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
+import { Motherboard, MassObject, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
 motherboardButton.addEventListener("click", () => {
   connect(Motherboard, async () => {
     // Listen for stream notifications
-    notify((data) => {
+    notify((data: MassObject) => {
       // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
       console.log(data)
     })

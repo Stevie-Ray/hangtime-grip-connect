@@ -1,4 +1,4 @@
-import type { Commands } from "../commands/types"
+import type { Commands } from "../types/commands"
 /**
  * Warning:
  * Using other commands can seriously harm your device
@@ -22,10 +22,10 @@ export const ProgressorCommands: Commands = {
  * The Progressor returns a Uint8Array.
  * The first item [0] is the type of response it returns
  */
-export const ProgressorResponses = {
-  COMMAND_RESPONSE: 0,
-  WEIGHT_MEASURE: 1,
-  PEAK_RFD_MEAS: 2,
-  PEAK_RFD_MEAS_SERIES: 3,
-  LOW_BATTERY_WARNING: 4,
+export enum ProgressorResponses {
+  COMMAND_RESPONSE,
+  WEIGHT_MEASURE,
+  PEAK_RFD_MEAS,
+  PEAK_RFD_MEAS_SERIES,
+  LOW_BATTERY_WARNING,
 }

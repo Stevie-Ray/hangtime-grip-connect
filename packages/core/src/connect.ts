@@ -1,4 +1,4 @@
-import type { Device } from "./devices/types"
+import type { Device } from "./types/devices"
 import { handleEntralpiData, handleMotherboardData, handleProgressorData } from "./data"
 
 let server: BluetoothRemoteGATTServer
@@ -90,7 +90,7 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
               // notify
               if (element.id === "rx") {
                 matchingCharacteristic.startNotifications()
-                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event) =>
+                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) =>
                   handleNotifications(event, board),
                 )
               }
