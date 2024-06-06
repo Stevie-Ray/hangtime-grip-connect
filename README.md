@@ -40,7 +40,7 @@ const motherboardButton = document.querySelector("#motherboard")
 motherboardButton.addEventListener("click", () => {
   connect(Motherboard, async () => {
     // Listen for stream notifications
-    notify((data: MassObject) => {
+    notify((data) => {
       // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
       console.log(data)
     })
