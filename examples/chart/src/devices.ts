@@ -14,7 +14,7 @@ import {
   stop,
   tare,
 } from "@hangtime/grip-connect"
-import type { massObject } from "@hangtime/grip-connect/src/notify"
+import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons"
