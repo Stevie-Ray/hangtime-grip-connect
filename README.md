@@ -33,7 +33,7 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, MassObject, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
+import { Motherboard, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
