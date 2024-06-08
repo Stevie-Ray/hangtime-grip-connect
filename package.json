@@ -35,12 +35,12 @@
     "@hangtime/grip-connect": "^0.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.12.13",
+    "@types/node": "^20.14.2",
     "@types/web-bluetooth": "^0.0.20",
-    "@typescript-eslint/eslint-plugin": "^7.11.0",
-    "@typescript-eslint/parser": "^7.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
     "eslint": "^8.57.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
