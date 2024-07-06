@@ -14,7 +14,7 @@ Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 ## Try it out
 
 [Chart](https://grip-connect.vercel.app/) - [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/) -
-[Pong](https://grip-connect-pong.vercel.app/)
+[Pong](https://grip-connect-pong.vercel.app/) - [Kilter Board](https://grip-connect-kilter-board.vercel.app/)
 
 ## Install
 
@@ -78,6 +78,7 @@ available services with us.
 - ✅ Griptonite Motherboard
 - ✅ Tindeq Progressor
 - ☑️ Entralpi (not verified)
+- ☑️ Kilterboard (not verified)
 - ➡️ Climbro
 - ➡️ mySmartBoard
 - ➡️ MAT Muscle Meter
@@ -116,6 +117,7 @@ A special thank you to:
 - [Tindeq](https://tindeq.com/) for providing an open [Progressor API](https://tindeq.com/progressor_api/)
 - [@StuartLittlefair](https://github.com/StuartLittlefair) for his
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
+- [@Phil9l](https://github.com/phil9l) for providing a blog on how to connect with the [Kilter Board](https://bazun.me/blog/kiterboard/)
 
 ## Disclaimer
 

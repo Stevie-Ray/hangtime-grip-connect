@@ -19,7 +19,7 @@ export const stream = async (board: Device, duration: number = 0): Promise<void>
     // Reset download packets
     emptyDownloadPackets()
     // Device specific logic
-    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
+    if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Read calibration data if not already available
       if (!CALIBRATION[0].length) {
         await calibration(Motherboard)

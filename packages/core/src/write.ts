@@ -55,9 +55,6 @@ export const write = (
         // Reject if characteristic is undefined
         reject(new Error("Characteristics is undefined"))
       }
-    } else {
-      // Reject if device is not connected
-      reject(new Error("Device is not connected"))
     }
   })
 }

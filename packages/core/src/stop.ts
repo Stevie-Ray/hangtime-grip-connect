@@ -11,7 +11,7 @@ import { MotherboardCommands, ProgressorCommands } from "./commands"
  */
 export const stop = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
-    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
+    if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Stop stream on Motherboard
       await write(Motherboard, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
     }

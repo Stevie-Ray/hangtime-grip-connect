@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grip Connect Example - Kilter-Board</title>
+  </head>
+  <body>
+    <div id="app">
+      <svg
+        width="100%"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1080 1170"
+        id="svg-kb"
+        style="max-height: 750px"
+      >
+        <image href="public/img/kilterboard-large.svg" height="1170" width="1080"></image>
+        <image href="public/img/kilterboard-small.svg" height="1170" width="1080"></image>
+      </svg>
+      <p>
+        Bluetooth payload:
+        <code id="active-holds"></code>
+      </p>
+      <div id="controller"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

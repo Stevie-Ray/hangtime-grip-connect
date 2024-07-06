@@ -25,7 +25,7 @@ const handleNotifications = (event: Event, board: Device): void => {
 
   if (value) {
     // If the device is connected and it is a Motherboard device
-    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
+    if (board.filters.some((filter) => filter.name === "Motherboard")) {
       for (let i: number = 0; i < value.byteLength; i++) {
         receiveBuffer.push(value.getUint8(i))
       }

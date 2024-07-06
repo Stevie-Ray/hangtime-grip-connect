@@ -12,7 +12,7 @@ import { MotherboardCommands, ProgressorCommands } from "./commands"
  */
 export const info = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
-    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
+    if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Read manufacturer information
       await read(Motherboard, "device", "manufacturer", 250)
       // Read hardware version

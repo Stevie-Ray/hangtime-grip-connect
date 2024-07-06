@@ -14,7 +14,7 @@ export const battery = async (board: Device): Promise<void> => {
   // Check if the device is connected
   if (isConnected(board)) {
     // If the device is connected and it is a Motherboard device
-    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
+    if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Read battery level information from the Motherboard
       await read(Motherboard, "battery", "level", 250)
     }
