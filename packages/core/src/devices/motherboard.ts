@@ -4,8 +4,13 @@ import type { Device } from "../types/devices"
  * Represents a Griptonite Motherboard device
  */
 export const Motherboard: Device = {
-  name: "Motherboard",
-  companyId: 0x2a29,
+  filters: [{
+    manufacturerData: [
+      {
+        companyIdentifier: 0x2a29,
+      }
+    ]
+  }],
   services: [
     {
       name: "Device Information",

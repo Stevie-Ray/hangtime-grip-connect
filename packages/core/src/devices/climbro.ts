@@ -5,6 +5,6 @@ import type { Device } from "../types/devices"
  * TODO: Add services, do you own a Climbro? Help us!
  */
 export const Climbro: Device = {
-  name: "Climbro",
+  filters: [{ name: "Climbro" }],
   services: [],
 }

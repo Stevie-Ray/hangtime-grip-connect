@@ -5,6 +5,6 @@ import type { Device } from "../types/devices"
  * TODO: Add services, do you own a MAT Muscle Meter? Help us!
  */
 export const MuscleMeter: Device = {
-  name: "MAT",
+  filters: [{ name: "MAT" }],
   services: [],
 }

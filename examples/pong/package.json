@@ -12,8 +12,8 @@
     "@hangtime/grip-connect": "^0.3.2"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "vite": "^5.2.13"
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3"
   },
   "workspaces": [
     "examples"

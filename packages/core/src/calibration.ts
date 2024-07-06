@@ -13,7 +13,7 @@ export const calibration = async (board: Device): Promise<void> => {
   // Check if the device is connected
   if (isConnected(board)) {
     // If the device is connected, and it is a Motherboard device
-    if (board.name === "Motherboard") {
+    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
       // Write the command to get calibration data to the device
       await write(Motherboard, "uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500)
     }

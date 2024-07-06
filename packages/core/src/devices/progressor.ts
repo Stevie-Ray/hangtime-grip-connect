@@ -3,7 +3,7 @@ import type { Device } from "../types/devices"
  * Represents a Tindeq Progressor device
  */
 export const Progressor: Device = {
-  name: "Progressor",
+  filters: [{ namePrefix: "Progressor" }],
   services: [
     {
       name: "Progressor Service",

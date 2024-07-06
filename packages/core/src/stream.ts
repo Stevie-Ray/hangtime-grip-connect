@@ -19,7 +19,7 @@ export const stream = async (board: Device, duration: number = 0): Promise<void>
     // Reset download packets
     emptyDownloadPackets()
     // Device specific logic
-    if (board.name === "Motherboard") {
+    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
       // Read calibration data if not already available
       if (!CALIBRATION[0].length) {
         await calibration(Motherboard)
@@ -31,7 +31,7 @@ export const stream = async (board: Device, duration: number = 0): Promise<void>
         await stop(Motherboard)
       }
     }
-    if (board.name && board.name.startsWith("Progressor")) {
+    if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Start streaming data
       await write(Progressor, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set

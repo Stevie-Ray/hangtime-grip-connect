@@ -24,7 +24,8 @@ const handleNotifications = (event: Event, board: Device): void => {
   const value: DataView | undefined = characteristic.value
 
   if (value) {
-    if (board.name === "Motherboard") {
+    // If the device is connected and it is a Motherboard device
+    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
       for (let i: number = 0; i < value.byteLength; i++) {
         receiveBuffer.push(value.getUint8(i))
       }
@@ -37,14 +38,14 @@ const handleNotifications = (event: Event, board: Device): void => {
         const receivedData: string = decoder.decode(new Uint8Array(line))
         handleMotherboardData(receivedData)
       }
-    } else if (board.name === "ENTRALPI") {
+    } else if (board.filters.some((filter) => filter.name === "ENTRALPI")) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
         const receivedData: string = (rawData.getUint16(0) / 100).toFixed(1)
         handleEntralpiData(receivedData)
       }
-    } else if (board.name && board.name.startsWith("Progressor")) {
+    } else if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
@@ -126,25 +127,8 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
     // Request device and set up connection
     const deviceServices = getAllServiceUUIDs(board)
 
-    // setup filter list
-    const filters = []
-
-    if (board.name) {
-      const filterName = board.name === "Progressor" ? { namePrefix: board.name } : { name: board.name }
-      filters.push(filterName)
-    }
-    if (board.companyId) {
-      filters.push({
-        manufacturerData: [
-          {
-            companyIdentifier: board.companyId,
-          },
-        ],
-      })
-    }
-
     const device = await navigator.bluetooth.requestDevice({
-      filters: filters,
+      filters: board.filters,
       optionalServices: deviceServices,
     })
 

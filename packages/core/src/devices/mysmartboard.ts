@@ -5,6 +5,6 @@ import type { Device } from "../types/devices"
  * TODO: Add services, do you own a mySmartBoard? Help us!
  */
 export const mySmartBoard: Device = {
-  name: "mySmartBoard",
+  filters: [{ name: "mySmartBoard" }],
   services: [],
 }

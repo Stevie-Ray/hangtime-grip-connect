@@ -12,7 +12,7 @@ import { MotherboardCommands, ProgressorCommands } from "./commands"
  */
 export const info = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
-    if (board.name === "Motherboard") {
+    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
       // Read manufacturer information
       await read(Motherboard, "device", "manufacturer", 250)
       // Read hardware version
@@ -24,7 +24,7 @@ export const info = async (board: Device): Promise<void> => {
       // Get serial number from Motherboard
       await write(Motherboard, "uart", "tx", MotherboardCommands.GET_SERIAL, 250)
     }
-    if (board.name && board.name.startsWith("Progressor")) {
+    if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Get firmware version from Progressor
       await write(Progressor, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250)
     }

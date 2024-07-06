@@ -30,10 +30,8 @@ interface Service {
  * Represents a Bluetooth device.
  */
 export interface Device {
-  /** Name of the device */
-  name: string
-  /** Optional company identifier of the device */
-  companyId?: number
+  /** Filters to indentify the device */
+  filters: BluetoothLEScanFilter[];
   /** Array of services provided by the device */
   services: Service[]
   /** Reference to the BluetoothDevice object representing this device */

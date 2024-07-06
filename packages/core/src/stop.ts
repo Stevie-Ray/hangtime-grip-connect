@@ -11,11 +11,11 @@ import { MotherboardCommands, ProgressorCommands } from "./commands"
  */
 export const stop = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
-    if (board.name === "Motherboard") {
+    if (board.filters.some((filter) => filter.manufacturerData?.some((data) => data.companyIdentifier === 0x2a29))) {
       // Stop stream on Motherboard
       await write(Motherboard, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
     }
-    if (board.name && board.name.startsWith("Progressor")) {
+    if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Stop stream on Progressor
       await write(Progressor, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
     }
