@@ -35,7 +35,7 @@
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.3.3"
+    "@hangtime/grip-connect": "^0.3.4"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
