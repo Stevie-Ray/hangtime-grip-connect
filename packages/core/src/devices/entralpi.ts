@@ -4,9 +4,11 @@ import type { Device } from "../types/devices"
  * Represents a Entralpi device
  */
 export const Entralpi: Device = {
-  filters: [{
-    name: "ENTRALPI"
-  }],
+  filters: [
+    {
+      name: "ENTRALPI",
+    },
+  ],
   services: [
     {
       name: "Device Information",

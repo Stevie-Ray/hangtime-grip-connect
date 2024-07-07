@@ -3,18 +3,26 @@
 **Force-Sensing Climbing Training**
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
-Force-Sensing Hangboards / Plates / LED system boards used by climbers for strength measurement. Examples of such hangboards include the
-[Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
-[mySmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/),
-[Tindeq Progressor](https://tindeq.com/) or [MAT Muscle Meter](https://www.matassessment.com/musclemeter)
+Force-Sensing Hangboards / Plates / LED system boards used by climbers for strength measurement. Examples of such
+hangboards include the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
+[Climbro](https://climbro.com/), [mySmartBoard](https://www.smartboard-climbing.com/),
+[Entralpi](https://entralpi.com/), [Tindeq Progressor](https://tindeq.com/) or
+[MAT Muscle Meter](https://www.matassessment.com/musclemeter)
 
-And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the [Kilter Board](https://settercloset.com/pages/the-kilter-board), [Tension Board](https://tensionclimbing.com/product/tension-board-2/), [Grasshopper Board](https://grasshopperclimbing.com/products/), [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
+And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
+[Kilter Board](https://settercloset.com/pages/the-kilter-board),
+[Tension Board](https://tensionclimbing.com/product/tension-board-2/),
+[Grasshopper Board](https://grasshopperclimbing.com/products/),
+[Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
+[So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
 
 Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
-> [!CAUTION]
-> This project is provided "as-is" without any express or implied warranties. By using this software, you assume all risks associated with its use, including but not limited to hardware damage, data loss, or any other issues that may arise. The developers and contributors are not responsible for any harm or loss incurred. Use this software at your own discretion and responsibility.
+> [!CAUTION] This project is provided "as-is" without any express or implied warranties. By using this software, you
+> assume all risks associated with its use, including but not limited to hardware damage, data loss, or any other issues
+> that may arise. The developers and contributors are not responsible for any harm or loss incurred. Use this software
+> at your own discretion and responsibility.
 
 ## Try it out
 
