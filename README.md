@@ -19,10 +19,10 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
-> This project is provided "as-is" without any express or implied warranties. By using this software, you
-> assume all risks associated with its use, including but not limited to hardware damage, data loss, or any other issues
-> that may arise. The developers and contributors are not responsible for any harm or loss incurred. Use this software
-> at your own discretion and responsibility.
+> This project is provided "as-is" without any express or implied warranties. By using this software, you assume all
+> risks associated with its use, including but not limited to hardware damage, data loss, or any other issues that may
+> arise. The developers and contributors are not responsible for any harm or loss incurred. Use this software at your
+> own discretion and responsibility.
 
 ## Try it out
 
@@ -132,8 +132,8 @@ A special thank you to:
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
 - [@Phil9l](https://github.com/phil9l) for his research and providing a [blog](https://bazun.me/blog/kiterboard/) on how
   to connect with the Kilter Board.
-- [@1-max-1](https://github.com/1-max-1/fake_kilter_board) for the docs on his Kilter Board
-  [https://github.com/1-max-1/fake_kilter_board](simulator).
+- [@1-max-1](https://github.com/1-max-1) for the docs on his Kilter Board
+  [simulator](https://github.com/1-max-1/fake_kilter_board).
 
 ## Disclaimer
 
