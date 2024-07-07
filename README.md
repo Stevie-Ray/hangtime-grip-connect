@@ -3,10 +3,12 @@
 **Force-Sensing Climbing Training**
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
-Force-Sensing Hangboards / Plates used by climbers for strength measurement. Examples of such hangboards include the
+Force-Sensing Hangboards / Plates / LED system boards used by climbers for strength measurement. Examples of such hangboards include the
 [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
 [mySmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/),
 [Tindeq Progressor](https://tindeq.com/) or [MAT Muscle Meter](https://www.matassessment.com/musclemeter)
+
+And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the [Kilter Board](https://settercloset.com/pages/the-kilter-board), [Tension Board](https://tensionclimbing.com/product/tension-board-2/), [Grasshopper Board](https://grasshopperclimbing.com/products/), [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
 
 Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
@@ -14,7 +16,7 @@ Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 ## Try it out
 
 [Chart](https://grip-connect.vercel.app/) - [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/) -
-[Pong](https://grip-connect-pong.vercel.app/) - [Kilter Board](https://grip-connect-kilter-board.vercel.app/)
+[Kilter Board](https://grip-connect-kilter-board.vercel.app/)
 
 ## Install
 
@@ -114,10 +116,13 @@ A special thank you to:
 - [@donaldharvey](https://github.com/donaldharvey) for a valuable example on connecting to the Motherboard.
 - [@ecstrema](https://github.com/ecstrema) for providing [examples](https://github.com/ecstrema/entralpi-games) on how
   to play games with the Entralpi.
-- [Tindeq](https://tindeq.com/) for providing an open [Progressor API](https://tindeq.com/progressor_api/)
+- [Tindeq](https://tindeq.com/) for providing an open [Progressor API](https://tindeq.com/progressor_api/).
 - [@StuartLittlefair](https://github.com/StuartLittlefair) for his
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
-- [@Phil9l](https://github.com/phil9l) for providing a blog on how to connect with the [Kilter Board](https://bazun.me/blog/kiterboard/)
+- [@Phil9l](https://github.com/phil9l) for his research and providing a [blog](https://bazun.me/blog/kiterboard/) on how
+  to connect with the Kilter Board.
+- [@1-max-1](https://github.com/1-max-1/fake_kilter_board) for the docs on his Kilter Board
+  (https://github.com/1-max-1/fake_kilter_board)[simulator].
 
 ## Disclaimer
 
