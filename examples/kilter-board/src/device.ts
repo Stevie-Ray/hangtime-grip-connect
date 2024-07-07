@@ -41,9 +41,12 @@ enum PACKET {
 }
 /**
  * Maximum length of the message body for byte wrapping.
- *
  */
 const MESSAGE_BODY_MAX_LENGTH = 255
+/**
+ * Maximum length of the the bluetooth chunk.
+ */
+const MAX_BLUETOOTH_MESSAGE_SIZE = 20
 
 /**
  * Pads a number with leading zeros up to a specified length.
@@ -184,6 +187,34 @@ function prepBytesV3(climbPlacementList: ClimbPlacement[]) {
 
   return finalResultArray
 }
+
+/**
+ * Splits a collection into slices of the specified length.
+ * https://github.com/ramda/ramda/blob/master/source/splitEvery.js
+ * @param {Number} n
+ * @param {Array} list
+ * @return {Array}
+ */
+function splitEvery(n: number, list: number[]) {
+  if (n <= 0) {
+    throw new Error("First argument to splitEvery must be a positive integer")
+  }
+  const result = []
+  let idx = 0
+  while (idx < list.length) {
+    result.push(list.slice(idx, (idx += n)))
+  }
+  return result
+}
+
+/**
+ * The kilter board only supports messages of 20 bytes
+ * at a time. This method splits a full message into parts
+ * of 20 bytes
+ *
+ * @param buffer
+ */
+const splitMessages = (buffer: number[]) => splitEvery(MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => arr.toString())
 
 // Display Logic
 
@@ -763,15 +794,20 @@ const circles: SVGCircleElement[] = data.map((item) => {
         position: x.position,
       })),
     )
-      // Map the resulting byte array to hexadecimal strings using zfill function
-      .map((x) => zfill(x.toString(16), 2))
-      .join("")
 
     const activeHoldsHtml = document.querySelector("#active-holds")
     if (activeHoldsHtml !== null) {
       activeHoldsHtml.innerHTML = command
+        // Map the resulting byte array to hexadecimal strings using zfill function
+        .map((x) => zfill(x.toString(16), 2))
+        .join("")
     }
-    await write(KilterBoard, "uart", "tx", command, 1000)
+
+    const data = command
+    const messages = splitMessages(data)
+    for (const message of messages) {
+      await write(KilterBoard, "uart", "tx", message, 1000)
+    }
   })
 
   return circle
