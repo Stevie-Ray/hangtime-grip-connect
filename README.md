@@ -19,7 +19,7 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
-> [!CAUTION] This project is provided "as-is" without any express or implied warranties. By using this software, you
+> This project is provided "as-is" without any express or implied warranties. By using this software, you
 > assume all risks associated with its use, including but not limited to hardware damage, data loss, or any other issues
 > that may arise. The developers and contributors are not responsible for any harm or loss incurred. Use this software
 > at your own discretion and responsibility.
