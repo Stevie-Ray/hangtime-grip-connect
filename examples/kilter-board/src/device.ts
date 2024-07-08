@@ -214,7 +214,8 @@ function splitEvery(n: number, list: number[]) {
  *
  * @param buffer
  */
-const splitMessages = (buffer: number[]) => splitEvery(MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => arr.toString())
+const splitMessages = (buffer: number[]) =>
+  splitEvery(MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
 
 // Display Logic
 
@@ -787,7 +788,7 @@ const circles: SVGCircleElement[] = data.map((item) => {
       }
     }
 
-    const command = prepBytesV3(
+    const payload = prepBytesV3(
       // Map activeHolds array to objects with role_id and position properties
       activeHolds.map((x) => ({
         role_id: x.color,
@@ -797,16 +798,17 @@ const circles: SVGCircleElement[] = data.map((item) => {
 
     const activeHoldsHtml = document.querySelector("#active-holds")
     if (activeHoldsHtml !== null) {
-      activeHoldsHtml.innerHTML = command
+      activeHoldsHtml.innerHTML = payload
         // Map the resulting byte array to hexadecimal strings using zfill function
         .map((x) => zfill(x.toString(16), 2))
         .join("")
     }
 
-    const data = command
-    const messages = splitMessages(data)
+    // Send to device
+    const messages = splitMessages(payload)
     for (const message of messages) {
-      await write(KilterBoard, "uart", "tx", message, 1000)
+      const messageString = new TextDecoder().decode(message)
+      await write(KilterBoard, "uart", "tx", messageString, 1000)
     }
   })
 
