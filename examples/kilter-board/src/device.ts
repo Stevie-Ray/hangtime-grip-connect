@@ -739,10 +739,10 @@ const svg: SVGSVGElement | null = document.querySelector("#svg-kb")
  */
 const colors = [
   "transparent", //     - DEFAULT
-  "#4cf0fd", // blue    - MIDDLE
-  "#00ff00", // green   - START
-  "#fbe400", // yellow  - FEET-ONLY
-  "#ff00ff", // purple  - FINISH
+  "#00FFFF", // blue    - MIDDLE
+  "#00FF00", // green   - START
+  "#FFA500", // yellow  - FEET-ONLY
+  "#FF00FF", // purple  - FINISH
 ]
 
 /**
@@ -810,8 +810,7 @@ const circles: SVGCircleElement[] = data.map((item) => {
      */
     async function writeMessageSeries(messages: Uint8Array[]) {
       for (const message of messages) {
-        const messageString = new TextDecoder().decode(message)
-        await write(KilterBoard, "uart", "tx", messageString)
+        await write(KilterBoard, "uart", "tx", message)
       }
     }
 
