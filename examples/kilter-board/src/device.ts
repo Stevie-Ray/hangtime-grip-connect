@@ -764,7 +764,7 @@ const circles: SVGCircleElement[] = data.map((item) => {
   // @ts-expect-error it's a number
   circle.setAttribute("id", item[2])
 
-  circle.addEventListener("click", async (event) => {
+  circle.addEventListener("click", (event) => {
     const targetElement = event.target as SVGElement | null
     const currentStroke = targetElement?.getAttribute("stroke")
     const newStroke = colors[(colors.indexOf(currentStroke!) + 1) % colors.length]
@@ -796,20 +796,27 @@ const circles: SVGCircleElement[] = data.map((item) => {
       })),
     )
 
+    // Updates the inner HTML with the payload in hexadecimal format.
     const activeHoldsHtml = document.querySelector("#active-holds")
     if (activeHoldsHtml !== null) {
       activeHoldsHtml.innerHTML = payload
-        // Map the resulting byte array to hexadecimal strings using zfill function
+        // Converts byte array to hexadecimal strings using zfill function.
         .map((x) => zfill(x.toString(16), 2))
         .join("")
     }
 
-    // Send to device
-    const messages = splitMessages(payload)
-    for (const message of messages) {
-      const messageString = new TextDecoder().decode(message)
-      await write(KilterBoard, "uart", "tx", messageString, 1000)
+    /**
+     * Sends a series of messages to a device.
+     */
+    async function writeMessageSeries(messages: Uint8Array[]) {
+      for (const message of messages) {
+        const messageString = new TextDecoder().decode(message)
+        await write(KilterBoard, "uart", "tx", messageString)
+      }
     }
+
+    // Sends the payload to the device by splitting it into messages and writing each message.
+    writeMessageSeries(splitMessages(payload))
   })
 
   return circle

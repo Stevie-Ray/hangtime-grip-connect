@@ -9,16 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.2",
-    "@fortawesome/free-brands-svg-icons": "^6.5.2",
-    "@fortawesome/free-regular-svg-icons": "^6.5.2",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-brands-svg-icons": "^6.6.0",
+    "@fortawesome/free-regular-svg-icons": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@hangtime/grip-connect": "^0.3.4",
     "chart.js": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5.5.3",
-    "vite": "^5.3.3"
+    "vite": "^5.3.4"
   },
   "workspaces": [
     "examples"
