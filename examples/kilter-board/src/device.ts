@@ -1,12 +1,18 @@
-import { KilterBoard, connect } from "@hangtime/grip-connect"
-import { write } from "@hangtime/grip-connect/src/write"
+import { KilterBoard, connect, led } from "@hangtime/grip-connect"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
 
 const device: Device = KilterBoard
 
 export function setupDevice(element: HTMLButtonElement) {
   element.addEventListener("click", async () => {
-    connect(device, async () => {})
+    connect(device, async () => {
+      // Map activeHolds array to objects with role_id and position properties
+      const placement = activeHolds.map((x) => ({
+        role_id: x.color,
+        position: x.position,
+      }))
+      await led(KilterBoard, placement)
+    })
   })
 }
 /**
@@ -25,29 +31,6 @@ const DELTA_Y = 1170
  * Array to store active holds with their colors and positions.
  */
 let activeHolds: { color: string; position: number }[] = []
-
-/**
- * The first byte in the data is dependent on where the packet is in the message as a whole:
- */
-enum PACKET {
-  /** If this packet is in the middle, the byte gets set to 81 (Q). */
-  MIDDLE = 81,
-  /** If this packet is the first packet in the message, then this byte gets set to 82 (R). */
-  FIRST,
-  /** If this is the last packet in the message, this byte gets set to 83 (S). */
-  LAST,
-  /** If this packet is the only packet in the message, the byte gets set to 84 (T). Note that this takes priority over the other conditions. */
-  ONLY,
-}
-/**
- * Maximum length of the message body for byte wrapping.
- */
-const MESSAGE_BODY_MAX_LENGTH = 255
-/**
- * Maximum length of the the bluetooth chunk.
- */
-const MAX_BLUETOOTH_MESSAGE_SIZE = 20
-
 /**
  * Pads a number with leading zeros up to a specified length.
  * @param input - The number to pad.
@@ -58,167 +41,6 @@ function zfill(input: string, number: number) {
   const pad = "0".repeat(number)
   return pad.substring(0, pad.length - input.length) + input
 }
-
-/**
- * Calculates the checksum for a byte array by summing up all bytes ot hre packet in a single-byte variable.
- * @param data - The array of bytes to calculate the checksum for.
- * @returns The calculated checksum value.
- */
-function checksum(data: number[]) {
-  let i = 0
-  for (const value of data) {
-    i = (i + value) & 255
-  }
-  return ~i & 255
-}
-
-/**
- * Wraps a byte array with header and footer bytes for transmission.
- * @param data - The array of bytes to wrap.
- * @returns The wrapped byte array.
- */
-function wrapBytes(data: number[]) {
-  if (data.length > MESSAGE_BODY_MAX_LENGTH) {
-    return []
-  }
-
-  /**
-- 0x1
-- len(packets)
-- checksum(packets)
-- 0x2
-- *packets
-- 0x3
-
-First byte is always 1, the second is a number of packets, then checksum, then 2, packets themselves, and finally 3.
- */
-  return [1, data.length, checksum(data), 2, ...data, 3]
-}
-
-class ClimbPlacement {
-  position: number
-  role_id: string
-
-  constructor(position: number, role_id: string) {
-    this.position = position
-    this.role_id = role_id
-  }
-}
-
-/**
- * Encodes a position into a byte array.
- * The lowest 8 bits of the position get put in the first byte of the group.
- * The highest 8 bits of the position get put in the second byte of the group.
- * @param position - The position to encode.
- * @returns The encoded byte array representing the position.
- */
-function encodePosition(position: number) {
-  const position1 = position & 255
-  const position2 = (position & 65280) >> 8
-
-  return [position1, position2]
-}
-
-/**
- * Encodes a color string into a numeric representation.
- * The rgb color, 3 bits for the R and G components, 2 bits for the B component, with the 3 R bits occupying the high end of the byte and the 2 B bits in the low end (hence 3 G bits in the middle).
- * @param color - The color string in hexadecimal format (e.g., 'FFFFFF').
- * @returns The encoded /compressed color value.
- */
-function encodeColor(color: string) {
-  const substring = color.substring(0, 2)
-  const substring2 = color.substring(2, 4)
-
-  const parsedSubstring = parseInt(substring, 16) / 32
-  const parsedSubstring2 = parseInt(substring2, 16) / 32
-  const parsedResult = (parsedSubstring << 5) | (parsedSubstring2 << 2)
-
-  const substring3 = color.substring(4, 6)
-  const parsedSubstring3 = parseInt(substring3, 16) / 64
-  const finalParsedResult = parsedResult | parsedSubstring3
-
-  return finalParsedResult
-}
-
-/**
- * Encodes a placement (requires a 16-bit position and a 24-bit rgb color. ) into a byte array.
- * @param position - The position to encode.
- * @param ledColor - The color of the LED in hexadecimal format (e.g., 'FFFFFF').
- * @returns The encoded byte array representing the placement.
- */
-function encodePlacement(position: number, ledColor: string) {
-  return [...encodePosition(position), encodeColor(ledColor)]
-}
-
-/**
- * Prepares byte arrays for transmission based on a list of climb placements.
- * @param climbPlacementList - The list of climb placements containing position and role ID.
- * @returns The final byte array ready for transmission.
- */
-function prepBytesV3(climbPlacementList: ClimbPlacement[]) {
-  const resultArray: number[][] = []
-  let tempArray: number[] = [PACKET.MIDDLE]
-
-  for (const climbPlacement of climbPlacementList) {
-    if (tempArray.length + 3 > MESSAGE_BODY_MAX_LENGTH) {
-      resultArray.push(tempArray)
-      tempArray = [PACKET.MIDDLE]
-    }
-
-    const ledColor = climbPlacement.role_id
-
-    const encodedPlacement = encodePlacement(climbPlacement.position, ledColor)
-    tempArray.push(...encodedPlacement)
-  }
-
-  resultArray.push(tempArray)
-
-  if (resultArray.length === 1) {
-    resultArray[0][0] = PACKET.ONLY
-  } else if (resultArray.length > 1) {
-    resultArray[0][0] = PACKET.FIRST
-    resultArray[resultArray.length - 1][0] = PACKET.LAST
-  }
-
-  const finalResultArray: number[] = []
-  for (const currentArray of resultArray) {
-    finalResultArray.push(...wrapBytes(currentArray))
-  }
-
-  return finalResultArray
-}
-
-/**
- * Splits a collection into slices of the specified length.
- * https://github.com/ramda/ramda/blob/master/source/splitEvery.js
- * @param {Number} n
- * @param {Array} list
- * @return {Array}
- */
-function splitEvery(n: number, list: number[]) {
-  if (n <= 0) {
-    throw new Error("First argument to splitEvery must be a positive integer")
-  }
-  const result = []
-  let idx = 0
-  while (idx < list.length) {
-    result.push(list.slice(idx, (idx += n)))
-  }
-  return result
-}
-
-/**
- * The kilter board only supports messages of 20 bytes
- * at a time. This method splits a full message into parts
- * of 20 bytes
- *
- * @param buffer
- */
-const splitMessages = (buffer: number[]) =>
-  splitEvery(MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
-
-// Display Logic
-
 /**
  * Converts database coordinates to board coordinates.
  * @param x - The x-coordinate in the database coordinate system.
@@ -231,7 +53,6 @@ function dbToBoardCoord(x: number, y: number): { x: number; y: number } {
     y: -y * COORDINATE_MULTIPLIER + DELTA_Y,
   }
 }
-
 // /**
 //  * Converts board coordinates to database coordinates.
 //  * @param x - The x-coordinate in the board coordinate system.
@@ -244,7 +65,6 @@ function dbToBoardCoord(x: number, y: number): { x: number; y: number } {
 //         y: Math.round((y - DELTA_Y) / COORDINATE_MULTIPLIER),
 //     };
 // }
-
 /**
  * Kilterboard SVG data representing coordinates and associated IDs.
  */
@@ -726,14 +546,10 @@ const data: number[][] = `140	4	1133	0
 136	152	1656	476`
   .split("\n")
   .map((line) => line.split("\t").map((item) => parseInt(item)))
-
-// const data = [[56, 8], [112, 152]]
-
 /**
  * SVG element on the DOM where circles will be drawn.
  */
 const svg: SVGSVGElement | null = document.querySelector("#svg-kb")
-
 /**
  * Array of colors mapped to their respective hex codes.
  */
@@ -744,7 +560,6 @@ const colors = [
   "#FFA500", // yellow  - FEET-ONLY
   "#FF00FF", // purple  - FINISH
 ]
-
 /**
  * Array of SVG circles representing data points.
  */
@@ -760,62 +575,44 @@ const circles: SVGCircleElement[] = data.map((item) => {
   circle.setAttribute("stroke-width", "8")
   circle.setAttribute("cursor", "pointer")
   circle.setAttribute("fill-opacity", "0.2")
-
   // @ts-expect-error it's a number
   circle.setAttribute("id", item[2])
-
-  circle.addEventListener("click", (event) => {
+  // Circle click event listener
+  circle.addEventListener("click", async (event) => {
     const targetElement = event.target as SVGElement | null
     const currentStroke = targetElement?.getAttribute("stroke")
     const newStroke = colors[(colors.indexOf(currentStroke!) + 1) % colors.length]
     targetElement?.setAttribute("stroke", newStroke)
     circle.setAttribute("fill", newStroke)
-
     const newHoldData = {
       color: newStroke.slice(1),
       position: item[3],
     }
-
     if (newStroke === "transparent") {
       activeHolds = activeHolds.filter((hold) => hold.position !== newHoldData.position)
     } else {
       const holdIndex = activeHolds.findIndex((hold) => hold.position === newHoldData.position)
-
       if (holdIndex === -1) {
         activeHolds.push(newHoldData)
       } else {
         activeHolds[holdIndex] = newHoldData
       }
     }
-
-    const payload = prepBytesV3(
-      // Map activeHolds array to objects with role_id and position properties
-      activeHolds.map((x) => ({
-        role_id: x.color,
-        position: x.position,
-      })),
-    )
+    // Map activeHolds array to objects with role_id and position properties
+    const placement = activeHolds.map((x) => ({
+      role_id: x.color,
+      position: x.position,
+    }))
+    const payload = await led(KilterBoard, placement)
 
     // Updates the inner HTML with the payload in hexadecimal format.
     const activeHoldsHtml = document.querySelector("#active-holds")
-    if (activeHoldsHtml !== null) {
+    if (activeHoldsHtml !== null && payload) {
       activeHoldsHtml.innerHTML = payload
         // Converts byte array to hexadecimal strings using zfill function.
         .map((x) => zfill(x.toString(16), 2))
         .join("")
     }
-
-    /**
-     * Sends a series of messages to a device.
-     */
-    async function writeMessageSeries(messages: Uint8Array[]) {
-      for (const message of messages) {
-        await write(KilterBoard, "uart", "tx", message)
-      }
-    }
-
-    // Sends the payload to the device by splitting it into messages and writing each message.
-    writeMessageSeries(splitMessages(payload))
   })
 
   return circle

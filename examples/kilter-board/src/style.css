@@ -24,9 +24,10 @@ body {
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 0.5rem;
   width: 100%;
   text-align: center;
+  overflow-y: hidden;
 }
 
 #canvas {
@@ -38,6 +39,7 @@ input {
   max-width: 120px;
 }
 
+button,
 select,
 input {
   appearance: none;
@@ -55,16 +57,34 @@ input {
   transition: border-color 0.25s;
 }
 
+button:hover,
 select:hover,
 input:hover {
   border-color: #646cff;
 }
 
+button:focus,
 select:focus,
 select:focus-visible,
 input:focus,
 input:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+strong {
+  display: block;
+}
+
+p {
+  max-width: 700px;
+  display: block;
+  margin: 0 auto 1rem;
+}
+
+code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: justify;
 }
 
 @media (prefers-color-scheme: light) {

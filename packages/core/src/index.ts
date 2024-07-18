@@ -18,6 +18,9 @@ export { isConnected } from "./is-connected"
 // Export information retrieval function
 export { info } from "./info"
 
+// Export led retrieval function
+export { led } from "./led"
+
 // Export notification related function
 export { notify } from "./notify"
 
