@@ -8,6 +8,6 @@ export { Motherboard } from "./motherboard"
 
 export { mySmartBoard } from "./mysmartboard"
 
-export { MuscleMeter } from "./musclemeter"
+export { WHC06 } from "./wh-c06"
 
 export { Progressor } from "./progressor"

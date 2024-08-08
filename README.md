@@ -6,7 +6,7 @@ The objective of this project is to create a Web Bluetooth API client that can e
 Force-Sensing Hangboards / Plates / LED system boards used by climbers for strength measurement. Examples of such
 hangboards include the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
 [Climbro](https://climbro.com/), [mySmartBoard](https://www.smartboard-climbing.com/),
-[Entralpi](https://entralpi.com/), [Tindeq Progressor](https://tindeq.com/) or
+[Entralpi](https://entralpi.com/), [Tindeq Progressor](https://tindeq.com/) or [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/) also known as
 [MAT Muscle Meter](https://www.matassessment.com/musclemeter)
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
@@ -94,7 +94,7 @@ available services with us.
 - ⏳ Kilterboard (write only, see example)
 - ➡️ Climbro
 - ➡️ mySmartBoard
-- ➡️ MAT Muscle Meter
+- ➡️ Weiheng WH-C06 / MAT Muscle Meter
 
 ### Features
 

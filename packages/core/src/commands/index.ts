@@ -4,7 +4,7 @@ export { EntralpiCommands } from "./entralpi"
 
 export { MotherboardCommands } from "./motherboard"
 
-export { MuscleMeterCommands } from "./musclemeter"
+export { WHC06Commands } from "./wh-c06"
 
 export { ProgressorCommands } from "./progressor"
 
