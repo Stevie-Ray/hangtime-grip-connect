@@ -59,12 +59,14 @@ export function setupWeight(element: HTMLInputElement) {
 
 const RAD: number = Math.PI / 180
 const scrn = document.getElementById("canvas") as HTMLCanvasElement | null
-if (scrn) {
-  const sctx = scrn.getContext("2d")
-  if (sctx) {
-    scrn.tabIndex = 1
-  }
+if (!scrn) {
+  throw new Error("Canvas element not found")
 }
+const sctx = scrn.getContext("2d")
+if (!sctx) {
+  throw new Error("2D context not available")
+}
+scrn.tabIndex = 1
 
 async function handleUserInput(): Promise<void> {
   switch (state.curr) {
@@ -414,8 +416,12 @@ function update(): void {
 }
 
 function draw(): void {
-  sctx.fillStyle = "#30c0df"
-  sctx.fillRect(0, 0, scrn.width, scrn.height)
+  if (sctx) {
+    sctx.fillStyle = "#30c0df"
+    if (scrn) {
+      sctx.fillRect(0, 0, scrn.width, scrn.height)
+    }
+  }
   bg.draw()
   pipe.draw()
 
