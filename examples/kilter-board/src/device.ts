@@ -581,7 +581,7 @@ const circles: SVGCircleElement[] = data.map((item) => {
   circle.addEventListener("click", async (event) => {
     const targetElement = event.target as SVGElement | null
     const currentStroke = targetElement?.getAttribute("stroke")
-    const newStroke = colors[(colors.indexOf(currentStroke!) + 1) % colors.length]
+    const newStroke = colors[(colors.indexOf(currentStroke || "") + 1) % colors.length]
     targetElement?.setAttribute("stroke", newStroke)
     circle.setAttribute("fill", newStroke)
     const newHoldData = {
@@ -619,4 +619,6 @@ const circles: SVGCircleElement[] = data.map((item) => {
 })
 
 // Append circles to the SVG element.
-circles.forEach((circle) => svg!.appendChild(circle))
+if (svg) {
+  circles.forEach((circle) => svg.appendChild(circle))
+}

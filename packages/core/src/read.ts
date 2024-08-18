@@ -10,12 +10,7 @@ import { isConnected } from "./is-connected"
  * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
  * @returns {Promise<void>} A promise that resolves when the read operation is completed.
  */
-export const read = (
-  board: Device,
-  serviceId: string,
-  characteristicId: string,
-  duration = 0,
-): Promise<void> => {
+export const read = (board: Device, serviceId: string, characteristicId: string, duration = 0): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {
       const characteristic = getCharacteristic(board, serviceId, characteristicId)

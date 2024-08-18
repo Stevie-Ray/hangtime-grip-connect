@@ -154,7 +154,7 @@ interface GameType {
 
 const Game: GameType = {
   canvas: document.createElement("canvas"),
-  context: document.createElement("canvas").getContext("2d")!,
+  context: null as unknown as CanvasRenderingContext2D,
   player: {} as PaddleType, // Temporary initialization
   paddle: {} as PaddleType, // Temporary initialization
   ball: {} as BallType, // Temporary initialization
@@ -165,8 +165,14 @@ const Game: GameType = {
   round: 0,
   color: "#2c3e50",
   initialize: function () {
-    this.canvas = document.querySelector("canvas")!
-    this.context = this.canvas.getContext("2d")!
+    const canvas = document.querySelector("canvas")
+    if (canvas) {
+      this.canvas = canvas
+      const context = this.canvas.getContext("2d")
+      if (context) {
+        this.context = context
+      }
+    }
 
     this.canvas.width = Math.min(window.innerWidth, window.innerHeight) * 1.9 // 1.9 to keep some margin
     this.canvas.height = (5 / 7) * this.canvas.width

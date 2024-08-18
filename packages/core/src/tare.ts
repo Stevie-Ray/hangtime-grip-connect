@@ -34,9 +34,9 @@ let timeTare = 5000
 /**
  * Initiates the tare calibration process.
  * @param {number} time - The duration time for tare calibration process.
- * @returns {Promise<void>} A Promise that resolves when tare calibration is initiated.
+ * @returns {void} A Promise that resolves when tare calibration is initiated.
  */
-export const tare = async (time = 5000): Promise<void> => {
+export const tare = (time = 5000): void => {
   runTare = true
   timeTare = time
   tareSamples = []
@@ -59,10 +59,10 @@ export const applyTare = (sample: number): number => {
     // Push current sample to tareSamples array
     tareSamples.push(sample)
     // Check if taring process duration has passed (defaults to 5 seconds)
-    if (typeof runTare !== "boolean" && new Date().getTime() - (runTare).getTime() > timeTare) {
+    if (typeof runTare !== "boolean" && new Date().getTime() - runTare.getTime() > timeTare) {
       // Calculate the sum of tare samples
-      for (let i = 0; i < tareSamples.length; ++i) {
-        newTares += tareSamples[i]
+      for (const tareSample of tareSamples) {
+        newTares += tareSample
       }
       // Calculate the average by dividing the sum by the number of samples and update the tare value with the calculated average
       currentTare = newTares / tareSamples.length

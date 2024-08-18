@@ -2,7 +2,9 @@ import "./style.css"
 import { setupFontAwesome } from "./icons"
 import { setupChart, setupDevice } from "./devices"
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+const appElement = document.querySelector<HTMLDivElement>("#app")
+if (appElement) {
+  appElement.innerHTML = `
   <div class="card">
     <canvas class="chart"></canvas>
     <div class="input">
@@ -39,15 +41,21 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
   <div id="masses"></div>
 `
+}
 
-setupDevice(
-  document.querySelector<HTMLSelectElement>("#deviceSelect")!,
-  document.querySelector<HTMLButtonElement>("#stream")!,
-  document.querySelector<HTMLButtonElement>("#tare")!,
-  document.querySelector<HTMLButtonElement>("#download")!,
-  document.querySelector<HTMLDivElement>("#masses")!,
-)
+const deviceSelectElement = document.querySelector<HTMLSelectElement>("#deviceSelect")
+const streamButtonElement = document.querySelector<HTMLButtonElement>("#stream")
+const tareButtonElement = document.querySelector<HTMLButtonElement>("#tare")
+const downloadButtonElement = document.querySelector<HTMLButtonElement>("#download")
+const massesElement = document.querySelector<HTMLDivElement>("#masses")
 
-setupChart(document.querySelector<HTMLCanvasElement>(".chart")!)
+if (deviceSelectElement && streamButtonElement && tareButtonElement && downloadButtonElement && massesElement) {
+  setupDevice(deviceSelectElement, streamButtonElement, tareButtonElement, downloadButtonElement, massesElement)
+}
+
+const chartElement = document.querySelector<HTMLCanvasElement>(".chart")
+if (chartElement) {
+  setupChart(chartElement)
+}
 
 setupFontAwesome()

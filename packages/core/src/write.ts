@@ -52,7 +52,7 @@ export const write = (
               resolve()
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             reject(error)
           })
       } else {

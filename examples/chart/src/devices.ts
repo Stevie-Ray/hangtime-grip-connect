@@ -72,7 +72,7 @@ export function setupDevice(
           if (!isNaN(value)) {
             const label = property.replace("mass", "")
             const div = document.createElement("div")
-            div.innerHTML = `<label>${label}</label><strong>${value}<span>kg</span></strong>`
+            div.innerHTML = `<label>${label}</label><strong>${value.toString()}<span>kg</span></strong>`
             massesElement.appendChild(div)
           }
         }

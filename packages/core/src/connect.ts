@@ -91,9 +91,9 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
               // notify
               if (element.id === "rx") {
                 matchingCharacteristic.startNotifications()
-                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) =>
-                  { handleNotifications(event, board); },
-                )
+                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) => {
+                  handleNotifications(event, board)
+                })
               }
             }
           } else {
@@ -141,7 +141,9 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
 
     server = await board.device.gatt.connect()
 
-    board.device.addEventListener("gattserverdisconnected", (event) => { onDisconnected(event, board); })
+    board.device.addEventListener("gattserverdisconnected", (event) => {
+      onDisconnected(event, board)
+    })
 
     if (server.connected) {
       await onConnected(board, onSuccess)

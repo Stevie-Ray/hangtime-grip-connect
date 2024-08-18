@@ -58,9 +58,13 @@ export function setupWeight(element: HTMLInputElement) {
 }
 
 const RAD: number = Math.PI / 180
-const scrn: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement
-const sctx: CanvasRenderingContext2D = scrn.getContext("2d")!
-scrn.tabIndex = 1
+const scrn = document.getElementById("canvas") as HTMLCanvasElement | null
+if (scrn) {
+  const sctx = scrn.getContext("2d")
+  if (sctx) {
+    scrn.tabIndex = 1
+  }
+}
 
 async function handleUserInput(): Promise<void> {
   switch (state.curr) {
@@ -172,8 +176,7 @@ const pipe: {
   pipes: [],
   draw: function () {
     this.gap = 50 + difficulty * 150
-    for (let i = 0; i < this.pipes.length; i++) {
-      const p = this.pipes[i]
+    for (const p of this.pipes) {
       sctx.drawImage(this.top.sprite, p.x, p.y)
       sctx.drawImage(this.bot.sprite, p.x, p.y + parseFloat(String(this.top.sprite.height)) + this.gap)
     }
