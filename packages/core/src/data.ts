@@ -8,12 +8,12 @@ import { DownloadPackets } from "./download"
 import type { DownloadPacket } from "./types/download"
 
 // Constants
-const PACKET_LENGTH: number = 32
-const NUM_SAMPLES: number = 3
-let MASS_MAX: string = "0"
-let MASS_AVERAGE: string = "0"
-let MASS_TOTAL_SUM: number = 0
-let DATAPOINT_COUNT: number = 0
+const PACKET_LENGTH = 32
+const NUM_SAMPLES = 3
+let MASS_MAX = "0"
+let MASS_AVERAGE = "0"
+let MASS_TOTAL_SUM = 0
+let DATAPOINT_COUNT = 0
 export const CALIBRATION = [[], [], [], []]
 
 /**
@@ -26,9 +26,9 @@ const applyCalibration = (sample: number, calibration: number[][]): number => {
   // Extract the calibrated value for the zero point
   const zeroCalibration: number = calibration[0][2]
   // Initialize sign as positive
-  let sign: number = 1
+  let sign = 1
   // Initialize the final calibrated value
-  let final: number = 0
+  let final = 0
 
   // If the sample value is less than the zero calibration point
   if (sample < zeroCalibration) {
@@ -198,7 +198,7 @@ export const handleProgressorData = (data: DataView): void => {
   } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
     if (!lastWrite) return
 
-    let value: string = ""
+    let value = ""
 
     if (lastWrite === ProgressorCommands.GET_BATT_VLTG) {
       const vdd = new DataView(data.buffer, 2).getUint32(0, true)

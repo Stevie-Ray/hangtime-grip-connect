@@ -2,7 +2,7 @@
  * Represents the current tare value for calibration.
  * @type {number}
  */
-let currentTare: number = 0
+let currentTare = 0
 
 /**
  * Represents the state of tare calibration.
@@ -23,20 +23,20 @@ let tareSamples: number[] = []
  * Array holding the sum of samples collected during tare calibration.
  * @type {number}
  */
-let newTares: number = 0
+let newTares = 0
 
 /**
  * Duration time for tare calibration process.
  * @type {number}
  */
-let timeTare: number = 5000
+let timeTare = 5000
 
 /**
  * Initiates the tare calibration process.
  * @param {number} time - The duration time for tare calibration process.
  * @returns {Promise<void>} A Promise that resolves when tare calibration is initiated.
  */
-export const tare = async (time: number = 5000): Promise<void> => {
+export const tare = async (time = 5000): Promise<void> => {
   runTare = true
   timeTare = time
   tareSamples = []
@@ -50,7 +50,7 @@ export const tare = async (time: number = 5000): Promise<void> => {
 export const applyTare = (sample: number): number => {
   if (runTare) {
     // If taring process is initiated
-    if (typeof runTare === "boolean" && runTare === true) {
+    if (typeof runTare === "boolean" && runTare) {
       // If tare flag is true (first time), set it to the current date
       runTare = new Date()
       // Initialize the sum of new tare values
@@ -59,7 +59,7 @@ export const applyTare = (sample: number): number => {
     // Push current sample to tareSamples array
     tareSamples.push(sample)
     // Check if taring process duration has passed (defaults to 5 seconds)
-    if (typeof runTare !== "boolean" && new Date().getTime() - (runTare as Date).getTime() > timeTare) {
+    if (typeof runTare !== "boolean" && new Date().getTime() - (runTare).getTime() > timeTare) {
       // Calculate the sum of tare samples
       for (let i = 0; i < tareSamples.length; ++i) {
         newTares += tareSamples[i]

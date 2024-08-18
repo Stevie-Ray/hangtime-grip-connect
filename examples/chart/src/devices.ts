@@ -24,7 +24,7 @@ const massMaxData: number[] = []
 const massAverageData: number[] = []
 let chartElement: HTMLCanvasElement | null = null
 let chart: Chart | null = null
-let chartHeight: number = 0
+let chartHeight = 0
 /**
  * Sets up the device selection functionality and event listeners for streaming, tare, and download actions.
  *
@@ -41,7 +41,7 @@ export function setupDevice(
   downloadElement: HTMLButtonElement,
   massesElement: HTMLDivElement,
 ) {
-  let isStreaming: boolean = true
+  let isStreaming = true
   let device: Device = Motherboard
   /**
    * Toggles the visibility of buttons.
@@ -249,7 +249,7 @@ function addChartData(mass: string, max: string, average: string) {
         massAverageData.shift()
       }
 
-      if (chart?.options?.scales?.y) {
+      if (chart.options.scales?.y) {
         chart.options.scales.y.max = Math.ceil((chartHeight + 10) / 10) * 10
       }
 

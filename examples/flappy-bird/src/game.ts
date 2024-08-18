@@ -3,8 +3,8 @@ import type { Device } from "@hangtime/grip-connect/src/types/devices"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 
 let mass: number
-let weight: number = 75
-let difficulty: number = 0.5
+let weight = 75
+let difficulty = 0.5
 let device: Device = Progressor
 
 function getBluetoothData() {
@@ -59,7 +59,7 @@ export function setupWeight(element: HTMLInputElement) {
 
 const RAD: number = Math.PI / 180
 const scrn: HTMLCanvasElement = document.getElementById("canvas") as HTMLCanvasElement
-const sctx: CanvasRenderingContext2D = scrn.getContext("2d") as CanvasRenderingContext2D
+const sctx: CanvasRenderingContext2D = scrn.getContext("2d")!
 scrn.tabIndex = 1
 
 async function handleUserInput(): Promise<void> {
@@ -98,8 +98,8 @@ scrn.onkeydown = function keyDown(e: KeyboardEvent): void {
   }
 }
 
-let gameFrames: number = 0
-const dx: number = 2
+let gameFrames = 0
+const dx = 2
 const state: { curr: number; getReady: number; Play: number; gameOver: number } = {
   curr: 0,
   getReady: 0,
@@ -364,6 +364,7 @@ const UI = {
           sctx.fillText(bs, scrn.width / 2 - 80, scrn.height / 2 + 30)
           sctx.strokeText(bs, scrn.width / 2 - 80, scrn.height / 2 + 30)
         } catch (e) {
+          console.log(e)
           sctx.fillText(sc, scrn.width / 2 - 85, scrn.height / 2 + 15)
           sctx.strokeText(sc, scrn.width / 2 - 85, scrn.height / 2 + 15)
         }

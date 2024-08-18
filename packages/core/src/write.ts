@@ -22,7 +22,7 @@ export const write = (
   serviceId: string,
   characteristicId: string,
   message: string | Uint8Array | undefined,
-  duration: number = 0,
+  duration = 0,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {

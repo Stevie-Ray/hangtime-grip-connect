@@ -14,7 +14,7 @@ export const read = (
   board: Device,
   serviceId: string,
   characteristicId: string,
-  duration: number = 0,
+  duration = 0,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {

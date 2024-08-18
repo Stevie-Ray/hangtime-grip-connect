@@ -1,11 +1,11 @@
-const rechk: RegExp = /^([<>])?(([1-9]\d*)?([xcbB?hHiIfdsp]))*$/
-const refmt: RegExp = /([1-9]\d*)?([xcbB?hHiIfdsp])/g
+const rechk = /^([<>])?(([1-9]\d*)?([xcbB?hHiIfdsp]))*$/
+const refmt = /([1-9]\d*)?([xcbB?hHiIfdsp])/g
 
 const str = (v: DataView, o: number, c: number): string =>
   String.fromCharCode(...Array.from(new Uint8Array(v.buffer, v.byteOffset + o, c)))
 
 const rts = (v: DataView, o: number, c: number, s: string): void =>
-  new Uint8Array(v.buffer, v.byteOffset + o, c).set(s.split("").map((str) => str.charCodeAt(0)))
+  { new Uint8Array(v.buffer, v.byteOffset + o, c).set(s.split("").map((str) => str.charCodeAt(0))); }
 
 const pst = (v: DataView, o: number, c: number): string => str(v, o + 1, Math.min(v.getUint8(o), c - 1))
 
@@ -19,9 +19,7 @@ interface FormatFn {
   p: (v: DataView, value: unknown) => void
 }
 
-interface LUT {
-  [key: string]: (c: number) => [number, number, (o: number) => FormatFn]
-}
+type LUT = Record<string, (c: number) => [number, number, (o: number) => FormatFn]>;
 
 const lut = (le: boolean): LUT => ({
   x: (c: number) =>
@@ -39,7 +37,7 @@ const lut = (le: boolean): LUT => ({
       1,
       (o: number) => ({
         u: (v: DataView) => str(v, o, 1),
-        p: (v: DataView, s: string) => rts(v, o, 1, s),
+        p: (v: DataView, s: string) => { rts(v, o, 1, s); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   "?": (c: number) =>
@@ -48,7 +46,7 @@ const lut = (le: boolean): LUT => ({
       1,
       (o: number) => ({
         u: (v: DataView) => Boolean(v.getUint8(o)),
-        p: (v: DataView, B: boolean) => v.setUint8(o, B ? 1 : 0),
+        p: (v: DataView, B: boolean) => { v.setUint8(o, B ? 1 : 0); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   b: (c: number) =>
@@ -57,7 +55,7 @@ const lut = (le: boolean): LUT => ({
       1,
       (o: number) => ({
         u: (v: DataView) => v.getInt8(o),
-        p: (v: DataView, b: number) => v.setInt8(o, b),
+        p: (v: DataView, b: number) => { v.setInt8(o, b); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   B: (c: number) =>
@@ -66,7 +64,7 @@ const lut = (le: boolean): LUT => ({
       1,
       (o: number) => ({
         u: (v: DataView) => v.getUint8(o),
-        p: (v: DataView, B: number) => v.setUint8(o, B),
+        p: (v: DataView, B: number) => { v.setUint8(o, B); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   h: (c: number) =>
@@ -75,7 +73,7 @@ const lut = (le: boolean): LUT => ({
       2,
       (o: number) => ({
         u: (v: DataView) => v.getInt16(o, le),
-        p: (v: DataView, h: number) => v.setInt16(o, h, le),
+        p: (v: DataView, h: number) => { v.setInt16(o, h, le); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   H: (c: number) =>
@@ -84,7 +82,7 @@ const lut = (le: boolean): LUT => ({
       2,
       (o: number) => ({
         u: (v: DataView) => v.getUint16(o, le),
-        p: (v: DataView, H: number) => v.setUint16(o, H, le),
+        p: (v: DataView, H: number) => { v.setUint16(o, H, le); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   i: (c: number) =>
@@ -93,7 +91,7 @@ const lut = (le: boolean): LUT => ({
       4,
       (o: number) => ({
         u: (v: DataView) => v.getInt32(o, le),
-        p: (v: DataView, i: number) => v.setInt32(o, i, le),
+        p: (v: DataView, i: number) => { v.setInt32(o, i, le); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   I: (c: number) =>
@@ -102,7 +100,7 @@ const lut = (le: boolean): LUT => ({
       4,
       (o: number) => ({
         u: (v: DataView) => v.getUint32(o, le),
-        p: (v: DataView, I: number) => v.setUint32(o, I, le),
+        p: (v: DataView, I: number) => { v.setUint32(o, I, le); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   f: (c: number) =>
@@ -111,7 +109,7 @@ const lut = (le: boolean): LUT => ({
       4,
       (o: number) => ({
         u: (v: DataView) => v.getFloat32(o, le),
-        p: (v: DataView, f: number) => v.setFloat32(o, f, le),
+        p: (v: DataView, f: number) => { v.setFloat32(o, f, le); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   d: (c: number) =>
@@ -120,7 +118,7 @@ const lut = (le: boolean): LUT => ({
       8,
       (o: number) => ({
         u: (v: DataView) => v.getFloat64(o, le),
-        p: (v: DataView, d: number) => v.setFloat64(o, d, le),
+        p: (v: DataView, d: number) => { v.setFloat64(o, d, le); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   s: (c: number) =>
@@ -129,7 +127,7 @@ const lut = (le: boolean): LUT => ({
       c,
       (o: number) => ({
         u: (v: DataView) => str(v, o, c),
-        p: (v: DataView, s: string) => rts(v, o, c, s.slice(0, c)),
+        p: (v: DataView, s: string) => { rts(v, o, c, s.slice(0, c)); },
       }),
     ] as [number, number, (o: number) => FormatFn],
   p: (c: number) =>
@@ -138,7 +136,7 @@ const lut = (le: boolean): LUT => ({
       c,
       (o: number) => ({
         u: (v: DataView) => pst(v, o, c),
-        p: (v: DataView, s: string) => tsp(v, o, c, s.slice(0, c - 1)),
+        p: (v: DataView, s: string) => { tsp(v, o, c, s.slice(0, c - 1)); },
       }),
     ] as [number, number, (o: number) => FormatFn],
 })
@@ -148,7 +146,7 @@ const errval: RangeError = new RangeError("Not enough values for structure")
 
 export default function struct(format: string) {
   const fns: FormatFn[] = []
-  let size: number = 0
+  let size = 0
   let m: RegExpExecArray | null = rechk.exec(format)
 
   if (!m) {
@@ -159,7 +157,7 @@ export default function struct(format: string) {
   const lu = (n: string, c: string): [number, number, (o: number) => FormatFn] => t[c](n ? parseInt(n, 10) : 1)
 
   while ((m = refmt.exec(format))) {
-    // eslint-disable-next-line no-extra-semi
+     
     ;((r: number, s: number, f: (o: number) => FormatFn) => {
       for (let i = 0; i < r; ++i, size += s) {
         if (f) {
@@ -186,7 +184,7 @@ export default function struct(format: string) {
     }
     const v = new DataView(arrb, offs)
     new Uint8Array(arrb, offs, size).fill(0)
-    fns.forEach((f, i) => f.p(v, values[i]))
+    fns.forEach((f, i) => { f.p(v, values[i]); })
   }
 
   const pack = (...values: unknown[]): ArrayBuffer => {

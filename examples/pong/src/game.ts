@@ -3,8 +3,8 @@ import type { Device } from "@hangtime/grip-connect/src/types/devices"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 
 let mass: number
-let weight: number = 75
-let difficulty: number = 0.5
+let weight = 75
+let difficulty = 0.5
 let device: Device = Progressor
 
 function getBluetoothData() {
@@ -402,7 +402,7 @@ const Game: GameType = {
 
   listen: function () {
     document.addEventListener("touchstart", async function () {
-      if (Pong.running === false) {
+      if (!Pong.running) {
         if (isConnected(device)) {
           stream(device)
           Pong.running = true
@@ -418,7 +418,7 @@ const Game: GameType = {
 
     document.addEventListener("keydown", async function (key) {
       // Handle the 'Press any key to begin' function and start the game.
-      if (Pong.running === false) {
+      if (!Pong.running) {
         if (isConnected(device)) {
           stream(device)
           Pong.running = true

@@ -14,7 +14,7 @@ import { calibration } from "./calibration"
  * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
  * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
  */
-export const stream = async (board: Device, duration: number = 0): Promise<void> => {
+export const stream = async (board: Device, duration = 0): Promise<void> => {
   if (isConnected(board)) {
     // Reset download packets
     emptyDownloadPackets()

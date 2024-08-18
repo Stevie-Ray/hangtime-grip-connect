@@ -26,7 +26,7 @@ const handleNotifications = (event: Event, board: Device): void => {
   if (value) {
     // If the device is connected and it is a Motherboard device
     if (board.filters.some((filter) => filter.name === "Motherboard")) {
-      for (let i: number = 0; i < value.byteLength; i++) {
+      for (let i = 0; i < value.byteLength; i++) {
         receiveBuffer.push(value.getUint8(i))
       }
 
@@ -64,7 +64,7 @@ const handleNotifications = (event: Event, board: Device): void => {
 const onConnected = async (board: Device, onSuccess: () => void): Promise<void> => {
   try {
     // Connect to GATT server and set up characteristics
-    const services: BluetoothRemoteGATTService[] = await server?.getPrimaryServices()
+    const services: BluetoothRemoteGATTService[] = await server.getPrimaryServices()
 
     if (!services || services.length === 0) {
       console.error("No services found")
@@ -92,7 +92,7 @@ const onConnected = async (board: Device, onSuccess: () => void): Promise<void> 
               if (element.id === "rx") {
                 matchingCharacteristic.startNotifications()
                 matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) =>
-                  handleNotifications(event, board),
+                  { handleNotifications(event, board); },
                 )
               }
             }
@@ -139,9 +139,9 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
       return
     }
 
-    server = await board.device?.gatt?.connect()
+    server = await board.device.gatt.connect()
 
-    board.device.addEventListener("gattserverdisconnected", (event) => onDisconnected(event, board))
+    board.device.addEventListener("gattserverdisconnected", (event) => { onDisconnected(event, board); })
 
     if (server.connected) {
       await onConnected(board, onSuccess)
