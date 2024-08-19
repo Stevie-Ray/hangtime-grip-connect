@@ -3,12 +3,12 @@
 **Force-Sensing Climbing Training**
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
-Force-Sensing Hangboards / Plates / LED system boards used by climbers for strength measurement. Examples of such
-hangboards include the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
-[Climbro](https://climbro.com/), [mySmartBoard](https://www.smartboard-climbing.com/),
-[Entralpi](https://entralpi.com/), [Tindeq Progressor](https://tindeq.com/) or
-[Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/) also known as
-[MAT Muscle Meter](https://www.matassessment.com/musclemeter)
+Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by climbers. Examples of such tools include
+the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
+[mySmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/),
+[Tindeq Progressor](https://tindeq.com/) or
+[Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/) also sold as
+[MAT Muscle Meter](https://www.matassessment.com/musclemeter).
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
 [Kilter Board](https://settercloset.com/pages/the-kilter-board),
@@ -92,10 +92,11 @@ available services with us.
 - ✅ Griptonite Motherboard
 - ✅ Tindeq Progressor
 - ⏳ Entralpi (not verified)
-- ⏳ Kilterboard (write only, see example)
+- ⏳ Kilterboard (see example)
+- ⏳ Weiheng WH-C06 / MAT Muscle Meter
+  - Enable: `chrome://flags#enable-experimental-web-platform-features`
 - ➡️ Climbro
 - ➡️ mySmartBoard
-- ➡️ Weiheng WH-C06 / MAT Muscle Meter
 
 ### Features
 
@@ -134,7 +135,9 @@ A special thank you to:
 - [@Phil9l](https://github.com/phil9l) for his research and providing a [blog](https://bazun.me/blog/kiterboard/) on how
   to connect with the Kilter Board.
 - [@1-max-1](https://github.com/1-max-1) for the docs on his Kilter Board
-  [simulator](https://github.com/1-max-1/fake_kilter_board).
+  [simulator](https://github.com/1-max-1/fake_kilter_board) that I coverted to
+  [hangtime-arduino-kilterboard](https://github.com/Stevie-Ray/hangtime-arduino-kilterboard).
+- [sebws](https://github.com/sebw) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
 
 ## Disclaimer
 

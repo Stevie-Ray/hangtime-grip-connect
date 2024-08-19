@@ -11,7 +11,7 @@ if (controllerElement) {
       <option value="climbro" disabled>Climbro</option>
       <option value="entralpi">Entralpi</option>
       <option value="motherboard">Motherboard</option>
-      <option value="musclemeter" disabled>Muscle Meter</option>
+      <option value="whc06">WH-C06</option>
       <option value="smartboard" disabled>mySmartBoard</option>
       <option value="progressor">Progressor</option>
     </select>

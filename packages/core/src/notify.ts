@@ -1,6 +1,6 @@
 import type { massObject } from "./types/notify"
 /** Define the type for the callback function */
-export type NotifyCallback = (data: massObject) => void
+type NotifyCallback = (data: massObject) => void
 /**
  * Defines the type for the callback function.
  * @callback NotifyCallback

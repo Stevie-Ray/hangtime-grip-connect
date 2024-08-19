@@ -4,6 +4,7 @@ import {
   Motherboard,
   mySmartBoard,
   Progressor,
+  WHC06,
   battery,
   connect,
   disconnect,
@@ -93,6 +94,8 @@ export function setupDevice(
       device = mySmartBoard
     } else if (selectedDevice === "progressor") {
       device = Progressor
+    } else if (selectedDevice === "whc06") {
+      device = WHC06
     }
 
     return connect(device, async () => {

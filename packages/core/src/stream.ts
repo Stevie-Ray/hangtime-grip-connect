@@ -5,7 +5,7 @@ import { stop } from "./stop"
 import { Motherboard, Progressor } from "./devices"
 import { MotherboardCommands, ProgressorCommands } from "./commands"
 import { emptyDownloadPackets } from "./download"
-import { CALIBRATION } from "./data"
+import { CALIBRATION } from "./data/motherboard"
 import { calibration } from "./calibration"
 
 /**

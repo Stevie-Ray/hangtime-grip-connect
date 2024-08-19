@@ -1,4 +1,14 @@
-import { Motherboard, Progressor, Entralpi, connect, notify, stream, stop, isConnected } from "@hangtime/grip-connect"
+import {
+  Motherboard,
+  Progressor,
+  Entralpi,
+  WHC06,
+  connect,
+  notify,
+  stream,
+  stop,
+  isConnected,
+} from "@hangtime/grip-connect"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 
@@ -30,6 +40,9 @@ export function setupDevice(element: HTMLSelectElement) {
     }
     if (selectedDevice === "progressor") {
       device = Progressor
+    }
+    if (selectedDevice === "whc06") {
+      device = WHC06
     }
     getBluetoothData()
   })

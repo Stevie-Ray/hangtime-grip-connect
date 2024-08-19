@@ -1,5 +1,8 @@
 import type { Device } from "./types/devices"
-import { handleEntralpiData, handleMotherboardData, handleProgressorData } from "./data"
+import { handleEntralpiData } from "./data/entralpi"
+import { handleMotherboardData } from "./data/motherboard"
+import { handleProgressorData } from "./data/progressor"
+import { handleWHC06Data } from "./data/wh-c06"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
@@ -127,9 +130,15 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
     // Request device and set up connection
     const deviceServices = getAllServiceUUIDs(board)
 
+    // Only data matching the optionalManufacturerData parameter to requestDevice is included in the advertisement event: https://github.com/WebBluetoothCG/web-bluetooth/issues/598
+    const optionalManufacturerData = board.filters.flatMap(
+      (filter) => filter.manufacturerData?.map((data) => data.companyIdentifier) || [],
+    )
+
     const device = await navigator.bluetooth.requestDevice({
       filters: board.filters,
       optionalServices: deviceServices,
+      optionalManufacturerData,
     })
 
     board.device = device
@@ -139,11 +148,28 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
       return
     }
 
-    server = await board.device.gatt.connect()
-
     board.device.addEventListener("gattserverdisconnected", (event) => {
       onDisconnected(event, board)
     })
+
+    // WH-C06
+    const MANUFACTURER_ID = 256 // 0x0100
+
+    board.device.addEventListener("advertisementreceived", (event) => {
+      const manufacturerData = event.manufacturerData.get(MANUFACTURER_ID)
+      if (manufacturerData) {
+        // Device has no services / characteristics
+        onSuccess()
+        // Handle recieved data
+        handleWHC06Data(manufacturerData)
+      }
+    })
+
+    if (optionalManufacturerData.length) {
+      await board.device.watchAdvertisements()
+    }
+
+    server = await board.device.gatt.connect()
 
     if (server.connected) {
       await onConnected(board, onSuccess)
