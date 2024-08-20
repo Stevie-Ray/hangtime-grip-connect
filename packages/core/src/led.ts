@@ -3,7 +3,6 @@ import { write } from "./write"
 import { isConnected } from "./is-connected"
 import { KilterBoard, Motherboard } from "./devices"
 import { KilterBoardPacket } from "./commands/kilterboard"
-import { MotherboardCommands } from "./commands/motherboard"
 /**
  * Maximum length of the message body for byte wrapping.
  */
@@ -177,15 +176,15 @@ export const led = async (board: Device, placement?: ClimbPlacement[]): Promise<
   // Check if the filter contains the Aurora Climbing Advertising service
   const AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
   if (board.filters.some((filter) => filter.services?.includes(AuroraUUID))) {
-    // The Aurora Boards needs a LED / Postion Placememnet Array 
+    // The Aurora Boards needs a LED / Postion Placememnet Array
     if (placement) {
-    // Prepares byte arrays for transmission based on a list of climb placements.
-    const payload = prepBytesV3(placement)
-    // Sends the payload to the device by splitting it into messages and writing each message.
-    if (isConnected(board)) {
-      writeMessageSeries(splitMessages(payload))
-    }
-    return payload
+      // Prepares byte arrays for transmission based on a list of climb placements.
+      const payload = prepBytesV3(placement)
+      // Sends the payload to the device by splitting it into messages and writing each message.
+      if (isConnected(board)) {
+        writeMessageSeries(splitMessages(payload))
+      }
+      return payload
     }
   }
   if (board.filters.some((filter) => filter.name === "Motherboard")) {
