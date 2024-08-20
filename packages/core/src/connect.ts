@@ -1,8 +1,5 @@
 import type { Device } from "./types/devices"
-import { handleEntralpiData } from "./data/entralpi"
-import { handleMotherboardData } from "./data/motherboard"
-import { handleProgressorData } from "./data/progressor"
-import { handleWHC06Data } from "./data/wh-c06"
+import { handleEntralpiData, handleMotherboardData, handleProgressorData, handleWHC06Data } from "./data"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []

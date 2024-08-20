@@ -14,6 +14,7 @@ import {
   stream,
   stop,
   tare,
+  led,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
@@ -113,6 +114,9 @@ export function setupDevice(
       // read battery + device info
       await battery(device)
       await info(device)
+
+      // blink LEDs
+      await led(device)
 
       // start streaming
       await stream(device)

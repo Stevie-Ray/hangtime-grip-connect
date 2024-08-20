@@ -1,8 +1,9 @@
 import type { Device } from "./types/devices"
 import { write } from "./write"
 import { isConnected } from "./is-connected"
-import { KilterBoard } from "./devices"
+import { KilterBoard, Motherboard } from "./devices"
 import { KilterBoardPacket } from "./commands/kilterboard"
+import { MotherboardCommands } from "./commands/motherboard"
 /**
  * Maximum length of the message body for byte wrapping.
  */
@@ -172,10 +173,12 @@ async function writeMessageSeries(messages: Uint8Array[]) {
  * @param {Device} board - The device to retrieve information from.
  * @returns {Promise<void>} A promise that resolves when the information retrieval is completed.
  */
-export const led = async (board: Device, placement: ClimbPlacement[]): Promise<number[] | undefined> => {
+export const led = async (board: Device, placement?: ClimbPlacement[]): Promise<number[] | undefined> => {
   // Check if the filter contains the Aurora Climbing Advertising service
   const AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
   if (board.filters.some((filter) => filter.services?.includes(AuroraUUID))) {
+    // The Aurora Boards needs a LED / Postion Placememnet Array 
+    if (placement) {
     // Prepares byte arrays for transmission based on a list of climb placements.
     const payload = prepBytesV3(placement)
     // Sends the payload to the device by splitting it into messages and writing each message.
@@ -183,5 +186,12 @@ export const led = async (board: Device, placement: ClimbPlacement[]): Promise<n
       writeMessageSeries(splitMessages(payload))
     }
     return payload
+    }
+  }
+  if (board.filters.some((filter) => filter.name === "Motherboard")) {
+    // Orange
+    await write(Motherboard, "led", "01", "0", 1000)
+    // Yellow
+    await write(Motherboard, "led", "02", "0", 1000)
   }
 }
