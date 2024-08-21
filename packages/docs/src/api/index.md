@@ -1,0 +1,16 @@
+# Core API Reference
+
+- [Battery](/api/battery)
+- [Calibration](/api/calibration)
+- [Connect](/api/connect)
+- [Disconnect](/api/disconnect)
+- [Download](/api/download)
+- [Info](/api/info)
+- [IsConnected](/api/is-connected)
+- [Led](/api/led)
+- [Notify](/api/notify)
+- [Read](/api/read)
+- [Stop](/api/stop)
+- [Stream](/api/stream)
+- [Tare](/api/tare)
+- [Write](/api/write)

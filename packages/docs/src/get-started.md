@@ -1,12 +1,21 @@
 # Get Started
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
-Force-Sensing Hangboards / Plates used by climbers for strength measurement. Examples of such hangboards include the
-[Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
-[SmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/) or
-[Tindeq Progressor](https://tindeq.com/)
+Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by climbers. Examples of such tools include
+the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
+[mySmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/),
+[Tindeq Progressor](https://tindeq.com/) or
+[Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/) also sold as
+[MAT Muscle Meter](https://www.matassessment.com/musclemeter).
 
-[Try it out](https://grip-connect.vercel.app/) - [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
+And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
+[Kilter Board](https://settercloset.com/pages/the-kilter-board),
+[Tension Board](https://tensionclimbing.com/product/tension-board-2/),
+[Grasshopper Board](https://grasshopperclimbing.com/products/),
+[Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
+[So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
+
+Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
 ## Installation
@@ -48,7 +57,7 @@ motherboardButton.addEventListener("click", () => {
   connect(Motherboard, async () => {
     // Listen for stream notifications
     notify((data) => {
-      // data: { massTotal: 0, massLeft: 0, massRight: 0, massCenter: 0 }
+      // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
       console.log(data)
     })
 
@@ -59,8 +68,14 @@ motherboardButton.addEventListener("click", () => {
     // Start weight streaming (for a minute) remove parameter for a continues stream
     await stream(Motherboard, 60000)
 
+    // Manualy tare the device when the stream is running
+    // await tare(5000)
+
     // Manually call stop method if stream is continues
     // await stop(Motherboard)
+
+    // Download data to CSV: format => timestamp, frame, battery, samples, masses
+    // download()
 
     // Disconnect from device after we are done
     disconnect(Motherboard)

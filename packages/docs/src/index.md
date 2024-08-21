@@ -5,19 +5,21 @@ layout: home
 hero:
   name: "Force-Sensing Climbing Training"
   tagline:
-    A Web Bluetooth API client that can establish connections with various Force-Sensing Hangboards/Plates used by
-    climbers for strength measurement.
+    A Web Bluetooth API client that can establish connections with various Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by climbers.
 
   actions:
     - theme: brand
       text: Get Started
       link: /get-started
     - theme: alt
-      text: Example Force Chart
+      text: Chart
       link: https://grip-connect.vercel.app/
     - theme: alt
-      text: Example Force Game
+      text: Flappy Bird
       link: https://grip-connect-flappy-bird.vercel.app/
+    - theme: alt
+      text: Kliter Board
+      link: https://grip-connect-kilter-board.vercel.app/
     - theme: alt
       text: View on Github
       link: https://github.com/Stevie-Ray/hangtime-grip-connect

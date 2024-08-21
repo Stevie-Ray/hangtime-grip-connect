@@ -10,6 +10,6 @@ export const isConnected = (board?: Device): boolean => {
   if (!board?.device) {
     return false
   }
-  // Check if the device is connected using optional chaining
+  // Check if the device is connected
   return !!board.device.gatt?.connected
 }

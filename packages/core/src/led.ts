@@ -168,9 +168,10 @@ async function writeMessageSeries(messages: Uint8Array[]) {
   }
 }
 /**
- * Set device leds.
- * @param {Device} board - The device to retrieve information from.
- * @returns {Promise<void>} A promise that resolves when the information retrieval is completed.
+ * Sets the LEDs on the specified device.
+ * @param {Device} board - The device on which to set the LEDs.
+ * @param {ClimbPlacement[]} [placement] - An optional array of climb placements for LED positioning.
+ * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array if LED settings were applied, or `undefined` if no action was taken.
  */
 export const led = async (board: Device, placement?: ClimbPlacement[]): Promise<number[] | undefined> => {
   // Check if the filter contains the Aurora Climbing Advertising service
