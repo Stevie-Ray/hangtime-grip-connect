@@ -21,7 +21,7 @@
     "preview:examples:flappy-bird": "npm run docs:preview --workspace ./examples/flappy-bird",
     "preview:examples:kilter-board": "npm run docs:preview --workspace ./examples/kilter-board",
     "preview:examples:pong": "npm run docs:preview --workspace ./examples/pong",
-    "build": "tsc --build --verbose",
+    "build": "tsc --build --verbose --force",
     "build:core": "npm run build --workspace ./packages/core",
     "build:docs": "npm run docs:build --workspace ./packages/docs",
     "build:examples:chart": "npm run build --workspace ./examples/chart",

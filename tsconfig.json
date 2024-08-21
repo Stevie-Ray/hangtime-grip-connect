@@ -1,6 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "include": ["packages/**/src/**/*", "examples/**/src/**/*"],
+  "references": [
+    { "path": "packages/core" }
+    // { "path": "examples/chart" },
+    // { "path": "examples/flappy-bird" },
+    // { "path": "examples/kilter-board" },
+    // { "path": "examples/pong" },
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
