@@ -189,9 +189,17 @@ export const led = async (board: Device, placement?: ClimbPlacement[]): Promise<
     }
   }
   if (board.filters.some((filter) => filter.name === "Motherboard")) {
-    // Orange
-    await write(Motherboard, "led", "01", "0", 1000)
-    // Yellow
-    await write(Motherboard, "led", "02", "0", 1000)
+    // Green
+    await write(Motherboard, "led", "red", "0")
+    await write(Motherboard, "led", "green", "1", 5000)
+    // Red
+    await write(Motherboard, "led", "red", "1")
+    await write(Motherboard, "led", "green", "0", 5000)
+    // Orage
+    await write(Motherboard, "led", "red", "1")
+    await write(Motherboard, "led", "green", "1", 5000)
+    // Off
+    await write(Motherboard, "led", "red", "0")
+    await write(Motherboard, "led", "green", "0", 5000)
   }
 }

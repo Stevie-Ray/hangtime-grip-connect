@@ -46,18 +46,18 @@ export const Motherboard: Device = {
       ],
     },
     {
-      name: "Unknown Service",
-      id: "unknown",
+      name: "LED Service",
+      id: "led",
       uuid: "10ababcd-15e1-28ff-de13-725bea03b127",
       characteristics: [
         {
-          name: "Unknown 01",
-          id: "01",
+          name: "Red LED",
+          id: "red",
           uuid: "10ab1524-15e1-28ff-de13-725bea03b127",
         },
         {
-          name: "Unknown 02",
-          id: "02",
+          name: "Green LED",
+          id: "green",
           uuid: "10ab1525-15e1-28ff-de13-725bea03b127",
         },
       ],
