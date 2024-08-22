@@ -189,17 +189,17 @@ export const led = async (board: Device, placement?: ClimbPlacement[]): Promise<
     }
   }
   if (board.filters.some((filter) => filter.name === "Motherboard")) {
-    // Green
-    await write(Motherboard, "led", "red", "0")
-    await write(Motherboard, "led", "green", "1", 5000)
-    // Red
-    await write(Motherboard, "led", "red", "1")
-    await write(Motherboard, "led", "green", "0", 5000)
-    // Orage
-    await write(Motherboard, "led", "red", "1")
-    await write(Motherboard, "led", "green", "1", 5000)
-    // Off
-    await write(Motherboard, "led", "red", "0")
-    await write(Motherboard, "led", "green", "0", 5000)
+    console.log("Green")
+    await write(Motherboard, "led", "red", new Uint8Array([0x00]))
+    await write(Motherboard, "led", "green", new Uint8Array([0x01]), 2500)
+    console.log("Red")
+    await write(Motherboard, "led", "red", new Uint8Array([0x01]))
+    await write(Motherboard, "led", "green", new Uint8Array([0x00]), 2500)
+    console.log("Orage")
+    await write(Motherboard, "led", "red", new Uint8Array([0x01]))
+    await write(Motherboard, "led", "green", new Uint8Array([0x01]), 2500)
+    console.log("Off")
+    await write(Motherboard, "led", "red", new Uint8Array([0x00]))
+    await write(Motherboard, "led", "green", new Uint8Array([0x00]), 2500)
   }
 }

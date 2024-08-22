@@ -15,6 +15,6 @@ import { connect } from "@hangtime/grip-connect"
  * @param {Function} onSuccess - Callback function to execute on successful connection.
  */
 connect(Progressor, async () => {
-    /* onSuccess */
+  /* onSuccess */
 })
 ```
