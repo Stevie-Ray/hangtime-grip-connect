@@ -13,6 +13,7 @@ export { download } from "./download"
 // Export connection related functions
 export { connect } from "./connect"
 export { disconnect } from "./disconnect"
+export { active, isActive } from "./is-active"
 export { isConnected } from "./is-connected"
 
 // Export information retrieval function

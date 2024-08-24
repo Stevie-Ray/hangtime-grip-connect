@@ -1,6 +1,7 @@
 import { notifyCallback } from "./../notify"
 import { applyTare } from "./../tare"
 import { MotherboardCommands } from "./../commands"
+import { checkActivity } from "./../is-active"
 import { lastWrite } from "./../write"
 import { DownloadPackets } from "./../download"
 import type { DownloadPacket } from "./../types/download"
@@ -130,6 +131,9 @@ export const handleMotherboardData = (receivedData: string): void => {
 
     // Calculate the average dynamically
     MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+
+    // Check if device is being used
+    checkActivity(center)
 
     // Notify with weight data
     notifyCallback({

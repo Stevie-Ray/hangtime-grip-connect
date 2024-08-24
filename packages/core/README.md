@@ -47,7 +47,7 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
+import { Motherboard, active, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
@@ -59,9 +59,17 @@ motherboardButton.addEventListener("click", () => {
       console.log(data)
     })
 
+    // Check if device is being used
+    active((value) => {
+      console.log(value)
+    })
+
     // Read battery + device info
     await battery(Motherboard)
     await info(Motherboard)
+
+    // trigger LEDs
+    // await led(device)
 
     // Start weight streaming (for a minute) remove parameter for a continues stream
     await stream(Motherboard, 60000)
@@ -106,6 +114,7 @@ available services with us.
 - ✅ Read calibration
 - ✅ Device info: firmware / serial etc.
 - ✅ Check if device is connected
+- ✅ Check if device is being used
 - ✅ Peak / Average load
 - ✅️ Tare / unladen weight
 - ✅️ Download data to CVS

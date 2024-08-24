@@ -42,6 +42,7 @@ export default defineConfig({
           { text: "Disconnect", link: "/api/disconnect" },
           { text: "Download", link: "/api/download" },
           { text: "Info", link: "/api/info" },
+          { text: "IsActive", link: "/api/is-active" },
           { text: "IsConnected", link: "/api/is-connected" },
           { text: "Led", link: "/api/led" },
           { text: "Notify", link: "/api/notify" },

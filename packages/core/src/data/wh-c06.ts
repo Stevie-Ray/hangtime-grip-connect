@@ -1,3 +1,4 @@
+import { checkActivity } from "./../is-active"
 import { notifyCallback } from "./../notify"
 import { applyTare } from "./../tare"
 
@@ -33,6 +34,9 @@ export const handleWHC06Data = (data: DataView): void => {
 
   // Calculate the average dynamically
   MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+
+  // Check if device is being used
+  checkActivity(numericData)
 
   // Notify with weight data
   notifyCallback({

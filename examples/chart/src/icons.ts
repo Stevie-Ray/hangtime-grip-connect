@@ -3,6 +3,7 @@ import { faAndroid, faApple, faBluetooth, faGithub } from "@fortawesome/free-bra
 import { faCopyright } from "@fortawesome/free-regular-svg-icons"
 import {
   faBook,
+  faChessBoard,
   faDownload,
   faGamepad,
   faGlobe,
@@ -26,6 +27,7 @@ export function setupFontAwesome() {
     faBluetooth,
     faBook,
     faCopyright,
+    faChessBoard,
     faDownload,
     faGamepad,
     faGithub,

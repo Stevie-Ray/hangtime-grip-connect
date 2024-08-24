@@ -1,5 +1,6 @@
 import { notifyCallback } from "./../notify"
 import { applyTare } from "./../tare"
+import { checkActivity } from "./../is-active"
 import { ProgressorCommands, ProgressorResponses } from "./../commands/progressor"
 import { lastWrite } from "./../write"
 import struct from "./../struct"
@@ -42,6 +43,9 @@ export const handleProgressorData = (data: DataView): void => {
 
         // Calculate the average dynamically
         MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+
+        // Check if device is being used
+        checkActivity(weight)
 
         notifyCallback({
           massMax: MASS_MAX,

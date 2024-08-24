@@ -1,4 +1,5 @@
 import { notifyCallback } from "./../notify"
+import { checkActivity } from "./../is-active"
 import { applyTare } from "./../tare"
 
 // Constants
@@ -27,6 +28,9 @@ export const handleEntralpiData = (receivedData: string): void => {
 
   // Calculate the average dynamically
   MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+
+  // Check if device is being used
+  checkActivity(numericData)
 
   // Notify with weight data
   notifyCallback({

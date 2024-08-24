@@ -6,6 +6,7 @@
 - [Disconnect](/api/disconnect)
 - [Download](/api/download)
 - [Info](/api/info)
+- [IsActive](/api/is-active)
 - [IsConnected](/api/is-connected)
 - [Led](/api/led)
 - [Notify](/api/notify)

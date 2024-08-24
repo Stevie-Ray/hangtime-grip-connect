@@ -10,6 +10,7 @@ import {
   disconnect,
   download,
   info,
+  active,
   notify,
   stream,
   stop,
@@ -111,14 +112,19 @@ export function setupDevice(
         addMassHTML(data)
       })
 
-      // read battery + device info
+      // Check if device is being used
+      active((value: boolean) => {
+        console.log(value)
+      })
+
+      // Read battery + device info
       await battery(device)
       await info(device)
 
-      // blink LEDs
+      // Trigger LEDs
       await led(device)
 
-      // start streaming
+      // Start streaming
       await stream(device)
       isStreaming = true
 
