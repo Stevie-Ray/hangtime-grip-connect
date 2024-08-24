@@ -7,7 +7,7 @@ import { Entralpi, Motherboard, WHC06, Progressor } from "./devices"
 ### Basic Usage
 
 ```ts
-import { active, isActive, connect, notify } from "@hangtime/grip-connect"
+import { active, isActive, connect, notify, Progressor } from "@hangtime/grip-connect"
 
 connect(Progressor, async () => {
   // Listen for stream notifications
