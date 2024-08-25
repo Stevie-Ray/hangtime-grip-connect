@@ -2,7 +2,8 @@ import type { Device } from "./types/devices"
 import { write } from "./write"
 import { isConnected } from "./is-connected"
 import { KilterBoard, Motherboard } from "./devices"
-import { KilterBoardPacket } from "./commands/kilterboard"
+import { KilterBoardPacket, KilterBoardPlacementRoles } from "./commands/kilterboard"
+
 /**
  * Maximum length of the message body for byte wrapping.
  */
@@ -46,9 +47,9 @@ function wrapBytes(data: number[]) {
 }
 class ClimbPlacement {
   position: number
-  role_id: string
+  role_id: number
 
-  constructor(position: number, role_id: string) {
+  constructor(position: number, role_id: number) {
     this.position = position
     this.role_id = role_id
   }
@@ -109,10 +110,11 @@ export function prepBytesV3(climbPlacementList: ClimbPlacement[]) {
       resultArray.push(tempArray)
       tempArray = [KilterBoardPacket.V3_MIDDLE]
     }
-
-    const ledColor = climbPlacement.role_id
-
-    const encodedPlacement = encodePlacement(climbPlacement.position, ledColor)
+    const role = KilterBoardPlacementRoles.find((placement) => placement.id === climbPlacement.role_id)
+    if (!role) {
+      throw new Error(`Role with id ${climbPlacement.role_id} not found in placement_roles`)
+    }
+    const encodedPlacement = encodePlacement(climbPlacement.position, role.led_color)
     tempArray.push(...encodedPlacement)
   }
 

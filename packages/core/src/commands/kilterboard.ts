@@ -21,3 +21,44 @@ export enum KilterBoardPacket {
   /** If this packet is the only packet in the message, the byte gets set to 84 (T). Note that this takes priority over the other conditions. */
   V3_ONLY,
 }
+/**
+ * Extracted from placement_roles database table.
+ */
+export const KilterBoardPlacementRoles = [
+  {
+    id: 12,
+    product_id: 1,
+    position: 1,
+    name: "start",
+    full_name: "Start",
+    led_color: "00FF00",
+    screen_color: "00DD00",
+  },
+  {
+    id: 13,
+    product_id: 1,
+    position: 2,
+    name: "middle",
+    full_name: "Middle",
+    led_color: "00FFFF",
+    screen_color: "00FFFF",
+  },
+  {
+    id: 14,
+    product_id: 1,
+    position: 3,
+    name: "finish",
+    full_name: "Finish",
+    led_color: "FF00FF",
+    screen_color: "FF00FF",
+  },
+  {
+    id: 15,
+    product_id: 1,
+    position: 4,
+    name: "foot",
+    full_name: "Foot Only",
+    led_color: "FFA500",
+    screen_color: "FFA500",
+  },
+]
