@@ -564,22 +564,6 @@ const data: number[][] = `140	4	1133	0	1147
 const svg: SVGSVGElement | null = document.querySelector("#svg-kb")
 
 /**
- * Generates a string representing the current active holds and their associated roles.
- * This is how the routes are stored in the `climbs` table.
- * Each frame in the string is formatted as `p<position>r<role_id>` or `p\d{4}r\d{2}`,
- * where `<position>` is the position of the hold, and `<role_id>` is the role's ID.
- *
- * @returns {string} A concatenated string of all active holds formatted as `p<position>r<role_id>`.
- */
-function getFrames() {
-  const frames = []
-  for (const activeHold of activeHolds) {
-    frames.push(`p${activeHold.placement_id}r${activeHold.role_id}`)
-  }
-  return frames.join("")
-}
-
-/**
  * Array of SVG circles representing data points.
  */
 const circles: SVGCircleElement[] = data.map((item) => {
@@ -598,9 +582,9 @@ const circles: SVGCircleElement[] = data.map((item) => {
   circle.setAttribute("cursor", "pointer")
   circle.setAttribute("fill-opacity", "0.2")
   // Set holes.id as cirle id
-  circle.setAttribute("id", item[2].toString())
+  circle.setAttribute("data-holes-id", item[2].toString())
   circle.setAttribute("data-led-position", item[3]?.toString())
-  circle.setAttribute("data-placements-id", item[4]?.toString())
+  circle.setAttribute("id", item[4]?.toString()) // placement_id
   // Circle click event listener
   circle.addEventListener("click", async (event) => {
     const targetElement = event.target as SVGElement | null
@@ -643,8 +627,8 @@ const circles: SVGCircleElement[] = data.map((item) => {
       activeHolds = activeHolds.filter((hold) => hold.placement_id !== item[4])
     }
 
-    // TODO: Allow to input and output kilterboard style stored routes.
-    console.log(getFrames())
+    // Add selected holds as URL param
+    updateURL()
 
     const placement = activeHolds.map((activeHold) => {
       // Return the row from the extraced data with a matching placement ID
@@ -677,4 +661,94 @@ const circles: SVGCircleElement[] = data.map((item) => {
 // Append circles to the SVG element.
 if (svg) {
   circles.forEach((circle) => svg.appendChild(circle))
+}
+
+/**
+ * Updates the URL based on the activeHolds array.
+ */
+function updateURL() {
+  const routeParam = getFrames()
+  const currentUrl = new URL(window.location.href)
+
+  // Set the 'route' parameter
+  currentUrl.searchParams.set("route", routeParam)
+
+  // Update the URL without reloading the page
+  window.history.pushState({}, "", currentUrl)
+}
+/**
+ * Updates the SVG circles based on the activeHolds array.
+ */
+function updateSVG() {
+  activeHolds.forEach((hold) => {
+    // Find the corresponding circle element by its `id` attribute
+    const circle = document.getElementById(`${hold.placement_id}`)
+
+    if (circle) {
+      // Find the role by its ID to get the color
+      const role = KilterBoardPlacementRoles.find((role) => role.id === hold.role_id)
+
+      if (role) {
+        // Update the circle's stroke and fill color based on the role's screen color
+        circle.setAttribute("stroke", "#" + role.screen_color)
+        circle.setAttribute("fill", "#" + role.screen_color)
+      }
+    }
+  })
+}
+/**
+ * Generates a string representing the current active holds and their associated roles.
+ * This is how the routes are stored in the `climbs` table.
+ * Each frame in the string is formatted as `p<position>r<role_id>` or `p\d{4}r\d{2}`,
+ * where `<position>` is the position of the hold, and `<role_id>` is the role's ID.
+ *
+ * @returns {string} A concatenated string of all active holds formatted as `p<position>r<role_id>`.
+ */
+function getFrames() {
+  const frames = []
+  for (const activeHold of activeHolds) {
+    frames.push(`p${activeHold.placement_id}r${activeHold.role_id}`)
+  }
+  return frames.join("")
+}
+
+/**
+ * Converts a route parameter string into activeHolds array.
+ *
+ * @param {string} routeParam - The route parameter string.
+ */
+function setFrames(routeParam: string) {
+  // Match all occurrences of p<placement_id>r<role_id> patterns
+  const matches = routeParam.match(/p(\d+)r(\d+)/g)
+
+  // Check if matches is null, and return early if no matches are found
+  if (!matches) {
+    console.error("No valid route patterns found in the routeParam.")
+    return
+  }
+
+  // Clear existing activeHolds
+  activeHolds.length = 0
+
+  // Process each match and update activeHolds
+  matches.forEach((match) => {
+    // Extract placement_id and role_id from the match
+    const [, placement_id, role_id] = match.match(/p(\d+)r(\d+)/) || []
+
+    if (placement_id && role_id) {
+      // Add to activeHolds array
+      activeHolds.push({
+        placement_id: parseInt(placement_id, 10),
+        role_id: parseInt(role_id, 10),
+      })
+    }
+  })
+}
+
+const currentUrl = new URL(window.location.href)
+const routeParam = currentUrl.searchParams.get("route")
+
+if (routeParam) {
+  setFrames(routeParam)
+  updateSVG()
 }
