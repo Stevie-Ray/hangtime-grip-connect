@@ -630,29 +630,8 @@ const circles: SVGCircleElement[] = data.map((item) => {
     // Add selected holds as URL param
     updateURL()
 
-    const placement = activeHolds.map((activeHold) => {
-      // Return the row from the extraced data with a matching placement ID
-      const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
-      if (!filteredRow) {
-        throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
-      }
-      return {
-        role_id: activeHold.role_id, // placement_roles ID
-        position: filteredRow[3], // LED Position
-      }
-    })
-
-    // Send the placement data to light up LEDs on the Kilter Board.
-    const payload = await led(KilterBoard, placement)
-
-    // Updates the inner HTML with the payload in hexadecimal format.
-    const activeHoldsHtml = document.querySelector("#active-holds")
-    if (activeHoldsHtml !== null && payload) {
-      activeHoldsHtml.innerHTML = payload
-        // Converts byte array to hexadecimal strings using zfill function.
-        .map((x) => zfill(x.toString(16), 2))
-        .join("")
-    }
+    // Update Bluetooth Payload
+    updatePayload()
   })
 
   return circle
@@ -675,6 +654,32 @@ function updateURL() {
 
   // Update the URL without reloading the page
   window.history.pushState({}, "", currentUrl)
+}
+/**
+ * Updates  the inner HTML with the payload in hexadecimal format.
+ */
+async function updatePayload() {
+  const placement = activeHolds.map((activeHold) => {
+    // Return the row from the extraced data with a matching placement ID
+    const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
+    if (!filteredRow) {
+      throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
+    }
+    return {
+      role_id: activeHold.role_id, // placement_roles ID
+      position: filteredRow[3], // LED Position
+    }
+  })
+  // Send the placement data to light up LEDs on the Kilter Board.
+  const payload = await led(KilterBoard, placement)
+
+  const activeHoldsHtml = document.querySelector("#active-holds")
+  if (activeHoldsHtml !== null && payload) {
+    activeHoldsHtml.innerHTML = payload
+      // Converts byte array to hexadecimal strings using zfill function.
+      .map((x) => zfill(x.toString(16), 2))
+      .join("")
+  }
 }
 /**
  * Updates the SVG circles based on the activeHolds array.
@@ -751,4 +756,5 @@ const routeParam = currentUrl.searchParams.get("route")
 if (routeParam) {
   setFrames(routeParam)
   updateSVG()
+  updatePayload()
 }
