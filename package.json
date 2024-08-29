@@ -27,7 +27,8 @@
     "build:examples:chart": "npm run build && npm run build --workspace ./examples/chart",
     "build:examples:flappy-bird": "npm run build && npm run build --workspace ./examples/flappy-bird",
     "build:examples:kilter-board": "npm run build && npm run build --workspace ./examples/kilter-board",
-    "build:examples:pong": "npm run build && npm run build --workspace ./examples/pong"
+    "build:examples:pong": "npm run build && npm run build --workspace ./examples/pong",
+    "prepare": "husky"
   },
   "workspaces": [
     "packages/*",
@@ -43,6 +44,7 @@
     "@types/node": "^20.16.2",
     "@types/web-bluetooth": "^0.0.20",
     "eslint": "^9.9.1",
+    "husky": "^9.1.5",
     "jiti": "^1.21.6",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
