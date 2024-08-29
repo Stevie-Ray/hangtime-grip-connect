@@ -8,7 +8,7 @@
   "license": "BSD-2-Clause",
   "scripts": {
     "lint": "npm run lint:check -- --fix",
-    "lint:check": "eslint .",
+    "lint:check": "eslint . --flag unstable_ts_config",
     "format": "prettier --write .",
     "format:check": "prettier --list-different .",
     "dev:docs": "npm run docs:dev --workspace ./packages/docs",
@@ -40,12 +40,13 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.16.1",
+    "@types/node": "^20.16.2",
     "@types/web-bluetooth": "^0.0.20",
     "eslint": "^9.9.1",
+    "jiti": "^1.21.6",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.2.0"
+    "typescript-eslint": "^8.3.0"
   }
 }

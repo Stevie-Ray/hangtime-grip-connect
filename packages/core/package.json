@@ -23,7 +23,9 @@
     "motherboard",
     "tindeq",
     "progressor",
-    "entralpi"
+    "entralpi",
+    "wh-c06",
+    "kilterboard"
   ],
   "bugs": {
     "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
