@@ -80,8 +80,8 @@ motherboardButton.addEventListener("click", () => {
     // Manually call stop method if stream is continues
     // await stop(Motherboard)
 
-    // Download data to CSV: format => timestamp, frame, battery, samples, masses
-    // download()
+    // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
+    // download('json')
 
     // Disconnect from device after we are done
     disconnect(Motherboard)
@@ -117,7 +117,7 @@ available services with us.
 - ✅ Check if device is being used
 - ✅ Peak / Average load
 - ✅️ Tare / unladen weight
-- ✅️ Download data to CVS
+- ✅️ Download data (CSV, JSON, XML)
 - ➡️ Endurance
 - ➡️ Rate of Force Development: RFD
 - ➡️ Critical Force

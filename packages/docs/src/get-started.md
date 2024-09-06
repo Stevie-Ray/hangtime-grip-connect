@@ -82,8 +82,8 @@ motherboardButton.addEventListener("click", () => {
     // Manually call stop method if stream is continues
     // await stop(Motherboard)
 
-    // Download data to CSV: format => timestamp, frame, battery, samples, masses
-    // download()
+    // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
+    // download('json')
 
     // Disconnect from device after we are done
     disconnect(Motherboard)
