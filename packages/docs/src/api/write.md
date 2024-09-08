@@ -23,6 +23,7 @@ connect(Motherboard, async () => {
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
    * @returns {Promise<void>} A promise that resolves when the write operation is completed.
    */
-  await write(Motherboard, "led", "01", "0", 1000)
+  await write(Motherboard, "led", "red", new Uint8Array([0x01]))
+  await write(Motherboard, "led", "green", new Uint8Array([0x00]), 2500)
 })
 ```

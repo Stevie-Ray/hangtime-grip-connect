@@ -12,7 +12,7 @@ const receiveBuffer: number[] = []
 const onDisconnected = (event: Event, board: Device): void => {
   board.device = undefined
   const device = event.target as BluetoothDevice
-  console.log(`Device ${device.name} is disconnected.`)
+  throw new Error(`Device ${device.name} is disconnected.`)
 }
 /**
  * Handles notifications received from a characteristic.
@@ -62,52 +62,47 @@ const handleNotifications = (event: Event, board: Device): void => {
  * @param {Function} onSuccess - Callback function to execute on successful connection.
  */
 const onConnected = async (board: Device, onSuccess: () => void): Promise<void> => {
-  try {
-    // Connect to GATT server and set up characteristics
-    const services: BluetoothRemoteGATTService[] = await server.getPrimaryServices()
+  // Connect to GATT server and set up characteristics
+  const services: BluetoothRemoteGATTService[] = await server.getPrimaryServices()
 
-    if (!services || services.length === 0) {
-      console.error("No services found")
-      return
-    }
+  if (!services || services.length === 0) {
+    throw new Error("No services found")
+  }
 
-    for (const service of services) {
-      const matchingService = board.services.find((boardService) => boardService.uuid === service.uuid)
+  for (const service of services) {
+    const matchingService = board.services.find((boardService) => boardService.uuid === service.uuid)
 
-      if (matchingService) {
-        // Android bug: Introduce a delay before getting characteristics
-        await new Promise((resolve) => setTimeout(resolve, 100))
+    if (matchingService) {
+      // Android bug: Introduce a delay before getting characteristics
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
-        const characteristics = await service.getCharacteristics()
+      const characteristics = await service.getCharacteristics()
 
-        for (const characteristic of matchingService.characteristics) {
-          const matchingCharacteristic = characteristics.find((char) => char.uuid === characteristic.uuid)
+      for (const characteristic of matchingService.characteristics) {
+        const matchingCharacteristic = characteristics.find((char) => char.uuid === characteristic.uuid)
 
-          if (matchingCharacteristic) {
-            const element = matchingService.characteristics.find((char) => char.uuid === matchingCharacteristic.uuid)
-            if (element) {
-              element.characteristic = matchingCharacteristic
+        if (matchingCharacteristic) {
+          const element = matchingService.characteristics.find((char) => char.uuid === matchingCharacteristic.uuid)
+          if (element) {
+            element.characteristic = matchingCharacteristic
 
-              // notify
-              if (element.id === "rx") {
-                matchingCharacteristic.startNotifications()
-                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) => {
-                  handleNotifications(event, board)
-                })
-              }
+            // notify
+            if (element.id === "rx") {
+              matchingCharacteristic.startNotifications()
+              matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) => {
+                handleNotifications(event, board)
+              })
             }
-          } else {
-            console.warn(`Characteristic ${characteristic.uuid} not found in service ${service.uuid}`)
           }
+        } else {
+          throw new Error(`Characteristic ${characteristic.uuid} not found in service ${service.uuid}`)
         }
       }
     }
-
-    // Call the onSuccess callback after successful connection and setup
-    onSuccess()
-  } catch (error) {
-    console.error(error)
   }
+
+  // Call the onSuccess callback after successful connection and setup
+  onSuccess()
 }
 /**
  * Returns UUIDs of all services associated with the device.
@@ -120,9 +115,14 @@ const getAllServiceUUIDs = (device: Device) => {
 /**
  * Connects to a Bluetooth device.
  * @param {Device} board - The device to connect to.
- * @param {Function} onSuccess - Callback function to execute on successful connection.
+ * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
+ * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
  */
-export const connect = async (board: Device, onSuccess: () => void): Promise<void> => {
+export const connect = async (
+  board: Device,
+  onSuccess: () => void = () => console.log("Connected successfully"),
+  onError: (error: Error) => void = (error) => console.error(error),
+): Promise<void> => {
   try {
     // Request device and set up connection
     const deviceServices = getAllServiceUUIDs(board)
@@ -141,8 +141,7 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
     board.device = device
 
     if (!board.device.gatt) {
-      console.error("GATT is not available on this device")
-      return
+      throw new Error("GATT is not available on this device")
     }
 
     board.device.addEventListener("gattserverdisconnected", (event) => {
@@ -162,8 +161,18 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
       }
     })
 
+    // When the companyIdentifier is provided we want to get manufacturerData using watchAdvertisements.
     if (optionalManufacturerData.length) {
-      await board.device.watchAdvertisements()
+      // Receive events when the system receives an advertisement packet from a watched device.
+      // To use this function in Chrome: chrome://flags/#enable-experimental-web-platform-features has to be enabled.
+      // More info: https://chromestatus.com/feature/5180688812736512
+      if (typeof board.device.watchAdvertisements === "function") {
+        await board.device.watchAdvertisements()
+      } else {
+        throw new Error(
+          "watchAdvertisements isn't supported. For Chrome, enable it at chrome://flags/#enable-experimental-web-platform-features.",
+        )
+      }
     }
 
     server = await board.device.gatt.connect()
@@ -172,6 +181,6 @@ export const connect = async (board: Device, onSuccess: () => void): Promise<voi
       await onConnected(board, onSuccess)
     }
   } catch (error) {
-    console.error(error)
+    onError(error as Error)
   }
 }

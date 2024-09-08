@@ -36,6 +36,7 @@ let chartHeight = 0
  * @param {HTMLButtonElement} tareElement - The HTML button element for tare action.
  * @param {HTMLButtonElement} downloadElement - The HTML button element for download action.
  * @param {HTMLDivElement} massesElement - The HTML element to display mass information.
+ * @param {HTMLDivElement} errorElement - The HTML element to display erros.
  */
 export function setupDevice(
   deviceElement: HTMLSelectElement,
@@ -43,6 +44,7 @@ export function setupDevice(
   tareElement: HTMLButtonElement,
   downloadElement: HTMLButtonElement,
   massesElement: HTMLDivElement,
+  errorElement: HTMLDivElement,
 ) {
   let isStreaming = true
   let device: Device = Motherboard
@@ -100,44 +102,51 @@ export function setupDevice(
       device = WHC06
     }
 
-    return connect(device, async () => {
-      // Show buttons after device is connected
-      toggleButtons(true)
-      // Listen for notifications
-      notify((data: massObject) => {
-        // Chart
-        addChartData(data.massTotal, data.massMax, data.massAverage)
-        chartHeight = Number(data.massMax)
-        // HTML
-        addMassHTML(data)
-      })
+    return connect(
+      device,
+      async () => {
+        // Show buttons after device is connected
+        toggleButtons(true)
+        // Listen for notifications
+        notify((data: massObject) => {
+          // Chart
+          addChartData(data.massTotal, data.massMax, data.massAverage)
+          chartHeight = Number(data.massMax)
+          // HTML
+          addMassHTML(data)
+        })
 
-      // Check if device is being used
-      active((value: boolean) => {
-        console.log(value)
-      })
+        // Check if device is being used
+        active((value: boolean) => {
+          console.log(value)
+        })
 
-      // Read battery + device info
-      await battery(device)
-      await info(device)
+        // Read battery + device info
+        await battery(device)
+        await info(device)
 
-      // Trigger LEDs
-      await led(device)
+        // Trigger LEDs
+        await led(device)
 
-      // Start streaming
-      await stream(device)
-      isStreaming = true
+        // Start streaming
+        await stream(device)
+        isStreaming = true
 
-      if (device === Entralpi) {
-        setTimeout(() => {
-          // the entralpi will automatically start streaming
-        }, 60000)
-        // disconnect from device after we are done
-        disconnect(device)
-        // hide buttons
-        toggleButtons(false)
-      }
-    })
+        if (device === Entralpi) {
+          setTimeout(() => {
+            // the entralpi will automatically start streaming
+          }, 60000)
+          // disconnect from device after we are done
+          disconnect(device)
+          // hide buttons
+          toggleButtons(false)
+        }
+      },
+      (error: Error) => {
+        errorElement.innerHTML = error.message
+        errorElement.style.display = "flex"
+      },
+    )
   })
   // Tare
   tareElement.addEventListener("click", async () => {

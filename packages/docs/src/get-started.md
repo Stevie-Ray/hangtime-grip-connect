@@ -5,8 +5,7 @@ Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by cli
 the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
 [mySmartBoard](https://www.smartboard-climbing.com/), [Entralpi](https://entralpi.com/),
 [Tindeq Progressor](https://tindeq.com/) or
-[Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/) also sold as
-[MAT Muscle Meter](https://www.matassessment.com/musclemeter).
+[Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/).
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
 [Kilter Board](https://settercloset.com/pages/the-kilter-board),
@@ -54,39 +53,46 @@ import { Motherboard, active, battery, connect, disconnect, info, notify, stream
 const motherboardButton = document.querySelector("#motherboard")
 
 motherboardButton.addEventListener("click", () => {
-  connect(Motherboard, async () => {
-    // Listen for stream notifications
-    notify((data) => {
-      // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
-      console.log(data)
-    })
+  connect(
+    Motherboard,
+    async () => {
+      // Listen for stream notifications
+      notify((data) => {
+        // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
+        console.log(data)
+      })
 
-    // Check if device is being used
-    active((value) => {
-      console.log(value)
-    })
+      // Check if device is being used
+      active((value) => {
+        console.log(value)
+      })
 
-    // Read battery + device info
-    await battery(Motherboard)
-    await info(Motherboard)
+      // Read battery + device info
+      await battery(Motherboard)
+      await info(Motherboard)
 
-    // trigger LEDs
-    // await led(device)
+      // trigger LEDs
+      // await led(device)
 
-    // Start weight streaming (for a minute) remove parameter for a continues stream
-    await stream(Motherboard, 60000)
+      // Start weight streaming (for a minute) remove parameter for a continues stream
+      await stream(Motherboard, 60000)
 
-    // Manualy tare the device when the stream is running
-    // await tare(5000)
+      // Manualy tare the device when the stream is running
+      // await tare(5000)
 
-    // Manually call stop method if stream is continues
-    // await stop(Motherboard)
+      // Manually call stop method if stream is continues
+      // await stop(Motherboard)
 
-    // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
-    // download('json')
+      // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
+      // download('json')
 
-    // Disconnect from device after we are done
-    disconnect(Motherboard)
-  })
+      // Disconnect from device after we are done
+      disconnect(Motherboard)
+    },
+    (error) => {
+      // Optinal custom error handeling
+      console.error(error.message)
+    },
+  )
 })
 ```

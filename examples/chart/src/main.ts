@@ -40,6 +40,7 @@ if (appElement) {
     </div>
   </div>
   <div id="masses"></div>
+  <div id="error" style="display:none;"></div>
 `
 }
 
@@ -48,9 +49,24 @@ const streamButtonElement = document.querySelector<HTMLButtonElement>("#stream")
 const tareButtonElement = document.querySelector<HTMLButtonElement>("#tare")
 const downloadButtonElement = document.querySelector<HTMLButtonElement>("#download")
 const massesElement = document.querySelector<HTMLDivElement>("#masses")
+const errorElement = document.querySelector<HTMLDivElement>("#error")
 
-if (deviceSelectElement && streamButtonElement && tareButtonElement && downloadButtonElement && massesElement) {
-  setupDevice(deviceSelectElement, streamButtonElement, tareButtonElement, downloadButtonElement, massesElement)
+if (
+  deviceSelectElement &&
+  streamButtonElement &&
+  tareButtonElement &&
+  downloadButtonElement &&
+  massesElement &&
+  errorElement
+) {
+  setupDevice(
+    deviceSelectElement,
+    streamButtonElement,
+    tareButtonElement,
+    downloadButtonElement,
+    massesElement,
+    errorElement,
+  )
 }
 
 const chartElement = document.querySelector<HTMLCanvasElement>(".chart")

@@ -86,6 +86,13 @@ h2 {
   margin: 0.5rem;
 }
 
+#error {
+  background-color: #898989;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 0 1rem;
+}
+
 .chart {
   padding: 0 0.5rem;
 }
