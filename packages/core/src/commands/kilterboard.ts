@@ -58,7 +58,7 @@ export const KilterBoardPlacementRoles = [
     position: 4,
     name: "foot",
     full_name: "Foot Only",
-    led_color: "FFA500",
+    led_color: "FFB600",
     screen_color: "FFA500",
   },
 ]

@@ -681,6 +681,20 @@ async function updatePayload() {
       .join("")
   }
 }
+
+function clearSVG() {
+  activeHolds.forEach((hold) => {
+    // Find the corresponding circle element by its `id` attribute
+    const circle = document.getElementById(`${hold.placement_id}`)
+
+    if (circle) {
+      // Set the circle's stroke and fill color to transparent
+      circle.setAttribute("stroke", "transparent")
+      circle.setAttribute("fill", "transparent")
+    }
+  })
+}
+
 /**
  * Updates the SVG circles based on the activeHolds array.
  */
@@ -757,4 +771,287 @@ if (routeParam) {
   setFrames(routeParam)
   updateSVG()
   updatePayload()
+}
+
+export function setupArduino(element: HTMLButtonElement) {
+  element.addEventListener("click", async () => {
+    await await openPort()
+  })
+}
+
+const BoardState = {
+  IDLE: "IDLE",
+  BOOTING: "BOOTING",
+  CONNECTING: "CONNECTING",
+  CONNECTED: "CONNECTED",
+}
+let currentState = BoardState.IDLE
+
+let writer: WritableStreamDefaultWriter
+let reader: ReadableStreamDefaultReader
+let port: SerialPort | null
+let timeOfLastAPILevelPing = 0
+const PING_INTERVAL = 1000 // 1 second
+let API_LEVEL = -1
+
+async function readLoop() {
+  try {
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) {
+        console.log("Reader closed.")
+        break
+      }
+
+      // Log the raw Uint8Array data
+      // console.log(value);
+
+      for (const byte of value) {
+        if (currentState === BoardState.CONNECTED) {
+          newByteIn(byte)
+          if (allPacketsReceived) {
+            // console.log()
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error during reading: ", err)
+  }
+}
+
+let currentPacketLength = -1
+let currentPacket: number[] = []
+let allPacketsReceived = false
+
+function newByteIn(dataByte: number) {
+  // Handle new byte as per the logic in the Java class
+  if (allPacketsReceived) {
+    allPacketsReceived = false
+    clearSVG()
+    activeHolds = []
+  }
+
+  if (currentPacket.length === 0 && dataByte !== 1) return
+
+  currentPacket.push(dataByte)
+
+  if (currentPacket.length === 2) {
+    // The second byte determines the packet length
+    currentPacketLength = dataByte + 5
+  } else if (currentPacket.length === currentPacketLength) {
+    // Packet is complete, verify and parse it
+    if (verifyAndParsePacket()) {
+      // If the packet is valid, check if it's the last one
+      allPacketsReceived = isThisTheLastPacket()
+    } else {
+      // If verification fails, reset current placements
+      clearSVG()
+      activeHolds = []
+    }
+
+    // Clear the current packet and reset length for the next packet
+    currentPacket = []
+    currentPacketLength = -1
+  }
+}
+
+function scaledColorToFullColorV3(holdData: number) {
+  const fullColor = [0, 0, 0]
+
+  // Adjusting scaling factors to match yellow correctly
+  // Extract and scale the red component (bits 5 to 7)
+  fullColor[0] = Math.round((((holdData & 0b11100000) >> 5) / 7) * 255)
+
+  // Extract and scale the green component (bits 2 to 4)
+  fullColor[1] = Math.round((((holdData & 0b00011100) >> 2) / 7) * 255)
+
+  // Extract and scale the blue component (bits 0 to 1)
+  fullColor[2] = Math.round((((holdData & 0b00000011) >> 0) / 3) * 255)
+
+  // Convert RGB values to uppercase hexadecimal format
+  const hexColor = fullColor.map((value) => value.toString(16).toUpperCase().padStart(2, "0")).join("")
+
+  return hexColor
+}
+
+function parseCurrentPacketToActiveHolds() {
+  // Clear the current active holds
+  clearSVG()
+  activeHolds.length = 0
+
+  // Start from index 5 as the first 4 bytes are header and 5th byte is packet type
+  const startIndex = 5
+
+  if (API_LEVEL < 3) {
+    // Process each hold data which is 2 bytes long
+    for (let i = startIndex; i < currentPacketLength - 1; i += 2) {
+      const position = currentPacket[i] + ((currentPacket[i + 1] & 0b11) << 8)
+      const roleId = currentPacket[i + 1] // Role ID might be in a specific part of the packet based on API level
+      console.log(position, roleId)
+      // Find the role ID and position from the currentPacket data
+      const filteredRow = data.find((row) => row[3] === position)
+      if (filteredRow) {
+        activeHolds.push({
+          placement_id: filteredRow[4],
+          role_id: roleId,
+        })
+      }
+    }
+  } else {
+    // Process each hold data which is 3 bytes long
+    for (let i = startIndex; i < currentPacketLength - 1; i += 3) {
+      const position = (currentPacket[i + 1] << 8) + currentPacket[i]
+      const colorPacked = scaledColorToFullColorV3(currentPacket[i + 2])
+
+      const roleId = KilterBoardPlacementRoles.find((role) => role.led_color === colorPacked)?.id
+
+      // Find the role ID and position from the currentPacket data
+      const filteredRow = data.find((row) => row[3] === position)
+      if (filteredRow && roleId) {
+        activeHolds.push({
+          placement_id: filteredRow[4],
+          role_id: roleId,
+        })
+      }
+    }
+  }
+  updateSVG()
+  updatePayload()
+  updateURL()
+}
+
+function verifyAndParsePacket() {
+  // Checksum is not calculated with first 4 header bytes.
+  // Checksum byte always the 3rd byte.
+  // if (checksum(currentPacket.subList(4, currentPacketLength - 1)) !== currentPacket[2]) {
+  //   console.error("ERROR: checksum invalid");
+  //   return false;
+  // }
+
+  // // If receiving a "first" packet when data exists, or receiving a "non-first" packet when no data exists,
+  // // something is wrong with transmission.
+  // if (
+  //   (activeHolds.length === 0 && !isThisTheFirstPacket()) ||
+  //   (cactiveHolds.length > 0 && isThisTheFirstPacket())
+  // ) {
+  //   console.error("ERROR: invalid packet order");
+  //   return false;
+  // }
+
+  // Parse the packet data
+  parseCurrentPacketToActiveHolds()
+
+  return true
+}
+
+function isThisTheLastPacket() {
+  // Check the 4th byte of the message to determine if it's the last packet
+  if (API_LEVEL < 3) {
+    return currentPacket[4] === 80 || currentPacket[4] === 79
+  } else {
+    return currentPacket[4] === 84 || currentPacket[4] === 83
+  }
+}
+
+// Call every draw loop. If the board is currently booting or connecting, this function will detect when that process is complete.
+// If the board has connected, this functoin returns the API level that should be used. Otherwise returns -1.
+async function checkForAPILevel() {
+  if (!port) {
+    throw new Error("Port is not opened")
+  }
+
+  try {
+    while (true) {
+      // Read data from the serial port
+      const { value, done } = await reader.read()
+
+      if (done) {
+        break // Reader has been closed
+      }
+
+      if (currentState === BoardState.CONNECTING) {
+        // Iterate through the Uint8Array to find byte 4 and the next byte as the API level
+        for (const [index, byte] of value.entries()) {
+          if (byte === 4) {
+            if (index + 1 < value.length) {
+              const apiLevel = value[index + 1]
+              if (apiLevel < 1 || apiLevel > 9) {
+                return -1
+              }
+              currentState = BoardState.CONNECTED
+              return apiLevel
+            }
+          }
+        }
+        // ESP32 will send a '4' just before it sends us the API level
+      } else if (value[0] === 4) {
+        console.log(value)
+        currentState = BoardState.CONNECTING
+      }
+
+      // If we still haven't received by this point then the board didn't boot so send out a ping every 1s.
+      // It will know to send the API level once it receives a ping.
+      const now = Date.now()
+      if (now - timeOfLastAPILevelPing > PING_INTERVAL) {
+        await sendPing()
+        timeOfLastAPILevelPing = now
+      }
+    }
+  } catch (error) {
+    console.error("Error while checking for API level:", error)
+  }
+
+  return -1
+}
+async function sendPing() {
+  try {
+    const data = new Uint8Array([4])
+    await writer.write(data)
+    console.log("Ping sent.")
+  } catch (err) {
+    console.error("Error sending ping: ", err)
+  }
+}
+
+async function handleCommunication() {
+  // Start the communication loop
+  const apiLevelPromise = checkForAPILevel() // Start the promise for API level
+
+  await sendPing()
+
+  // Handle the result of checkForAPILevel later
+  apiLevelPromise
+    .then((apiLevel) => {
+      if (apiLevel > -1) {
+        API_LEVEL = apiLevel
+        console.log("API Level:", apiLevel)
+
+        // Start reading loop
+        readLoop()
+      }
+    })
+    .catch((err) => {
+      console.error("Error handling API Level:", err)
+    })
+}
+
+async function openPort() {
+  try {
+    if (!port) {
+      port = await navigator.serial.requestPort({
+        filters: [{ usbVendorId: 0x2341 }],
+      })
+    }
+    await port.open({ baudRate: 115200 })
+    if (port.writable && port.readable) {
+      writer = port.writable.getWriter()
+      reader = port.readable.getReader()
+    }
+
+    console.log("Port opened.")
+    handleCommunication() // Start communication handling
+  } catch (err) {
+    console.error("Failed to open the port: ", err)
+  }
 }
