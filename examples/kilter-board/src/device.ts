@@ -774,8 +774,9 @@ if (routeParam) {
 }
 
 export function setupArduino(element: HTMLButtonElement) {
-  element.addEventListener("click", async () => {
-    await await openPort()
+  element.addEventListener("click", async (event) => {
+    event.preventDefault()
+    await openPort()
   })
 }
 
