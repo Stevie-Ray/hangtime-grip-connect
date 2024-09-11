@@ -8,9 +8,9 @@ import { isConnected } from "./is-connected"
  * @param {string} serviceId - The service ID where the characteristic belongs.
  * @param {string} characteristicId - The characteristic ID to read from.
  * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
- * @returns {Promise<void>} A promise that resolves when the read operation is completed.
+ * @returns {Promise<string>} A promise that resolves when the read operation is completed.
  */
-export const read = (board: Device, serviceId: string, characteristicId: string, duration = 0): Promise<void> => {
+export const read = (board: Device, serviceId: string, characteristicId: string, duration = 0): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {
       const characteristic = getCharacteristic(board, serviceId, characteristicId)
@@ -19,22 +19,20 @@ export const read = (board: Device, serviceId: string, characteristicId: string,
         characteristic
           .readValue()
           .then((value) => {
-            let decodedValue
+            let decodedValue: string
             const decoder = new TextDecoder("utf-8")
             switch (characteristicId) {
               case "level":
                 // TODO: This is Motherboard specific.
-                decodedValue = value.getUint8(0)
+                decodedValue = value.getUint8(0).toString()
                 break
               default:
                 decodedValue = decoder.decode(value)
                 break
             }
-            // TODO: Create Read callback
-            console.log(decodedValue)
             // Resolve after specified duration
             setTimeout(() => {
-              resolve()
+              return resolve(decodedValue)
             }, duration)
           })
           .catch((error) => {

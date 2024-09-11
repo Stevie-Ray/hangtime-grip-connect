@@ -14,11 +14,11 @@ export const info = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
     if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Read manufacturer information
-      await read(Motherboard, "device", "manufacturer", 250)
+      console.log(await read(Motherboard, "device", "manufacturer", 250))
       // Read hardware version
-      await read(Motherboard, "device", "hardware", 250)
+      console.log(await read(Motherboard, "device", "hardware", 250))
       // Read firmware version
-      await read(Motherboard, "device", "firmware", 250)
+      console.log(await read(Motherboard, "device", "firmware", 250))
       // Get text from Motherboard
       await write(Motherboard, "uart", "tx", MotherboardCommands.GET_TEXT, 250)
       // Get serial number from Motherboard
