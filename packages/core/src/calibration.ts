@@ -15,7 +15,9 @@ export const calibration = async (board: Device): Promise<void> => {
     // If the device is connected, and it is a Motherboard device
     if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Write the command to get calibration data to the device
-      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500, (data) => {
+        console.log(data)
+      })
     }
   }
 }

@@ -20,13 +20,19 @@ export const info = async (board: Device): Promise<void> => {
       // Read firmware version
       console.log(await read(Motherboard, "device", "firmware", 250))
       // Get text from Motherboard
-      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_TEXT, 250)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_TEXT, 250, (data) => {
+        console.log(data)
+      })
       // Get serial number from Motherboard
-      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_SERIAL, 250)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.GET_SERIAL, 250, (data) => {
+        console.log(data)
+      })
     }
     if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Get firmware version from Progressor
-      await write(Progressor, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250)
+      await write(Progressor, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
+        console.log(data)
+      })
     }
   }
 }

@@ -1,4 +1,5 @@
 import { notifyCallback } from "./../notify"
+import { writeCallback } from "./../write"
 import { applyTare } from "./../tare"
 import { MotherboardCommands } from "./../commands"
 import { checkActivity } from "./../is-active"
@@ -57,8 +58,12 @@ const applyCalibration = (sample: number, calibration: number[][]): number => {
   return sign * final
 }
 /**
- * Handles data received from the Motherboard device.
- * @param {string} receivedData - The received data string.
+ * Handles data received from the Motherboard device. Processes hex-encoded streaming packets
+ * to extract samples, calibrate masses, and update running averages of mass data.
+ * If the received data is not a valid hex packet, it returns the unprocessed data.
+ *
+ * @param {string} receivedData - The raw data received from the Motherboard device.
+ * @returns {void}
  */
 export const handleMotherboardData = (receivedData: string): void => {
   const receivedTime: number = Date.now()
@@ -153,6 +158,6 @@ export const handleMotherboardData = (receivedData: string): void => {
     }
   } else {
     // unhandled data
-    console.log(receivedData)
+    writeCallback(receivedData)
   }
 }

@@ -21,7 +21,9 @@ export const battery = async (board: Device): Promise<void> => {
     // If the device is connected and its name starts with "Progressor"
     if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Write command to get battery voltage information to the Progressor
-      await write(Progressor, "progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250)
+      await write(Progressor, "progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
+        console.log(data)
+      })
     }
   }
 }

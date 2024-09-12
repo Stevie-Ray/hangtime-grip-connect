@@ -2,7 +2,7 @@ import { notifyCallback } from "./../notify"
 import { applyTare } from "./../tare"
 import { checkActivity } from "./../is-active"
 import { ProgressorCommands, ProgressorResponses } from "./../commands/progressor"
-import { lastWrite } from "./../write"
+import { lastWrite, writeCallback } from "./../write"
 import struct from "./../struct"
 import { DownloadPackets } from "./../download"
 
@@ -13,8 +13,12 @@ let MASS_TOTAL_SUM = 0
 let DATAPOINT_COUNT = 0
 
 /**
- * Handles data received from the Progressor device.
- * @param {DataView} data - The received data.
+ * Handles data received from the Progressor device, processes weight measurements,
+ * and updates mass data including maximum and average values.
+ * It also handles command responses for retrieving device information.
+ *
+ * @param {DataView} data - The raw binary data received from the Progressor device.
+ * @returns {void}
  */
 export const handleProgressorData = (data: DataView): void => {
   const receivedTime: number = Date.now()
@@ -60,17 +64,16 @@ export const handleProgressorData = (data: DataView): void => {
     let value = ""
 
     if (lastWrite === ProgressorCommands.GET_BATT_VLTG) {
-      const vdd = new DataView(data.buffer, 2).getUint32(0, true)
-      value = `ℹ️ Battery level: ${vdd} mV`
+      value = new DataView(data.buffer, 2).getUint32(0, true).toString()
     } else if (lastWrite === ProgressorCommands.GET_FW_VERSION) {
       value = new TextDecoder().decode(data.buffer.slice(2))
     } else if (lastWrite === ProgressorCommands.GET_ERR_INFO) {
       value = new TextDecoder().decode(data.buffer.slice(2))
     }
-    console.log(value)
+    writeCallback(value)
   } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
     console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
   } else {
-    console.error(`❌ Error: Unknown message kind detected: ${kind}`)
+    throw new Error(`Unknown message kind detected: ${kind}`)
   }
 }

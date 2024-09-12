@@ -25,7 +25,9 @@ export const stream = async (board: Device, duration = 0): Promise<void> => {
         await calibration(Motherboard)
       }
       // Start streaming data
-      await write(Motherboard, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
+      await write(Motherboard, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration, (data) => {
+        console.log(data)
+      })
       // Stop streaming if duration is set
       if (duration !== 0) {
         await stop(Motherboard)
@@ -33,7 +35,9 @@ export const stream = async (board: Device, duration = 0): Promise<void> => {
     }
     if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Start streaming data
-      await write(Progressor, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
+      await write(Progressor, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration, (data) => {
+        console.log(data)
+      })
       // Stop streaming if duration is set
       if (duration !== 0) {
         await stop(Progressor)

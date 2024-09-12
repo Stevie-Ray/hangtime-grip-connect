@@ -8,14 +8,35 @@ import { getCharacteristic } from "./characteristic"
  */
 export let lastWrite: string | Uint8Array | null = null
 
+/** Define the type for the callback function */
+type WriteCallback = (data: string) => void
+
 /**
- * Writes a message to the specified characteristic of the device.
- * @param {Device} board - The device board to write to.
- * @param {string} serviceId - The service ID where the characteristic belongs.
- * @param {string} characteristicId - The characteristic ID to write to.
- * @param {string | Uint8Array | undefined} message - The message to write.
- * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
- * @returns {Promise<void>} A promise that resolves when the write operation is completed.
+ * A default write callback that logs the response
+ */
+export let writeCallback: WriteCallback = (data: string) => {
+  console.log(data)
+}
+
+/**
+ * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
+ *
+ * @param {Device} board - The Bluetooth device to which the message will be written.
+ * @param {string} serviceId - The service UUID of the Bluetooth device containing the target characteristic.
+ * @param {string} characteristicId - The characteristic UUID where the message will be written.
+ * @param {string | Uint8Array | undefined} message - The message to be written to the characteristic. It can be a string or a Uint8Array.
+ * @param {number} [duration=0] - Optional. The time in milliseconds to wait before resolving the promise. Defaults to 0 for immediate resolution.
+ * @param {WriteCallback} [callback=writeCallback] - Optional. A custom callback to handle the response after the write operation is successful.
+ *
+ * @returns {Promise<void>} A promise that resolves once the write operation is complete.
+ *
+ * @throws {Error} Throws an error if the characteristic is undefined or if the device is not connected.
+ *
+ * @example
+ * // Example usage of the write function with a custom callback
+ * await write(device, "serviceId", "characteristicId", "Hello World", 250, (data) => {
+ *   console.log(`Custom response: ${data}`);
+ * });
  */
 export const write = (
   board: Device,
@@ -23,13 +44,14 @@ export const write = (
   characteristicId: string,
   message: string | Uint8Array | undefined,
   duration = 0,
+  callback: WriteCallback = writeCallback,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (isConnected(board)) {
       // Check if message is provided
       if (message === undefined) {
         // If not provided, return without performing write operation
-        return
+        return resolve()
       }
       // Get the characteristic from the device using serviceId and characteristicId
       const characteristic = getCharacteristic(board, serviceId, characteristicId)
@@ -42,6 +64,8 @@ export const write = (
           .then(() => {
             // Update the last written message
             lastWrite = message
+            // Assign the provided callback to `writeCallback`
+            writeCallback = callback
             // If a duration is specified, resolve the promise after the duration
             if (duration > 0) {
               setTimeout(() => {
@@ -57,8 +81,10 @@ export const write = (
           })
       } else {
         // Reject if characteristic is undefined
-        reject(new Error("Characteristics is undefined"))
+        reject(new Error("Characteristic is undefined"))
       }
+    } else {
+      reject(new Error("Device is not connected"))
     }
   })
 }
