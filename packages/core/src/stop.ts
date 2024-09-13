@@ -13,15 +13,11 @@ export const stop = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
     if (board.filters.some((filter) => filter.name === "Motherboard")) {
       // Stop stream on Motherboard
-      await write(Motherboard, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0, (data) => {
-        console.log(data)
-      })
+      await write(Motherboard, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
     }
     if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
       // Stop stream on Progressor
-      await write(Progressor, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0, (data) => {
-        console.log(data)
-      })
+      await write(Progressor, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
     }
   }
 }

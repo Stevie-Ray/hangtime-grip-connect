@@ -38,7 +38,7 @@ export let writeCallback: WriteCallback = (data: string) => {
  *   console.log(`Custom response: ${data}`);
  * });
  */
-export const write = (
+export const write = async (
   board: Device,
   serviceId: string,
   characteristicId: string,
@@ -46,45 +46,31 @@ export const write = (
   duration = 0,
   callback: WriteCallback = writeCallback,
 ): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    if (isConnected(board)) {
-      // Check if message is provided
-      if (message === undefined) {
-        // If not provided, return without performing write operation
-        return resolve()
-      }
-      // Get the characteristic from the device using serviceId and characteristicId
-      const characteristic = getCharacteristic(board, serviceId, characteristicId)
-      if (characteristic) {
-        // Convert the message to Uint8Array if it's a string
-        const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
-        // Write the value to the characteristic
-        characteristic
-          .writeValue(valueToWrite)
-          .then(() => {
-            // Update the last written message
-            lastWrite = message
-            // Assign the provided callback to `writeCallback`
-            writeCallback = callback
-            // If a duration is specified, resolve the promise after the duration
-            if (duration > 0) {
-              setTimeout(() => {
-                resolve()
-              }, duration)
-            } else {
-              // Otherwise, resolve the promise immediately
-              resolve()
-            }
-          })
-          .catch((error: unknown) => {
-            reject(error)
-          })
-      } else {
-        // Reject if characteristic is undefined
-        reject(new Error("Characteristic is undefined"))
-      }
-    } else {
-      reject(new Error("Device is not connected"))
-    }
-  })
+  if (!isConnected(board)) {
+    throw new Error("Device is not connected")
+  }
+  // Check if message is provided
+  if (message === undefined) {
+    // If not provided, return without performing write operation
+    return
+  }
+  // Get the characteristic from the device using serviceId and characteristicId
+  const characteristic = getCharacteristic(board, serviceId, characteristicId)
+  if (!characteristic) {
+    throw new Error("Characteristic is undefined")
+  }
+  // Convert the message to Uint8Array if it's a string
+  const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
+  // Write the value to the characteristic
+  await characteristic.writeValue(valueToWrite)
+  // Update the last written message
+  lastWrite = message
+  // Assign the provided callback to `writeCallback`
+
+  writeCallback = callback
+  // If a duration is specified, resolve the promise after the duration
+
+  if (duration > 0) {
+    await new Promise<void>((resolve) => setTimeout(resolve, duration))
+  }
 }

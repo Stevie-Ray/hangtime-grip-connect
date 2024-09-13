@@ -36,7 +36,7 @@
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.3.10"
+    "@hangtime/grip-connect": "^0.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

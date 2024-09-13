@@ -5,17 +5,21 @@ import {
   mySmartBoard,
   Progressor,
   WHC06,
+  active,
   battery,
   connect,
   disconnect,
   download,
-  info,
-  active,
+  firmware,
+  hardware,
+  led,
+  manufacturer,
   notify,
+  serial,
   stream,
   stop,
   tare,
-  led,
+  text,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
@@ -36,7 +40,7 @@ let chartHeight = 0
  * @param {HTMLButtonElement} tareElement - The HTML button element for tare action.
  * @param {HTMLButtonElement} downloadElement - The HTML button element for download action.
  * @param {HTMLDivElement} massesElement - The HTML element to display mass information.
- * @param {HTMLDivElement} errorElement - The HTML element to display erros.
+ * @param {HTMLDivElement} outputElement - The HTML element to display output/erros.
  */
 export function setupDevice(
   deviceElement: HTMLSelectElement,
@@ -44,7 +48,7 @@ export function setupDevice(
   tareElement: HTMLButtonElement,
   downloadElement: HTMLButtonElement,
   massesElement: HTMLDivElement,
-  errorElement: HTMLDivElement,
+  outputElement: HTMLDivElement,
 ) {
   let isStreaming = true
   let device: Device = Motherboard
@@ -121,9 +125,44 @@ export function setupDevice(
           console.log(value)
         })
 
-        // Read battery + device info
-        await battery(device)
-        await info(device)
+        // Read all stored information
+        outputElement.style.display = "flex"
+        const batteryLevel = await battery(device)
+        if (batteryLevel) {
+          console.log("Battery Level:", batteryLevel)
+          outputElement.textContent = batteryLevel
+        }
+
+        const firmwareVersion = await firmware(device)
+        if (firmwareVersion) {
+          console.log("Firmware Version:", firmwareVersion)
+          outputElement.textContent = firmwareVersion
+        }
+
+        const hardwareVersion = await hardware(device)
+        if (hardwareVersion) {
+          console.log("Hardware Version:", hardwareVersion)
+          outputElement.textContent = hardwareVersion
+        }
+
+        const manufacturerInfo = await manufacturer(device)
+        if (manufacturerInfo) {
+          console.log("Manufacturer Info:", manufacturerInfo)
+          outputElement.textContent = manufacturerInfo
+        }
+
+        const storedText = await text(device)
+        if (storedText) {
+          console.log("Stored Text:", storedText)
+          outputElement.textContent = storedText
+        }
+
+        const serialNumberInfo = await serial(device)
+        if (serialNumberInfo) {
+          console.log("Serial Number Info:", serialNumberInfo)
+          outputElement.textContent = serialNumberInfo
+        }
+        outputElement.style.display = "none"
 
         // Trigger LEDs
         await led(device)
@@ -143,8 +182,8 @@ export function setupDevice(
         }
       },
       (error: Error) => {
-        errorElement.innerHTML = error.message
-        errorElement.style.display = "flex"
+        outputElement.innerHTML = error.message
+        outputElement.style.display = "flex"
       },
     )
   })

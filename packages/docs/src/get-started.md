@@ -48,7 +48,7 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, active, battery, connect, disconnect, info, notify, stream } from "@hangtime/grip-connect"
+import { Motherboard, active, battery, connect, disconnect, firmware, notify, stream } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
@@ -67,12 +67,15 @@ motherboardButton.addEventListener("click", () => {
         console.log(value)
       })
 
-      // Read battery + device info
-      await battery(Motherboard)
-      await info(Motherboard)
+      // Read info: battery + firmware
+      const batteryLevel = await battery(Motherboard)
+      console.log(batteryLevel)
+
+      const firmwareVersion = await firmware(Motherboard)
+      console.log(firmwareVersion)
 
       // trigger LEDs
-      // await led(device)
+      // await led(Motherboard)
 
       // Start weight streaming (for a minute) remove parameter for a continues stream
       await stream(Motherboard, 60000)
