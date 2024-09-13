@@ -74,4 +74,14 @@ input:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  select,
+  input,
+  button {
+    background-color: #e6e6e6;
+  }
 }
