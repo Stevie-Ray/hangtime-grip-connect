@@ -5,7 +5,7 @@ export interface DownloadPacket {
   /** Timestamp of when the packet was received */
   received: number
   /** Sample number */
-  sampleNum: number //
+  sampleNum: number
   /** Battery raw value */
   battRaw: number
   /** Array of sample values */
