@@ -1,8 +1,8 @@
 import type { Device } from "./types/devices"
 import { write } from "./write"
 import { isConnected } from "./is-connected"
-import { Motherboard, Progressor } from "./devices"
 import { MotherboardCommands, ProgressorCommands } from "./commands"
+import { isMotherboard, isProgressor } from "./is-device"
 
 /**
  * Stops the data stream on the specified device.
@@ -11,13 +11,13 @@ import { MotherboardCommands, ProgressorCommands } from "./commands"
  */
 export const stop = async (board: Device): Promise<void> => {
   if (isConnected(board)) {
-    if (board.filters.some((filter) => filter.name === "Motherboard")) {
+    if (isMotherboard(board)) {
       // Stop stream on Motherboard
-      await write(Motherboard, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
+      await write(board, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
     }
-    if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
+    if (isProgressor(board)) {
       // Stop stream on Progressor
-      await write(Progressor, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
+      await write(board, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
     }
   }
 }

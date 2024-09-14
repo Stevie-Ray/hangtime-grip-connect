@@ -1,6 +1,8 @@
 // Export device types
 export { Climbro, Entralpi, KilterBoard, Motherboard, mySmartBoard, WHC06, Progressor } from "./devices/index"
 
+export { isEntralpi, isKilterboard, isMotherboard, isProgressor } from "./is-device"
+
 // Export calibration function
 export { calibration } from "./calibration"
 

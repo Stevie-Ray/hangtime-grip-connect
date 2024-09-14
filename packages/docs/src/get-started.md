@@ -74,7 +74,8 @@ motherboardButton.addEventListener("click", () => {
       const firmwareVersion = await firmware(Motherboard)
       console.log(firmwareVersion)
 
-      // trigger LEDs
+      // LEDs: "green", "red", "orange", or no argument to turn off
+      // await led(Motherboard, "red")
       // await led(Motherboard)
 
       // Start weight streaming (for a minute) remove parameter for a continues stream

@@ -1,8 +1,8 @@
 import type { Device } from "./types/devices"
 import { write } from "./write"
 import { isConnected } from "./is-connected"
-import { KilterBoard, Motherboard } from "./devices"
 import { KilterBoardPacket, KilterBoardPlacementRoles } from "./commands/kilterboard"
+import { isKilterboard, isMotherboard } from "./is-device"
 
 /**
  * Maximum length of the message body for byte wrapping.
@@ -164,44 +164,48 @@ const splitMessages = (buffer: number[]) =>
 /**
  * Sends a series of messages to a device.
  */
-async function writeMessageSeries(messages: Uint8Array[]) {
+async function writeMessageSeries(board: Device, messages: Uint8Array[]) {
   for (const message of messages) {
-    await write(KilterBoard, "uart", "tx", message)
+    await write(board, "uart", "tx", message)
   }
 }
 /**
  * Sets the LEDs on the specified device.
+ *
+ * - For Kilter Board: Configures the LEDs based on an array of climb placements. If a configuration is provided, it prepares and sends a payload to the device.
+ * - For Motherboard: Sets the LED color based on a single color option. Defaults to turning the LEDs off if no configuration is provided.
+ *
  * @param {Device} board - The device on which to set the LEDs.
- * @param {ClimbPlacement[]} [placement] - An optional array of climb placements for LED positioning.
- * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array if LED settings were applied, or `undefined` if no action was taken.
+ * @param {"green" | "red" | "orange" | ClimbPlacement[]} [config] - Optional color or array of climb placements for the LEDs. Ignored if placements are provided.
+ * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
  */
-export const led = async (board: Device, placement?: ClimbPlacement[]): Promise<number[] | undefined> => {
-  // Check if the filter contains the Aurora Climbing Advertising service
-  const AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
-  if (board.filters.some((filter) => filter.services?.includes(AuroraUUID))) {
-    // The Aurora Boards needs a LED / Postion Placememnet Array
-    if (placement) {
-      // Prepares byte arrays for transmission based on a list of climb placements.
-      const payload = prepBytesV3(placement)
-      // Sends the payload to the device by splitting it into messages and writing each message.
-      if (isConnected(board)) {
-        writeMessageSeries(splitMessages(payload))
-      }
-      return payload
+export const led = async (
+  board: Device,
+  config?: "green" | "red" | "orange" | ClimbPlacement[],
+): Promise<number[] | undefined> => {
+  // Handle Kilterboard logic: process placements and send payload if connected
+  if (isKilterboard(board) && Array.isArray(config)) {
+    // Prepares byte arrays for transmission based on a list of climb placements.
+    const payload = prepBytesV3(config)
+    if (isConnected(board)) {
+      await writeMessageSeries(board, splitMessages(payload))
     }
+    return payload
   }
-  if (board.filters.some((filter) => filter.name === "Motherboard")) {
-    console.log("Green")
-    await write(Motherboard, "led", "red", new Uint8Array([0x00]))
-    await write(Motherboard, "led", "green", new Uint8Array([0x01]), 1250)
-    console.log("Red")
-    await write(Motherboard, "led", "red", new Uint8Array([0x01]))
-    await write(Motherboard, "led", "green", new Uint8Array([0x00]), 1250)
-    console.log("Orage")
-    await write(Motherboard, "led", "red", new Uint8Array([0x01]))
-    await write(Motherboard, "led", "green", new Uint8Array([0x01]), 1250)
-    console.log("Off")
-    await write(Motherboard, "led", "red", new Uint8Array([0x00]))
-    await write(Motherboard, "led", "green", new Uint8Array([0x00]), 1250)
+  // Handle Motherboard logic: set color if provided
+  if (isMotherboard(board)) {
+    const colorMapping: Record<string, number[][]> = {
+      green: [[0x00], [0x01]],
+      red: [[0x01], [0x00]],
+      orange: [[0x01], [0x01]],
+      off: [[0x00], [0x00]],
+    }
+    // Default to "off" color if config is not set or not found in colorMapping
+    const color = typeof config === "string" && colorMapping[config] ? config : "off"
+    const [redValue, greenValue] = colorMapping[color]
+    await write(board, "led", "red", new Uint8Array(redValue))
+    await write(board, "led", "green", new Uint8Array(greenValue), 1250)
+    return
   }
+  return
 }

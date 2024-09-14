@@ -2,7 +2,7 @@ import type { Device } from "./types/devices"
 import { isConnected } from "./is-connected"
 import { write } from "./write"
 import { stop } from "./stop"
-import { Motherboard, Progressor } from "./devices"
+import { isMotherboard, isProgressor } from "./is-device"
 import { MotherboardCommands, ProgressorCommands } from "./commands"
 import { emptyDownloadPackets } from "./download"
 import { CALIBRATION } from "./data/motherboard"
@@ -19,24 +19,24 @@ export const stream = async (board: Device, duration = 0): Promise<void> => {
     // Reset download packets
     emptyDownloadPackets()
     // Device specific logic
-    if (board.filters.some((filter) => filter.name === "Motherboard")) {
+    if (isMotherboard(board)) {
       // Read calibration data if not already available
       if (!CALIBRATION[0].length) {
-        await calibration(Motherboard)
+        await calibration(board)
       }
       // Start streaming data
-      await write(Motherboard, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
+      await write(board, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
-        await stop(Motherboard)
+        await stop(board)
       }
     }
-    if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
+    if (isProgressor(board)) {
       // Start streaming data
-      await write(Progressor, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
+      await write(board, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
-        await stop(Progressor)
+        await stop(board)
       }
     }
   }

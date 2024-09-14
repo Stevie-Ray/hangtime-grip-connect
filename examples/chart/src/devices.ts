@@ -20,6 +20,8 @@ import {
   stop,
   tare,
   text,
+  isMotherboard,
+  isEntralpi,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
@@ -165,13 +167,18 @@ export function setupDevice(
         outputElement.style.display = "none"
 
         // Trigger LEDs
-        await led(device)
+        if (isMotherboard(device)) {
+          await led(device, "green")
+          await led(device, "red")
+          await led(device, "orange")
+          await led(device)
+        }
 
         // Start streaming
         await stream(device)
         isStreaming = true
 
-        if (device === Entralpi) {
+        if (isEntralpi(device)) {
           setTimeout(() => {
             // the entralpi will automatically start streaming
           }, 60000)
@@ -189,7 +196,7 @@ export function setupDevice(
   })
   // Tare
   tareElement.addEventListener("click", async () => {
-    await tare()
+    tare()
   })
   // Download
   downloadElement.addEventListener("click", async () => {

@@ -2,8 +2,8 @@ import type { Device } from "./types/devices"
 import { write } from "./write"
 import { read } from "./read"
 import { isConnected } from "./is-connected"
-import { Motherboard, Progressor } from "./devices"
 import { ProgressorCommands } from "./commands"
+import { isMotherboard, isProgressor } from "./is-device"
 
 /**
  * Retrieves firmware version from the device.
@@ -19,15 +19,15 @@ export const firmware = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
   if (isConnected(board)) {
     // If the device is connected and it is a Motherboard device
-    if (board.filters.some((filter) => filter.name === "Motherboard")) {
+    if (isMotherboard(board)) {
       // Read firmware version from the Motherboard
-      return await read(Motherboard, "device", "firmware", 250)
+      return await read(board, "device", "firmware", 250)
     }
     // If the device is connected and its name starts with "Progressor"
-    if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
+    if (isProgressor(board)) {
       // Write command to get firmware version information to the Progressor
       let response: string | undefined = undefined
-      await write(Progressor, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
+      await write(board, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
         response = data
       })
       return response

@@ -1,7 +1,7 @@
 import type { Device } from "./types/devices"
 import { read } from "./read"
 import { isConnected } from "./is-connected"
-import { Motherboard } from "./devices"
+import { isMotherboard } from "./is-device"
 
 /**
  * Retrieves hardware version from the device.
@@ -16,9 +16,9 @@ export const hardware = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
   if (isConnected(board)) {
     // If the device is connected and it is a Motherboard device
-    if (board.filters.some((filter) => filter.name === "Motherboard")) {
+    if (isMotherboard(board)) {
       // Read hardware version from the Motherboard
-      return await read(Motherboard, "device", "hardware", 250)
+      return await read(board, "device", "hardware", 250)
     }
     // If device is not found, return undefined
     return

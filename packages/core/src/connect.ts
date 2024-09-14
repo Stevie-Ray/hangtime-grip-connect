@@ -1,5 +1,6 @@
 import type { Device } from "./types/devices"
 import { handleEntralpiData, handleMotherboardData, handleProgressorData, handleWHC06Data } from "./data"
+import { isEntralpi, isMotherboard, isProgressor } from "./is-device"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
@@ -25,7 +26,7 @@ const handleNotifications = (event: Event, board: Device): void => {
 
   if (value) {
     // If the device is connected and it is a Motherboard device
-    if (board.filters.some((filter) => filter.name === "Motherboard")) {
+    if (isMotherboard(board)) {
       for (let i = 0; i < value.byteLength; i++) {
         receiveBuffer.push(value.getUint8(i))
       }
@@ -38,14 +39,14 @@ const handleNotifications = (event: Event, board: Device): void => {
         const receivedData: string = decoder.decode(new Uint8Array(line))
         handleMotherboardData(receivedData)
       }
-    } else if (board.filters.some((filter) => filter.name === "ENTRALPI")) {
+    } else if (isEntralpi(board)) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
         const receivedData: string = (rawData.getUint16(0) / 100).toFixed(1)
         handleEntralpiData(receivedData)
       }
-    } else if (board.filters.some((filter) => filter.namePrefix === "Progressor")) {
+    } else if (isProgressor(board)) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
