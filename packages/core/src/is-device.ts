@@ -8,7 +8,6 @@ import { AuroraUUID } from "./devices/kilterboard"
  */
 export const isMotherboard = (board?: Device): boolean =>
   board?.filters.some((filter) => filter.name === "Motherboard") ?? false
-
 /**
  * Checks if the given device is a Progressor.
  * @param {Device} [board] - The device to check.
@@ -16,7 +15,6 @@ export const isMotherboard = (board?: Device): boolean =>
  */
 export const isProgressor = (board?: Device): boolean =>
   board?.filters.some((filter) => filter.namePrefix === "Progressor") ?? false
-
 /**
  * Checks if the given device is an Entralpi device.
  * @param {Device} [board] - The device to check.
@@ -24,7 +22,6 @@ export const isProgressor = (board?: Device): boolean =>
  */
 export const isEntralpi = (board?: Device): boolean =>
   board?.filters.some((filter) => filter.name === "ENTRALPI") ?? false
-
 /**
  * Checks if the given device is a Kilterboard.
  * @param {Device} [board] - The device to check.
@@ -33,3 +30,14 @@ export const isEntralpi = (board?: Device): boolean =>
 export const isKilterboard = (board?: Device): boolean => {
   return board?.filters.some((filter) => filter.services?.includes(AuroraUUID)) ?? false
 }
+/**
+ * Checks if the given device is a WH-C06.
+ * @param {Device} [board] - The device to check.
+ * @returns {boolean} `true` if the device has a filter with the company identifier 0x0100, otherwise `false`.
+ */
+export const isWHC06 = (board?: Device): boolean =>
+  board?.filters.some((filter) =>
+    filter.manufacturerData?.some(
+      (data) => data.companyIdentifier === 0x0100, // Company identifier for WH-C06, also used by 'TomTom International BV': https://www.bluetooth.com/specifications/assigned-numbers/
+    ),
+  ) ?? false

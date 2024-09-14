@@ -45,6 +45,7 @@ export default defineConfig({
           { text: "Hardware", link: "/api/hardware" },
           { text: "IsActive", link: "/api/is-active" },
           { text: "IsConnected", link: "/api/is-connected" },
+          { text: "IsDevice", link: "/api/is-device" },
           { text: "Led", link: "/api/led" },
           { text: "Manufacturer", link: "/api/manufacturer" },
           { text: "Notify", link: "/api/notify" },

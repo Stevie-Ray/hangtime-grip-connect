@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Entralpi, Motherboard, WHC06, Progressor } from "./devices"
+import { Entralpi, Motherboard, Progressor, WHC06 } from "./devices"
 ```
 
 ### Basic Usage

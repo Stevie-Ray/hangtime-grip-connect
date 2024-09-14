@@ -9,6 +9,7 @@
 - [Hardware](/api/hardware)
 - [IsActive](/api/is-active)
 - [IsConnected](/api/is-connected)
+- [IsDevice](/api/is-device)
 - [Led](/api/led)
 - [Manufacturer](/api/manufacturer)
 - [Notify](/api/notify)
