@@ -28,8 +28,9 @@ hero:
 features:
   - title: Connect with your device
     details:
-      Setup a Bluetooth connection between your device and the Griptonite Motherboard, Climbro, SmartBoard, Entralpi or
-      Tindeq Progressor
+      Setup a Bluetooth connection between your device and the Griptonite Motherboard, Tindeq Progressor, PitchSix Force
+      Board, Entralpi, Kilter Board, mySmartBoard or Climbro
+
   - title: Read the data
     details: Output the raw data that is being transmitted by the Force-Sensing device
   - title: Get creative
