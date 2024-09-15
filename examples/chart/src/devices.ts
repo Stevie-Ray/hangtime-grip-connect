@@ -1,6 +1,7 @@
 import {
   Climbro,
   Entralpi,
+  ForceBoard,
   Motherboard,
   mySmartBoard,
   Progressor,
@@ -98,6 +99,8 @@ export function setupDevice(
       device = Climbro
     } else if (selectedDevice === "entralpi") {
       device = Entralpi
+    } else if (selectedDevice === "forceboard") {
+      device = ForceBoard
     } else if (selectedDevice === "motherboard") {
       device = Motherboard
     } else if (selectedDevice === "smartboard") {

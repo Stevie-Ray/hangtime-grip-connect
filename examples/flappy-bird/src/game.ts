@@ -1,7 +1,10 @@
 import {
-  Motherboard,
-  Progressor,
+  Climbro,
   Entralpi,
+  ForceBoard,
+  Motherboard,
+  mySmartBoard,
+  Progressor,
   WHC06,
   connect,
   notify,
@@ -32,16 +35,19 @@ export function setupDevice(element: HTMLSelectElement) {
   element.addEventListener("change", () => {
     const selectedDevice = element.value
 
-    if (selectedDevice === "motherboard") {
-      device = Motherboard
-    }
-    if (selectedDevice === "entralpi") {
+    if (selectedDevice === "climbro") {
+      device = Climbro
+    } else if (selectedDevice === "entralpi") {
       device = Entralpi
-    }
-    if (selectedDevice === "progressor") {
+    } else if (selectedDevice === "forceboard") {
+      device = ForceBoard
+    } else if (selectedDevice === "motherboard") {
+      device = Motherboard
+    } else if (selectedDevice === "smartboard") {
+      device = mySmartBoard
+    } else if (selectedDevice === "progressor") {
       device = Progressor
-    }
-    if (selectedDevice === "whc06") {
+    } else if (selectedDevice === "whc06") {
       device = WHC06
     }
     getBluetoothData()

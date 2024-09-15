@@ -2,10 +2,12 @@ export { ClimbroCommands } from "./climbro"
 
 export { EntralpiCommands } from "./entralpi"
 
+export { ForceBoardCommands } from "./forceboard"
+
 export { MotherboardCommands } from "./motherboard"
 
-export { WHC06Commands } from "./wh-c06"
+export { mySmartBoardCommands } from "./mysmartboard"
 
 export { ProgressorCommands } from "./progressor"
 
-export { mySmartBoardCommands } from "./mysmartboard"
+export { WHC06Commands } from "./wh-c06"
