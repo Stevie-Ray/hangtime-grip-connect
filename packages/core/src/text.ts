@@ -13,8 +13,6 @@ import { MotherboardCommands } from "./commands"
  *
  * @param {Device} board - The device from which to retrieve text information.
  * @returns {Promise<string>} A Promise that resolves with the 320-byte memory content as a string,
- *                            which includes both the written data and any unused, whitespace-padded segments.
- * @throws {Error} Throws an error if the device is not connected.
  */
 export const text = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
@@ -28,8 +26,7 @@ export const text = async (board: Device): Promise<string | undefined> => {
       })
       return response
     }
-    // If device is not found, return undefined
-    return
   }
-  throw new Error("Not connected.")
+  // If device is not found, return undefined
+  return undefined
 }

@@ -60,10 +60,14 @@ motherboardButton.addEventListener("click", () => {
         console.log(data)
       })
 
-      // Check if device is being used
-      active((value) => {
-        console.log(value)
-      })
+      // Reactive check if device is active
+      active(
+        (isActive) => {
+          console.log(isActive)
+        },
+        // Optionally using a weight threshold and duration
+        { threshold: 2.5, duration: 1000 },
+      )
 
       // Read info: battery + firmware
       const batteryLevel = await battery(Motherboard)

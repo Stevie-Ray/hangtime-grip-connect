@@ -30,7 +30,7 @@ export let writeCallback: WriteCallback = (data: string) => {
  *
  * @returns {Promise<void>} A promise that resolves once the write operation is complete.
  *
- * @throws {Error} Throws an error if the characteristic is undefined or if the device is not connected.
+ * @throws {Error} Throws an error if the characteristic is undefined.
  *
  * @example
  * // Example usage of the write function with a custom callback
@@ -46,31 +46,30 @@ export const write = async (
   duration = 0,
   callback: WriteCallback = writeCallback,
 ): Promise<void> => {
-  if (!isConnected(board)) {
-    throw new Error("Device is not connected")
-  }
-  // Check if message is provided
-  if (message === undefined) {
-    // If not provided, return without performing write operation
-    return
-  }
-  // Get the characteristic from the device using serviceId and characteristicId
-  const characteristic = getCharacteristic(board, serviceId, characteristicId)
-  if (!characteristic) {
-    throw new Error("Characteristic is undefined")
-  }
-  // Convert the message to Uint8Array if it's a string
-  const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
-  // Write the value to the characteristic
-  await characteristic.writeValue(valueToWrite)
-  // Update the last written message
-  lastWrite = message
-  // Assign the provided callback to `writeCallback`
+  if (isConnected(board)) {
+    // Check if message is provided
+    if (message === undefined) {
+      // If not provided, return without performing write operation
+      return
+    }
+    // Get the characteristic from the device using serviceId and characteristicId
+    const characteristic = getCharacteristic(board, serviceId, characteristicId)
+    if (!characteristic) {
+      throw new Error("Characteristic is undefined")
+    }
+    // Convert the message to Uint8Array if it's a string
+    const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
+    // Write the value to the characteristic
+    await characteristic.writeValue(valueToWrite)
+    // Update the last written message
+    lastWrite = message
+    // Assign the provided callback to `writeCallback`
 
-  writeCallback = callback
-  // If a duration is specified, resolve the promise after the duration
+    writeCallback = callback
+    // If a duration is specified, resolve the promise after the duration
 
-  if (duration > 0) {
-    await new Promise<void>((resolve) => setTimeout(resolve, duration))
+    if (duration > 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, duration))
+    }
   }
 }

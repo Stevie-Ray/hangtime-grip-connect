@@ -12,9 +12,13 @@ import { connect, battery, Progressor } from "@hangtime/grip-connect"
 connect(Progressor, async () => {
   /**
    * Retrieves battery or voltage information from the device.
-   * @param {Device} board - The device.
-   * @returns {Promise<void>} A Promise that resolves when the information is successfully retrieved.
+   * - For Motherboard devices, it reads the battery level.
+   * - For Progressor devices, it sends a command to retrieve battery voltage information.
+   *
+   * @param {Device} board - The device from which to retrieve battery information.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
    */
-  await battery(Progressor)
+  const batteryLevel = await battery(Progressor)
+  console.log(batteryLevel)
 })
 ```

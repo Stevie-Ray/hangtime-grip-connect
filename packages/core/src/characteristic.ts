@@ -25,4 +25,5 @@ export const getCharacteristic = (
     }
   }
   // Return undefined if the service or characteristic is not found
+  return undefined
 }

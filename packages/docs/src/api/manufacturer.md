@@ -16,8 +16,6 @@ connect(Motherboard, async () => {
    *
    * @param {Device} board - The device from which to retrieve manufacturer information.
    * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
-   *                            or rejects with an error if the device is not connected.
-   * @throws {Error} Throws an error if the device is not connected.
    */
   const manufacturerInfo = await manufacturer(Motherboard)
   console.log(manufacturerInfo)

@@ -12,8 +12,6 @@ import { isMotherboard, isProgressor } from "./is-device"
  *
  * @param {Device} board - The device from which to retrieve firmware version.
  * @returns {Promise<string>} A Promise that resolves with the firmware version,
- *                            or rejects with an error if the device is not connected.
- * @throws {Error} Throws an error if the device is not connected.
  */
 export const firmware = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
@@ -32,8 +30,7 @@ export const firmware = async (board: Device): Promise<string | undefined> => {
       })
       return response
     }
-    // If device is not found, return undefined
-    return
   }
-  throw new Error("Not connected.")
+  // If device is not found, return undefined
+  return undefined
 }

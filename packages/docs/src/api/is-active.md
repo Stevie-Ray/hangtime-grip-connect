@@ -18,12 +18,22 @@ connect(Progressor, async () => {
     console.log(isActive)
   })
 
-  /**
-   * Callback function that is triggered when the activity status changes.
-   *
-   * @param {boolean} value - The new activity status (true if active, false if not).
-   */
-  active((value: boolean) => {
+/**
+ * Sets the callback function to be called when the activity status changes,
+ * and optionally sets the configuration for threshold and duration.
+ *
+ * This function allows you to specify a callback that will be invoked whenever
+ * the activity status changes, indicating whether the device is currently active.
+ * It also allows optionally configuring the threshold and duration used to determine activity.
+ *
+ * @param {IsActiveCallback} callback - The callback function to be set. This function
+ *                                      receives a boolean value indicating the new activity status.
+ * @param {object} [options] - Optional configuration object containing the threshold and duration.
+ * @param {number} [options.threshold=2.5] - The threshold value for determining activity.
+ * @param {number} [options.duration=1000] - The duration (in milliseconds) to monitor the input for activity.
+ * @returns {void}
+ */
+  active((value: boolean, { threshold: 3.0, duration: 2000 }) => {
     console.log(value)
   })
 })

@@ -17,8 +17,6 @@ connect(Progressor, async () => {
    *
    * @param {Device} board - The device from which to retrieve firmware version.
    * @returns {Promise<string>} A Promise that resolves with the firmware version,
-   *                            or rejects with an error if the device is not connected.
-   * @throws {Error} Throws an error if the device is not connected.
    */
   const firmwareVersion = await firmware(Progressor)
   console.log(firmwareVersion)

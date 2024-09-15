@@ -10,8 +10,6 @@ import { isMotherboard } from "./is-device"
  *
  * @param {Device} board - The device from which to retrieve serial number.
  * @returns {Promise<string>} A Promise that resolves with the serial number,
- *                            or rejects with an error if the device is not connected.
- * @throws {Error} Throws an error if the device is not connected.
  */
 export const serial = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
@@ -25,8 +23,7 @@ export const serial = async (board: Device): Promise<string | undefined> => {
       })
       return response
     }
-    // If device is not found, return undefined
-    return
   }
-  throw new Error("Not connected.")
+  // If device is not found, return undefined
+  return undefined
 }

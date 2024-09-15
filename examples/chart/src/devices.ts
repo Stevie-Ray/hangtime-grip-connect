@@ -122,10 +122,13 @@ export function setupDevice(
           addMassHTML(data)
         })
 
-        // Check if device is being used
-        active((value: boolean) => {
-          console.log(value)
-        })
+        // Example Reactive check if device is active, optionally using a weight threshold and duration
+        active(
+          (isActive: boolean) => {
+            console.log(isActive)
+          },
+          { threshold: 2.5, duration: 1000 },
+        )
 
         // Read all stored information
         outputElement.style.display = "flex"

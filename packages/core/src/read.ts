@@ -41,8 +41,6 @@ export const read = (board: Device, serviceId: string, characteristicId: string,
       } else {
         reject(new Error("Characteristic is undefined"))
       }
-    } else {
-      reject(new Error("Device is not connected"))
     }
   })
 }

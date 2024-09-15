@@ -12,8 +12,6 @@ import { ProgressorCommands } from "./commands"
  *
  * @param {Device} board - The device from which to retrieve battery information.
  * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
- *                            or rejects with an error if the device is not connected.
- * @throws {Error} Throws an error if the device is not connected.
  */
 export const battery = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
@@ -32,8 +30,7 @@ export const battery = async (board: Device): Promise<string | undefined> => {
       })
       return response
     }
-    // If device is not found, return undefined
-    return
   }
-  throw new Error("Not connected.")
+  // If device is not found, return undefined
+  return undefined
 }

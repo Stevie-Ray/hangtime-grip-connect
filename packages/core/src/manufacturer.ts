@@ -9,8 +9,6 @@ import { isMotherboard } from "./is-device"
  *
  * @param {Device} board - The device from which to retrieve manufacturer information.
  * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
- *                            or rejects with an error if the device is not connected.
- * @throws {Error} Throws an error if the device is not connected.
  */
 export const manufacturer = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
@@ -20,8 +18,7 @@ export const manufacturer = async (board: Device): Promise<string | undefined> =
       // Read manufacturer information from the Motherboard
       return await read(board, "device", "manufacturer", 250)
     }
-    // If device is not found, return undefined
-    return
   }
-  throw new Error("Not connected.")
+  // If device is not found, return undefined
+  return undefined
 }

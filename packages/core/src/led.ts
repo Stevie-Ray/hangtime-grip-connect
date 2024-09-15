@@ -205,7 +205,6 @@ export const led = async (
     const [redValue, greenValue] = colorMapping[color]
     await write(board, "led", "red", new Uint8Array(redValue))
     await write(board, "led", "green", new Uint8Array(greenValue), 1250)
-    return
   }
-  return
+  return undefined
 }
