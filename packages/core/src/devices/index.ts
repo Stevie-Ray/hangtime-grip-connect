@@ -10,6 +10,6 @@ export { Motherboard } from "./motherboard"
 
 export { mySmartBoard } from "./mysmartboard"
 
-export { WHC06 } from "./wh-c06"
-
 export { Progressor } from "./progressor"
+
+export { WHC06 } from "./wh-c06"
