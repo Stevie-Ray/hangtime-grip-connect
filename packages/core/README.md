@@ -4,11 +4,12 @@
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
 Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by climbers. Examples of such tools include
-the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Tindeq Progressor](https://tindeq.com/),
-[PitchSix Force Board](https://pitchsix.com/),
+the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
+[Tindeq Progressor](https://tindeq.com/product/progressor/),
+[PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
 [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
 [Entralpi](https://entralpi.com/), [Climbro](https://climbro.com/), or
-[mySmartBoard](https://www.smartboard-climbing.com/).
+[mySmartBoard](https://www.smartboard-climbing.com/)
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
 [Kilter Board](https://settercloset.com/pages/the-kilter-board),
