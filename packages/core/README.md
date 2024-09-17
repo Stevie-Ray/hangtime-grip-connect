@@ -112,8 +112,8 @@ motherboardButton.addEventListener("click", () => {
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
 - ✅ Kilter Board
-- ⏳ Entralpi (not verified)
-- ➡️ PitchSix Force Board
+- ⏳ Entralpi
+- ⏳ PitchSix Force Board
 - ➡️ Climbro
 - ➡️ Smartboard Climbing - mySmartBoard
 
@@ -170,7 +170,7 @@ A special thank you to:
 - [@1-max-1](https://github.com/1-max-1) for the docs on his Kilter Board
   [simulator](https://github.com/1-max-1/fake_kilter_board) that I coverted to
   [hangtime-arduino-kilterboard](https://github.com/Stevie-Ray/hangtime-arduino-kilterboard).
-- [@sebws](https://github.com/sebw) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
+- [@sebws](https://github.com/sebws) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
 
 ## Disclaimer
 

@@ -4,11 +4,11 @@
 
 The objective of this project is to create a Web Bluetooth API client that can establish connections with various
 Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by climbers. Examples of such tools include
-the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Tindeq Progressor](https://tindeq.com/),
-[PitchSix Force Board](https://pitchsix.com/),
+the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Tindeq Progressor](https://tindeq.com/product/progressor/),
+[PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
 [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
 [Entralpi](https://entralpi.com/), [Climbro](https://climbro.com/), or
-[mySmartBoard](https://www.smartboard-climbing.com/).
+[mySmartBoard](https://www.smartboard-climbing.com/)
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
 [Kilter Board](https://settercloset.com/pages/the-kilter-board),
@@ -112,8 +112,8 @@ motherboardButton.addEventListener("click", () => {
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
 - ✅ Kilter Board
-- ⏳ Entralpi (not verified)
-- ➡️ PitchSix Force Board
+- ⏳ Entralpi
+- ⏳ PitchSix Force Board
 - ➡️ Climbro
 - ➡️ Smartboard Climbing - mySmartBoard
 
@@ -170,7 +170,7 @@ A special thank you to:
 - [@1-max-1](https://github.com/1-max-1) for the docs on his Kilter Board
   [simulator](https://github.com/1-max-1/fake_kilter_board) that I coverted to
   [hangtime-arduino-kilterboard](https://github.com/Stevie-Ray/hangtime-arduino-kilterboard).
-- [@sebws](https://github.com/sebw) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
+- [@sebws](https://github.com/sebws) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
 
 ## Disclaimer
 
