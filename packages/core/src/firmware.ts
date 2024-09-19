@@ -3,7 +3,7 @@ import { write } from "./write"
 import { read } from "./read"
 import { isConnected } from "./is-connected"
 import { ProgressorCommands } from "./commands"
-import { isMotherboard, isProgressor } from "./is-device"
+import { isForceBoard, isMotherboard, isProgressor } from "./is-device"
 
 /**
  * Retrieves firmware version from the device.
@@ -16,8 +16,8 @@ import { isMotherboard, isProgressor } from "./is-device"
 export const firmware = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
   if (isConnected(board)) {
-    // If the device is connected and it is a Motherboard device
-    if (isMotherboard(board)) {
+    // If the device is connected and it is a Motherboard or Force Board device
+    if (isMotherboard(board) || isForceBoard(board)) {
       // Read firmware version from the Motherboard
       return await read(board, "device", "firmware", 250)
     }

@@ -12,22 +12,22 @@ export const Motherboard: Device = {
       uuid: "0000180a-0000-1000-8000-00805f9b34fb",
       characteristics: [
         // {
-        //     name: 'Serial Number (Blocked)',
+        //     name: 'Serial Number String (Blocked)',
         //     id: 'serial'
         //     uuid: '00002a25-0000-1000-8000-00805f9b34fb'
         // },
         {
-          name: "Firmware Revision",
+          name: "Firmware Revision String",
           id: "firmware",
           uuid: "00002a26-0000-1000-8000-00805f9b34fb",
         },
         {
-          name: "Hardware Revision",
+          name: "Hardware Revision String",
           id: "hardware",
           uuid: "00002a27-0000-1000-8000-00805f9b34fb",
         },
         {
-          name: "Manufacturer Name",
+          name: "Manufacturer Name String",
           id: "manufacturer",
           uuid: "00002a29-0000-1000-8000-00805f9b34fb",
         },

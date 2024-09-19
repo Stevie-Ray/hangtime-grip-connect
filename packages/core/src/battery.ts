@@ -2,7 +2,7 @@ import type { Device } from "./types/devices"
 import { write } from "./write"
 import { read } from "./read"
 import { isConnected } from "./is-connected"
-import { isMotherboard, isProgressor } from "./is-device"
+import { isForceBoard, isMotherboard, isProgressor } from "./is-device"
 import { ProgressorCommands } from "./commands"
 
 /**
@@ -16,8 +16,8 @@ import { ProgressorCommands } from "./commands"
 export const battery = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
   if (isConnected(board)) {
-    // If the device is connected and it is a Motherboard device
-    if (isMotherboard(board)) {
+    // If the device is connected and it is a Motherboard or Force Board device
+    if (isMotherboard(board) || isForceBoard(board)) {
       // Read battery level information from the Motherboard
       return await read(board, "battery", "level", 250)
     }
