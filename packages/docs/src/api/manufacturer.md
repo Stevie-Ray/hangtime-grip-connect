@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Motherboard } from "./devices"
+import { ForceBoard, Motherboard } from "./devices"
 ```
 
 ### Basic Usage
