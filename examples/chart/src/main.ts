@@ -12,7 +12,7 @@ if (appElement) {
         <option value="">Select device</option>
         <option value="climbro" disabled>Climbro</option>
         <option value="entralpi">Entralpi</option>
-        <option value="forceboard" disabled>Force Board</option>
+        <option value="forceboard">Force Board</option>
         <option value="motherboard">Motherboard</option>
         <option value="smartboard" disabled>mySmartBoard</option>
         <option value="progressor">Progressor</option>

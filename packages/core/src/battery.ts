@@ -7,7 +7,7 @@ import { ProgressorCommands } from "./commands"
 
 /**
  * Retrieves battery or voltage information from the device.
- * - For Motherboard devices, it reads the battery level.
+ * - For Motherboard and Froce Board devices, it reads the battery level.
  * - For Progressor devices, it sends a command to retrieve battery voltage information.
  *
  * @param {Device} board - The device from which to retrieve battery information.

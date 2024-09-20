@@ -43,7 +43,7 @@
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.16.5",
     "@types/web-bluetooth": "^0.0.20",
-    "eslint": "^9.10.0",
+    "eslint": "^9.11.0",
     "husky": "^9.1.6",
     "jiti": "^1.21.6",
     "prettier": "^3.3.3",

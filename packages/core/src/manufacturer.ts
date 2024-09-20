@@ -5,7 +5,7 @@ import { isForceBoard, isMotherboard } from "./is-device"
 
 /**
  * Retrieves manufacturer information from the device.
- * - For Motherboard devices, it reads the manufacturer information.
+ * - For Motherboard and Froce Board devices, it reads the manufacturer information.
  *
  * @param {Device} board - The device from which to retrieve manufacturer information.
  * @returns {Promise<string>} A Promise that resolves with the manufacturer information,

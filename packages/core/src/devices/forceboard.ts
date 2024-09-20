@@ -7,19 +7,36 @@ export const ForceBoard: Device = {
   filters: [{ name: "Force Board" }],
   services: [
     {
-      name: "",
-      id: "",
-      uuid: "f3641400-00b0-4240-ba50-05ca45bf8abc",
+      name: "Device Information",
+      id: "device",
+      uuid: "0000180a-0000-1000-8000-00805f9b34fb",
+      characteristics: [
+        // {
+        //   name: "Serial Number String (Blocked)",
+        //   id: "serial",
+        //   uuid: "00002a25-0000-1000-8000-00805f9b34fb",
+        // },
+        // {
+        //   name: "Firmware Revision String (Blocked)",
+        //   id: "firmware",
+        //   uuid: "00002a26-0000-1000-8000-00805f9b34f",
+        // },
+        {
+          name: "Manufacturer Name String",
+          id: "manufacturer",
+          uuid: "00002a29-0000-1000-8000-00805f9b34fb",
+        },
+      ],
+    },
+    {
+      name: "Battery Service",
+      id: "battery",
+      uuid: "0000180f-0000-1000-8000-00805f9b34fb",
       characteristics: [
         {
-          name: "Read + Indicate",
-          id: "",
-          uuid: "f3641401-00b0-4240-ba50-05ca45bf8abc",
-        },
-        {
-          name: "Descriptor",
-          id: "",
-          uuid: "00002902-0000-1000-8000-00805f9b34fb",
+          name: "Battery Level",
+          id: "level",
+          uuid: "00002a19-0000-1000-8000-00805f9b34fb",
         },
       ],
     },
@@ -33,10 +50,17 @@ export const ForceBoard: Device = {
           id: "dfu",
           uuid: "8ec90003-f315-4f60-9fb8-838830daea50",
         },
+      ],
+    },
+    {
+      name: "",
+      id: "",
+      uuid: "f3641400-00b0-4240-ba50-05ca45bf8abc",
+      characteristics: [
         {
-          name: "Descriptor",
+          name: "Read + Indicate",
           id: "",
-          uuid: "00002902-0000-1000-8000-00805f9b34fb",
+          uuid: "f3641401-00b0-4240-ba50-05ca45bf8abc",
         },
       ],
     },
@@ -61,23 +85,6 @@ export const ForceBoard: Device = {
           name: "Read",
           id: "",
           uuid: "3a90328d-c266-4c76-b05a-6af6104a0b13",
-        },
-      ],
-    },
-    {
-      name: "Battery Service",
-      id: "battery",
-      uuid: "0000180f-0000-1000-8000-00805f9b34fb",
-      characteristics: [
-        {
-          name: "Battery Level",
-          id: "level",
-          uuid: "00002a19-0000-1000-8000-00805f9b34fb",
-        },
-        {
-          name: "Descriptor / Client Characteristic Configuration",
-          id: "",
-          uuid: "00002902-0000-1000-8000-00805f9b34fb",
         },
       ],
     },
@@ -130,28 +137,6 @@ export const ForceBoard: Device = {
           name: "Read + Write",
           id: "",
           uuid: "9a88d689-8df2-4afe-9e0d-c2bbbe773dd0",
-        },
-      ],
-    },
-    {
-      name: "Device Information",
-      id: "device",
-      uuid: "0000180a-0000-1000-8000-00805f9b34fb",
-      characteristics: [
-        {
-          name: "Serial Number String",
-          id: "serial",
-          uuid: "00002a25-0000-1000-8000-00805f9b34fb",
-        },
-        {
-          name: "Firmware Revision String",
-          id: "firmware",
-          uuid: "00002a26-0000-1000-8000-00805f9b34f",
-        },
-        {
-          name: "Manufacturer Name String",
-          id: "manufacturer",
-          uuid: "00002a29-0000-1000-8000-00805f9b34fb",
         },
       ],
     },
