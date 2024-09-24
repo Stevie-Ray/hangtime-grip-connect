@@ -1,6 +1,6 @@
 import type { Device } from "./types/devices"
 import { handleEntralpiData, handleMotherboardData, handleProgressorData, handleWHC06Data } from "./data"
-import { isEntralpi, isMotherboard, isProgressor } from "./is-device"
+import { isEntralpi, isForceBoard, isMotherboard, isProgressor } from "./is-device"
 
 let server: BluetoothRemoteGATTServer
 const receiveBuffer: number[] = []
@@ -51,6 +51,13 @@ const handleNotifications = (event: Event, board: Device): void => {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
         handleProgressorData(rawData)
+      }
+    } else if (isForceBoard(board)) {
+      if (value.buffer) {
+        const buffer: ArrayBuffer = value.buffer
+        console.log(new Uint8Array(buffer))
+        const rawData: DataView = new DataView(buffer)
+        console.log(rawData)
       }
     } else {
       console.log(value)

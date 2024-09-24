@@ -33,6 +33,8 @@ export { hardware } from "./hardware"
 export { manufacturer } from "./manufacturer"
 export { text } from "./text"
 export { serial } from "./serial"
+// Export "Force Board exclusive" functions
+export { humidity } from "./humidity"
 
 // Export led retrieval function
 export { led } from "./led"

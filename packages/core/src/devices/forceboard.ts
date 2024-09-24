@@ -65,13 +65,13 @@ export const ForceBoard: Device = {
       ],
     },
     {
-      name: "",
-      id: "",
+      name: "Humidity Service",
+      id: "humidity",
       uuid: "cf194c6f-d0c1-47b2-aeff-dc610f09bd18",
       characteristics: [
         {
-          name: "Read",
-          id: "",
+          name: "Humidity Level",
+          id: "level",
           uuid: "cf194c70-d0c1-47b2-aeff-dc610f09bd18",
         },
       ],
@@ -90,7 +90,7 @@ export const ForceBoard: Device = {
     },
     {
       name: "",
-      id: "",
+      id: "forceboard",
       uuid: "9a88d67f-8df2-4afe-9e0d-c2bbbe773dd0",
       characteristics: [
         {
@@ -105,7 +105,7 @@ export const ForceBoard: Device = {
         },
         {
           name: "Read + Notify",
-          id: "",
+          id: "rx",
           uuid: "9a88d682-8df2-4afe-9e0d-c2bbbe773dd0",
         },
         {

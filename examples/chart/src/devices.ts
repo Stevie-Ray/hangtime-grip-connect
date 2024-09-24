@@ -13,6 +13,7 @@ import {
   download,
   firmware,
   hardware,
+  humidity,
   led,
   manufacturer,
   notify,
@@ -21,8 +22,8 @@ import {
   stop,
   tare,
   text,
-  isMotherboard,
   isEntralpi,
+  isMotherboard,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import type { Device } from "@hangtime/grip-connect/src/types/devices"
@@ -169,6 +170,12 @@ export function setupDevice(
         if (serialNumberInfo) {
           console.log("Serial Number Info:", serialNumberInfo)
           outputElement.textContent = serialNumberInfo
+        }
+
+        const humidityLevel = await humidity(device)
+        if (humidityLevel) {
+          console.log("Humidity Level:", humidityLevel)
+          outputElement.textContent = humidityLevel
         }
         outputElement.style.display = "none"
 
