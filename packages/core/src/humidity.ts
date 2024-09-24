@@ -3,7 +3,6 @@ import { read } from "./read"
 import { isConnected } from "./is-connected"
 import { isForceBoard } from "./is-device"
 
-
 /**
  * Retrieves humidity level from the device.
  * - For Force Board devices, it reads the humidity level.
