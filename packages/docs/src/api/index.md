@@ -7,6 +7,7 @@
 - [Download](/api/download)
 - [Firmware](/api/firmware)
 - [Hardware](/api/hardware)
+- [Humidity](/api/humidity)
 - [IsActive](/api/is-active)
 - [IsConnected](/api/is-connected)
 - [IsDevice](/api/is-device)

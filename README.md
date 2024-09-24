@@ -133,6 +133,7 @@ available services with us.
 | [Download](https://stevie-ray.github.io/hangtime-grip-connect/api/download.html)         | ✅          | ✅         |        |          |              |             |         |              |
 | [Firmware](https://stevie-ray.github.io/hangtime-grip-connect/api/firmware.html)         | ✅          | ✅         |        |          |              |             |         |              |
 | [Hardware](https://stevie-ray.github.io/hangtime-grip-connect/api/hardware.html)         | ✅          |            |        |          |              |             |         |              |
+| [Humidity](https://stevie-ray.github.io/hangtime-grip-connect/api/humidity.html)         |             |            |        |          |              | ✅          |         |              |
 | [isActive](https://stevie-ray.github.io/hangtime-grip-connect/api/is-active.html)        | ✅          | ✅         | ✅     | ✅       |              |             |         |              |
 | [isConnected](https://stevie-ray.github.io/hangtime-grip-connect/api/is-connected.html)  | ✅          | ✅         | ✅     | ✅       | ✅           |             |         |              |
 | [isDevice](https://stevie-ray.github.io/hangtime-grip-connect/api/is-device.html)        | ✅          | ✅         | ✅     | ✅       | ✅           |             |         |              |

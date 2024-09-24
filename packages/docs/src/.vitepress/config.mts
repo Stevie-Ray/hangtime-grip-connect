@@ -43,6 +43,7 @@ export default defineConfig({
           { text: "Download", link: "/api/download" },
           { text: "Firmware", link: "/api/firmware" },
           { text: "Hardware", link: "/api/hardware" },
+          { text: "Humidity", link: "/api/humidity" },
           { text: "IsActive", link: "/api/is-active" },
           { text: "IsConnected", link: "/api/is-connected" },
           { text: "IsDevice", link: "/api/is-device" },
