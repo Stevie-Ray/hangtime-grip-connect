@@ -29,7 +29,9 @@ interface massObject {
 import { connect, notify, Motherboard } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/dist/types/notify"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Sets the callback function to be called when notifications are received.
    * @param {NotifyCallback} callback - The callback function to be set.

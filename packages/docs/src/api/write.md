@@ -13,7 +13,9 @@ Using other commands then `@hangtime/grip-connect/dist/commands` can seriously h
 ```ts
 import { connect, write, Motherboard } from "@hangtime/grip-connect"
 
-connect(Motherboard, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
    *

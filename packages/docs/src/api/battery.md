@@ -9,7 +9,9 @@ import { ForceBoard, Motherboard, Progressor } from "./devices"
 ```ts
 import { connect, battery, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Retrieves battery or voltage information from the device.
    * - For Motherboard devices, it reads the battery level.

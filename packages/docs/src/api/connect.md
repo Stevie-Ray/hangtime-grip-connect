@@ -15,8 +15,9 @@ import { connect } from "@hangtime/grip-connect"
  * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
  * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
  */
-connect(
-  Progressor,
+const progressor = new Progressor()
+
+progressor.connect(
   async () => {
     /* onSuccess */
   },

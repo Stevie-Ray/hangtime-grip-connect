@@ -9,7 +9,9 @@ import { Motherboard, KilterBoard } from "./devices"
 ```ts
 import { connect, led, Motherboard } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Sets the LEDs on the specified device.
    *

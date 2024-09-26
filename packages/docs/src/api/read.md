@@ -9,7 +9,9 @@ import { Motherboard } from "./devices"
 ```ts
 import { connect, read, Motherboard } from "@hangtime/grip-connect"
 
-connect(Motherboard, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Reads the value of the specified characteristic from the device.
    * @param {Device} board - The device to read from.

@@ -9,10 +9,11 @@ import { Entralpi, KilterBoard, Motherboard, Progressor, WHC06 } from "./devices
 ```ts
 import { isConnected, Progressor } from "@hangtime/grip-connect"
 
+const progressor = new Progressor()
 /**
  * Checks if a Bluetooth device is connected.
  * @param {Device} board - The device to check for connection.
  * @returns {boolean} A boolean indicating whether the device is connected.
  */
-isConnected(Progressor)
+progressor.isConnected()
 ```

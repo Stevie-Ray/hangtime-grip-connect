@@ -9,7 +9,9 @@ import { Entralpi, Motherboard, Progressor, WHC06 } from "./devices"
 ```ts
 import { active, isActive, connect, notify, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(
   // Listen for stream notifications
   notify((data) => {
     // data: { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }

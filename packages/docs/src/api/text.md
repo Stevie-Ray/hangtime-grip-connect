@@ -9,7 +9,9 @@ import { Motherboard } from "./devices"
 ```ts
 import { connect, text, Motherboard } from "@hangtime/grip-connect"
 
-connect(Motherboard, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Retrieves the entire 320 bytes of non-volatile memory from the device.
    *

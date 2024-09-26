@@ -9,7 +9,9 @@ import { ForceBoard, Motherboard } from "./devices"
 ```ts
 import { connect, manufacturer, Motherboard } from "@hangtime/grip-connect"
 
-connect(Motherboard, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Retrieves manufacturer information from the device.
    * - For Motherboard devices, it reads the manufacturer information.

@@ -9,7 +9,9 @@ import { Motherboard, Progressor } from "./devices"
 ```ts
 import { connect, firmware, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Retrieves firmware version from the device.
    * - For Motherboard devices, it reads the firmare version.

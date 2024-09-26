@@ -9,7 +9,9 @@ import { Motherboard } from "./devices"
 ```ts
 import { connect, hardware, Motherboard } from "@hangtime/grip-connect"
 
-connect(Motherboard, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Retrieves hardware version from the device.
    * - For Motherboard devices, it reads the hardware version.

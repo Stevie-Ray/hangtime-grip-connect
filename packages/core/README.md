@@ -53,8 +53,10 @@ import { Motherboard, active, battery, connect, disconnect, firmware, notify, st
 const motherboardButton = document.querySelector("#motherboard")
 
 motherboardButton.addEventListener("click", () => {
-  connect(
-    Motherboard,
+  // setup device
+  const motherboard = new Motherboard()
+  // connect to device
+  motherboard.connect(
     async () => {
       // Listen for stream notifications
       notify((data) => {
@@ -93,15 +95,14 @@ motherboardButton.addEventListener("click", () => {
 
       // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
       // download('json')
-
-      // Disconnect from device after we are done
-      disconnect(Motherboard)
     },
     (error) => {
       // Optinal custom error handeling
       console.error(error.message)
     },
   )
+  // Disconnect from device after we are done
+  motherboard.disconnect(Motherboard)
 })
 ```
 

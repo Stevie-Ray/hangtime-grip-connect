@@ -14,7 +14,9 @@ would be 0,1,1.23400000,567.
 ```ts
 import { connect, calibration, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Writes a command to get calibration data from the device.
    * @param {Device} board - The device.

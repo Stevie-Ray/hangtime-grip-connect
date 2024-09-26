@@ -9,7 +9,9 @@ import { Motherboard } from "./devices"
 ```ts
 import { connect, serial, Motherboard } from "@hangtime/grip-connect"
 
-connect(Motherboard, async () => {
+const motherboard = new Motherboard()
+
+motherboard.connect(async () => {
   /**
    * Retrieves serial number from the device.
    * - For Motherboard devices, it reads the serial number.

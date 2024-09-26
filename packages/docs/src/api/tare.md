@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Entralpi, KilterBoard, Motherboard, Progressor, WHC06 } from "./devices"
+import { Entralpi, Motherboard, Progressor, WHC06 } from "./devices"
 ```
 
 ### Basic Usage
@@ -9,7 +9,9 @@ import { Entralpi, KilterBoard, Motherboard, Progressor, WHC06 } from "./devices
 ```ts
 import { connect, tare, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Initiates the tare calibration process.
    * @param {number} time - The duration time for tare calibration process.

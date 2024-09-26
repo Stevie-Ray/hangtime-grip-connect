@@ -9,7 +9,9 @@ import { Entralpi, Kilterboard, Motherboard, Progressor, WHC06 } from "./devices
 ```ts
 import { connect, Progressor, isProgressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Checks if the given device of a certain type.
    * @param {Device} [board] - The device to check.

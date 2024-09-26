@@ -9,13 +9,23 @@ import { Entralpi, KilterBoard, Motherboard, Progressor, WHC06 } from "./devices
 ```ts
 import { connect, disconnect, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
-  /**
-   * Disconnects the device if it is currently connected.
-   * - Checks if the device is connected via its GATT server.
-   * - If the device is connected, it attempts to gracefully disconnect.
-   * @param {Device} board - The device to be disconnected. The device must have a `gatt` property accessible through `board.device`.
-   */
-  await disconnect(Progressor)
+const progressor = new Progressor()
+
+progressor.connect(async () => {
+  async () => {
+    /* onSuccess */
+  },
+  (error: Error) => {
+    /* onError */
+    console.error(error)
+  },
 })
+
+/**
+ * Disconnects the device if it is currently connected.
+ * - Checks if the device is connected via its GATT server.
+ * - If the device is connected, it attempts to gracefully disconnect.
+ * @param {Device} board - The device to be disconnected. The device must have a `gatt` property accessible through `board.device`.
+ */
+progressor.disconnect(Progressor)
 ```

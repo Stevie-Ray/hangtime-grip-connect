@@ -9,7 +9,9 @@ import { Motherboard, Progressor } from "./devices"
 ```ts
 import { connect, stream, Progressor } from "@hangtime/grip-connect"
 
-connect(Progressor, async () => {
+const progressor = new Progressor()
+
+progressor.connect(async () => {
   /**
    * Starts streaming data from the specified device.
    * @param {Device} board - The device to stream data from.

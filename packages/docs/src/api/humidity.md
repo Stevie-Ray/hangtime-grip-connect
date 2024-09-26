@@ -9,7 +9,9 @@ import { ForceBoard } from "./devices"
 ```ts
 import { connect, humidity, ForceBoard } from "@hangtime/grip-connect"
 
-connect(ForceBoard, async () => {
+const forceboard = new ForceBoard()
+
+forceboard.connect(async () => {
   /**
    * Retrieves humidity level from the device.
    * - For Force Board devices, it reads the humidity level.
