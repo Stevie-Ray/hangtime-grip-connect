@@ -6,22 +6,23 @@ import {
   mySmartBoard,
   Progressor,
   WHC06,
-  connect,
   notify,
   stream,
   stop,
-  isConnected,
 } from "@hangtime/grip-connect"
-import type { Device } from "@hangtime/grip-connect/src/types/devices"
+import type { IDevice } from "@hangtime/grip-connect/src/interfaces/device.interface"
+import { Device } from "@hangtime/grip-connect/src/models/device.model"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 
 let mass: number
 let weight = 75
 let difficulty = 0.5
-let device: Device = Progressor
+let selected: IDevice = Motherboard
+let device: Device
 
 function getBluetoothData() {
-  return connect(device, async () => {
+  device = new Device(selected)
+  return device.connect(async () => {
     // Listen for notifications
     notify((data: massObject) => {
       mass = Number(data.massTotal)
@@ -36,19 +37,19 @@ export function setupDevice(element: HTMLSelectElement) {
     const selectedDevice = element.value
 
     if (selectedDevice === "climbro") {
-      device = Climbro
+      selected = Climbro
     } else if (selectedDevice === "entralpi") {
-      device = Entralpi
+      selected = Entralpi
     } else if (selectedDevice === "forceboard") {
-      device = ForceBoard
+      selected = ForceBoard
     } else if (selectedDevice === "motherboard") {
-      device = Motherboard
+      selected = Motherboard
     } else if (selectedDevice === "smartboard") {
-      device = mySmartBoard
+      selected = mySmartBoard
     } else if (selectedDevice === "progressor") {
-      device = Progressor
+      selected = Progressor
     } else if (selectedDevice === "whc06") {
-      device = WHC06
+      selected = WHC06
     }
     getBluetoothData()
   })
@@ -428,7 +429,7 @@ const Game: GameType = {
   listen: function () {
     document.addEventListener("touchstart", async function () {
       if (!Pong.running) {
-        if (isConnected(device)) {
+        if (device.isConnected()) {
           stream(device)
           Pong.running = true
           window.requestAnimationFrame(Pong.loop)
@@ -444,7 +445,7 @@ const Game: GameType = {
     document.addEventListener("keydown", async function (key) {
       // Handle the 'Press any key to begin' function and start the game.
       if (!Pong.running) {
-        if (isConnected(device)) {
+        if (device.isConnected()) {
           stream(device)
           Pong.running = true
           window.requestAnimationFrame(Pong.loop)

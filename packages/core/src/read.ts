@@ -1,6 +1,5 @@
-import type { Device } from "./types/devices"
+import type { Device } from "./models/device.model"
 import { getCharacteristic } from "./characteristic"
-import { isConnected } from "./is-connected"
 
 /**
  * Reads the value of the specified characteristic from the device.
@@ -12,7 +11,7 @@ import { isConnected } from "./is-connected"
  */
 export const read = (board: Device, serviceId: string, characteristicId: string, duration = 0): Promise<string> => {
   return new Promise((resolve, reject) => {
-    if (isConnected(board)) {
+    if (board.isConnected()) {
       const characteristic = getCharacteristic(board, serviceId, characteristicId)
 
       if (characteristic) {

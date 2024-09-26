@@ -1,9 +1,9 @@
-import type { Device } from "../types/devices"
+import type { IDevice } from "../interfaces/device.interface"
 
 /**
  * Represents a Entralpi device
  */
-export const Entralpi: Device = {
+export const Entralpi: IDevice = {
   filters: [
     {
       name: "ENTRALPI",

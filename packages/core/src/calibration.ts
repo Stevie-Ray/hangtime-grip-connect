@@ -1,5 +1,4 @@
-import type { Device } from "./types/devices"
-import { isConnected } from "./is-connected"
+import type { Device } from "./models/device.model"
 import { write } from "./write"
 import { isMotherboard } from "./is-device"
 import { MotherboardCommands } from "./commands"
@@ -11,7 +10,7 @@ import { MotherboardCommands } from "./commands"
  */
 export const calibration = async (board: Device): Promise<void> => {
   // Check if the device is connected
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     // If the device is connected, and it is a Motherboard device
     if (isMotherboard(board)) {
       // Write the command to get calibration data to the device

@@ -8,8 +8,6 @@ import {
   WHC06,
   active,
   battery,
-  connect,
-  disconnect,
   download,
   firmware,
   hardware,
@@ -26,7 +24,8 @@ import {
   isMotherboard,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
-import type { Device } from "@hangtime/grip-connect/src/types/devices"
+import { Device } from "@hangtime/grip-connect/src/models/device.model"
+import { type IDevice } from "@hangtime/grip-connect/src/interfaces/device.interface"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons"
 
@@ -55,7 +54,8 @@ export function setupDevice(
   outputElement: HTMLDivElement,
 ) {
   let isStreaming = true
-  let device: Device = Motherboard
+  let selected: IDevice = Motherboard
+  let device: Device
   /**
    * Toggles the visibility of buttons.
    *
@@ -97,23 +97,24 @@ export function setupDevice(
     const selectedDevice = deviceElement.value
 
     if (selectedDevice === "climbro") {
-      device = Climbro
+      selected = Climbro
     } else if (selectedDevice === "entralpi") {
-      device = Entralpi
+      selected = Entralpi
     } else if (selectedDevice === "forceboard") {
-      device = ForceBoard
+      selected = ForceBoard
     } else if (selectedDevice === "motherboard") {
-      device = Motherboard
+      selected = Motherboard
     } else if (selectedDevice === "smartboard") {
-      device = mySmartBoard
+      selected = mySmartBoard
     } else if (selectedDevice === "progressor") {
-      device = Progressor
+      selected = Progressor
     } else if (selectedDevice === "whc06") {
-      device = WHC06
+      selected = WHC06
     }
 
-    return connect(
-      device,
+    device = new Device(selected)
+
+    device.connect(
       async () => {
         // Show buttons after device is connected
         toggleButtons(true)
@@ -139,45 +140,45 @@ export function setupDevice(
         const batteryLevel = await battery(device)
         if (batteryLevel) {
           console.log("Battery Level:", batteryLevel)
-          outputElement.textContent = batteryLevel
+          outputElement.textContent += `Battery Level: ${batteryLevel}\r\n`
         }
 
         const firmwareVersion = await firmware(device)
         if (firmwareVersion) {
           console.log("Firmware Version:", firmwareVersion)
-          outputElement.textContent = firmwareVersion
+          outputElement.textContent += `Firmware Version: ${firmwareVersion}\r\n`
         }
 
         const hardwareVersion = await hardware(device)
         if (hardwareVersion) {
           console.log("Hardware Version:", hardwareVersion)
-          outputElement.textContent = hardwareVersion
+          outputElement.textContent += `Hardware Version: ${hardwareVersion}\r\n`
         }
 
         const manufacturerInfo = await manufacturer(device)
         if (manufacturerInfo) {
           console.log("Manufacturer Info:", manufacturerInfo)
-          outputElement.textContent = manufacturerInfo
+          outputElement.textContent += `Manufacturer Info: ${manufacturerInfo}\r\n`
         }
 
         const storedText = await text(device)
         if (storedText) {
           console.log("Stored Text:", storedText)
-          outputElement.textContent = storedText
+          outputElement.textContent += `Stored Text: ${storedText}\r\n`
         }
 
         const serialNumberInfo = await serial(device)
         if (serialNumberInfo) {
           console.log("Serial Number Info:", serialNumberInfo)
-          outputElement.textContent = serialNumberInfo
+          outputElement.textContent += `Serial Number Info: ${serialNumberInfo}\r\n`
         }
 
         const humidityLevel = await humidity(device)
         if (humidityLevel) {
           console.log("Humidity Level:", humidityLevel)
-          outputElement.textContent = humidityLevel
+          outputElement.textContent += `Humidity Level: ${humidityLevel}\r\n`
         }
-        outputElement.style.display = "none"
+        // outputElement.style.display = "none"
 
         // Trigger LEDs
         if (isMotherboard(device)) {
@@ -196,7 +197,7 @@ export function setupDevice(
             // the entralpi will automatically start streaming
           }, 60000)
           // disconnect from device after we are done
-          disconnect(device)
+          device.disconnect()
           // hide buttons
           toggleButtons(false)
         }

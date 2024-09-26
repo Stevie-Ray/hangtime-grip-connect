@@ -1,6 +1,5 @@
-import type { Device } from "./types/devices"
+import type { Device } from "./models/device.model"
 import { write } from "./write"
-import { isConnected } from "./is-connected"
 import { KilterBoardPacket, KilterBoardPlacementRoles } from "./commands/kilterboard"
 import { isKilterboard, isMotherboard } from "./is-device"
 
@@ -187,7 +186,7 @@ export const led = async (
   if (isKilterboard(board) && Array.isArray(config)) {
     // Prepares byte arrays for transmission based on a list of climb placements.
     const payload = prepBytesV3(config)
-    if (isConnected(board)) {
+    if (board.isConnected()) {
       await writeMessageSeries(board, splitMessages(payload))
     }
     return payload

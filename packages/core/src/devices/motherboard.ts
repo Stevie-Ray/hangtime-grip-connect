@@ -1,9 +1,9 @@
-import type { Device } from "../types/devices"
+import type { IDevice } from "../interfaces/device.interface"
 
 /**
  * Represents a Griptonite Motherboard device
  */
-export const Motherboard: Device = {
+export const Motherboard: IDevice = {
   filters: [{ name: "Motherboard" }],
   services: [
     {

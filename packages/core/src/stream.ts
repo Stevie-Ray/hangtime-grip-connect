@@ -1,5 +1,4 @@
-import type { Device } from "./types/devices"
-import { isConnected } from "./is-connected"
+import type { Device } from "./models/device.model"
 import { write } from "./write"
 import { stop } from "./stop"
 import { isMotherboard, isProgressor } from "./is-device"
@@ -15,7 +14,7 @@ import { calibration } from "./calibration"
  * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
  */
 export const stream = async (board: Device, duration = 0): Promise<void> => {
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     // Reset download packets
     emptyDownloadPackets()
     // Device specific logic

@@ -1,6 +1,5 @@
-import type { Device } from "./types/devices"
+import type { Device } from "./models/device.model"
 import { read } from "./read"
-import { isConnected } from "./is-connected"
 import { isForceBoard } from "./is-device"
 
 /**
@@ -12,7 +11,7 @@ import { isForceBoard } from "./is-device"
  */
 export const humidity = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     // If the device is connected and it is a Force Board device
     if (isForceBoard(board)) {
       // Read firmware version from the Force Board

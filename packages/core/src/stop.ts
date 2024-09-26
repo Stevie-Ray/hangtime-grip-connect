@@ -1,6 +1,5 @@
-import type { Device } from "./types/devices"
+import type { Device } from "./models/device.model"
 import { write } from "./write"
-import { isConnected } from "./is-connected"
 import { MotherboardCommands, ProgressorCommands } from "./commands"
 import { isMotherboard, isProgressor } from "./is-device"
 
@@ -10,7 +9,7 @@ import { isMotherboard, isProgressor } from "./is-device"
  * @returns {Promise<void>} A promise that resolves when the stream is stopped.
  */
 export const stop = async (board: Device): Promise<void> => {
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     if (isMotherboard(board)) {
       // Stop stream on Motherboard
       await write(board, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)

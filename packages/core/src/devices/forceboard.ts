@@ -1,9 +1,9 @@
-import type { Device } from "../types/devices"
+import type { IDevice } from "../interfaces/device.interface"
 
 /**
  * Represents a PitchSix Force Board device
  */
-export const ForceBoard: Device = {
+export const ForceBoard: IDevice = {
   filters: [{ name: "Force Board" }],
   services: [
     {

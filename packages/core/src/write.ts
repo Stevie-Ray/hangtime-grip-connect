@@ -1,5 +1,4 @@
-import type { Device } from "./types/devices"
-import { isConnected } from "./is-connected"
+import type { Device } from "./models/device.model"
 import { getCharacteristic } from "./characteristic"
 
 /**
@@ -46,7 +45,7 @@ export const write = async (
   duration = 0,
   callback: WriteCallback = writeCallback,
 ): Promise<void> => {
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     // Check if message is provided
     if (message === undefined) {
       // If not provided, return without performing write operation

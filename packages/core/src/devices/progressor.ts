@@ -1,8 +1,8 @@
-import type { Device } from "../types/devices"
+import type { IDevice } from "../interfaces/device.interface"
 /**
  * Represents a Tindeq Progressor device
  */
-export const Progressor: Device = {
+export const Progressor: IDevice = {
   filters: [{ namePrefix: "Progressor" }],
   services: [
     {

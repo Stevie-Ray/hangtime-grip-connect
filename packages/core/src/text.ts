@@ -1,6 +1,5 @@
-import type { Device } from "./types/devices"
+import type { Device } from "./models/device.model"
 import { write } from "./write"
-import { isConnected } from "./is-connected"
 import { isMotherboard } from "./is-device"
 import { MotherboardCommands } from "./commands"
 
@@ -16,7 +15,7 @@ import { MotherboardCommands } from "./commands"
  */
 export const text = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     // If the device is connected and it is a Motherboard device
     if (isMotherboard(board)) {
       // Write text information command to the Motherboard and read output

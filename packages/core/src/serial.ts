@@ -1,6 +1,5 @@
-import type { Device } from "./types/devices"
+import type { Device } from "./models/device.model"
 import { write } from "./write"
-import { isConnected } from "./is-connected"
 import { MotherboardCommands } from "./commands"
 import { isMotherboard } from "./is-device"
 
@@ -13,7 +12,7 @@ import { isMotherboard } from "./is-device"
  */
 export const serial = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
-  if (isConnected(board)) {
+  if (board.isConnected()) {
     // If the device is connected and it is a Motherboard device
     if (isMotherboard(board)) {
       // Write serial number command to the Motherboard and read output

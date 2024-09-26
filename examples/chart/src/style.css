@@ -87,10 +87,12 @@ h2 {
 }
 
 #error {
+  white-space: pre;
+  justify-content: center;
   background-color: #898989;
   border-radius: 1rem;
   padding: 1rem;
-  margin: 0 1rem;
+  margin: 0 1rem 1rem;
 }
 
 .chart {

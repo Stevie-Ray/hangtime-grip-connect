@@ -1,10 +1,10 @@
-import type { Device } from "../types/devices"
+import type { IDevice } from "../interfaces/device.interface"
 
 /**
  * Represents a  Weiheng - WH-C06 (or MAT Muscle Meter) device
  * Enable 'Experimental Web Platform features' Chrome Flags.
  */
-export const WHC06: Device = {
+export const WHC06: IDevice = {
   filters: [
     {
       // namePrefix: "IF_B7",
