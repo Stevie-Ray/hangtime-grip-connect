@@ -1,4 +1,4 @@
-// Export device types
+// Export device models
 export {
   Climbro,
   Entralpi,
@@ -8,7 +8,7 @@ export {
   mySmartBoard,
   WHC06,
   Progressor,
-} from "./devices/index"
+} from "./models/index"
 
 // Export isDevice functions
 export { isEntralpi, isKilterboard, isMotherboard, isWHC06, isProgressor } from "./is-device"

@@ -1,5 +1,5 @@
 import type { Device } from "./models/device.model"
-import { AuroraUUID } from "./devices/kilterboard"
+import { AuroraUUID } from "./models/device/kilterboard.model"
 
 /**
  * Checks if the given device is an Entralpi device.

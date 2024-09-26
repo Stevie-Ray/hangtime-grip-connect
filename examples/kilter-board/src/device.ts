@@ -1,10 +1,8 @@
 import { KilterBoard, led } from "@hangtime/grip-connect"
 import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/commands/kilterboard"
-import type { IDevice } from "@hangtime/grip-connect/src/interfaces/device.interface"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
 
-const model: IDevice = KilterBoard
-const device = new Device(model)
+const device = new KilterBoard()
 
 export function setupDevice(element: HTMLButtonElement) {
   element.addEventListener("click", async () => {
