@@ -4,7 +4,7 @@ import { stop } from "./stop"
 import { isMotherboard, isProgressor } from "./is-device"
 import { MotherboardCommands, ProgressorCommands } from "./commands"
 import { emptyDownloadPackets } from "./download"
-import { CALIBRATION } from "./data/motherboard"
+import { CALIBRATION } from "./models/device/motherboard.model"
 import { calibration } from "./calibration"
 
 /**

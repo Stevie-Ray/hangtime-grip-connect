@@ -6,7 +6,7 @@ type NotifyCallback = (data: massObject) => void
  * @callback NotifyCallback
  * @param {massObject} data - The data passed to the callback.
  */
-export let notifyCallback: NotifyCallback
+export let notifyCallback: NotifyCallback = (data) => console.log(data)
 
 /**
  * Sets the callback function to be called when notifications are received.

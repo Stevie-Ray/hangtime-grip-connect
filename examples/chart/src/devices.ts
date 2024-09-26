@@ -1,11 +1,11 @@
 import {
   Climbro,
-  Entralpi,
+  // Entralpi,
   ForceBoard,
-  Motherboard,
+  // Motherboard,
   mySmartBoard,
-  Progressor,
-  WHC06,
+  // Progressor,
+  // WHC06,
   active,
   battery,
   download,
@@ -25,6 +25,10 @@ import {
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
+import { Entralpi } from "@hangtime/grip-connect/src/models/device/entralpi.model"
+import { Motherboard } from "@hangtime/grip-connect/src/models/device/motherboard.model"
+import { Progressor } from "@hangtime/grip-connect/src/models/device/progressor.model"
+import { WHC06 } from "@hangtime/grip-connect/src/models/device/wh-c06.model"
 import { type IDevice } from "@hangtime/grip-connect/src/interfaces/device.interface"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons"
@@ -54,7 +58,7 @@ export function setupDevice(
   outputElement: HTMLDivElement,
 ) {
   let isStreaming = true
-  let selected: IDevice = Motherboard
+  let selected: IDevice = ForceBoard
   let device: Device
   /**
    * Toggles the visibility of buttons.
@@ -98,34 +102,36 @@ export function setupDevice(
 
     if (selectedDevice === "climbro") {
       selected = Climbro
+      device = new Device(selected)
     } else if (selectedDevice === "entralpi") {
-      selected = Entralpi
+      device = new Entralpi()
     } else if (selectedDevice === "forceboard") {
       selected = ForceBoard
+      device = new Device(selected)
     } else if (selectedDevice === "motherboard") {
-      selected = Motherboard
+      device = new Motherboard()
     } else if (selectedDevice === "smartboard") {
       selected = mySmartBoard
+      device = new Device(selected)
     } else if (selectedDevice === "progressor") {
-      selected = Progressor
+      device = new Progressor()
     } else if (selectedDevice === "whc06") {
-      selected = WHC06
+      device = new WHC06()
     }
 
-    device = new Device(selected)
+    notify((data: massObject) => {
+      console.log("fire")
+      // Chart
+      addChartData(data.massTotal, data.massMax, data.massAverage)
+      chartHeight = Number(data.massMax)
+      // HTML
+      addMassHTML(data)
+    })
 
     device.connect(
       async () => {
         // Show buttons after device is connected
         toggleButtons(true)
-        // Listen for notifications
-        notify((data: massObject) => {
-          // Chart
-          addChartData(data.massTotal, data.massMax, data.massAverage)
-          chartHeight = Number(data.massMax)
-          // HTML
-          addMassHTML(data)
-        })
 
         // Example Reactive check if device is active, optionally using a weight threshold and duration
         active(
