@@ -1,27 +1,23 @@
 import { BaseModel } from "./../models/base.model"
 import type { IDevice, Service } from "../interfaces/device.interface"
-import type { massObject } from "../types/notify"
 
 let server: BluetoothRemoteGATTServer
-/** Define the type for the callback function */
-type NotifyCallback = (data: massObject) => void
 
 export class Device extends BaseModel implements IDevice {
   filters: BluetoothLEScanFilter[]
   services: Service[]
   bluetooth?: BluetoothDevice | undefined
 
-  constructor(device: IDevice) {
+  constructor(device: Partial<IDevice>) {
     super(device)
 
-    this.filters = device.filters
-    this.services = device.services
+    this.filters = device.filters || []
+    this.services = device.services || []
     this.bluetooth = device.bluetooth
   }
   /**
    * Handles the 'disconnected' event.
    * @param {Event} event - The 'disconnected' event.
-   * @param {Device} board - The device that is disconnected.
    */
   onDisconnected = (event: Event): void => {
     this.bluetooth = undefined
@@ -31,7 +27,6 @@ export class Device extends BaseModel implements IDevice {
   /**
    * Handles notifications received from a characteristic.
    * @param {Event} event - The notification event.
-   * @param {Device} board - The device associated with the characteristic.
    */
   handleNotifications = (event: Event): void => {
     const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
@@ -97,13 +92,11 @@ export class Device extends BaseModel implements IDevice {
   }
   /**
    * Returns UUIDs of all services associated with the device.
-   * @param {Device} device - The device.
    * @returns {string[]} Array of service UUIDs.
    */
   getAllServiceUUIDs = () => {
     return this.services.map((service) => service.uuid)
   }
-
   /**
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
@@ -153,7 +146,7 @@ export class Device extends BaseModel implements IDevice {
   }
   /**
    * Disconnects the device if it is currently connected.
-   * - Checks if the device is connected via its GATT server.
+   * - Checks if the device is connected via it's GATT server.
    * - If the device is connected, it attempts to gracefully disconnect.
    */
   disconnect = (): void => {
@@ -162,21 +155,5 @@ export class Device extends BaseModel implements IDevice {
       // Safely attempt to disconnect the device's GATT server, if available
       this.bluetooth?.gatt?.disconnect()
     }
-  }
-
-  /**
-   * Defines the type for the callback function.
-   * @callback NotifyCallback
-   * @param {massObject} data - The data passed to the callback.
-   */
-  notifyCallback: NotifyCallback = (data) => console.log(data)
-
-  /**
-   * Sets the callback function to be called when notifications are received.
-   * @param {NotifyCallback} callback - The callback function to be set.
-   * @returns {void}
-   */
-  notify = (callback: NotifyCallback): void => {
-    this.notifyCallback = callback
   }
 }

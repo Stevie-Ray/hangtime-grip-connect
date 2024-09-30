@@ -1,4 +1,5 @@
 import { Device } from "../device.model"
+import type { IProgressor } from "../../interfaces/device/progressor.interface"
 import { notifyCallback } from "../../notify"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
@@ -16,7 +17,7 @@ let DATAPOINT_COUNT = 0
 /**
  * Represents a Tindeq Progressor device
  */
-export class Progressor extends Device {
+export class Progressor extends Device implements IProgressor {
   constructor() {
     super({
       filters: [{ namePrefix: "Progressor" }],
@@ -53,7 +54,6 @@ export class Progressor extends Device {
       ],
     })
   }
-
   /**
    * Handles data received from the Progressor device, processes weight measurements,
    * and updates mass data including maximum and average values.

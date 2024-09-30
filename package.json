@@ -41,7 +41,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.16.8",
+    "@types/node": "^20.16.10",
     "@types/web-bluetooth": "^0.0.20",
     "eslint": "^9.11.1",
     "husky": "^9.1.6",
@@ -49,6 +49,6 @@
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.7.0"
+    "typescript-eslint": "^8.8.0"
   }
 }

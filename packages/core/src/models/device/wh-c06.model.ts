@@ -2,6 +2,7 @@ import { Device } from "../device.model"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
 import { notifyCallback } from "../../notify"
+import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
 
 // Constants
 let MASS_MAX = "0"
@@ -15,7 +16,7 @@ const WEIGHT_OFFSET = 10
  * Represents a  Weiheng - WH-C06 (or MAT Muscle Meter) device
  * Enable 'Experimental Web Platform features' Chrome Flags.
  */
-export class WHC06 extends Device {
+export class WHC06 extends Device implements IWHC06 {
   constructor() {
     super({
       filters: [

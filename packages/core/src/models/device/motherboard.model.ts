@@ -1,4 +1,5 @@
 import { Device } from "../device.model"
+import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
 import { notifyCallback } from "../../notify"
 import { writeCallback } from "../../write"
 import { applyTare } from "../../tare"
@@ -23,7 +24,7 @@ export const CALIBRATION = [[], [], [], []]
 /**
  * Represents a Griptonite Motherboard device
  */
-export class Motherboard extends Device {
+export class Motherboard extends Device implements IMotherboard {
   constructor() {
     super({
       filters: [{ name: "Motherboard" }],

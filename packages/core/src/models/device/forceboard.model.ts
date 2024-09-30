@@ -1,9 +1,11 @@
 import { Device } from "../device.model"
+import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
+import { read } from "../../read"
 
 /**
  * Represents a PitchSix Force Board device
  */
-export class ForceBoard extends Device {
+export class ForceBoard extends Device implements IForceBoard {
   constructor() {
     super({
       filters: [{ name: "Force Board" }],
@@ -161,5 +163,17 @@ export class ForceBoard extends Device {
         },
       ],
     })
+  }
+
+  /**
+   * Retrieves battery or voltage information from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
+   */
+  battery = async (): Promise<string | undefined> => {
+    if (this.isConnected()) {
+      return await read(this, "battery", "level", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
   }
 }

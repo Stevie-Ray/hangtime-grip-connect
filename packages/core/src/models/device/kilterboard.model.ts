@@ -1,4 +1,5 @@
 import { Device } from "../device.model"
+import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface"
 
 /**
  * Aurora Climbing Advertising service
@@ -9,7 +10,7 @@ export const AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
  * Represents a Aurora Climbing device
  * Kilter Board, Tension Board, Decoy Board, Touchstone Board, Grasshopper Board, Aurora Board, So iLL Board
  */
-export class KilterBoard extends Device {
+export class KilterBoard extends Device implements IKilterBoard {
   constructor() {
     super({
       filters: [

@@ -1,4 +1,5 @@
 import { Device } from "../device.model"
+import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { notifyCallback } from "../../notify"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
@@ -9,7 +10,7 @@ let MASS_AVERAGE = "0"
 let MASS_TOTAL_SUM = 0
 let DATAPOINT_COUNT = 0
 
-export class Entralpi extends Device {
+export class Entralpi extends Device implements IEntralpi {
   constructor() {
     super({
       filters: [
