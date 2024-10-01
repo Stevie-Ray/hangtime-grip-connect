@@ -23,19 +23,82 @@ export class Entralpi extends Device implements IEntralpi {
           name: "Device Information",
           id: "device",
           uuid: "0000180a-0000-1000-8000-00805f9b34fb",
-          characteristics: [],
+          characteristics: [
+            {
+              name: "System ID",
+              id: "id",
+              uuid: "00002a23-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Model Number String",
+              id: "model",
+              uuid: "00002a24-0000-1000-8000-00805f9b34fb",
+            },
+            // {
+            //   name: "Serial Number String (Blocked)",
+            //   id: "serial",
+            //   uuid: "00002a25-0000-1000-8000-00805f9b34fb",
+            // },
+            {
+              name: "Firmware Revision String",
+              id: "firmware",
+              uuid: "00002a26-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Hardware Revision String",
+              id: "hardware",
+              uuid: "00002a27-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Software Revision String",
+              id: "software",
+              uuid: "00002a28-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Manufacturer Name String",
+              id: "manufacturer",
+              uuid: "00002a29-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "IEEE 11073-20601 Regulatory Certification Data List",
+              id: "certification",
+              uuid: "00002a2a-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "PnP ID",
+              id: "pnp",
+              uuid: "00002a50-0000-1000-8000-00805f9b34fb",
+            },
+          ],
         },
         {
           name: "Battery Service",
           id: "battery",
           uuid: "0000180f-0000-1000-8000-00805f9b34fb",
-          characteristics: [],
+          characteristics: [
+            {
+              name: "Battery Level",
+              id: "level",
+              uuid: "00002a19-0000-1000-8000-00805f9b34fb",
+            },
+          ],
         },
         {
           name: "Generic Attribute",
           id: "attribute",
-          uuid: "00001801-0000-1000-8000-00805f9b34fb",
-          characteristics: [],
+          uuid: "f000ffc0-0451-4000-b000-000000000000",
+          characteristics: [
+            {
+              name: "",
+              id: "",
+              uuid: "f000ffc1-0451-4000-b000-000000000000",
+            },
+            {
+              name: "",
+              id: "",
+              uuid: "f000ffc2-0451-4000-b000-000000000000",
+            },
+          ],
         },
         {
           name: "UART ISSC Transparent Service",
@@ -45,7 +108,7 @@ export class Entralpi extends Device implements IEntralpi {
             {
               name: "TX",
               id: "tx",
-              uuid: "0000fff5-0000-1000-8000-00805f9b34fb",
+              uuid: "0000fff1-0000-1000-8000-00805f9b34fb",
             },
             {
               name: "RX",
@@ -58,13 +121,13 @@ export class Entralpi extends Device implements IEntralpi {
           name: "Weight Scale",
           id: "weight",
           uuid: "0000181d-0000-1000-8000-00805f9b34fb",
-          characteristics: [],
-        },
-        {
-          name: "Generic Access",
-          id: "access",
-          uuid: "00001800-0000-1000-8000-00805f9b34fb",
-          characteristics: [],
+          characteristics: [
+            {
+              name: "",
+              id: "",
+              uuid: "0000fff1-0000-1000-8000-00805f9b34fb",
+            },
+          ],
         },
       ],
     })
