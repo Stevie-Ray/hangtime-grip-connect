@@ -32,6 +32,9 @@ export { text } from "./text"
 export { serial } from "./serial"
 // Export "Force Board exclusive" functions
 export { humidity } from "./humidity"
+// Export "Entralpi exclusive" functions
+export { model } from "./model"
+export { software } from "./software"
 
 // Export led retrieval function
 export { led } from "./led"

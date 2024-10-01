@@ -1,6 +1,6 @@
 import type { Device } from "./models/device.model"
 import { read } from "./read"
-import { isForceBoard, isMotherboard } from "./is-device"
+import { isEntralpi, isForceBoard, isMotherboard } from "./is-device"
 
 /**
  * Retrieves manufacturer information from the device.
@@ -12,8 +12,8 @@ import { isForceBoard, isMotherboard } from "./is-device"
 export const manufacturer = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
   if (board.isConnected()) {
-    // If the device is connected and it is a Motherboard or Force Board device
-    if (isMotherboard(board) || isForceBoard(board)) {
+    // If the device is connected and it is a Entralpi, Force Board of Motherboard
+    if (isEntralpi(board) || isForceBoard(board) || isMotherboard(board)) {
       // Read manufacturer information from the Motherboard
       return await read(board, "device", "manufacturer", 250)
     }

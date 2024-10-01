@@ -116,7 +116,7 @@ motherboardButton.addEventListener("click", () => {
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
 - ✅ Kilter Board
-- ⏳ Entralpi
+- ✅ Entralpi / Lefu Scale
 - ⏳ PitchSix Force Board
 - ➡️ Climbro
 - ➡️ Smartboard Climbing - mySmartBoard

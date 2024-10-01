@@ -14,13 +14,14 @@ import {
   humidity,
   led,
   manufacturer,
+  model,
   notify,
   serial,
+  software,
   stream,
   stop,
   tare,
   text,
-  isEntralpi,
   isMotherboard,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
@@ -140,22 +141,34 @@ export function setupDevice(
           outputElement.textContent += `Battery Level: ${batteryLevel}\r\n`
         }
 
-        const firmwareVersion = await firmware(device)
-        if (firmwareVersion) {
-          console.log("Firmware Version:", firmwareVersion)
-          outputElement.textContent += `Firmware Version: ${firmwareVersion}\r\n`
+        const modelNumber = await model(device)
+        if (modelNumber) {
+          console.log("Model Number:", modelNumber)
+          outputElement.textContent += `Model Number: ${modelNumber}\r\n`
         }
 
-        const hardwareVersion = await hardware(device)
-        if (hardwareVersion) {
-          console.log("Hardware Version:", hardwareVersion)
-          outputElement.textContent += `Hardware Version: ${hardwareVersion}\r\n`
+        const firmwareRevision = await firmware(device)
+        if (firmwareRevision) {
+          console.log("Firmware Revision:", firmwareRevision)
+          outputElement.textContent += `Firmware Revision: ${firmwareRevision}\r\n`
         }
 
-        const manufacturerInfo = await manufacturer(device)
-        if (manufacturerInfo) {
-          console.log("Manufacturer Info:", manufacturerInfo)
-          outputElement.textContent += `Manufacturer Info: ${manufacturerInfo}\r\n`
+        const hardwareRevision = await hardware(device)
+        if (hardwareRevision) {
+          console.log("Hardware Revision:", hardwareRevision)
+          outputElement.textContent += `Hardware Revision: ${hardwareRevision}\r\n`
+        }
+
+        const softwareRevision = await software(device)
+        if (softwareRevision) {
+          console.log("Software Revision:", softwareRevision)
+          outputElement.textContent += `Software Revision: ${softwareRevision}\r\n`
+        }
+
+        const manufacturerName = await manufacturer(device)
+        if (manufacturerName) {
+          console.log("Manufacturer Name:", manufacturerName)
+          outputElement.textContent += `Manufacturer Name: ${manufacturerName}\r\n`
         }
 
         const storedText = await text(device)
@@ -164,10 +177,10 @@ export function setupDevice(
           outputElement.textContent += `Stored Text: ${storedText}\r\n`
         }
 
-        const serialNumberInfo = await serial(device)
-        if (serialNumberInfo) {
-          console.log("Serial Number Info:", serialNumberInfo)
-          outputElement.textContent += `Serial Number Info: ${serialNumberInfo}\r\n`
+        const serialNumber = await serial(device)
+        if (serialNumber) {
+          console.log("Serial Number:", serialNumber)
+          outputElement.textContent += `Serial Number: ${serialNumber}\r\n`
         }
 
         const humidityLevel = await humidity(device)
@@ -188,16 +201,6 @@ export function setupDevice(
         // Start streaming
         await stream(device)
         isStreaming = true
-
-        if (isEntralpi(device)) {
-          setTimeout(() => {
-            // the entralpi will automatically start streaming
-          }, 60000)
-          // disconnect from device after we are done
-          device.disconnect()
-          // hide buttons
-          toggleButtons(false)
-        }
       },
       (error: Error) => {
         outputElement.innerHTML = error.message

@@ -1,6 +1,6 @@
 import type { Device } from "./models/device.model"
 import { read } from "./read"
-import { isMotherboard } from "./is-device"
+import { isEntralpi, isMotherboard } from "./is-device"
 
 /**
  * Retrieves hardware version from the device.
@@ -12,8 +12,8 @@ import { isMotherboard } from "./is-device"
 export const hardware = async (board: Device): Promise<string | undefined> => {
   // Check if the device is connected
   if (board.isConnected()) {
-    // If the device is connected and it is a Motherboard device
-    if (isMotherboard(board)) {
+    // If the device is connected and it is a Entralpi or Motherboard device
+    if (isMotherboard(board) || isEntralpi(board)) {
       // Read hardware version from the Motherboard
       return await read(board, "device", "hardware", 250)
     }

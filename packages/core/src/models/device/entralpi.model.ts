@@ -123,8 +123,8 @@ export class Entralpi extends Device implements IEntralpi {
           uuid: "0000181d-0000-1000-8000-00805f9b34fb",
           characteristics: [
             {
-              name: "",
-              id: "",
+              name: "notify",
+              id: "rx",
               uuid: "0000fff1-0000-1000-8000-00805f9b34fb",
             },
           ],
