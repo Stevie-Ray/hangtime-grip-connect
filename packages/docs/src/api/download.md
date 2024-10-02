@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Motherboard, Progressor } from "./devices"
+import { Motherboard, Progressor } from "@hangtime/grip-connect"
 ```
 
 ### Interface

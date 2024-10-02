@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Entralpi, ForceBoard, Motherboard } from "./devices"
+import { Entralpi, ForceBoard, Motherboard } from "@hangtime/grip-connect"
 ```
 
 ### Basic Usage

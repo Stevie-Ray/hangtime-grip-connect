@@ -1,10 +1,17 @@
-import type { IDevice } from "../device.interface"
+### Basic Usage
 
-/**
- * Interface representing the Entralpi device, extending the base Device interface.
- */
-export interface IEntralpi extends IDevice {
-  /**
+```ts
+import { Entralpi } from "@hangtime/grip-connect"
+
+const device = new Entralpi()
+```
+
+### Device features
+
+See [Devices](/devices) for default device features.
+
+```ts
+   /**
    * Retrieves battery or voltage information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
    */
@@ -58,4 +65,4 @@ export interface IEntralpi extends IDevice {
    * @returns {Promise<string | undefined>} A Promise that resolves with the system id.
    */
   system(): Promise<string | undefined>
-}
+```

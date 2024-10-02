@@ -214,7 +214,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param {ClimbPlacement[]} [config] - Optional color or array of climb placements for the LEDs. Ignored if placements are provided.
    * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
    */
-  led = async (config?: "green" | "red" | "orange" | ClimbPlacement[]): Promise<number[] | undefined> => {
+  led = async (config?: ClimbPlacement[]): Promise<number[] | undefined> => {
     // Handle Kilterboard logic: process placements and send payload if connected
     if (Array.isArray(config)) {
       // Prepares byte arrays for transmission based on a list of climb placements.

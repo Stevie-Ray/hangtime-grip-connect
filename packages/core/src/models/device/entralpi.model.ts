@@ -27,7 +27,7 @@ export class Entralpi extends Device implements IEntralpi {
           characteristics: [
             {
               name: "System ID",
-              id: "id",
+              id: "system",
               uuid: "00002a23-0000-1000-8000-00805f9b34fb",
             },
             {
@@ -136,7 +136,7 @@ export class Entralpi extends Device implements IEntralpi {
 
   /**
    * Retrieves battery or voltage information from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
    */
   battery = async (): Promise<string | undefined> => {
     if (this.isConnected()) {
@@ -147,8 +147,22 @@ export class Entralpi extends Device implements IEntralpi {
   }
 
   /**
+   * Retrieves IEEE 11073-20601 Regulatory Certification from the device.
+   * @returns {Promise<string>} A Promise that resolves with the certification.
+   */
+  certification = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read certification from the device
+      return await read(this, "device", "certification", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
    * Retrieves firmware version from the device.
-   * @returns {Promise<string>} A Promise that resolves with the firmware version,
+   * @returns {Promise<string>} A Promise that resolves with the firmware version.
    */
   firmware = async (): Promise<string | undefined> => {
     // Check if the device is connected
@@ -208,7 +222,7 @@ export class Entralpi extends Device implements IEntralpi {
 
   /**
    * Retrieves hardware version from the device.
-   * @returns {Promise<string>} A Promise that resolves with the hardware version,
+   * @returns {Promise<string>} A Promise that resolves with the hardware version.
    */
   hardware = async (): Promise<string | undefined> => {
     // Check if the device is connected
@@ -222,7 +236,7 @@ export class Entralpi extends Device implements IEntralpi {
 
   /**
    * Retrieves manufacturer information from the device.
-   * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
+   * @returns {Promise<string>} A Promise that resolves with the manufacturer information.
    */
   manufacturer = async (): Promise<string | undefined> => {
     // Check if the device is connected
@@ -236,7 +250,7 @@ export class Entralpi extends Device implements IEntralpi {
 
   /**
    * Retrieves model number from the device.
-   * @returns {Promise<string>} A Promise that resolves with the model number,
+   * @returns {Promise<string>} A Promise that resolves with the model number.
    */
   model = async (): Promise<string | undefined> => {
     // Check if the device is connected
@@ -249,14 +263,43 @@ export class Entralpi extends Device implements IEntralpi {
   }
 
   /**
+   * Retrieves PnP ID from the device, a set of values that used to create a device ID value that is unique for this device.
+   * Included in the characteristic is a Vendor ID Source field, a Vendor ID field, a Product ID field and a Product Version field
+   * @returns {Promise<string>} A Promise that resolves with the PnP ID.
+   */
+  pnp = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read software version from the Entralpi
+      return await read(this, "device", "pnp", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
    * Retrieves software version from the device.
-   * @returns {Promise<string>} A Promise that resolves with the software version,
+   * @returns {Promise<string>} A Promise that resolves with the software version.
    */
   software = async (): Promise<string | undefined> => {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read software version from the Entralpi
       return await read(this, "device", "software", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves system id from the device.
+   * @returns {Promise<string>} A Promise that resolves with the system id.
+   */
+  system = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read system id from the device
+      return await read(this, "device", "system", 250)
     }
     // If device is not found, return undefined
     return undefined

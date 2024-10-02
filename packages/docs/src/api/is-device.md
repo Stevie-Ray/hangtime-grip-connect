@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Entralpi, Kilterboard, Motherboard, Progressor, WHC06 } from "./devices"
+import { Entralpi, Kilterboard, Motherboard, Progressor, WHC06 } from "@hangtime/grip-connect"
 ```
 
 ### Basic Usage

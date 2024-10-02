@@ -1,18 +1,17 @@
-import type { IDevice } from "../device.interface"
-/**
- * Represents a climbing placement with a position and role identifier.
- */
-export interface ClimbPlacement {
-  /** The position of the hold placement. */
-  position: number
-  /** The role ID associated with the climb placement. */
-  role_id: number
-}
-/**
- * Interface representing the KilterBoard device, extending the base Device interface.
- */
-export interface IKilterBoard extends IDevice {
-  /**
+### Basic Usage
+
+```ts
+import { KilterBoard } from "@hangtime/grip-connect"
+
+const device = new KilterBoard()
+```
+
+### Device features
+
+See [Devices](/devices) for default device features.
+
+```ts
+   /**
    * Calculates the checksum for a byte array.
    * @param data - The array of bytes to calculate the checksum for.
    * @returns The calculated checksum value.
@@ -82,4 +81,4 @@ export interface IKilterBoard extends IDevice {
    * @returns The prepared payload or undefined.
    */
   led(config?: ClimbPlacement[]): Promise<number[] | undefined>
-}
+```

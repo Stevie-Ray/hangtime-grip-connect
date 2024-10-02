@@ -1,9 +1,16 @@
-import type { IDevice } from "../device.interface"
+### Basic Usage
 
-/**
- * Interface representing the Tindeq Progressor device.
- */
-export interface IProgressor extends IDevice {
+```ts
+import { Progressor } from "@hangtime/grip-connect"
+
+const device = new Progressor()
+```
+
+### Device features
+
+See [Devices](/devices) for default device features.
+
+```ts
   /**
    * Retrieves battery or voltage information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
@@ -22,4 +29,4 @@ export interface IProgressor extends IDevice {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream(duration?: number): Promise<void>
-}
+```

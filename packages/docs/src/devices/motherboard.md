@@ -1,10 +1,17 @@
-import type { IDevice } from "../device.interface"
+### Basic Usage
 
+```ts
+import { Motherboard } from "@hangtime/grip-connect"
+
+const device = new Motherboard()
+```
+
+### Device features
+
+See [Devices](/devices) for default device features.
+
+```ts
 /**
- * Interface representing the Griptonite Motherboard device.
- */
-export interface IMotherboard extends IDevice {
-  /**
    * Applies calibration to a sample value.
    * @param {number} sample - The sample value to calibrate.
    * @param {number[][]} calibration - The calibration data.
@@ -61,4 +68,4 @@ export interface IMotherboard extends IDevice {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream(duration?: number): Promise<void>
-}
+```

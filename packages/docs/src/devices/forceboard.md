@@ -1,9 +1,16 @@
-import type { IDevice } from "../device.interface"
+### Basic Usage
 
-/**
- * Interface representing the PitchSix ForceBoard device, extending the base Device interface.
- */
-export interface IForceBoard extends IDevice {
+```ts
+import { ForceBoard } from "@hangtime/grip-connect"
+
+const device = new ForceBoard()
+```
+
+### Device features
+
+See [Devices](/devices) for default device features.
+
+```ts
   /**
    * Retrieves battery or voltage information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
@@ -21,4 +28,4 @@ export interface IForceBoard extends IDevice {
    * @returns {Promise<string | undefined>} A Promise that resolves with the manufacturer information.
    */
   manufacturer(): Promise<string | undefined>
-}
+```

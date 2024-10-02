@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { KilterBoard, Motherboard, Progressor } from "./devices"
+import { KilterBoard, Motherboard, Progressor } from "@hangtime/grip-connect"
 ```
 
 ### Warning
