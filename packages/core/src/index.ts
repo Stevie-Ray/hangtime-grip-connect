@@ -19,6 +19,4 @@ export { active, isActive } from "./is-active"
 
 export { notify } from "./notify"
 
-export { stop } from "./stop"
-
 export { tare } from "./tare"

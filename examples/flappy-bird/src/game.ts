@@ -7,7 +7,6 @@ import {
   Progressor,
   WHC06,
   notify,
-  stop,
 } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
@@ -252,7 +251,7 @@ const bird: {
     sctx.drawImage(this.animations[this.frame].sprite, -w / 2, -h / 2)
     sctx.restore()
   },
-  update: function () {
+  update: async function () {
     const r = parseFloat(String(this.animations[0].sprite.width)) / 2
     switch (state.curr) {
       case state.getReady:
@@ -285,7 +284,9 @@ const bird: {
           if (!SFX.played) {
             SFX.die.play()
             SFX.played = true
-            stop(device)
+            if (device instanceof Motherboard || device instanceof Progressor) {
+              await device.stop()
+            }
           }
         }
         break

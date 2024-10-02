@@ -6,15 +6,21 @@ import type { IDevice } from "../device.interface"
 export interface IProgressor extends IDevice {
   /**
    * Retrieves battery or voltage information from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
    */
   battery(): Promise<string | undefined>
 
   /**
    * Retrieves firmware version from the device.
-   * @returns {Promise<string>} A Promise that resolves with the firmware version,
+   * @returns {Promise<string>} A Promise that resolves with the firmware version.
    */
   firmware(): Promise<string | undefined>
+
+  /**
+   * Stops the data stream on the specified device.
+   * @returns {Promise<void>} A promise that resolves when the stream is stopped.
+   */
+  stop(): Promise<void>
 
   /**
    * Starts streaming data from the specified device.

@@ -56,7 +56,6 @@ export default defineConfig({
           { text: "IsDevice", link: "/api/is-device" },
           { text: "Notify", link: "/api/notify" },
           { text: "Read", link: "/api/read" },
-          { text: "Stop", link: "/api/stop" },
           { text: "Tare", link: "/api/tare" },
           { text: "Write", link: "/api/write" },
         ],

@@ -7,7 +7,6 @@ import {
   Progressor,
   WHC06,
   notify,
-  stop,
 } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
@@ -210,9 +209,11 @@ const Game: GameType = {
     Pong.menu()
     Pong.listen()
   },
-  endGameMenu: function (text) {
+  endGameMenu: async function (text) {
     // Stop Bluetooth device stream
-    stop(device)
+    if (device instanceof Motherboard || device instanceof Progressor) {
+      await device.stop()
+    }
     // Change the canvas font size and color
     Pong.context.font = "50px Courier New"
     Pong.context.fillStyle = this.color

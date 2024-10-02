@@ -7,7 +7,6 @@ import { ProgressorCommands, ProgressorResponses } from "../../commands/progress
 import struct from "../../struct"
 import { DownloadPackets, emptyDownloadPackets } from "../../download"
 import { lastWrite, write, writeCallback } from "../../write"
-import { stop } from "../../stop"
 
 // Constants
 let MASS_MAX = "0"
@@ -165,6 +164,17 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
+   * Stops the data stream on the specified device.
+   * @returns {Promise<void>} A promise that resolves when the stream is stopped.
+   */
+  stop = async (): Promise<void> => {
+    if (this.isConnected()) {
+      // Stop stream of device
+      await write(this, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
+    }
+  }
+
+  /**
    * Starts streaming data from the specified device.
    * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
@@ -177,7 +187,7 @@ export class Progressor extends Device implements IProgressor {
       await write(this, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
-        await stop(this)
+        await this.stop()
       }
     }
   }

@@ -50,7 +50,7 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, active, connect, disconnect, notify } from "@hangtime/grip-connect"
+import { Motherboard, active, notify } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
@@ -93,7 +93,7 @@ motherboardButton.addEventListener("click", () => {
       // await tare(5000)
 
       // Manually call stop method if stream is continues
-      // await stop(Motherboard)
+      // await motherboard.stop()
 
       // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
       // download('json')

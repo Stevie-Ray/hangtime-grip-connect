@@ -9,7 +9,6 @@ import {
   active,
   download,
   notify,
-  stop,
   tare,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
@@ -241,7 +240,9 @@ export function setupDevice(
       streamElement.innerHTML = "<div><i class='fa-solid fa-play'></i></div><div>Start</div>"
       isStreaming = false
       convertFontAwesome()
-      await stop(device)
+      if (device instanceof Motherboard || device instanceof Progressor) {
+        await device.stop()
+      }
     } else {
       streamElement.innerHTML = "<div><i class='fa-solid fa-stop'></i></div><div>Stop</div>"
       isStreaming = true

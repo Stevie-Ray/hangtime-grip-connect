@@ -9,7 +9,6 @@ import { lastWrite } from "../../write"
 import { DownloadPackets, emptyDownloadPackets } from "../../download"
 import type { DownloadPacket } from "../../types/download"
 import { read } from "../../read"
-import { stop } from "../../stop"
 
 // Constants
 const PACKET_LENGTH = 32
@@ -382,6 +381,17 @@ export class Motherboard extends Device implements IMotherboard {
   }
 
   /**
+   * Stops the data stream on the specified device.
+   * @returns {Promise<void>} A promise that resolves when the stream is stopped.
+   */
+  stop = async (): Promise<void> => {
+    if (this.isConnected()) {
+      // Stop stream of device
+      await write(this, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
+    }
+  }
+
+  /**
    * Starts streaming data from the specified device.
    * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
@@ -400,7 +410,7 @@ export class Motherboard extends Device implements IMotherboard {
       await write(this, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
-        await stop(this)
+        await this.stop()
       }
     }
   }
