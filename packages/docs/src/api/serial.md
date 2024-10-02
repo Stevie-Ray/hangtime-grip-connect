@@ -14,12 +14,9 @@ const motherboard = new Motherboard()
 motherboard.connect(async () => {
   /**
    * Retrieves serial number from the device.
-   * - For Motherboard devices, it reads the serial number.
-   *
-   * @param {Device} board - The device from which to retrieve serial number.
    * @returns {Promise<string>} A Promise that resolves with the serial number,
    */
-  const serialNumber = await serial(Motherboard)
+  const serialNumber = await motherboard.serial()
   console.log(serialNumber)
 })
 ```

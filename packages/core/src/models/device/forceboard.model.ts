@@ -176,4 +176,31 @@ export class ForceBoard extends Device implements IForceBoard {
     // If device is not found, return undefined
     return undefined
   }
+
+  /**
+   * Retrieves humidity level from the device.
+   * @returns {Promise<string>} A Promise that resolves with the humidity level,
+   */
+  humidity = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      return await read(this, "humidity", "level", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves manufacturer information from the device.
+   * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
+   */
+  manufacturer = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read manufacturer information from the device
+      return await read(this, "device", "manufacturer", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
 }

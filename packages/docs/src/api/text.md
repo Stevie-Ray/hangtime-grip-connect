@@ -7,7 +7,7 @@ import { Motherboard } from "./devices"
 ### Basic Usage
 
 ```ts
-import { connect, text, Motherboard } from "@hangtime/grip-connect"
+import { text, Motherboard } from "@hangtime/grip-connect"
 
 const motherboard = new Motherboard()
 
@@ -19,10 +19,9 @@ motherboard.connect(async () => {
    * the corresponding data will appear in the response. Unused portions of the memory are
    * padded with whitespace.
    *
-   * @param {Device} board - The device from which to retrieve text information.
    * @returns {Promise<string>} A Promise that resolves with the 320-byte memory content as a string,
    */
-  const storedText = await text(Motherboard)
+  const storedText = await motherboard.text()
   console.log(storedText)
 })
 ```

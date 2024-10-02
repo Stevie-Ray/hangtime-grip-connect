@@ -50,13 +50,15 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, active, battery, connect, disconnect, firmware, notify, stream } from "@hangtime/grip-connect"
+import { Motherboard, active, connect, disconnect, notify } from "@hangtime/grip-connect"
 
 const motherboardButton = document.querySelector("#motherboard")
 
 motherboardButton.addEventListener("click", () => {
-  connect(
-    Motherboard,
+  // setup device
+  const motherboard = new Motherboard()
+  // connect to device
+  motherboard.connect(
     async () => {
       // Listen for stream notifications
       notify((data) => {
@@ -73,19 +75,19 @@ motherboardButton.addEventListener("click", () => {
         { threshold: 2.5, duration: 1000 },
       )
 
-      // Read info: battery + firmware
-      const batteryLevel = await battery(Motherboard)
+      // Read device specific data: battery + firmware
+      const batteryLevel = await motherboard.battery()
       console.log(batteryLevel)
 
-      const firmwareVersion = await firmware(Motherboard)
+      const firmwareVersion = await motherboard.firmware()
       console.log(firmwareVersion)
 
       // LEDs: "green", "red", "orange", or no argument to turn off
-      // await led(Motherboard, "red")
-      // await led(Motherboard)
+      // await motherboard.led(Motherboard, "red")
+      // await motherboard.led(Motherboard)
 
       // Start weight streaming (for a minute) remove parameter for a continues stream
-      await stream(Motherboard, 60000)
+      await motherboard.stream(60000)
 
       // Manualy tare the device when the stream is running
       // await tare(5000)
@@ -95,14 +97,13 @@ motherboardButton.addEventListener("click", () => {
 
       // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
       // download('json')
-
-      // Disconnect from device after we are done
-      disconnect(Motherboard)
     },
     (error) => {
       // Optinal custom error handeling
       console.error(error.message)
     },
   )
+  // Disconnect from device after we are done
+  motherboard.disconnect(Motherboard)
 })
 ```

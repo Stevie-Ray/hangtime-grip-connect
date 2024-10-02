@@ -1,13 +1,13 @@
 ### Supported Devices
 
 ```ts
-import { Motherboard } from "./devices"
+import { Entralpi, ForceBoard, Motherboard } from "./devices"
 ```
 
 ### Basic Usage
 
 ```ts
-import { connect, read, Motherboard } from "@hangtime/grip-connect"
+import { read, Motherboard } from "@hangtime/grip-connect"
 
 const motherboard = new Motherboard()
 

@@ -7,22 +7,10 @@ import {
   Progressor,
   WHC06,
   active,
-  battery,
   download,
-  firmware,
-  hardware,
-  humidity,
-  led,
-  manufacturer,
-  model,
   notify,
-  serial,
-  software,
-  stream,
   stop,
   tare,
-  text,
-  isMotherboard,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 import { Chart } from "chart.js/auto"
@@ -114,9 +102,6 @@ export function setupDevice(
 
     device.connect(
       async () => {
-        // Show buttons after device is connected
-        toggleButtons(true)
-
         notify((data: massObject) => {
           // Chart
           addChartData(data.massTotal, data.massMax, data.massAverage)
@@ -133,74 +118,108 @@ export function setupDevice(
           { threshold: 2.5, duration: 1000 },
         )
 
-        // Read all stored information
-        outputElement.style.display = "flex"
-        const batteryLevel = await battery(device)
-        if (batteryLevel) {
-          console.log("Battery Level:", batteryLevel)
-          outputElement.textContent += `Battery Level: ${batteryLevel}\r\n`
+        // Display device specific information
+        if (
+          device instanceof Entralpi ||
+          device instanceof ForceBoard ||
+          device instanceof Motherboard ||
+          device instanceof Progressor
+        ) {
+          // Show output div for selected devices
+          outputElement.style.display = "flex"
+
+          const batteryLevel = await device.battery()
+          if (batteryLevel) {
+            console.log("Battery Level:", batteryLevel)
+            outputElement.textContent += `Battery Level: ${batteryLevel}\r\n`
+          }
         }
 
-        const modelNumber = await model(device)
-        if (modelNumber) {
-          console.log("Model Number:", modelNumber)
-          outputElement.textContent += `Model Number: ${modelNumber}\r\n`
+        if (device instanceof Entralpi || device instanceof Motherboard || device instanceof Progressor) {
+          const firmwareRevision = await device.firmware()
+          if (firmwareRevision) {
+            console.log("Firmware Revision:", firmwareRevision)
+            outputElement.textContent += `Firmware Revision: ${firmwareRevision}\r\n`
+          }
         }
 
-        const firmwareRevision = await firmware(device)
-        if (firmwareRevision) {
-          console.log("Firmware Revision:", firmwareRevision)
-          outputElement.textContent += `Firmware Revision: ${firmwareRevision}\r\n`
+        if (device instanceof Entralpi || device instanceof ForceBoard || device instanceof Motherboard) {
+          const manufacturerName = await device.manufacturer()
+          if (manufacturerName) {
+            console.log("Manufacturer Name:", manufacturerName)
+            outputElement.textContent += `Manufacturer Name: ${manufacturerName}\r\n`
+          }
         }
 
-        const hardwareRevision = await hardware(device)
-        if (hardwareRevision) {
-          console.log("Hardware Revision:", hardwareRevision)
-          outputElement.textContent += `Hardware Revision: ${hardwareRevision}\r\n`
+        if (device instanceof Entralpi || device instanceof Motherboard) {
+          const hardwareRevision = await device.hardware()
+          if (hardwareRevision) {
+            console.log("Hardware Revision:", hardwareRevision)
+            outputElement.textContent += `Hardware Revision: ${hardwareRevision}\r\n`
+          }
         }
 
-        const softwareRevision = await software(device)
-        if (softwareRevision) {
-          console.log("Software Revision:", softwareRevision)
-          outputElement.textContent += `Software Revision: ${softwareRevision}\r\n`
+        if (device instanceof Entralpi) {
+          const modelNumber = await device.model()
+          if (modelNumber) {
+            console.log("Model Number:", modelNumber)
+            outputElement.textContent += `Model Number: ${modelNumber}\r\n`
+          }
+
+          const softwareRevision = await device.software()
+          if (softwareRevision) {
+            console.log("Software Revision:", softwareRevision)
+            outputElement.textContent += `Software Revision: ${softwareRevision}\r\n`
+          }
         }
 
-        const manufacturerName = await manufacturer(device)
-        if (manufacturerName) {
-          console.log("Manufacturer Name:", manufacturerName)
-          outputElement.textContent += `Manufacturer Name: ${manufacturerName}\r\n`
+        if (device instanceof ForceBoard) {
+          const humidityLevel = await device.humidity()
+          if (humidityLevel) {
+            console.log("Humidity Level:", humidityLevel)
+            outputElement.textContent += `Humidity Level: ${humidityLevel}\r\n`
+          }
         }
 
-        const storedText = await text(device)
-        if (storedText) {
-          console.log("Stored Text:", storedText)
-          outputElement.textContent += `Stored Text: ${storedText}\r\n`
-        }
+        if (device instanceof Motherboard) {
+          const storedText = await device.text()
+          if (storedText) {
+            console.log("Stored Text:", storedText)
+            outputElement.textContent += `Stored Text: ${storedText}\r\n`
+          }
 
-        const serialNumber = await serial(device)
-        if (serialNumber) {
-          console.log("Serial Number:", serialNumber)
-          outputElement.textContent += `Serial Number: ${serialNumber}\r\n`
-        }
-
-        const humidityLevel = await humidity(device)
-        if (humidityLevel) {
-          console.log("Humidity Level:", humidityLevel)
-          outputElement.textContent += `Humidity Level: ${humidityLevel}\r\n`
+          const serialNumber = await device.serial()
+          if (serialNumber) {
+            console.log("Serial Number:", serialNumber)
+            outputElement.textContent += `Serial Number: ${serialNumber}\r\n`
+          }
         }
         // outputElement.style.display = "none"
 
         // Trigger LEDs
-        if (isMotherboard(device)) {
-          await led(device, "green")
-          await led(device, "red")
-          await led(device, "orange")
-          await led(device)
+        if (device instanceof Motherboard) {
+          await device.led("green")
+          await device.led("red")
+          await device.led("orange")
+          await device.led()
         }
 
         // Start streaming
-        await stream(device)
-        isStreaming = true
+        if (device instanceof Motherboard || device instanceof Progressor) {
+          await device.stream()
+        }
+
+        if (
+          device instanceof Entralpi ||
+          // TODO:device instanceof ForceBoard ||
+          device instanceof Motherboard ||
+          device instanceof Progressor ||
+          device instanceof WHC06
+        ) {
+          // Show buttons after device is connected
+          toggleButtons(true)
+          isStreaming = true
+        }
       },
       (error: Error) => {
         outputElement.innerHTML = error.message
@@ -227,7 +246,9 @@ export function setupDevice(
       streamElement.innerHTML = "<div><i class='fa-solid fa-stop'></i></div><div>Stop</div>"
       isStreaming = true
       convertFontAwesome()
-      await stream(device)
+      if (device instanceof Motherboard || device instanceof Progressor) {
+        await device.stream()
+      }
     }
   })
 }

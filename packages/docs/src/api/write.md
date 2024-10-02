@@ -1,7 +1,7 @@
 ### Supported Devices
 
 ```ts
-import { Motherboard, Progressor } from "./devices"
+import { KilterBoard, Motherboard, Progressor } from "./devices"
 ```
 
 ### Warning
@@ -11,7 +11,7 @@ Using other commands then `@hangtime/grip-connect/dist/commands` can seriously h
 ### Basic Usage
 
 ```ts
-import { connect, write, Motherboard } from "@hangtime/grip-connect"
+import { write, Motherboard } from "@hangtime/grip-connect"
 
 const motherboard = new Motherboard()
 
@@ -36,7 +36,7 @@ motherboard.connect(async () => {
    *   console.log(`Custom response: ${data}`);
    * });
    */
-  await write(Motherboard, "led", "red", new Uint8Array([0x01]))
-  await write(Motherboard, "led", "green", new Uint8Array([0x00]), 2500)
+  await write(motherboard, "led", "red", new Uint8Array([0x01]))
+  await write(motherboard, "led", "green", new Uint8Array([0x00]), 2500)
 })
 ```

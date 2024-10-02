@@ -7,7 +7,6 @@ import {
   Progressor,
   WHC06,
   notify,
-  stream,
   stop,
 } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
@@ -24,8 +23,9 @@ function getBluetoothData() {
     notify((data: massObject) => {
       mass = Number(data.massTotal)
     })
-
-    await stream(device)
+    if (device instanceof Motherboard || device instanceof Progressor) {
+      await device.stream()
+    }
   })
 }
 
@@ -427,7 +427,9 @@ const Game: GameType = {
     document.addEventListener("touchstart", async function () {
       if (!Pong.running) {
         if (device.isConnected()) {
-          stream(device)
+          if (device instanceof Motherboard || device instanceof Progressor) {
+            await device.stream()
+          }
           Pong.running = true
           window.requestAnimationFrame(Pong.loop)
         } else {
@@ -443,7 +445,9 @@ const Game: GameType = {
       // Handle the 'Press any key to begin' function and start the game.
       if (!Pong.running) {
         if (device.isConnected()) {
-          stream(device)
+          if (device instanceof Motherboard || device instanceof Progressor) {
+            await device.stream()
+          }
           Pong.running = true
           window.requestAnimationFrame(Pong.loop)
         } else {

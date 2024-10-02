@@ -4,9 +4,10 @@ import { notifyCallback } from "../../notify"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
 import { ProgressorCommands, ProgressorResponses } from "../../commands/progressor"
-import { lastWrite, writeCallback } from "../../write"
 import struct from "../../struct"
-import { DownloadPackets } from "../../download"
+import { DownloadPackets, emptyDownloadPackets } from "../../download"
+import { lastWrite, write, writeCallback } from "../../write"
+import { stop } from "../../stop"
 
 // Constants
 let MASS_MAX = "0"
@@ -54,6 +55,41 @@ export class Progressor extends Device implements IProgressor {
       ],
     })
   }
+
+  /**
+   * Retrieves battery or voltage information from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
+   */
+  battery = async (): Promise<string | undefined> => {
+    if (this.isConnected()) {
+      let response: string | undefined = undefined
+      await write(this, "progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
+        response = data
+      })
+      return response
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves firmware version from the device.
+   * @returns {Promise<string>} A Promise that resolves with the firmware version,
+   */
+  firmware = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read firmware version from the device
+      let response: string | undefined = undefined
+      await write(this, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
+        response = data
+      })
+      return response
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
   /**
    * Handles data received from the Progressor device, processes weight measurements,
    * and updates mass data including maximum and average values.
@@ -124,6 +160,24 @@ export class Progressor extends Device implements IProgressor {
         } else {
           throw new Error(`Unknown message kind detected: ${kind}`)
         }
+      }
+    }
+  }
+
+  /**
+   * Starts streaming data from the specified device.
+   * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
+   * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
+   */
+  stream = async (duration = 0): Promise<void> => {
+    if (this.isConnected()) {
+      // Reset download packets
+      emptyDownloadPackets()
+      // Start streaming data
+      await write(this, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
+      // Stop streaming if duration is set
+      if (duration !== 0) {
+        await stop(this)
       }
     }
   }

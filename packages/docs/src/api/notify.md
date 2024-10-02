@@ -26,7 +26,7 @@ interface massObject {
 ### Basic Usage
 
 ```ts
-import { connect, notify, Motherboard } from "@hangtime/grip-connect"
+import { notify, Motherboard } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/dist/types/notify"
 
 const progressor = new Progressor()

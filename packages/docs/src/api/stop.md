@@ -7,7 +7,7 @@ import { Motherboard, Progressor } from "./devices"
 ### Basic Usage
 
 ```ts
-import { connect, stop, Progressor } from "@hangtime/grip-connect"
+import { stop, Progressor } from "@hangtime/grip-connect"
 
 const progressor = new Progressor()
 
@@ -17,6 +17,6 @@ progressor.connect(async () => {
    * @param {Device} board - The device to stop the stream on.
    * @returns {Promise<void>} A promise that resolves when the stream is stopped.
    */
-  await stop(Progressor)
+  await stop(progressor)
 })
 ```

@@ -12,16 +12,15 @@ This will print all the calibration points E.g. 16 lines in format %u,%u,%f,%ld\
 would be 0,1,1.23400000,567.
 
 ```ts
-import { connect, calibration, Progressor } from "@hangtime/grip-connect"
+import { Motherboard } from "@hangtime/grip-connect"
 
-const progressor = new Progressor()
+const motherboard = new Motherboard()
 
-progressor.connect(async () => {
+motherboard.connect(async () => {
   /**
    * Writes a command to get calibration data from the device.
-   * @param {Device} board - The device.
    * @returns {Promise<void>} A Promise that resolves when the command is successfully sent.
    */
-  await calibration(Motherboard)
+  await motherboard.calibration()
 })
 ```

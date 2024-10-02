@@ -24,12 +24,12 @@ interface DownloadPacket {
 ### Basic Usage
 
 ```ts
-import { connect, stream, download, Progressor } from "@hangtime/grip-connect"
+import { download, Progressor } from "@hangtime/grip-connect"
 
 const progressor = new Progressor()
 
 progressor.connect(async () => {
-  await stream(Progressor, 60000)
+  await progressor.stream(60000)
   /**
    * Exports the data in the specified format (CSV, JSON, XML) with a filename format:
    * 'data-export-YYYY-MM-DD-HH-MM-SS.{format}'.

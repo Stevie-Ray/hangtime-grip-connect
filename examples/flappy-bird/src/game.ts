@@ -7,7 +7,6 @@ import {
   Progressor,
   WHC06,
   notify,
-  stream,
   stop,
 } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
@@ -24,8 +23,9 @@ function getBluetoothData() {
     notify((data: massObject) => {
       mass = Number(data.massTotal)
     })
-
-    await stream(device)
+    if (device instanceof Motherboard || device instanceof Progressor) {
+      await device.stream()
+    }
   })
 }
 
@@ -89,7 +89,9 @@ async function handleUserInput(): Promise<void> {
   switch (state.curr) {
     case state.getReady:
       if (device.isConnected()) {
-        stream(device)
+        if (device instanceof Motherboard || device instanceof Progressor) {
+          await device.stream()
+        }
         state.curr = state.Play
         SFX.start.play()
       } else {

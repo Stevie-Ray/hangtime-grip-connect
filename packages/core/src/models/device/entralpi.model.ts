@@ -3,6 +3,7 @@ import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { notifyCallback } from "../../notify"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
+import { read } from "../../read"
 
 // Constants
 let MASS_MAX = "0"
@@ -134,6 +135,32 @@ export class Entralpi extends Device implements IEntralpi {
   }
 
   /**
+   * Retrieves battery or voltage information from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
+   */
+  battery = async (): Promise<string | undefined> => {
+    if (this.isConnected()) {
+      return await read(this, "battery", "level", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves firmware version from the device.
+   * @returns {Promise<string>} A Promise that resolves with the firmware version,
+   */
+  firmware = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read firmware version from the Motherboard
+      return await read(this, "device", "firmware", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
    * Handles data received from the Progressor device, processes weight measurements,
    * and updates mass data including maximum and average values.
    * It also handles command responses for retrieving device information.
@@ -177,5 +204,61 @@ export class Entralpi extends Device implements IEntralpi {
         })
       }
     }
+  }
+
+  /**
+   * Retrieves hardware version from the device.
+   * @returns {Promise<string>} A Promise that resolves with the hardware version,
+   */
+  hardware = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read hardware version from the device
+      return await read(this, "device", "hardware", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves manufacturer information from the device.
+   * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
+   */
+  manufacturer = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read manufacturer information from the device
+      return await read(this, "device", "manufacturer", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves model number from the device.
+   * @returns {Promise<string>} A Promise that resolves with the model number,
+   */
+  model = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read model number from the Entralpi
+      return await read(this, "device", "model", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves software version from the device.
+   * @returns {Promise<string>} A Promise that resolves with the software version,
+   */
+  software = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read software version from the Entralpi
+      return await read(this, "device", "software", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
   }
 }

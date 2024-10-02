@@ -1,13 +1,15 @@
 import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
 import { notifyCallback } from "../../notify"
-import { writeCallback } from "../../write"
+import { write, writeCallback } from "../../write"
 import { applyTare } from "../../tare"
 import { MotherboardCommands } from "../../commands"
 import { checkActivity } from "../../is-active"
 import { lastWrite } from "../../write"
-import { DownloadPackets } from "../../download"
+import { DownloadPackets, emptyDownloadPackets } from "../../download"
 import type { DownloadPacket } from "../../types/download"
+import { read } from "../../read"
+import { stop } from "../../stop"
 
 // Constants
 const PACKET_LENGTH = 32
@@ -149,6 +151,46 @@ export class Motherboard extends Device implements IMotherboard {
   }
 
   /**
+   * Retrieves battery or voltage information from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
+   */
+  battery = async (): Promise<string | undefined> => {
+    if (this.isConnected()) {
+      return await read(this, "battery", "level", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Writes a command to get calibration data from the device.
+   * @returns {Promise<void>} A Promise that resolves when the command is successfully sent.
+   */
+  calibration = async (): Promise<void> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Write the command to get calibration data to the device
+      await write(this, "uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500, (data) => {
+        console.log(data)
+      })
+    }
+  }
+
+  /**
+   * Retrieves firmware version from the device.
+   * @returns {Promise<string>} A Promise that resolves with the firmware version,
+   */
+  firmware = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read firmware version from the Motherboard
+      return await read(this, "device", "firmware", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
    * Handles data received from the Motherboard device. Processes hex-encoded streaming packets
    * to extract samples, calibrate masses, and update running averages of mass data.
    * If the received data is not a valid hex packet, it returns the unprocessed data.
@@ -269,5 +311,120 @@ export class Motherboard extends Device implements IMotherboard {
         }
       }
     }
+  }
+
+  /**
+   * Retrieves hardware version from the device.
+   * @returns {Promise<string>} A Promise that resolves with the hardware version,
+   */
+  hardware = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read hardware version from the device
+      return await read(this, "device", "hardware", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Sets the LED color based on a single color option. Defaults to turning the LEDs off if no configuration is provided.
+   * @param {"green" | "red" | "orange"} [config] - Optional color or array of climb placements for the LEDs. Ignored if placements are provided.
+   * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
+   */
+  led = async (config?: "green" | "red" | "orange"): Promise<number[] | undefined> => {
+    if (this.isConnected()) {
+      const colorMapping: Record<string, number[][]> = {
+        green: [[0x00], [0x01]],
+        red: [[0x01], [0x00]],
+        orange: [[0x01], [0x01]],
+        off: [[0x00], [0x00]],
+      }
+      // Default to "off" color if config is not set or not found in colorMapping
+      const color = typeof config === "string" && colorMapping[config] ? config : "off"
+      const [redValue, greenValue] = colorMapping[color]
+      await write(this, "led", "red", new Uint8Array(redValue))
+      await write(this, "led", "green", new Uint8Array(greenValue), 1250)
+    }
+    return undefined
+  }
+
+  /**
+   * Retrieves manufacturer information from the device.
+   * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
+   */
+  manufacturer = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Read manufacturer information from the device
+      return await read(this, "device", "manufacturer", 250)
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Retrieves serial number from the device.
+   * @returns {Promise<string>} A Promise that resolves with the serial number,
+   */
+  serial = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Write serial number command to the Motherboard and read output
+      let response: string | undefined = undefined
+      await write(this, "uart", "tx", MotherboardCommands.GET_SERIAL, 250, (data) => {
+        response = data
+      })
+      return response
+    }
+    // If device is not found, return undefined
+    return undefined
+  }
+
+  /**
+   * Starts streaming data from the specified device.
+   * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
+   * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
+   */
+  stream = async (duration = 0): Promise<void> => {
+    if (this.isConnected()) {
+      // Reset download packets
+      emptyDownloadPackets()
+      // Device specific logic
+
+      // Read calibration data if not already available
+      if (!CALIBRATION[0].length) {
+        await this.calibration()
+      }
+      // Start streaming data
+      await write(this, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
+      // Stop streaming if duration is set
+      if (duration !== 0) {
+        await stop(this)
+      }
+    }
+  }
+
+  /**
+   * Retrieves the entire 320 bytes of non-volatile memory from the device.
+   *
+   * The memory consists of 10 segments, each 32 bytes long. If any segment was previously written,
+   * the corresponding data will appear in the response. Unused portions of the memory are
+   * padded with whitespace.
+   *
+   * @returns {Promise<string>} A Promise that resolves with the 320-byte memory content as a string,
+   */
+  text = async (): Promise<string | undefined> => {
+    // Check if the device is connected
+    if (this.isConnected()) {
+      // Write text information command to the Motherboard and read output
+      let response: string | undefined = undefined
+      await write(this, "uart", "tx", MotherboardCommands.GET_TEXT, 250, (data) => {
+        response = data
+      })
+      return response
+    }
+    // If device is not found, return undefined
+    return undefined
   }
 }

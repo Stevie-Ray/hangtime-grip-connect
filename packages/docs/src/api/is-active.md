@@ -7,7 +7,7 @@ import { Entralpi, Motherboard, Progressor, WHC06 } from "./devices"
 ### Basic Usage
 
 ```ts
-import { active, isActive, connect, notify, Progressor } from "@hangtime/grip-connect"
+import { active, isActive, notify, Progressor } from "@hangtime/grip-connect"
 
 const progressor = new Progressor()
 

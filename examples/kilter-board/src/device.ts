@@ -1,4 +1,4 @@
-import { KilterBoard, led } from "@hangtime/grip-connect"
+import { KilterBoard } from "@hangtime/grip-connect"
 import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/commands/kilterboard"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
 
@@ -20,7 +20,9 @@ export function setupDevice(element: HTMLButtonElement) {
         }
       })
 
-      await led(device, placement)
+      if (device instanceof KilterBoard) {
+        await device.led(placement)
+      }
     })
   })
 }
@@ -670,8 +672,11 @@ async function updatePayload() {
       position: filteredRow[3], // LED Position
     }
   })
+  let payload
   // Send the placement data to light up LEDs on the Kilter Board.
-  const payload = await led(device, placement)
+  if (device instanceof KilterBoard) {
+    payload = await device.led(placement)
+  }
 
   const activeHoldsHtml = document.querySelector("#active-holds")
   if (activeHoldsHtml !== null && payload) {
