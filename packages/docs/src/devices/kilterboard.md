@@ -8,7 +8,7 @@ const device = new KilterBoard()
 
 ### Device features
 
-See [Devices](/devices) for default device features.
+See [Devices](/devices/) for default device features.
 
 ```ts
    /**

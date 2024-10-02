@@ -8,4 +8,4 @@ const device = new Climbro()
 
 ### Device features
 
-See [Devices](/devices) for default device features.
+See [Devices](/devices/) for default device features.

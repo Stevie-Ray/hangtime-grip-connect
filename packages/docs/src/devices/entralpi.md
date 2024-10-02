@@ -8,7 +8,7 @@ const device = new Entralpi()
 
 ### Device features
 
-See [Devices](/devices) for default device features.
+See [Devices](/devices/) for default device features.
 
 ```ts
    /**

@@ -1,7 +1,5 @@
 # Core API Reference
 
-- [Connect](/api/connect)
-- [Disconnect](/api/disconnect)
 - [Download](/api/download)
 - [IsActive](/api/is-active)
 - [IsConnected](/api/is-connected)
