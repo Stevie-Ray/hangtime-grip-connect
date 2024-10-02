@@ -59,7 +59,7 @@ All devices have the following functions:
 
 - [Climbro](/devices/climbro)
 - [Entralpi](/devices/entralpi)
-- [ForceBoard](/devices/foreboard)
+- [ForceBoard](/devices/forceboard)
 - [KilterBoard](/devices/kilterboard)
 - [MotherBoard](/devices/motherboard)
 - [mySmartBoard](/devices/mysmartboard)
