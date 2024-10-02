@@ -18,7 +18,7 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
 [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
 
-Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
+Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
 > This project is provided "as-is" without any express or implied warranties. By using this software, you assume all
@@ -123,35 +123,22 @@ motherboardButton.addEventListener("click", () => {
 
 ## Features
 
+All devices provide some default features such as `connect`, `isConnected`, and `disconnect`. Additionally, each device offers specific features—refer to the [documentation](https://stevie-ray.github.io/hangtime-grip-connect/devices/) for more details on individual devices. There are also extra features that are not part of the device itself, like a reactive `isActive` check and a `download` feature.
+
 **Help wanted:** Do you own any of the missing devices? Use Google Chrome's Bluetooth Internals
 `chrome://bluetooth-internals/#devices` and press `Start Scan` to look for your device, click on `Inspect` and share all
 available services with us.
 
-|                                                                                          | Motherboard | Progressor | WH-C06 | Entralpi | Kilter Board | Force Board | Climbro | mySmartBoard |
+|                                                                                          | [Motherboard](https://stevie-ray.github.io/hangtime-grip-connect/devices/motherboard.html) | [Progressor](https://stevie-ray.github.io/hangtime-grip-connect/devices/progressor.html) | [WH-C06](https://stevie-ray.github.io/hangtime-grip-connect/devices/wh-c06.html) | [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) | [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html) | [Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html) | [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html) | [mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html) |
 | ---------------------------------------------------------------------------------------- | ----------- | ---------- | ------ | -------- | ------------ | ----------- | ------- | ------------ |
-| [Battery](https://stevie-ray.github.io/hangtime-grip-connect/api/battery.html)           | ✅          | ✅         |        | ✅       |              | ✅          |         |              |
-| [Calibration](https://stevie-ray.github.io/hangtime-grip-connect/api/calibration.html)   | ✅          |            |        |          |              |             |         |              |
-| [Connect](https://stevie-ray.github.io/hangtime-grip-connect/api/connect.html)           | ✅          | ✅         | ✅     | ✅       | ✅           | ✅          |         |              |
-| [Disconnect](https://stevie-ray.github.io/hangtime-grip-connect/api/disconnect.html)     | ✅          | ✅         | ✅     | ✅       | ✅           |             |         |              |
 | [Download](https://stevie-ray.github.io/hangtime-grip-connect/api/download.html)         | ✅          | ✅         |        |          |              |             |         |              |
-| [Firmware](https://stevie-ray.github.io/hangtime-grip-connect/api/firmware.html)         | ✅          | ✅         |        | ✅       |              |             |         |              |
-| [Hardware](https://stevie-ray.github.io/hangtime-grip-connect/api/hardware.html)         | ✅          |            |        | ✅       |              |             |         |              |
-| [Humidity](https://stevie-ray.github.io/hangtime-grip-connect/api/humidity.html)         |             |            |        |          |              | ✅          |         |              |
 | [isActive](https://stevie-ray.github.io/hangtime-grip-connect/api/is-active.html)        | ✅          | ✅         | ✅     | ✅       |              |             |         |              |
-| [isConnected](https://stevie-ray.github.io/hangtime-grip-connect/api/is-connected.html)  | ✅          | ✅         | ✅     | ✅       | ✅           |             |         |              |
 | [isDevice](https://stevie-ray.github.io/hangtime-grip-connect/api/is-device.html)        | ✅          | ✅         | ✅     | ✅       | ✅           |             |         |              |
-| [Led](https://stevie-ray.github.io/hangtime-grip-connect/api/led.html)                   | ✅          |            |        |          | ✅           |             |         |              |
-| [Manufacturer](https://stevie-ray.github.io/hangtime-grip-connect/api/manufacturer.html) | ✅          |            |        | ✅       |              | ✅          |         |              |
-| [Model](#)                                                                               |             |            |        | ✅       |              |             |         |              |
 | [Notify](https://stevie-ray.github.io/hangtime-grip-connect/api/notify.html)             | ✅          | ✅         | ✅     | ✅       |              |             |         |              |
 | [Read](https://stevie-ray.github.io/hangtime-grip-connect/api/read.html)                 | ✅          |            |        |          |              |             |         |              |
-| [Serial](https://stevie-ray.github.io/hangtime-grip-connect/api/serial.html)             | ✅          |            |        |          |              |             |         |              |
-| [Software](#)                                                                            |             |            |        | ✅       |              |             |         |              |
 | [Stop](https://stevie-ray.github.io/hangtime-grip-connect/api/stop.html)                 | ✅          | ✅         |        |          |              |             |         |              |
-| [Stream](https://stevie-ray.github.io/hangtime-grip-connect/api/stream.html)             | ✅          | ✅         |        |          |              |             |         |              |
 | [Tare](https://stevie-ray.github.io/hangtime-grip-connect/api/tare.html)                 | ✅          | ✅         | ✅     | ✅       |              |             |         |              |
-| [Text](https://stevie-ray.github.io/hangtime-grip-connect/api/text.html)                 | ✅          |            |        |          |              |             |         |              |
-| [Write](https://stevie-ray.github.io/hangtime-grip-connect/api/write.html)               | ✅          | ✅         |        |          |              |             |         |              |
+| [Write](https://stevie-ray.github.io/hangtime-grip-connect/api/write.html)               | ✅          | ✅         |        |          |              | ✅          |         |              |
 
 ## Development
 
