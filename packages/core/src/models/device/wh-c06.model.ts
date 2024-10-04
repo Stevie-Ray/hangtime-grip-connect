@@ -57,14 +57,15 @@ export class WHC06 extends Device implements IWHC06 {
         throw new Error("GATT is not available on this device")
       }
 
+      // Device has no services / characteristics
+      onSuccess()
+
       // WH-C06
       const MANUFACTURER_ID = 256 // 0x0100
 
       this.bluetooth.addEventListener("advertisementreceived", (event) => {
         const data = event.manufacturerData.get(MANUFACTURER_ID)
         if (data) {
-          // Device has no services / characteristics
-          onSuccess()
           // Handle recieved data
           const weight = (data.getUint8(WEIGHT_OFFSET) << 8) | data.getUint8(WEIGHT_OFFSET + 1)
           // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
