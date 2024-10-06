@@ -1,13 +1,4 @@
-import {
-  Climbro,
-  Entralpi,
-  ForceBoard,
-  Motherboard,
-  mySmartBoard,
-  Progressor,
-  WHC06,
-  notify,
-} from "@hangtime/grip-connect"
+import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
 import type { massObject } from "@hangtime/grip-connect/src/types/notify"
 
@@ -19,7 +10,7 @@ let device: Device
 function getBluetoothData() {
   return device.connect(async () => {
     // Listen for notifications
-    notify((data: massObject) => {
+    device.notify((data: massObject) => {
       mass = Number(data.massTotal)
     })
     if (device instanceof Motherboard || device instanceof Progressor) {

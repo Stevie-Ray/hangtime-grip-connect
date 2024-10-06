@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
-import { notifyCallback } from "../../notify"
 import { write, writeCallback } from "../../write"
 import { applyTare } from "../../tare"
 import { MotherboardCommands } from "../../commands"
@@ -288,7 +287,7 @@ export class Motherboard extends Device implements IMotherboard {
             checkActivity(center)
 
             // Notify with weight data
-            notifyCallback({
+            this.notifyCallback({
               massTotal: Math.max(-1000, left + center + right).toFixed(1),
               massMax: MASS_MAX,
               massAverage: MASS_AVERAGE,

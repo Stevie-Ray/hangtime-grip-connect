@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
-import { notifyCallback } from "../../notify"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
 import { read } from "../../read"
@@ -211,7 +210,7 @@ export class Entralpi extends Device implements IEntralpi {
         checkActivity(numericData)
 
         // Notify with weight data
-        notifyCallback({
+        this.notifyCallback({
           massMax: MASS_MAX,
           massAverage: MASS_AVERAGE,
           massTotal: Math.max(-1000, numericData).toFixed(1),

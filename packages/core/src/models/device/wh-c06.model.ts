@@ -1,7 +1,6 @@
 import { Device } from "../device.model"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
-import { notifyCallback } from "../../notify"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
 
 // Constants
@@ -91,7 +90,7 @@ export class WHC06 extends Device implements IWHC06 {
           checkActivity(numericData)
 
           // Notify with weight data
-          notifyCallback({
+          this.notifyCallback({
             massMax: MASS_MAX,
             massAverage: MASS_AVERAGE,
             massTotal: Math.max(-1000, numericData).toFixed(1),

@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
-import { notifyCallback } from "../../notify"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
 import { ProgressorCommands, ProgressorResponses } from "../../commands/progressor"
@@ -134,7 +133,7 @@ export class Progressor extends Device implements IProgressor {
               // Check if device is being used
               checkActivity(weight)
 
-              notifyCallback({
+              this.notifyCallback({
                 massMax: MASS_MAX,
                 massAverage: MASS_AVERAGE,
                 massTotal: Math.max(-1000, weight).toFixed(1),

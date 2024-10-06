@@ -17,6 +17,4 @@ export { download } from "./download"
 
 export { active, isActive } from "./is-active"
 
-export { notify } from "./notify"
-
 export { tare } from "./tare"

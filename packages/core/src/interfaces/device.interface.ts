@@ -1,5 +1,7 @@
 import type { IBase } from "./base.interface"
+import type { massObject } from "../types/notify"
 
+type NotifyCallback = (data: massObject) => void
 /**
  * Represents a characteristic of a Bluetooth service.
  */
@@ -40,22 +42,18 @@ export interface IDevice extends IBase {
   bluetooth?: BluetoothDevice
 
   /**
-   * Handles the 'disconnected' event.
-   * @param {Event} event - The 'disconnected' event.
+   * Connects to a Bluetooth device.
+   * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
+   * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
    */
-  onDisconnected(event: Event): void
+  connect(onSuccess?: () => void, onError?: (error: Error) => void): Promise<void>
 
   /**
-   * Handles notifications received from a characteristic.
-   * @param {Event} event - The notification event.
+   * Disconnects the device if it is currently connected.
+   * - Checks if the device is connected via it's GATT server.
+   * - If the device is connected, it attempts to gracefully disconnect.
    */
-  handleNotifications(event: Event): void
-
-  /**
-   * Handles the 'connected' event.
-   * @param {Function} onSuccess - Callback function to execute on successful connection.
-   */
-  onConnected(onSuccess: () => void): Promise<void>
+  disconnect(): void
 
   /**
    * Returns UUIDs of all services associated with the device.
@@ -64,11 +62,10 @@ export interface IDevice extends IBase {
   getAllServiceUUIDs(): string[]
 
   /**
-   * Connects to a Bluetooth device.
-   * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
-   * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
+   * Handles notifications received from a characteristic.
+   * @param {Event} event - The notification event.
    */
-  connect(onSuccess?: () => void, onError?: (error: Error) => void): Promise<void>
+  handleNotifications(event: Event): void
 
   /**
    * Checks if a Bluetooth device is connected.
@@ -77,9 +74,28 @@ export interface IDevice extends IBase {
   isConnected(): boolean
 
   /**
-   * Disconnects the device if it is currently connected.
-   * - Checks if the device is connected via it's GATT server.
-   * - If the device is connected, it attempts to gracefully disconnect.
+   * Sets the callback function to be called when notifications are received.
+   * @param {NotifyCallback} callback - The callback function to be set.
+   * @returns {void}
    */
-  disconnect(): void
+  notify(callback: NotifyCallback): void
+
+  /**
+   * Defines the type for the callback function.
+   * @callback NotifyCallback
+   * @param {massObject} data - The data passed to the callback.
+   */
+  notifyCallback: NotifyCallback
+
+  /**
+   * Handles the 'connected' event.
+   * @param {Function} onSuccess - Callback function to execute on successful connection.
+   */
+  onConnected(onSuccess: () => void): Promise<void>
+
+  /**
+   * Handles the 'disconnected' event.
+   * @param {Event} event - The 'disconnected' event.
+   */
+  onDisconnected(event: Event): void
 }

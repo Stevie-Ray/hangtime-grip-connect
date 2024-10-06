@@ -97,6 +97,7 @@ h2 {
 
 .chart {
   padding: 0 0.5rem;
+  height: 320px !important;
 }
 
 .card {
@@ -107,8 +108,7 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  height: 320px;
-  padding: 3rem 1rem;
+  padding: 2rem 1rem 1rem;
   margin: 0 1rem;
 }
 
@@ -230,8 +230,8 @@ footer a:hover {
 }
 
 @media only screen and (min-width: 768px) {
-  .card {
-    height: 480px;
+  .chart {
+    height: 480px !important;
   }
 
   #masses {
