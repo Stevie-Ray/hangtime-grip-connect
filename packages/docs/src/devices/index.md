@@ -31,6 +31,14 @@ All devices have the following functions:
   getAllServiceUUIDs(): string[]
 
   /**
+   * Retrieves the characteristic from the device's service.
+   * @param {string} serviceId - The UUID of the service.
+   * @param {string} characteristicId - The UUID of the characteristic.
+   * @returns {BluetoothRemoteGATTCharacteristic | undefined} The characteristic, if found.
+   */
+  getCharacteristic(serviceId: string, characteristicId: string): BluetoothRemoteGATTCharacteristic | undefined
+
+  /**
    * Handles notifications received from a characteristic.
    * @param {Event} event - The notification event.
    */
@@ -47,14 +55,14 @@ All devices have the following functions:
    * @param {NotifyCallback} callback - The callback function to be set.
    * @returns {void}
    */
-  notify(callback: NotifyCallback): void
+  notify(callback: (data: massObject) => void): void
 
   /**
    * Defines the type for the callback function.
    * @callback NotifyCallback
    * @param {massObject} data - The data passed to the callback.
    */
-  notifyCallback: NotifyCallback
+  notifyCallback: (data: massObject) => void
 
   /**
    * Handles the 'connected' event.
@@ -67,6 +75,51 @@ All devices have the following functions:
    * @param {Event} event - The 'disconnected' event.
    */
   onDisconnected(event: Event): void
+
+  /**
+   * Reads the value of the specified characteristic from the device.
+   * @param {string} serviceId - The service ID where the characteristic belongs.
+   * @param {string} characteristicId - The characteristic ID to read from.
+   * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
+   * @returns {Promise<string>} A promise that resolves when the read operation is completed.
+   */
+  read(serviceId: string, characteristicId: string, duration?: number): Promise<string>
+
+  /**
+   * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
+   * @param {string} serviceId - The service UUID of the Bluetooth device containing the target characteristic.
+   * @param {string} characteristicId - The characteristic UUID where the message will be written.
+   * @param {string | Uint8Array | undefined} message - The message to be written to the characteristic. It can be a string or a Uint8Array.
+   * @param {number} [duration=0] - Optional. The time in milliseconds to wait before resolving the promise. Defaults to 0 for immediate resolution.
+   * @param {WriteCallback} [callback=writeCallback] - Optional. A custom callback to handle the response after the write operation is successful.
+   *
+   * @returns {Promise<void>} A promise that resolves once the write operation is complete.
+   *
+   * @throws {Error} Throws an error if the characteristic is undefined.
+   *
+   * @example
+   * // Example usage of the write function with a custom callback
+   * await write(device, "serviceId", "characteristicId", "Hello World", 250, (data) => {
+   *   console.log(`Custom response: ${data}`);
+   * });
+   */
+  write(
+    serviceId: string,
+    characteristicId: string,
+    message: string | Uint8Array | undefined,
+    duration?: number,
+    callback?: (data: string) => void,
+  ): Promise<void>
+
+  /**
+   * A default write callback that logs the response
+   */
+  writeCallback: (data: string) => void
+  /**
+   * The last message written to the device.
+   * @type {string | Uint8Array | null}
+   */
+  writeLast: string | Uint8Array | null
 ```
 
 ### Device specific features

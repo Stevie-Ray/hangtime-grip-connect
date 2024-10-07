@@ -6,6 +6,8 @@ let server: BluetoothRemoteGATTServer
 
 /** Define the type for the callback function */
 type NotifyCallback = (data: massObject) => void
+/** Define the type for the callback function */
+type WriteCallback = (data: string) => void
 
 export class Device extends BaseModel implements IDevice {
   filters: BluetoothLEScanFilter[]
@@ -72,6 +74,28 @@ export class Device extends BaseModel implements IDevice {
    */
   getAllServiceUUIDs = () => {
     return this.services.map((service) => service.uuid)
+  }
+  /**
+   * Retrieves the characteristic from the device's service.
+   * @param {string} serviceId - The UUID of the service.
+   * @param {string} characteristicId - The UUID of the characteristic.
+   * @returns {BluetoothRemoteGATTCharacteristic | undefined} The characteristic, if found.
+   */
+  getCharacteristic = (serviceId: string, characteristicId: string): BluetoothRemoteGATTCharacteristic | undefined => {
+    // Find the service with the specified serviceId
+    const boardService = this.services.find((service) => service.id === serviceId)
+    if (boardService) {
+      // If the service is found, find the characteristic with the specified characteristicId
+      const boardCharacteristic = boardService.characteristics.find(
+        (characteristic) => characteristic.id === characteristicId,
+      )
+      if (boardCharacteristic) {
+        // If the characteristic is found, return it
+        return boardCharacteristic.characteristic
+      }
+    }
+    // Return undefined if the service or characteristic is not found
+    return undefined
   }
   /**
    * Handles notifications received from a characteristic.
@@ -174,4 +198,108 @@ export class Device extends BaseModel implements IDevice {
     const device = event.target as BluetoothDevice
     throw new Error(`Device ${device.name} is disconnected.`)
   }
+  /**
+   * Reads the value of the specified characteristic from the device.
+   * @param {string} serviceId - The service ID where the characteristic belongs.
+   * @param {string} characteristicId - The characteristic ID to read from.
+   * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
+   * @returns {Promise<string>} A promise that resolves when the read operation is completed.
+   */
+  read = (serviceId: string, characteristicId: string, duration = 0): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (this.isConnected()) {
+        const characteristic = this.getCharacteristic(serviceId, characteristicId)
+
+        if (characteristic) {
+          characteristic
+            .readValue()
+            .then((value) => {
+              let decodedValue: string
+              const decoder = new TextDecoder("utf-8")
+              switch (characteristicId) {
+                case "level":
+                  // TODO: This is battery specific.
+                  decodedValue = value.getUint8(0).toString()
+                  break
+                default:
+                  decodedValue = decoder.decode(value)
+                  break
+              }
+              // Resolve after specified duration
+              setTimeout(() => {
+                return resolve(decodedValue)
+              }, duration)
+            })
+            .catch((error) => {
+              reject(error)
+            })
+        } else {
+          reject(new Error("Characteristic is undefined"))
+        }
+      }
+    })
+  }
+  /**
+   * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
+   * @param {string} serviceId - The service UUID of the Bluetooth device containing the target characteristic.
+   * @param {string} characteristicId - The characteristic UUID where the message will be written.
+   * @param {string | Uint8Array | undefined} message - The message to be written to the characteristic. It can be a string or a Uint8Array.
+   * @param {number} [duration=0] - Optional. The time in milliseconds to wait before resolving the promise. Defaults to 0 for immediate resolution.
+   * @param {WriteCallback} [callback=writeCallback] - Optional. A custom callback to handle the response after the write operation is successful.
+   *
+   * @returns {Promise<void>} A promise that resolves once the write operation is complete.
+   *
+   * @throws {Error} Throws an error if the characteristic is undefined.
+   *
+   * @example
+   * // Example usage of the write function with a custom callback
+   * await write(device, "serviceId", "characteristicId", "Hello World", 250, (data) => {
+   *   console.log(`Custom response: ${data}`);
+   * });
+   */
+  write = async (
+    serviceId: string,
+    characteristicId: string,
+    message: string | Uint8Array | undefined,
+    duration = 0,
+    callback: WriteCallback = this.writeCallback,
+  ): Promise<void> => {
+    if (this.isConnected()) {
+      // Check if message is provided
+      if (message === undefined) {
+        // If not provided, return without performing write operation
+        return
+      }
+      // Get the characteristic from the device using serviceId and characteristicId
+      const characteristic = this.getCharacteristic(serviceId, characteristicId)
+      if (!characteristic) {
+        throw new Error("Characteristic is undefined")
+      }
+      // Convert the message to Uint8Array if it's a string
+      const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
+      // Write the value to the characteristic
+      await characteristic.writeValue(valueToWrite)
+      // Update the last written message
+      this.writeLast = message
+      // Assign the provided callback to `writeCallback`
+
+      this.writeCallback = callback
+      // If a duration is specified, resolve the promise after the duration
+
+      if (duration > 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, duration))
+      }
+    }
+  }
+  /**
+   * A default write callback that logs the response
+   */
+  writeCallback: WriteCallback = (data: string) => {
+    console.log(data)
+  }
+  /**
+   * The last message written to the device.
+   * @type {string | Uint8Array | null}
+   */
+  writeLast: string | Uint8Array | null = null
 }

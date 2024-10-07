@@ -10,9 +10,9 @@ export {
 } from "./models/index"
 
 // helpers
-export { isEntralpi, isKilterboard, isMotherboard, isWHC06, isProgressor } from "./is-device"
+export { isEntralpi, isKilterboard, isMotherboard, isWHC06, isProgressor } from "./helpers/is-device"
 
-// functions
+// TODO: Make functions device specific
 export { download } from "./download"
 
 export { active, isActive } from "./is-active"

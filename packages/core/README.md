@@ -110,16 +110,16 @@ motherboardButton.addEventListener("click", () => {
 
 ## Device support
 
-- ✅ Griptonite - Motherboard
-- ✅ Tindeq - Progressor
-- ✅ Weiheng - WH-C06
+- ✅ [Griptonite - Motherboard](https://stevie-ray.github.io/hangtime-grip-connect/devices/motherboard.html)
+- ✅ [Tindeq - Progressor](https://stevie-ray.github.io/hangtime-grip-connect/devices/progressor.html)
+- ✅ [Weiheng - WH-C06](https://stevie-ray.github.io/hangtime-grip-connect/devices/wh-c06.html)
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
-- ✅ Kilter Board
-- ✅ Entralpi / Lefu Scale
-- ⏳ PitchSix Force Board
-- ➡️ Climbro
-- ➡️ Smartboard Climbing - mySmartBoard
+- ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
+- ✅ [Entralpi](<(https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html)>) / Lefu Scale
+- ⏳ [PitchSix Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
+- ➡️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
+- ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
 
 ## Features
 
@@ -131,15 +131,6 @@ reactive `isActive` check and a `download` feature.
 **Help wanted:** Do you own any of the missing devices? Use Google Chrome's Bluetooth Internals
 `chrome://bluetooth-internals/#devices` and press `Start Scan` to look for your device, click on `Inspect` and share all
 available services with us.
-
-|                                                                                   | [Motherboard](https://stevie-ray.github.io/hangtime-grip-connect/devices/motherboard.html) | [Progressor](https://stevie-ray.github.io/hangtime-grip-connect/devices/progressor.html) | [WH-C06](https://stevie-ray.github.io/hangtime-grip-connect/devices/wh-c06.html) | [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) | [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html) | [Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html) | [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html) | [mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html) |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| [Download](https://stevie-ray.github.io/hangtime-grip-connect/api/download.html)  | ✅                                                                                         | ✅                                                                                       |                                                                                  |                                                                                      |                                                                                             |                                                                                           |                                                                                    |                                                                                              |
-| [isActive](https://stevie-ray.github.io/hangtime-grip-connect/api/is-active.html) | ✅                                                                                         | ✅                                                                                       | ✅                                                                               | ✅                                                                                   |                                                                                             |                                                                                           |                                                                                    |                                                                                              |
-| [isDevice](https://stevie-ray.github.io/hangtime-grip-connect/api/is-device.html) | ✅                                                                                         | ✅                                                                                       | ✅                                                                               | ✅                                                                                   | ✅                                                                                          | ✅                                                                                        |                                                                                    |                                                                                              |
-| [Read](https://stevie-ray.github.io/hangtime-grip-connect/api/read.html)          | ✅                                                                                         |                                                                                          |                                                                                  | ✅                                                                                   |                                                                                             | ✅                                                                                        |                                                                                    |                                                                                              |
-| [Tare](https://stevie-ray.github.io/hangtime-grip-connect/api/tare.html)          | ✅                                                                                         | ✅                                                                                       | ✅                                                                               | ✅                                                                                   |                                                                                             |                                                                                           |                                                                                    |                                                                                              |
-| [Write](https://stevie-ray.github.io/hangtime-grip-connect/api/write.html)        | ✅                                                                                         | ✅                                                                                       |                                                                                  |                                                                                      | ✅                                                                                          |                                                                                           |                                                                                    |                                                                                              |
 
 ## Development
 

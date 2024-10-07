@@ -2,7 +2,6 @@ import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
-import { read } from "../../read"
 
 // Constants
 let MASS_MAX = "0"
@@ -139,7 +138,7 @@ export class Entralpi extends Device implements IEntralpi {
    */
   battery = async (): Promise<string | undefined> => {
     if (this.isConnected()) {
-      return await read(this, "battery", "level", 250)
+      return await this.read("battery", "level", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -153,7 +152,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read certification from the device
-      return await read(this, "device", "certification", 250)
+      return await this.read("device", "certification", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -167,7 +166,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read firmware version from the Motherboard
-      return await read(this, "device", "firmware", 250)
+      return await this.read("device", "firmware", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -227,7 +226,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read hardware version from the device
-      return await read(this, "device", "hardware", 250)
+      return await this.read("device", "hardware", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -241,7 +240,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read manufacturer information from the device
-      return await read(this, "device", "manufacturer", 250)
+      return await this.read("device", "manufacturer", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -255,7 +254,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read model number from the Entralpi
-      return await read(this, "device", "model", 250)
+      return await this.read("device", "model", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -270,7 +269,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read software version from the Entralpi
-      return await read(this, "device", "pnp", 250)
+      return await this.read("device", "pnp", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -284,7 +283,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read software version from the Entralpi
-      return await read(this, "device", "software", 250)
+      return await this.read("device", "software", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -298,7 +297,7 @@ export class Entralpi extends Device implements IEntralpi {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read system id from the device
-      return await read(this, "device", "system", 250)
+      return await this.read("device", "system", 250)
     }
     // If device is not found, return undefined
     return undefined

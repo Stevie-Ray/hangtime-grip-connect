@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
-import { read } from "../../read"
 
 /**
  * Represents a PitchSix Force Board device
@@ -171,7 +170,7 @@ export class ForceBoard extends Device implements IForceBoard {
    */
   battery = async (): Promise<string | undefined> => {
     if (this.isConnected()) {
-      return await read(this, "battery", "level", 250)
+      return await this.read("battery", "level", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -184,7 +183,7 @@ export class ForceBoard extends Device implements IForceBoard {
   humidity = async (): Promise<string | undefined> => {
     // Check if the device is connected
     if (this.isConnected()) {
-      return await read(this, "humidity", "level", 250)
+      return await this.read("humidity", "level", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -198,7 +197,7 @@ export class ForceBoard extends Device implements IForceBoard {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read manufacturer information from the device
-      return await read(this, "device", "manufacturer", 250)
+      return await this.read("device", "manufacturer", 250)
     }
     // If device is not found, return undefined
     return undefined

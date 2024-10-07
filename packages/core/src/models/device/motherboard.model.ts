@@ -1,13 +1,10 @@
 import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
-import { write, writeCallback } from "../../write"
 import { applyTare } from "../../tare"
 import { MotherboardCommands } from "../../commands"
 import { checkActivity } from "../../is-active"
-import { lastWrite } from "../../write"
 import { DownloadPackets, emptyDownloadPackets } from "../../download"
 import type { DownloadPacket } from "../../types/download"
-import { read } from "../../read"
 
 // Constants
 const PACKET_LENGTH = 32
@@ -154,7 +151,7 @@ export class Motherboard extends Device implements IMotherboard {
    */
   battery = async (): Promise<string | undefined> => {
     if (this.isConnected()) {
-      return await read(this, "battery", "level", 250)
+      return await this.read("battery", "level", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -168,7 +165,7 @@ export class Motherboard extends Device implements IMotherboard {
     // Check if the device is connected
     if (this.isConnected()) {
       // Write the command to get calibration data to the device
-      await write(this, "uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500, (data) => {
+      await this.write("uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500, (data) => {
         console.log(data)
       })
     }
@@ -182,7 +179,7 @@ export class Motherboard extends Device implements IMotherboard {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read firmware version from the Motherboard
-      return await read(this, "device", "firmware", 250)
+      return await this.read("device", "firmware", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -295,7 +292,7 @@ export class Motherboard extends Device implements IMotherboard {
               massCenter: Math.max(-1000, packet.masses[1]).toFixed(1),
               massRight: Math.max(-1000, packet.masses[2]).toFixed(1),
             })
-          } else if (lastWrite === MotherboardCommands.GET_CALIBRATION) {
+          } else if (this.writeLast === MotherboardCommands.GET_CALIBRATION) {
             // check data integrity
             if ((receivedData.match(/,/g) || []).length === 3) {
               const parts: string[] = receivedData.split(",")
@@ -304,7 +301,7 @@ export class Motherboard extends Device implements IMotherboard {
             }
           } else {
             // unhandled data
-            writeCallback(receivedData)
+            this.writeCallback(receivedData)
           }
         }
       }
@@ -319,7 +316,7 @@ export class Motherboard extends Device implements IMotherboard {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read hardware version from the device
-      return await read(this, "device", "hardware", 250)
+      return await this.read("device", "hardware", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -341,8 +338,8 @@ export class Motherboard extends Device implements IMotherboard {
       // Default to "off" color if config is not set or not found in colorMapping
       const color = typeof config === "string" && colorMapping[config] ? config : "off"
       const [redValue, greenValue] = colorMapping[color]
-      await write(this, "led", "red", new Uint8Array(redValue))
-      await write(this, "led", "green", new Uint8Array(greenValue), 1250)
+      await this.write("led", "red", new Uint8Array(redValue))
+      await this.write("led", "green", new Uint8Array(greenValue), 1250)
     }
     return undefined
   }
@@ -355,7 +352,7 @@ export class Motherboard extends Device implements IMotherboard {
     // Check if the device is connected
     if (this.isConnected()) {
       // Read manufacturer information from the device
-      return await read(this, "device", "manufacturer", 250)
+      return await this.read("device", "manufacturer", 250)
     }
     // If device is not found, return undefined
     return undefined
@@ -370,7 +367,7 @@ export class Motherboard extends Device implements IMotherboard {
     if (this.isConnected()) {
       // Write serial number command to the Motherboard and read output
       let response: string | undefined = undefined
-      await write(this, "uart", "tx", MotherboardCommands.GET_SERIAL, 250, (data) => {
+      await this.write("uart", "tx", MotherboardCommands.GET_SERIAL, 250, (data) => {
         response = data
       })
       return response
@@ -386,7 +383,7 @@ export class Motherboard extends Device implements IMotherboard {
   stop = async (): Promise<void> => {
     if (this.isConnected()) {
       // Stop stream of device
-      await write(this, "uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
+      await this.write("uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
     }
   }
 
@@ -406,7 +403,7 @@ export class Motherboard extends Device implements IMotherboard {
         await this.calibration()
       }
       // Start streaming data
-      await write(this, "uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
+      await this.write("uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
         await this.stop()
@@ -428,7 +425,7 @@ export class Motherboard extends Device implements IMotherboard {
     if (this.isConnected()) {
       // Write text information command to the Motherboard and read output
       let response: string | undefined = undefined
-      await write(this, "uart", "tx", MotherboardCommands.GET_TEXT, 250, (data) => {
+      await this.write("uart", "tx", MotherboardCommands.GET_TEXT, 250, (data) => {
         response = data
       })
       return response

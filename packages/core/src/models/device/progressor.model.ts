@@ -1,11 +1,10 @@
 import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
-import { applyTare } from "../../tare"
-import { checkActivity } from "../../is-active"
 import { ProgressorCommands, ProgressorResponses } from "../../commands/progressor"
-import struct from "../../struct"
+import struct from "../../helpers/struct"
+import { checkActivity } from "../../is-active"
 import { DownloadPackets, emptyDownloadPackets } from "../../download"
-import { lastWrite, write, writeCallback } from "../../write"
+import { applyTare } from "../../tare"
 
 // Constants
 let MASS_MAX = "0"
@@ -61,7 +60,7 @@ export class Progressor extends Device implements IProgressor {
   battery = async (): Promise<string | undefined> => {
     if (this.isConnected()) {
       let response: string | undefined = undefined
-      await write(this, "progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
+      await this.write("progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
         response = data
       })
       return response
@@ -79,7 +78,7 @@ export class Progressor extends Device implements IProgressor {
     if (this.isConnected()) {
       // Read firmware version from the device
       let response: string | undefined = undefined
-      await write(this, "progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
+      await this.write("progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
         response = data
       })
       return response
@@ -141,18 +140,18 @@ export class Progressor extends Device implements IProgressor {
             }
           }
         } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
-          if (!lastWrite) return
+          if (!this.writeLast) return
 
           let value = ""
 
-          if (lastWrite === ProgressorCommands.GET_BATT_VLTG) {
+          if (this.writeLast === ProgressorCommands.GET_BATT_VLTG) {
             value = new DataView(data.buffer, 2).getUint32(0, true).toString()
-          } else if (lastWrite === ProgressorCommands.GET_FW_VERSION) {
+          } else if (this.writeLast === ProgressorCommands.GET_FW_VERSION) {
             value = new TextDecoder().decode(data.buffer.slice(2))
-          } else if (lastWrite === ProgressorCommands.GET_ERR_INFO) {
+          } else if (this.writeLast === ProgressorCommands.GET_ERR_INFO) {
             value = new TextDecoder().decode(data.buffer.slice(2))
           }
-          writeCallback(value)
+          this.writeCallback(value)
         } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
           console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
         } else {
@@ -169,7 +168,7 @@ export class Progressor extends Device implements IProgressor {
   stop = async (): Promise<void> => {
     if (this.isConnected()) {
       // Stop stream of device
-      await write(this, "progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
+      await this.write("progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
     }
   }
 
@@ -183,7 +182,7 @@ export class Progressor extends Device implements IProgressor {
       // Reset download packets
       emptyDownloadPackets()
       // Start streaming data
-      await write(this, "progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
+      await this.write("progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
         await this.stop()

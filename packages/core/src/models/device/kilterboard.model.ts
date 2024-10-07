@@ -1,7 +1,6 @@
 import { Device } from "../device.model"
 import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface"
 import { KilterBoardPacket, KilterBoardPlacementRoles } from "../../commands/kilterboard"
-import { write } from "../../write"
 
 /**
  * Aurora Climbing Advertising service
@@ -206,7 +205,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    */
   async writeMessageSeries(messages: Uint8Array[]) {
     for (const message of messages) {
-      await write(this, "uart", "tx", message)
+      await this.write("uart", "tx", message)
     }
   }
   /**
