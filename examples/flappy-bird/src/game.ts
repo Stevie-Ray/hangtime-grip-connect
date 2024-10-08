@@ -1,14 +1,13 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
-import { Device } from "@hangtime/grip-connect/src/models/device.model"
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 let mass: number
 let weight = 75
 let difficulty = 0.5
-let device: Device
+let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
 
 function getBluetoothData() {
-  return device.connect(async () => {
+  device.connect(async () => {
     // Listen for notifications
     device.notify((data: massObject) => {
       mass = Number(data.massTotal)
@@ -85,10 +84,9 @@ async function handleUserInput(): Promise<void> {
         state.curr = state.Play
         SFX.start.play()
       } else {
-        await getBluetoothData().then(() => {
-          state.curr = state.Play
-          SFX.start.play()
-        })
+        getBluetoothData()
+        state.curr = state.Play
+        SFX.start.play()
       }
       break
     case state.Play:

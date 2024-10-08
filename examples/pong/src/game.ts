@@ -1,10 +1,9 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
-import { Device } from "@hangtime/grip-connect/src/models/device.model"
 
 let mass: number
 let weight = 75
 let difficulty = 0.5
-let device: Device
+let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
 
 function getBluetoothData() {
   return device.connect(async () => {
