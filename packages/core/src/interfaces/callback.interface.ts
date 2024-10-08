@@ -12,3 +12,8 @@ export interface massObject {
   /** The mass on the right side (optional: Motherboard). */
   massRight?: string
 }
+
+/** Define the type for the callback function */
+export type NotifyCallback = (data: massObject) => void
+/** Define the type for the callback function */
+export type WriteCallback = (data: string) => void

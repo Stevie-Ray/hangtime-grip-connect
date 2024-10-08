@@ -1,18 +1,73 @@
 import { BaseModel } from "./../models/base.model"
 import type { IDevice, Service } from "../interfaces/device.interface"
-import type { massObject } from "./../types/notify"
+import type { NotifyCallback, massObject, WriteCallback } from "../interfaces/callback.interface"
 
-let server: BluetoothRemoteGATTServer
+export abstract class Device extends BaseModel implements IDevice {
+  /** Filters to indentify the device */
+  public filters: BluetoothLEScanFilter[]
+  /** Array of services provided by the device */
+  public services: Service[]
+  /** Reference to the BluetoothDevice object representing this device */
+  public bluetooth?: BluetoothDevice | undefined
 
-/** Define the type for the callback function */
-type NotifyCallback = (data: massObject) => void
-/** Define the type for the callback function */
-type WriteCallback = (data: string) => void
+  /**
+   * The BluetoothRemoteGATTServer interface of the Web Bluetooth API represents a GATT Server on a remote device.
+   */
+  private server: BluetoothRemoteGATTServer | undefined
 
-export class Device extends BaseModel implements IDevice {
-  filters: BluetoothLEScanFilter[]
-  services: Service[]
-  bluetooth?: BluetoothDevice | undefined
+  /**
+   * Maximum mass recorded from the device, initialized to "0".
+   * @type {string}
+   * @protected
+   */
+  protected MASS_MAX: string
+
+  /**
+   * Average mass calculated from the device data, initialized to "0".
+   * @type {string}
+   * @protected
+   */
+  protected MASS_AVERAGE: string
+
+  /**
+   * Total sum of all mass data points recorded from the device.
+   * Used to calculate the average mass.
+   * @type {number}
+   * @protected
+   */
+  protected MASS_TOTAL_SUM: number
+
+  /**
+   * Number of data points received from the device.
+   * Used to calculate the average mass.
+   * @type {number}
+   * @protected
+   */
+  protected DATAPOINT_COUNT: number
+
+  /**
+   * Optional callback for handling write operations.
+   * @callback NotifyCallback
+   * @param {massObject} data - The data passed to the callback.
+   * @type {NotifyCallback | undefined}
+   * @protected
+   */
+  protected notifyCallback: NotifyCallback = (data: massObject) => console.log(data)
+
+  /**
+   * Optional callback for handling write operations.
+   * @callback WriteCallback
+   * @param {string} data - The data passed to the callback.
+   * @type {WriteCallback | undefined}
+   * @protected
+   */
+  protected writeCallback: WriteCallback = (data: string) => console.log(data)
+
+  /**
+   * The last message written to the device.
+   * @type {string | Uint8Array | null}
+   */
+  protected writeLast: string | Uint8Array | null = null
 
   constructor(device: Partial<IDevice>) {
     super(device)
@@ -20,6 +75,11 @@ export class Device extends BaseModel implements IDevice {
     this.filters = device.filters || []
     this.services = device.services || []
     this.bluetooth = device.bluetooth
+
+    this.MASS_MAX = "0"
+    this.MASS_AVERAGE = "0"
+    this.MASS_TOTAL_SUM = 0
+    this.DATAPOINT_COUNT = 0
   }
   /**
    * Connects to a Bluetooth device.
@@ -47,9 +107,9 @@ export class Device extends BaseModel implements IDevice {
         this.onDisconnected(event)
       })
 
-      server = await this.bluetooth.gatt.connect()
+      this.server = await this.bluetooth.gatt.connect()
 
-      if (server.connected) {
+      if (this.server.connected) {
         await this.onConnected(onSuccess)
       }
     } catch (error) {
@@ -137,18 +197,12 @@ export class Device extends BaseModel implements IDevice {
     this.notifyCallback = callback
   }
   /**
-   * Defines the type for the callback function.
-   * @callback NotifyCallback
-   * @param {massObject} data - The data passed to the callback.
-   */
-  notifyCallback: NotifyCallback = (data) => console.log(data)
-  /**
    * Handles the 'connected' event.
    * @param {Function} onSuccess - Callback function to execute on successful connection.
    */
   onConnected = async (onSuccess: () => void): Promise<void> => {
     // Connect to GATT server and set up characteristics
-    const services: BluetoothRemoteGATTService[] = await server.getPrimaryServices()
+    const services: BluetoothRemoteGATTService[] | undefined = await this.server?.getPrimaryServices()
 
     if (!services || services.length === 0) {
       throw new Error("No services found")
@@ -291,15 +345,4 @@ export class Device extends BaseModel implements IDevice {
       }
     }
   }
-  /**
-   * A default write callback that logs the response
-   */
-  writeCallback: WriteCallback = (data: string) => {
-    console.log(data)
-  }
-  /**
-   * The last message written to the device.
-   * @type {string | Uint8Array | null}
-   */
-  writeLast: string | Uint8Array | null = null
 }

@@ -10,7 +10,7 @@ export {
 } from "./models/index"
 
 // helpers
-export { isEntralpi, isKilterboard, isMotherboard, isWHC06, isProgressor } from "./helpers/is-device"
+export { isEntralpi, isKilterBoard, isMotherboard, isWHC06, isProgressor } from "./helpers/is-device"
 
 // TODO: Make functions device specific
 export { download } from "./download"

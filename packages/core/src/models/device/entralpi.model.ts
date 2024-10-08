@@ -3,12 +3,6 @@ import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
 
-// Constants
-let MASS_MAX = "0"
-let MASS_AVERAGE = "0"
-let MASS_TOTAL_SUM = 0
-let DATAPOINT_COUNT = 0
-
 export class Entralpi extends Device implements IEntralpi {
   constructor() {
     super({
@@ -195,23 +189,23 @@ export class Entralpi extends Device implements IEntralpi {
         numericData -= applyTare(numericData)
 
         // Update MASS_MAX
-        MASS_MAX = Math.max(Number(MASS_MAX), numericData).toFixed(1)
+        this.MASS_MAX = Math.max(Number(this.MASS_MAX), numericData).toFixed(1)
 
         // Update running sum and count
         const currentMassTotal = Math.max(-1000, numericData)
-        MASS_TOTAL_SUM += currentMassTotal
-        DATAPOINT_COUNT++
+        this.MASS_TOTAL_SUM += currentMassTotal
+        this.DATAPOINT_COUNT++
 
         // Calculate the average dynamically
-        MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+        this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
 
         // Check if device is being used
         checkActivity(numericData)
 
         // Notify with weight data
         this.notifyCallback({
-          massMax: MASS_MAX,
-          massAverage: MASS_AVERAGE,
+          massMax: this.MASS_MAX,
+          massAverage: this.MASS_AVERAGE,
           massTotal: Math.max(-1000, numericData).toFixed(1),
         })
       }

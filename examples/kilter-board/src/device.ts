@@ -1,12 +1,11 @@
 import { KilterBoard } from "@hangtime/grip-connect"
 import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/commands/kilterboard"
-import { Device } from "@hangtime/grip-connect/src/models/device.model"
 
 const device = new KilterBoard()
 
 export function setupDevice(element: HTMLButtonElement) {
   element.addEventListener("click", async () => {
-    new Device(device).connect(async () => {
+    device.connect(async () => {
       // Map activeHolds array to objects with role_id and position properties
       const placement = activeHolds.map((activeHold) => {
         // Return the row from the extraced data with a matching placement ID

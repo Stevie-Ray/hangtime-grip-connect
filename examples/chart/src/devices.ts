@@ -10,7 +10,7 @@ import {
   download,
   tare,
 } from "@hangtime/grip-connect"
-import type { massObject } from "@hangtime/grip-connect/src/types/notify"
+import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons"
 import { Device } from "@hangtime/grip-connect/dist/models/device.model"

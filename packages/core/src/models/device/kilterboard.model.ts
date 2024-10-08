@@ -3,19 +3,8 @@ import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface
 import { KilterBoardPacket, KilterBoardPlacementRoles } from "../../commands/kilterboard"
 
 /**
- * Aurora Climbing Advertising service
+ * Represents climbs_placements from the Kilter Board application
  */
-export const AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
-
-/**
- * Maximum length of the message body for byte wrapping.
- */
-const MESSAGE_BODY_MAX_LENGTH = 255
-/**
- * Maximum length of the the bluetooth chunk.
- */
-const MAX_BLUETOOTH_MESSAGE_SIZE = 20
-
 class ClimbPlacement {
   position: number
   role_id: number
@@ -31,11 +20,38 @@ class ClimbPlacement {
  * Kilter Board, Tension Board, Decoy Board, Touchstone Board, Grasshopper Board, Aurora Board, So iLL Board
  */
 export class KilterBoard extends Device implements IKilterBoard {
+  /**
+   * UUID for the Aurora Climbing Advertising service.
+   * This constant is used to identify the specific Bluetooth service for Kilter Boards.
+   *
+   * @type {string}
+   */
+  public static AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
+
+  /**
+   * Maximum length of the message body for byte wrapping.
+   * This value defines the limit for the size of messages that can be sent or received
+   * to ensure proper byte wrapping in communication.
+   *
+   * @type {number}
+   * @private
+   */
+  private MESSAGE_BODY_MAX_LENGTH = 255
+  /**
+   * Maximum length of the Bluetooth message chunk.
+   * This value sets the upper limit for the size of individual Bluetooth messages
+   * sent to and from the device to comply with Bluetooth protocol constraints.
+   *
+   * @type {number}
+   * @private
+   */
+  private MAX_BLUETOOTH_MESSAGE_SIZE = 20
+
   constructor() {
     super({
       filters: [
         {
-          services: [AuroraUUID],
+          services: [KilterBoard.AuroraUUID],
         },
       ],
       services: [
@@ -78,7 +94,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @returns The wrapped byte array.
    */
   wrapBytes(data: number[]) {
-    if (data.length > MESSAGE_BODY_MAX_LENGTH) {
+    if (data.length > this.MESSAGE_BODY_MAX_LENGTH) {
       return []
     }
     /**
@@ -145,7 +161,7 @@ export class KilterBoard extends Device implements IKilterBoard {
     let tempArray: number[] = [KilterBoardPacket.V3_MIDDLE]
 
     for (const climbPlacement of climbPlacementList) {
-      if (tempArray.length + 3 > MESSAGE_BODY_MAX_LENGTH) {
+      if (tempArray.length + 3 > this.MESSAGE_BODY_MAX_LENGTH) {
         resultArray.push(tempArray)
         tempArray = [KilterBoardPacket.V3_MIDDLE]
       }
@@ -199,7 +215,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param buffer
    */
   splitMessages = (buffer: number[]) =>
-    this.splitEvery(MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
+    this.splitEvery(this.MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
   /**
    * Sends a series of messages to a device.
    */

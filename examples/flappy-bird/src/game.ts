@@ -1,6 +1,6 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
 import { Device } from "@hangtime/grip-connect/src/models/device.model"
-import type { massObject } from "@hangtime/grip-connect/src/types/notify"
+import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 let mass: number
 let weight = 75

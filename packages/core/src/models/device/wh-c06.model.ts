@@ -3,19 +3,21 @@ import { applyTare } from "../../tare"
 import { checkActivity } from "../../is-active"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
 
-// Constants
-let MASS_MAX = "0"
-let MASS_AVERAGE = "0"
-let MASS_TOTAL_SUM = 0
-let DATAPOINT_COUNT = 0
-const WEIGHT_OFFSET = 10
-// const STABLE_OFFSET = 14
-
 /**
  * Represents a  Weiheng - WH-C06 (or MAT Muscle Meter) device
  * Enable 'Experimental Web Platform features' Chrome Flags.
  */
 export class WHC06 extends Device implements IWHC06 {
+  /**
+   * Offset for the byte location in the manufacturer data to extract the weight.
+   * This value is constant across all instances of the class.
+   * @type {number}
+   * @constant
+   */
+  private static readonly WEIGHT_OFFSET = 10
+
+  // private static readonly  STABLE_OFFSET = 14
+
   constructor() {
     super({
       filters: [
@@ -66,7 +68,7 @@ export class WHC06 extends Device implements IWHC06 {
         const data = event.manufacturerData.get(MANUFACTURER_ID)
         if (data) {
           // Handle recieved data
-          const weight = (data.getUint8(WEIGHT_OFFSET) << 8) | data.getUint8(WEIGHT_OFFSET + 1)
+          const weight = (data.getUint8(WHC06.WEIGHT_OFFSET) << 8) | data.getUint8(WHC06.WEIGHT_OFFSET + 1)
           // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
           // const unit = data.getUint8(STABLE_OFFSET) & 0x0f
 
@@ -76,23 +78,23 @@ export class WHC06 extends Device implements IWHC06 {
           numericData -= applyTare(numericData)
 
           // Update MASS_MAX
-          MASS_MAX = Math.max(Number(MASS_MAX), numericData).toFixed(1)
+          this.MASS_MAX = Math.max(Number(this.MASS_MAX), numericData).toFixed(1)
 
           // Update running sum and count
           const currentMassTotal = Math.max(-1000, numericData)
-          MASS_TOTAL_SUM += currentMassTotal
-          DATAPOINT_COUNT++
+          this.MASS_TOTAL_SUM += currentMassTotal
+          this.DATAPOINT_COUNT++
 
           // Calculate the average dynamically
-          MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+          this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
 
           // Check if device is being used
           checkActivity(numericData)
 
           // Notify with weight data
           this.notifyCallback({
-            massMax: MASS_MAX,
-            massAverage: MASS_AVERAGE,
+            massMax: this.MASS_MAX,
+            massAverage: this.MASS_AVERAGE,
             massTotal: Math.max(-1000, numericData).toFixed(1),
           })
         }

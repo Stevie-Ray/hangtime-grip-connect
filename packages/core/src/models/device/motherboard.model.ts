@@ -4,24 +4,40 @@ import { applyTare } from "../../tare"
 import { MotherboardCommands } from "../../commands"
 import { checkActivity } from "../../is-active"
 import { DownloadPackets, emptyDownloadPackets } from "../../download"
-import type { DownloadPacket } from "../../types/download"
-
-// Constants
-const PACKET_LENGTH = 32
-const NUM_SAMPLES = 3
-let MASS_MAX = "0"
-let MASS_AVERAGE = "0"
-let MASS_TOTAL_SUM = 0
-let DATAPOINT_COUNT = 0
-
-const receiveBuffer: number[] = []
-
-export const CALIBRATION = [[], [], [], []]
+import type { DownloadPacket } from "../../interfaces/download.interface"
 
 /**
  * Represents a Griptonite Motherboard device
  */
 export class Motherboard extends Device implements IMotherboard {
+  /**
+   * Length of the packet received from the device.
+   * @private
+   * @type {number}
+   */
+  private PACKET_LENGTH = 32
+
+  /**
+   * Number of samples contained in the data packet.
+   * @private
+   * @type {number}
+   */
+  private NUM_SAMPLES = 3
+
+  /**
+   * Buffer to store received data from the device.
+   * @private
+   * @type {number[]}
+   */
+  private receiveBuffer: number[] = []
+
+  /**
+   * Calibration data for each sensor of the device.
+   * @private
+   * @type {number[][][]}
+   */
+  private CALIBRATION: number[][][] = [[], [], [], []]
+
   constructor() {
     super({
       filters: [{ name: "Motherboard" }],
@@ -199,12 +215,12 @@ export class Motherboard extends Device implements IMotherboard {
     if (value) {
       if (value.buffer) {
         for (let i = 0; i < value.byteLength; i++) {
-          receiveBuffer.push(value.getUint8(i))
+          this.receiveBuffer.push(value.getUint8(i))
         }
 
         let idx: number
-        while ((idx = receiveBuffer.indexOf(10)) >= 0) {
-          const line: number[] = receiveBuffer.splice(0, idx + 1).slice(0, -1) // Combine and remove LF
+        while ((idx = this.receiveBuffer.indexOf(10)) >= 0) {
+          const line: number[] = this.receiveBuffer.splice(0, idx + 1).slice(0, -1) // Combine and remove LF
           if (line.length > 0 && line[line.length - 1] === 13) line.pop() // Remove CR
           const decoder: TextDecoder = new TextDecoder("utf-8")
           const receivedData: string = decoder.decode(new Uint8Array(line))
@@ -215,7 +231,7 @@ export class Motherboard extends Device implements IMotherboard {
           const isAllHex: boolean = /^[0-9A-Fa-f]+$/g.test(receivedData)
 
           // Handle streaming packet
-          if (isAllHex && receivedData.length === PACKET_LENGTH) {
+          if (isAllHex && receivedData.length === this.PACKET_LENGTH) {
             // Base-16 decode the string: convert hex pairs to byte values
             const bytes: number[] = Array.from({ length: receivedData.length / 2 }, (_, i) =>
               Number(`0x${receivedData.substring(i * 2, i * 2 + 2)}`),
@@ -232,7 +248,7 @@ export class Motherboard extends Device implements IMotherboard {
 
             const dataView = new DataView(new Uint8Array(bytes).buffer)
 
-            for (let i = 0; i < NUM_SAMPLES; i++) {
+            for (let i = 0; i < this.NUM_SAMPLES; i++) {
               const sampleStart: number = 4 + 3 * i
               // Use DataView to read the 24-bit unsigned integer
               const rawValue =
@@ -246,7 +262,7 @@ export class Motherboard extends Device implements IMotherboard {
               if (packet.samples[i] >= 0x7fffff) {
                 packet.samples[i] -= 0x1000000
               }
-              packet.masses[i] = this.applyCalibration(packet.samples[i], CALIBRATION[i])
+              packet.masses[i] = this.applyCalibration(packet.samples[i], this.CALIBRATION[i])
             }
             // invert center and right values
             packet.masses[1] *= -1
@@ -270,15 +286,15 @@ export class Motherboard extends Device implements IMotherboard {
             center -= applyTare(center)
             right -= applyTare(right)
 
-            MASS_MAX = Math.max(Number(MASS_MAX), Math.max(-1000, left + center + right)).toFixed(1)
+            this.MASS_MAX = Math.max(Number(this.MASS_MAX), Math.max(-1000, left + center + right)).toFixed(1)
 
             // Update running sum and count
             const currentMassTotal = Math.max(-1000, left + center + right)
-            MASS_TOTAL_SUM += currentMassTotal
-            DATAPOINT_COUNT++
+            this.MASS_TOTAL_SUM += currentMassTotal
+            this.DATAPOINT_COUNT++
 
             // Calculate the average dynamically
-            MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+            this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
 
             // Check if device is being used
             checkActivity(center)
@@ -286,8 +302,8 @@ export class Motherboard extends Device implements IMotherboard {
             // Notify with weight data
             this.notifyCallback({
               massTotal: Math.max(-1000, left + center + right).toFixed(1),
-              massMax: MASS_MAX,
-              massAverage: MASS_AVERAGE,
+              massMax: this.MASS_MAX,
+              massAverage: this.MASS_AVERAGE,
               massLeft: Math.max(-1000, packet.masses[0]).toFixed(1),
               massCenter: Math.max(-1000, packet.masses[1]).toFixed(1),
               massRight: Math.max(-1000, packet.masses[2]).toFixed(1),
@@ -297,7 +313,7 @@ export class Motherboard extends Device implements IMotherboard {
             if ((receivedData.match(/,/g) || []).length === 3) {
               const parts: string[] = receivedData.split(",")
               const numericParts: number[] = parts.map((x) => parseFloat(x))
-              ;(CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
+              ;(this.CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
             }
           } else {
             // unhandled data
@@ -399,7 +415,7 @@ export class Motherboard extends Device implements IMotherboard {
       // Device specific logic
 
       // Read calibration data if not already available
-      if (!CALIBRATION[0].length) {
+      if (!this.CALIBRATION[0].length) {
         await this.calibration()
       }
       // Start streaming data

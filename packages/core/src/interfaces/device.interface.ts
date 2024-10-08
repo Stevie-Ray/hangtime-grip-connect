@@ -1,5 +1,5 @@
 import type { IBase } from "./base.interface"
-import type { massObject } from "../types/notify"
+import type { massObject } from "./callback.interface"
 
 /**
  * Represents a characteristic of a Bluetooth service.
@@ -88,13 +88,6 @@ export interface IDevice extends IBase {
   notify(callback: (data: massObject) => void): void
 
   /**
-   * Defines the type for the callback function.
-   * @callback NotifyCallback
-   * @param {massObject} data - The data passed to the callback.
-   */
-  notifyCallback: (data: massObject) => void
-
-  /**
    * Handles the 'connected' event.
    * @param {Function} onSuccess - Callback function to execute on successful connection.
    */
@@ -140,14 +133,4 @@ export interface IDevice extends IBase {
     duration?: number,
     callback?: (data: string) => void,
   ): Promise<void>
-
-  /**
-   * A default write callback that logs the response
-   */
-  writeCallback: (data: string) => void
-  /**
-   * The last message written to the device.
-   * @type {string | Uint8Array | null}
-   */
-  writeLast: string | Uint8Array | null
 }

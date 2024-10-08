@@ -1,4 +1,4 @@
-import type { Commands } from "../types/commands"
+import type { Commands } from "../interfaces/command.interface"
 /**
  * Warning:
  * Using other commands can seriously harm your device

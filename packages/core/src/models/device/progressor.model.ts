@@ -6,12 +6,6 @@ import { checkActivity } from "../../is-active"
 import { DownloadPackets, emptyDownloadPackets } from "../../download"
 import { applyTare } from "../../tare"
 
-// Constants
-let MASS_MAX = "0"
-let MASS_AVERAGE = "0"
-let MASS_TOTAL_SUM = 0
-let DATAPOINT_COUNT = 0
-
 /**
  * Represents a Tindeq Progressor device
  */
@@ -120,21 +114,21 @@ export class Progressor extends Device implements IProgressor {
               // Tare correction
               weight -= applyTare(weight)
               // Check for max weight
-              MASS_MAX = Math.max(Number(MASS_MAX), Number(weight)).toFixed(1)
+              this.MASS_MAX = Math.max(Number(this.MASS_MAX), Number(weight)).toFixed(1)
               // Update running sum and count
               const currentMassTotal = Math.max(-1000, Number(weight))
-              MASS_TOTAL_SUM += currentMassTotal
-              DATAPOINT_COUNT++
+              this.MASS_TOTAL_SUM += currentMassTotal
+              this.DATAPOINT_COUNT++
 
               // Calculate the average dynamically
-              MASS_AVERAGE = (MASS_TOTAL_SUM / DATAPOINT_COUNT).toFixed(1)
+              this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
 
               // Check if device is being used
               checkActivity(weight)
 
               this.notifyCallback({
-                massMax: MASS_MAX,
-                massAverage: MASS_AVERAGE,
+                massMax: this.MASS_MAX,
+                massAverage: this.MASS_AVERAGE,
                 massTotal: Math.max(-1000, weight).toFixed(1),
               })
             }
