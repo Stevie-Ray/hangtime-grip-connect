@@ -1,5 +1,6 @@
 import type { IBase } from "./base.interface"
 import type { massObject } from "./callback.interface"
+import type { Commands } from "./command.interface"
 
 /**
  * Represents a characteristic of a Bluetooth service.
@@ -33,12 +34,29 @@ export interface Service {
  * Represents a Bluetooth device.
  */
 export interface IDevice extends IBase {
-  /** Filters to indentify the device */
+  /**
+   * Filters to identify the device during Bluetooth scanning.
+   * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
+   */
   filters: BluetoothLEScanFilter[]
-  /** Array of services provided by the device */
+
+  /**
+   * Array of services provided by the device.
+   * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
+   */
   services: Service[]
-  /** Reference to the BluetoothDevice object representing this device */
+
+  /**
+   * Reference to the `BluetoothDevice` object representing this device.
+   * This is the actual device object obtained from the Web Bluetooth API after a successful connection.
+   */
   bluetooth?: BluetoothDevice
+
+  /**
+   * Object representing the set of commands available for this device.
+   * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
+   */
+  commands: Commands
 
   /**
    * Connects to a Bluetooth device.

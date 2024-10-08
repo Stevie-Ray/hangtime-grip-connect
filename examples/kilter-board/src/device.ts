@@ -1,5 +1,5 @@
 import { KilterBoard } from "@hangtime/grip-connect"
-import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/commands/kilterboard"
+import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/models/device/kilterboard.model"
 
 const device = new KilterBoard()
 

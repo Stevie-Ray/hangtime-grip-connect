@@ -1,9 +1,8 @@
 import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
-import { applyTare } from "../../tare"
-import { MotherboardCommands } from "../../commands"
-import { checkActivity } from "../../is-active"
-import { DownloadPackets, emptyDownloadPackets } from "../../download"
+import { applyTare } from "../../helpers/tare"
+import { checkActivity } from "../../helpers/is-active"
+import { DownloadPackets, emptyDownloadPackets } from "../../helpers/download"
 import type { DownloadPacket } from "../../interfaces/download.interface"
 
 /**
@@ -116,6 +115,15 @@ export class Motherboard extends Device implements IMotherboard {
           ],
         },
       ],
+      commands: {
+        GET_SERIAL: "#",
+        START_WEIGHT_MEAS: "S30",
+        STOP_WEIGHT_MEAS: "", // All commands will stop the data stream.
+        GET_CALIBRATION: "C",
+        SLEEP: 0,
+        GET_TEXT: "T",
+        DEBUG_STREAM: "D",
+      },
     })
   }
 
@@ -181,7 +189,7 @@ export class Motherboard extends Device implements IMotherboard {
     // Check if the device is connected
     if (this.isConnected()) {
       // Write the command to get calibration data to the device
-      await this.write("uart", "tx", MotherboardCommands.GET_CALIBRATION, 2500, (data) => {
+      await this.write("uart", "tx", this.commands.GET_CALIBRATION, 2500, (data) => {
         console.log(data)
       })
     }
@@ -286,15 +294,15 @@ export class Motherboard extends Device implements IMotherboard {
             center -= applyTare(center)
             right -= applyTare(right)
 
-            this.MASS_MAX = Math.max(Number(this.MASS_MAX), Math.max(-1000, left + center + right)).toFixed(1)
+            this.massMax = Math.max(Number(this.massMax), Math.max(-1000, left + center + right)).toFixed(1)
 
             // Update running sum and count
             const currentMassTotal = Math.max(-1000, left + center + right)
-            this.MASS_TOTAL_SUM += currentMassTotal
-            this.DATAPOINT_COUNT++
+            this.massTotalSum += currentMassTotal
+            this.dataPointCount++
 
             // Calculate the average dynamically
-            this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
+            this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
             // Check if device is being used
             checkActivity(center)
@@ -302,13 +310,13 @@ export class Motherboard extends Device implements IMotherboard {
             // Notify with weight data
             this.notifyCallback({
               massTotal: Math.max(-1000, left + center + right).toFixed(1),
-              massMax: this.MASS_MAX,
-              massAverage: this.MASS_AVERAGE,
+              massMax: this.massMax,
+              massAverage: this.massAverage,
               massLeft: Math.max(-1000, packet.masses[0]).toFixed(1),
               massCenter: Math.max(-1000, packet.masses[1]).toFixed(1),
               massRight: Math.max(-1000, packet.masses[2]).toFixed(1),
             })
-          } else if (this.writeLast === MotherboardCommands.GET_CALIBRATION) {
+          } else if (this.writeLast === this.commands.GET_CALIBRATION) {
             // check data integrity
             if ((receivedData.match(/,/g) || []).length === 3) {
               const parts: string[] = receivedData.split(",")
@@ -383,7 +391,7 @@ export class Motherboard extends Device implements IMotherboard {
     if (this.isConnected()) {
       // Write serial number command to the Motherboard and read output
       let response: string | undefined = undefined
-      await this.write("uart", "tx", MotherboardCommands.GET_SERIAL, 250, (data) => {
+      await this.write("uart", "tx", this.commands.GET_SERIAL, 250, (data) => {
         response = data
       })
       return response
@@ -399,7 +407,7 @@ export class Motherboard extends Device implements IMotherboard {
   stop = async (): Promise<void> => {
     if (this.isConnected()) {
       // Stop stream of device
-      await this.write("uart", "tx", MotherboardCommands.STOP_WEIGHT_MEAS, 0)
+      await this.write("uart", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
     }
   }
 
@@ -419,7 +427,7 @@ export class Motherboard extends Device implements IMotherboard {
         await this.calibration()
       }
       // Start streaming data
-      await this.write("uart", "tx", MotherboardCommands.START_WEIGHT_MEAS, duration)
+      await this.write("uart", "tx", this.commands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
         await this.stop()
@@ -441,7 +449,7 @@ export class Motherboard extends Device implements IMotherboard {
     if (this.isConnected()) {
       // Write text information command to the Motherboard and read output
       let response: string | undefined = undefined
-      await this.write("uart", "tx", MotherboardCommands.GET_TEXT, 250, (data) => {
+      await this.write("uart", "tx", this.commands.GET_TEXT, 250, (data) => {
         response = data
       })
       return response

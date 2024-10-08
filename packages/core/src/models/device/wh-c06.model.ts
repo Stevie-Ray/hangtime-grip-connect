@@ -1,6 +1,6 @@
 import { Device } from "../device.model"
-import { applyTare } from "../../tare"
-import { checkActivity } from "../../is-active"
+import { applyTare } from "../../helpers/tare"
+import { checkActivity } from "../../helpers/is-active"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
 
 /**
@@ -77,24 +77,24 @@ export class WHC06 extends Device implements IWHC06 {
           // Tare correction
           numericData -= applyTare(numericData)
 
-          // Update MASS_MAX
-          this.MASS_MAX = Math.max(Number(this.MASS_MAX), numericData).toFixed(1)
+          // Update massMax
+          this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
 
           // Update running sum and count
           const currentMassTotal = Math.max(-1000, numericData)
-          this.MASS_TOTAL_SUM += currentMassTotal
-          this.DATAPOINT_COUNT++
+          this.massTotalSum += currentMassTotal
+          this.dataPointCount++
 
           // Calculate the average dynamically
-          this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
+          this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
           // Check if device is being used
           checkActivity(numericData)
 
           // Notify with weight data
           this.notifyCallback({
-            massMax: this.MASS_MAX,
-            massAverage: this.MASS_AVERAGE,
+            massMax: this.massMax,
+            massAverage: this.massAverage,
             massTotal: Math.max(-1000, numericData).toFixed(1),
           })
         }

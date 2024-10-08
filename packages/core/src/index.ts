@@ -12,9 +12,8 @@ export {
 // helpers
 export { isEntralpi, isKilterBoard, isMotherboard, isWHC06, isProgressor } from "./helpers/is-device"
 
-// TODO: Make functions device specific
-export { download } from "./download"
+export { download } from "./helpers/download"
 
-export { active, isActive } from "./is-active"
+export { active, isActive } from "./helpers/is-active"
 
-export { tare } from "./tare"
+export { tare } from "./helpers/tare"

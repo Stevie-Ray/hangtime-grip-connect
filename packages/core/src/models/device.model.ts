@@ -1,14 +1,32 @@
 import { BaseModel } from "./../models/base.model"
 import type { IDevice, Service } from "../interfaces/device.interface"
 import type { NotifyCallback, massObject, WriteCallback } from "../interfaces/callback.interface"
+import type { Commands } from "../interfaces/command.interface"
 
 export abstract class Device extends BaseModel implements IDevice {
-  /** Filters to indentify the device */
+  /**
+   * Filters to identify the device during Bluetooth scanning.
+   * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
+   */
   public filters: BluetoothLEScanFilter[]
-  /** Array of services provided by the device */
+
+  /**
+   * Array of services provided by the device.
+   * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
+   */
   public services: Service[]
-  /** Reference to the BluetoothDevice object representing this device */
+
+  /**
+   * Reference to the `BluetoothDevice` object representing this device.
+   * This is the actual device object obtained from the Web Bluetooth API after a successful connection.
+   */
   public bluetooth?: BluetoothDevice | undefined
+
+  /**
+   * Object representing the set of commands available for this device.
+   * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
+   */
+  public commands: Commands
 
   /**
    * The BluetoothRemoteGATTServer interface of the Web Bluetooth API represents a GATT Server on a remote device.
@@ -20,14 +38,14 @@ export abstract class Device extends BaseModel implements IDevice {
    * @type {string}
    * @protected
    */
-  protected MASS_MAX: string
+  protected massMax: string
 
   /**
    * Average mass calculated from the device data, initialized to "0".
    * @type {string}
    * @protected
    */
-  protected MASS_AVERAGE: string
+  protected massAverage: string
 
   /**
    * Total sum of all mass data points recorded from the device.
@@ -35,7 +53,7 @@ export abstract class Device extends BaseModel implements IDevice {
    * @type {number}
    * @protected
    */
-  protected MASS_TOTAL_SUM: number
+  protected massTotalSum: number
 
   /**
    * Number of data points received from the device.
@@ -43,7 +61,7 @@ export abstract class Device extends BaseModel implements IDevice {
    * @type {number}
    * @protected
    */
-  protected DATAPOINT_COUNT: number
+  protected dataPointCount: number
 
   /**
    * Optional callback for handling write operations.
@@ -74,12 +92,13 @@ export abstract class Device extends BaseModel implements IDevice {
 
     this.filters = device.filters || []
     this.services = device.services || []
+    this.commands = device.commands || {}
     this.bluetooth = device.bluetooth
 
-    this.MASS_MAX = "0"
-    this.MASS_AVERAGE = "0"
-    this.MASS_TOTAL_SUM = 0
-    this.DATAPOINT_COUNT = 0
+    this.massMax = "0"
+    this.massAverage = "0"
+    this.massTotalSum = 0
+    this.dataPointCount = 0
   }
   /**
    * Connects to a Bluetooth device.

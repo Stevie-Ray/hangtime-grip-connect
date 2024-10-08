@@ -1,10 +1,44 @@
 import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
-import { ProgressorCommands, ProgressorResponses } from "../../commands/progressor"
 import struct from "../../helpers/struct"
-import { checkActivity } from "../../is-active"
-import { DownloadPackets, emptyDownloadPackets } from "../../download"
-import { applyTare } from "../../tare"
+import { checkActivity } from "../../helpers/is-active"
+import { DownloadPackets, emptyDownloadPackets } from "../../helpers/download"
+import { applyTare } from "../../helpers/tare"
+
+/**
+ * Represents the possible responses of a Tindeq Progressor device.
+ */
+enum ProgressorResponses {
+  /**
+   * Response received after sending a command to the device.
+   * This could include acknowledgment or specific data related to the command sent.
+   */
+  COMMAND_RESPONSE,
+
+  /**
+   * Data representing a weight measurement from the device.
+   * Typically used for tracking load or force applied.
+   */
+  WEIGHT_MEASURE,
+
+  /**
+   * Peak rate of force development (RFD) measurement.
+   * This measures how quickly the force is applied over time.
+   */
+  PEAK_RFD_MEAS,
+
+  /**
+   * Series of peak rate of force development (RFD) measurements.
+   * This could be used for analyzing force trends over multiple data points.
+   */
+  PEAK_RFD_MEAS_SERIES,
+
+  /**
+   * Low battery warning from the device.
+   * Indicates that the battery level is below a critical threshold.
+   */
+  LOW_BATTERY_WARNING,
+}
 
 /**
  * Represents a Tindeq Progressor device
@@ -44,6 +78,20 @@ export class Progressor extends Device implements IProgressor {
           ],
         },
       ],
+      commands: {
+        TARE_SCALE: "d", // 0x64
+        START_WEIGHT_MEAS: "e", // 0x65
+        STOP_WEIGHT_MEAS: "f", // 0x66
+        START_PEAK_RFD_MEAS: "g", //  0x67
+        START_PEAK_RFD_MEAS_SERIES: "h", //  0x68
+        ADD_CALIB_POINT: "i", //  0x69
+        SAVE_CALIB: "j", //  0x6a
+        GET_FW_VERSION: "k", //  0x6b
+        GET_ERR_INFO: "l", //  0x6c
+        CLR_ERR_INFO: "m", //  0x6d
+        SLEEP: "n", // 0x6e
+        GET_BATT_VLTG: "o", //  0x6f
+      },
     })
   }
 
@@ -54,7 +102,7 @@ export class Progressor extends Device implements IProgressor {
   battery = async (): Promise<string | undefined> => {
     if (this.isConnected()) {
       let response: string | undefined = undefined
-      await this.write("progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
+      await this.write("progressor", "tx", this.commands.GET_BATT_VLTG, 250, (data) => {
         response = data
       })
       return response
@@ -72,7 +120,7 @@ export class Progressor extends Device implements IProgressor {
     if (this.isConnected()) {
       // Read firmware version from the device
       let response: string | undefined = undefined
-      await this.write("progressor", "tx", ProgressorCommands.GET_FW_VERSION, 250, (data) => {
+      await this.write("progressor", "tx", this.commands.GET_FW_VERSION, 250, (data) => {
         response = data
       })
       return response
@@ -114,21 +162,21 @@ export class Progressor extends Device implements IProgressor {
               // Tare correction
               weight -= applyTare(weight)
               // Check for max weight
-              this.MASS_MAX = Math.max(Number(this.MASS_MAX), Number(weight)).toFixed(1)
+              this.massMax = Math.max(Number(this.massMax), Number(weight)).toFixed(1)
               // Update running sum and count
               const currentMassTotal = Math.max(-1000, Number(weight))
-              this.MASS_TOTAL_SUM += currentMassTotal
-              this.DATAPOINT_COUNT++
+              this.massTotalSum += currentMassTotal
+              this.dataPointCount++
 
               // Calculate the average dynamically
-              this.MASS_AVERAGE = (this.MASS_TOTAL_SUM / this.DATAPOINT_COUNT).toFixed(1)
+              this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
               // Check if device is being used
               checkActivity(weight)
 
               this.notifyCallback({
-                massMax: this.MASS_MAX,
-                massAverage: this.MASS_AVERAGE,
+                massMax: this.massMax,
+                massAverage: this.massAverage,
                 massTotal: Math.max(-1000, weight).toFixed(1),
               })
             }
@@ -138,11 +186,11 @@ export class Progressor extends Device implements IProgressor {
 
           let value = ""
 
-          if (this.writeLast === ProgressorCommands.GET_BATT_VLTG) {
+          if (this.writeLast === this.commands.GET_BATT_VLTG) {
             value = new DataView(data.buffer, 2).getUint32(0, true).toString()
-          } else if (this.writeLast === ProgressorCommands.GET_FW_VERSION) {
+          } else if (this.writeLast === this.commands.GET_FW_VERSION) {
             value = new TextDecoder().decode(data.buffer.slice(2))
-          } else if (this.writeLast === ProgressorCommands.GET_ERR_INFO) {
+          } else if (this.writeLast === this.commands.GET_ERR_INFO) {
             value = new TextDecoder().decode(data.buffer.slice(2))
           }
           this.writeCallback(value)
@@ -162,7 +210,7 @@ export class Progressor extends Device implements IProgressor {
   stop = async (): Promise<void> => {
     if (this.isConnected()) {
       // Stop stream of device
-      await this.write("progressor", "tx", ProgressorCommands.STOP_WEIGHT_MEAS, 0)
+      await this.write("progressor", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
     }
   }
 
@@ -176,7 +224,7 @@ export class Progressor extends Device implements IProgressor {
       // Reset download packets
       emptyDownloadPackets()
       // Start streaming data
-      await this.write("progressor", "tx", ProgressorCommands.START_WEIGHT_MEAS, duration)
+      await this.write("progressor", "tx", this.commands.START_WEIGHT_MEAS, duration)
       // Stop streaming if duration is set
       if (duration !== 0) {
         await this.stop()

@@ -1,4 +1,4 @@
-import type { DownloadPacket } from "./interfaces/download.interface"
+import type { DownloadPacket } from "../interfaces/download.interface"
 /**
  * Array of DownloadPacket entries.
  */
