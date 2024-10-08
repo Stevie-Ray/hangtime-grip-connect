@@ -13,9 +13,8 @@ import {
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons"
-import { Device } from "@hangtime/grip-connect/dist/models/device.model"
 
-const connectedDevices: Device[] = []
+const connectedDevices: (Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06)[] = []
 
 let chartElement: HTMLCanvasElement | null = null
 let chart: Chart | null = null
@@ -190,7 +189,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
    * @param {HTMLSelectElement} selectElement - The device select element.
    */
   function handleDeviceSelection(selectElement: HTMLSelectElement) {
-    let device: Device | null = null
+    let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06 | null = null
     const selectedDevice = selectElement.value
 
     if (selectedDevice === "climbro") {
@@ -390,12 +389,17 @@ export function setupChart(element: HTMLCanvasElement) {
 /**
  * Adds new data to the chart for a specific device.
  *
- * @param {Device} device - The device.
+ * @param {Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06} device - The device.
  * @param {string} mass - The total mass data.
  * @param {string} max - The maximum mass data.
  * @param {string} average - The average mass data.
  */
-function addChartData(device: Device, mass: string, max: string, average: string) {
+function addChartData(
+  device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06,
+  mass: string,
+  max: string,
+  average: string,
+) {
   if (chart && device !== undefined) {
     const numericMass = parseFloat(mass)
     const numericMax = parseFloat(max)

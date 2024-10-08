@@ -80,19 +80,19 @@ export class ForceBoard extends Device implements IForceBoard {
           ],
         },
         {
-          name: "",
-          id: "",
+          name: "Temperature Serivce",
+          id: "temperature",
           uuid: "3a90328c-c266-4c76-b05a-6af6104a0b13",
           characteristics: [
             {
               name: "Read",
-              id: "",
+              id: "level",
               uuid: "3a90328d-c266-4c76-b05a-6af6104a0b13",
             },
           ],
         },
         {
-          name: "",
+          name: "Forceboard Service",
           id: "forceboard",
           uuid: "9a88d67f-8df2-4afe-9e0d-c2bbbe773dd0",
           characteristics: [
