@@ -122,9 +122,9 @@ export interface IDevice extends IBase {
    * @param {string} serviceId - The service ID where the characteristic belongs.
    * @param {string} characteristicId - The characteristic ID to read from.
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
-   * @returns {Promise<string>} A promise that resolves when the read operation is completed.
+   * @returns {Promise<string | undefined>} A promise that resolves when the read operation is completed.
    */
-  read(serviceId: string, characteristicId: string, duration?: number): Promise<string>
+  read(serviceId: string, characteristicId: string, duration?: number): Promise<string | undefined>
 
   /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.

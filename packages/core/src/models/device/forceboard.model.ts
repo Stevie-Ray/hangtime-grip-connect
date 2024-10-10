@@ -169,11 +169,7 @@ export class ForceBoard extends Device implements IForceBoard {
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
    */
   battery = async (): Promise<string | undefined> => {
-    if (this.isConnected()) {
-      return await this.read("battery", "level", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("battery", "level", 250)
   }
 
   /**
@@ -181,12 +177,7 @@ export class ForceBoard extends Device implements IForceBoard {
    * @returns {Promise<string>} A Promise that resolves with the humidity level,
    */
   humidity = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      return await this.read("humidity", "level", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("humidity", "level", 250)
   }
 
   /**
@@ -194,12 +185,6 @@ export class ForceBoard extends Device implements IForceBoard {
    * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
    */
   manufacturer = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Read manufacturer information from the device
-      return await this.read("device", "manufacturer", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("device", "manufacturer", 250)
   }
 }

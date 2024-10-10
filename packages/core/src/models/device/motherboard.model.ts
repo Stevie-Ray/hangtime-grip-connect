@@ -174,11 +174,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
    */
   battery = async (): Promise<string | undefined> => {
-    if (this.isConnected()) {
-      return await this.read("battery", "level", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("battery", "level", 250)
   }
 
   /**
@@ -186,13 +182,9 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<void>} A Promise that resolves when the command is successfully sent.
    */
   calibration = async (): Promise<void> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Write the command to get calibration data to the device
-      await this.write("uart", "tx", this.commands.GET_CALIBRATION, 2500, (data) => {
-        console.log(data)
-      })
-    }
+    await this.write("uart", "tx", this.commands.GET_CALIBRATION, 2500, (data) => {
+      console.log(data)
+    })
   }
 
   /**
@@ -200,13 +192,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<string>} A Promise that resolves with the firmware version,
    */
   firmware = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Read firmware version from the Motherboard
-      return await this.read("device", "firmware", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("device", "firmware", 250)
   }
 
   /**
@@ -337,13 +323,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<string>} A Promise that resolves with the hardware version,
    */
   hardware = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Read hardware version from the device
-      return await this.read("device", "hardware", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("device", "hardware", 250)
   }
 
   /**
@@ -373,13 +353,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
    */
   manufacturer = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Read manufacturer information from the device
-      return await this.read("device", "manufacturer", 250)
-    }
-    // If device is not found, return undefined
-    return undefined
+    return await this.read("device", "manufacturer", 250)
   }
 
   /**
@@ -387,17 +361,11 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<string>} A Promise that resolves with the serial number,
    */
   serial = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Write serial number command to the Motherboard and read output
-      let response: string | undefined = undefined
-      await this.write("uart", "tx", this.commands.GET_SERIAL, 250, (data) => {
-        response = data
-      })
-      return response
-    }
-    // If device is not found, return undefined
-    return undefined
+    let response: string | undefined = undefined
+    await this.write("uart", "tx", this.commands.GET_SERIAL, 250, (data) => {
+      response = data
+    })
+    return response
   }
 
   /**
@@ -405,10 +373,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<void>} A promise that resolves when the stream is stopped.
    */
   stop = async (): Promise<void> => {
-    if (this.isConnected()) {
-      // Stop stream of device
-      await this.write("uart", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
-    }
+    await this.write("uart", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
   }
 
   /**
@@ -417,21 +382,17 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream = async (duration = 0): Promise<void> => {
-    if (this.isConnected()) {
-      // Reset download packets
-      emptyDownloadPackets()
-      // Device specific logic
-
-      // Read calibration data if not already available
-      if (!this.CALIBRATION[0].length) {
-        await this.calibration()
-      }
-      // Start streaming data
-      await this.write("uart", "tx", this.commands.START_WEIGHT_MEAS, duration)
-      // Stop streaming if duration is set
-      if (duration !== 0) {
-        await this.stop()
-      }
+    // Reset download packets
+    emptyDownloadPackets()
+    // Read calibration data if not already available
+    if (!this.CALIBRATION[0].length) {
+      await this.calibration()
+    }
+    // Start streaming data
+    await this.write("uart", "tx", this.commands.START_WEIGHT_MEAS, duration)
+    // Stop streaming if duration is set
+    if (duration !== 0) {
+      await this.stop()
     }
   }
 
@@ -445,16 +406,10 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<string>} A Promise that resolves with the 320-byte memory content as a string,
    */
   text = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Write text information command to the Motherboard and read output
-      let response: string | undefined = undefined
-      await this.write("uart", "tx", this.commands.GET_TEXT, 250, (data) => {
-        response = data
-      })
-      return response
-    }
-    // If device is not found, return undefined
-    return undefined
+    let response: string | undefined = undefined
+    await this.write("uart", "tx", this.commands.GET_TEXT, 250, (data) => {
+      response = data
+    })
+    return response
   }
 }

@@ -100,15 +100,11 @@ export class Progressor extends Device implements IProgressor {
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information,
    */
   battery = async (): Promise<string | undefined> => {
-    if (this.isConnected()) {
-      let response: string | undefined = undefined
-      await this.write("progressor", "tx", this.commands.GET_BATT_VLTG, 250, (data) => {
-        response = data
-      })
-      return response
-    }
-    // If device is not found, return undefined
-    return undefined
+    let response: string | undefined = undefined
+    await this.write("progressor", "tx", this.commands.GET_BATT_VLTG, 250, (data) => {
+      response = data
+    })
+    return response
   }
 
   /**
@@ -116,17 +112,11 @@ export class Progressor extends Device implements IProgressor {
    * @returns {Promise<string>} A Promise that resolves with the firmware version,
    */
   firmware = async (): Promise<string | undefined> => {
-    // Check if the device is connected
-    if (this.isConnected()) {
-      // Read firmware version from the device
-      let response: string | undefined = undefined
-      await this.write("progressor", "tx", this.commands.GET_FW_VERSION, 250, (data) => {
-        response = data
-      })
-      return response
-    }
-    // If device is not found, return undefined
-    return undefined
+    let response: string | undefined = undefined
+    await this.write("progressor", "tx", this.commands.GET_FW_VERSION, 250, (data) => {
+      response = data
+    })
+    return response
   }
 
   /**
@@ -208,10 +198,7 @@ export class Progressor extends Device implements IProgressor {
    * @returns {Promise<void>} A promise that resolves when the stream is stopped.
    */
   stop = async (): Promise<void> => {
-    if (this.isConnected()) {
-      // Stop stream of device
-      await this.write("progressor", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
-    }
+    await this.write("progressor", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
   }
 
   /**
@@ -220,15 +207,13 @@ export class Progressor extends Device implements IProgressor {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream = async (duration = 0): Promise<void> => {
-    if (this.isConnected()) {
-      // Reset download packets
-      emptyDownloadPackets()
-      // Start streaming data
-      await this.write("progressor", "tx", this.commands.START_WEIGHT_MEAS, duration)
-      // Stop streaming if duration is set
-      if (duration !== 0) {
-        await this.stop()
-      }
+    // Reset download packets
+    emptyDownloadPackets()
+    // Start streaming data
+    await this.write("progressor", "tx", this.commands.START_WEIGHT_MEAS, duration)
+    // Stop streaming if duration is set
+    if (duration !== 0) {
+      await this.stop()
     }
   }
 }

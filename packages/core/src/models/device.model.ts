@@ -276,41 +276,36 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {string} serviceId - The service ID where the characteristic belongs.
    * @param {string} characteristicId - The characteristic ID to read from.
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
-   * @returns {Promise<string>} A promise that resolves when the read operation is completed.
+   * @returns {Promise<string | undefined>} A promise that resolves when the read operation is completed.
    */
-  read = (serviceId: string, characteristicId: string, duration = 0): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (this.isConnected()) {
-        const characteristic = this.getCharacteristic(serviceId, characteristicId)
+  read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
+    if (!this.isConnected()) {
+      return undefined
+    }
+    // Get the characteristic from the service
+    const characteristic = this.getCharacteristic(serviceId, characteristicId)
+    if (!characteristic) {
+      throw new Error("Characteristic is undefined")
+    }
+    // Decode the value based on characteristicId and serviceId
+    let decodedValue: string
+    const decoder = new TextDecoder("utf-8")
+    // Read the value from the characteristic
+    const value = await characteristic.readValue()
 
-        if (characteristic) {
-          characteristic
-            .readValue()
-            .then((value) => {
-              let decodedValue: string
-              const decoder = new TextDecoder("utf-8")
-              switch (characteristicId) {
-                case "level":
-                  // TODO: This is battery specific.
-                  decodedValue = value.getUint8(0).toString()
-                  break
-                default:
-                  decodedValue = decoder.decode(value)
-                  break
-              }
-              // Resolve after specified duration
-              setTimeout(() => {
-                return resolve(decodedValue)
-              }, duration)
-            })
-            .catch((error) => {
-              reject(error)
-            })
-        } else {
-          reject(new Error("Characteristic is undefined"))
-        }
-      }
-    })
+    if (serviceId === "battery" && characteristicId === "level") {
+      // This is battery-specific; return the first byte as the level
+      decodedValue = value.getUint8(0).toString()
+    } else {
+      // Otherwise use a UTF-8 decoder
+      decodedValue = decoder.decode(value)
+    }
+    // Wait for the specified duration before returning the result
+    if (duration > 0) {
+      await new Promise((resolve) => setTimeout(resolve, duration))
+    }
+
+    return decodedValue
   }
   /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
@@ -337,31 +332,26 @@ export abstract class Device extends BaseModel implements IDevice {
     duration = 0,
     callback: WriteCallback = this.writeCallback,
   ): Promise<void> => {
-    if (this.isConnected()) {
-      // Check if message is provided
-      if (message === undefined) {
-        // If not provided, return without performing write operation
-        return
-      }
-      // Get the characteristic from the device using serviceId and characteristicId
-      const characteristic = this.getCharacteristic(serviceId, characteristicId)
-      if (!characteristic) {
-        throw new Error("Characteristic is undefined")
-      }
-      // Convert the message to Uint8Array if it's a string
-      const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
-      // Write the value to the characteristic
-      await characteristic.writeValue(valueToWrite)
-      // Update the last written message
-      this.writeLast = message
-      // Assign the provided callback to `writeCallback`
-
-      this.writeCallback = callback
-      // If a duration is specified, resolve the promise after the duration
-
-      if (duration > 0) {
-        await new Promise<void>((resolve) => setTimeout(resolve, duration))
-      }
+    // Check if not connected or no message is provided
+    if (!this.isConnected() || message === undefined) {
+      return undefined
+    }
+    // Get the characteristic from the service
+    const characteristic = this.getCharacteristic(serviceId, characteristicId)
+    if (!characteristic) {
+      throw new Error("Characteristic is undefined")
+    }
+    // Convert the message to Uint8Array if it's a string
+    const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
+    // Write the value to the characteristic
+    await characteristic.writeValue(valueToWrite)
+    // Update the last written message
+    this.writeLast = message
+    // Assign the provided callback to `writeCallback`
+    this.writeCallback = callback
+    // If a duration is specified, resolve the promise after the duration
+    if (duration > 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, duration))
     }
   }
 }
