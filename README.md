@@ -117,7 +117,7 @@ motherboardButton.addEventListener("click", () => {
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
 - ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu Scale
-- ⏳ [PitchSix Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
+- ✅ [PitchSix Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
 - ➡️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
 

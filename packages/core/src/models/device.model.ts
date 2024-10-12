@@ -293,7 +293,10 @@ export abstract class Device extends BaseModel implements IDevice {
     // Read the value from the characteristic
     const value = await characteristic.readValue()
 
-    if (serviceId === "battery" && characteristicId === "level") {
+    if (
+      (serviceId === "battery" || serviceId === "humidity" || serviceId === "temperature") &&
+      characteristicId === "level"
+    ) {
       // This is battery-specific; return the first byte as the level
       decodedValue = value.getUint8(0).toString()
     } else {

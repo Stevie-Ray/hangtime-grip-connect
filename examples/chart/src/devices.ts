@@ -83,7 +83,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
           isStreaming = false
           convertFontAwesome()
           connectedDevices.forEach(async (device) => {
-            if (device instanceof Motherboard || device instanceof Progressor) {
+            if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
               await device.stop()
             }
           })
@@ -92,7 +92,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
           isStreaming = true
           convertFontAwesome()
           connectedDevices.forEach(async (device) => {
-            if (device instanceof Motherboard || device instanceof Progressor) {
+            if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
               await device.stream()
             }
           })
@@ -291,6 +291,13 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
             console.log("Humidity Level:", humidityLevel)
             outputElement.textContent += `Humidity Level: ${humidityLevel}\r\n`
           }
+          const temperatureLevel = Number(await device.temperature())
+          if (temperatureLevel) {
+            const celsius = ((temperatureLevel - 32) * 5) / 9
+            console.log("Temperature Level Fahrenheit:", temperatureLevel.toString())
+            console.log("Temperature Level in Celsius:", celsius.toFixed(1))
+            outputElement.textContent += `Temperature Level: ${temperatureLevel.toString()}°F / ${celsius.toFixed(1)}°C\r\n`
+          }
         }
 
         if (device instanceof Motherboard) {
@@ -317,7 +324,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
         }
 
         // Start streaming
-        if (device instanceof Motherboard || device instanceof Progressor) {
+        if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
           await device.stream()
         }
 

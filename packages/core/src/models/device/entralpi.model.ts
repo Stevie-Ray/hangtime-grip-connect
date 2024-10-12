@@ -151,7 +151,7 @@ export class Entralpi extends Device implements IEntralpi {
   }
 
   /**
-   * Handles data received from the Progressor device, processes weight measurements,
+   * Handles data received from the device, processes weight measurements,
    * and updates mass data including maximum and average values.
    * It also handles command responses for retrieving device information.
    *

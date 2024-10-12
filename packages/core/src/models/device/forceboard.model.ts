@@ -1,5 +1,8 @@
 import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
+import { emptyDownloadPackets } from "../../helpers/download"
+import { checkActivity } from "../../helpers/is-active"
+import { applyTare } from "../../helpers/tare"
 
 /**
  * Represents a PitchSix Force Board device
@@ -144,13 +147,13 @@ export class ForceBoard extends Device implements IForceBoard {
           ],
         },
         {
-          name: "",
-          id: "",
+          name: "Weight Serivce",
+          id: "weight",
           uuid: "467a8516-6e39-11eb-9439-0242ac130002",
           characteristics: [
             {
               name: "Read + Write",
-              id: "",
+              id: "tx",
               uuid: "467a8517-6e39-11eb-9439-0242ac130002",
             },
             {
@@ -161,6 +164,9 @@ export class ForceBoard extends Device implements IForceBoard {
           ],
         },
       ],
+      commands: {
+        STOP_WEIGHT_MEAS: "",
+      },
     })
   }
 
@@ -170,6 +176,53 @@ export class ForceBoard extends Device implements IForceBoard {
    */
   battery = async (): Promise<string | undefined> => {
     return await this.read("battery", "level", 250)
+  }
+
+  /**
+   * Handles data received from the device, processes weight measurements,
+   * and updates mass data including maximum and average values.
+   * It also handles command responses for retrieving device information.
+   *
+   * @param {Event} event - The notification event.
+   */
+  handleNotifications = (event: Event): void => {
+    const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
+    const value: DataView | undefined = characteristic.value
+    if (value) {
+      if (value.buffer) {
+        const buffer: ArrayBuffer = value.buffer
+        const rawData: DataView = new DataView(buffer)
+
+        const receivedData = rawData.getUint8(4) // Read the value at index 4
+
+        // Convert from LBS to KG
+        let numericData = receivedData * 0.453592
+
+        // Tare correction
+        numericData -= applyTare(numericData)
+
+        // Update massMax
+        this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
+
+        // Update running sum and count
+        const currentMassTotal = Math.max(-1000, numericData)
+        this.massTotalSum += currentMassTotal
+        this.dataPointCount++
+
+        // Calculate the average dynamically
+        this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+
+        // Check if device is being used
+        checkActivity(numericData)
+
+        // Notify with weight data
+        this.notifyCallback({
+          massMax: this.massMax,
+          massAverage: this.massAverage,
+          massTotal: Math.max(-1000, numericData).toFixed(1),
+        })
+      }
+    }
   }
 
   /**
@@ -186,5 +239,37 @@ export class ForceBoard extends Device implements IForceBoard {
    */
   manufacturer = async (): Promise<string | undefined> => {
     return await this.read("device", "manufacturer", 250)
+  }
+
+  /**
+   * Stops the data stream on the specified device.
+   * @returns {Promise<void>} A promise that resolves when the stream is stopped.
+   */
+  stop = async (): Promise<void> => {
+    await this.write("weight", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
+  }
+
+  /**
+   * Starts streaming data from the specified device.
+   * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
+   * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
+   */
+  stream = async (duration = 0): Promise<void> => {
+    // Reset download packets
+    emptyDownloadPackets()
+    // Start streaming data
+    await this.write("weight", "tx", new Uint8Array([0x04]), duration) // ASCII control character EOT (End of Transmission)
+    // Stop streaming if duration is set
+    if (duration !== 0) {
+      await this.stop()
+    }
+  }
+
+  /**
+   * Retrieves temperature information from the device.
+   * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
+   */
+  temperature = async (): Promise<string | undefined> => {
+    return await this.read("temperature", "level", 250)
   }
 }
