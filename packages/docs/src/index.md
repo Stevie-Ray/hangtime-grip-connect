@@ -1,6 +1,7 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+title: "Documentation"
 
 hero:
   name: "Force-Sensing Climbing Training"

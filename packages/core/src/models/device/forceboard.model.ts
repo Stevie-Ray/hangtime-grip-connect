@@ -1,6 +1,6 @@
 import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
-import { emptyDownloadPackets } from "../../helpers/download"
+import { DownloadPackets, emptyDownloadPackets } from "../../helpers/download"
 import { checkActivity } from "../../helpers/is-active"
 import { applyTare } from "../../helpers/tare"
 
@@ -192,14 +192,21 @@ export class ForceBoard extends Device implements IForceBoard {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
+        const receivedTime: number = Date.now()
 
         const receivedData = rawData.getUint8(4) // Read the value at index 4
-
         // Convert from LBS to KG
-        let numericData = receivedData * 0.453592
-
+        const convertedReceivedData = receivedData * 0.453592
         // Tare correction
-        numericData -= applyTare(numericData)
+        const numericData = convertedReceivedData - applyTare(convertedReceivedData)
+        // Add data to downloadable Array
+        DownloadPackets.push({
+          received: receivedTime,
+          sampleNum: this.dataPointCount,
+          battRaw: 0,
+          samples: [convertedReceivedData],
+          masses: [numericData],
+        })
 
         // Update massMax
         this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)

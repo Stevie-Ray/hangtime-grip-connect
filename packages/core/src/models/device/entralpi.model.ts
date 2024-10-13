@@ -2,6 +2,7 @@ import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { applyTare } from "../../helpers/tare"
 import { checkActivity } from "../../helpers/is-active"
+import { DownloadPackets } from "../../helpers/download"
 
 export class Entralpi extends Device implements IEntralpi {
   constructor() {
@@ -165,12 +166,20 @@ export class Entralpi extends Device implements IEntralpi {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
         const rawData: DataView = new DataView(buffer)
+        const receivedTime: number = Date.now()
         const receivedData: string = (rawData.getUint16(0) / 100).toFixed(1)
 
-        let numericData = Number(receivedData)
-
+        const convertedData = Number(receivedData)
         // Tare correction
-        numericData -= applyTare(numericData)
+        const numericData = convertedData - applyTare(convertedData)
+        // Add data to downloadable Array
+        DownloadPackets.push({
+          received: receivedTime,
+          sampleNum: this.dataPointCount,
+          battRaw: 0,
+          samples: [convertedData],
+          masses: [numericData],
+        })
 
         // Update massMax
         this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)

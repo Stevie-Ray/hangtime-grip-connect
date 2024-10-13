@@ -133,28 +133,28 @@ export class Progressor extends Device implements IProgressor {
     if (value) {
       if (value.buffer) {
         const buffer: ArrayBuffer = value.buffer
-        const data: DataView = new DataView(buffer)
+        const rawData: DataView = new DataView(buffer)
         const receivedTime: number = Date.now()
-        const [kind] = struct("<bb").unpack(data.buffer.slice(0, 2))
+        const [kind] = struct("<bb").unpack(rawData.buffer.slice(0, 2))
         if (kind === ProgressorResponses.WEIGHT_MEASURE) {
-          const iterable: IterableIterator<unknown[]> = struct("<fi").iter_unpack(data.buffer.slice(2))
+          const iterable: IterableIterator<unknown[]> = struct("<fi").iter_unpack(rawData.buffer.slice(2))
           // eslint-disable-next-line prefer-const
           for (let [weight, seconds] of iterable) {
             if (typeof weight === "number" && !isNaN(weight) && typeof seconds === "number" && !isNaN(seconds)) {
-              // Add data to downloadable Array: sample and mass are the same
+              // Tare correction
+              const numericData = weight - applyTare(weight)
+              // Add data to downloadable Array
               DownloadPackets.push({
                 received: receivedTime,
                 sampleNum: seconds,
                 battRaw: 0,
                 samples: [weight],
-                masses: [weight],
+                masses: [numericData],
               })
-              // Tare correction
-              weight -= applyTare(weight)
               // Check for max weight
-              this.massMax = Math.max(Number(this.massMax), Number(weight)).toFixed(1)
+              this.massMax = Math.max(Number(this.massMax), Number(numericData)).toFixed(1)
               // Update running sum and count
-              const currentMassTotal = Math.max(-1000, Number(weight))
+              const currentMassTotal = Math.max(-1000, Number(numericData))
               this.massTotalSum += currentMassTotal
               this.dataPointCount++
 
@@ -162,12 +162,12 @@ export class Progressor extends Device implements IProgressor {
               this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
               // Check if device is being used
-              checkActivity(weight)
+              checkActivity(numericData)
 
               this.notifyCallback({
                 massMax: this.massMax,
                 massAverage: this.massAverage,
-                massTotal: Math.max(-1000, weight).toFixed(1),
+                massTotal: Math.max(-1000, numericData).toFixed(1),
               })
             }
           }
@@ -177,11 +177,11 @@ export class Progressor extends Device implements IProgressor {
           let value = ""
 
           if (this.writeLast === this.commands.GET_BATT_VLTG) {
-            value = new DataView(data.buffer, 2).getUint32(0, true).toString()
+            value = new DataView(rawData.buffer, 2).getUint32(0, true).toString()
           } else if (this.writeLast === this.commands.GET_FW_VERSION) {
-            value = new TextDecoder().decode(data.buffer.slice(2))
+            value = new TextDecoder().decode(rawData.buffer.slice(2))
           } else if (this.writeLast === this.commands.GET_ERR_INFO) {
-            value = new TextDecoder().decode(data.buffer.slice(2))
+            value = new TextDecoder().decode(rawData.buffer.slice(2))
           }
           this.writeCallback(value)
         } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
