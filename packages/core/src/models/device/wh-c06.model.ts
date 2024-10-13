@@ -2,6 +2,7 @@ import { Device } from "../device.model"
 import { applyTare } from "../../helpers/tare"
 import { checkActivity } from "../../helpers/is-active"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
+import { DownloadPackets } from "../../helpers/download"
 
 /**
  * Represents a  Weiheng - WH-C06 (or MAT Muscle Meter) device
@@ -58,7 +59,7 @@ export class WHC06 extends Device implements IWHC06 {
         throw new Error("GATT is not available on this device")
       }
 
-      // Device has no services / characteristics
+      // Device has no services / characteristics, so we directly call onSuccess
       onSuccess()
 
       // WH-C06
@@ -71,11 +72,20 @@ export class WHC06 extends Device implements IWHC06 {
           const weight = (data.getUint8(WHC06.WEIGHT_OFFSET) << 8) | data.getUint8(WHC06.WEIGHT_OFFSET + 1)
           // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
           // const unit = data.getUint8(STABLE_OFFSET) & 0x0f
-
-          let numericData = weight / 100
+          const receivedTime: number = Date.now()
+          const receivedData = weight / 100
 
           // Tare correction
-          numericData -= applyTare(numericData)
+          const numericData = receivedData - applyTare(receivedData)
+
+          // Add data to downloadable Array
+          DownloadPackets.push({
+            received: receivedTime,
+            sampleNum: this.dataPointCount,
+            battRaw: 0,
+            samples: [numericData],
+            masses: [numericData],
+          })
 
           // Update massMax
           this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
