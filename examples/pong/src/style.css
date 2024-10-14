@@ -34,6 +34,16 @@ body {
   margin: auto;
 }
 
+#error {
+  max-width: 384px;
+  white-space: pre;
+  justify-content: center;
+  background-color: #898989;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 1rem auto 0;
+}
+
 input {
   max-width: 120px;
 }

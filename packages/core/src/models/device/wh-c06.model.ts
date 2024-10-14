@@ -11,14 +11,30 @@ import { DownloadPackets } from "../../helpers/download"
 export class WHC06 extends Device implements IWHC06 {
   /**
    * Offset for the byte location in the manufacturer data to extract the weight.
-   * This value is constant across all instances of the class.
    * @type {number}
    * @constant
    */
   private static readonly WEIGHT_OFFSET = 10
+  /**
+   * Company identifier for WH-C06, also used by 'TomTom International BV': https://www.bluetooth.com/specifications/assigned-numbers/
+   * @type {number}
+   * @constant
+   */
+  private static readonly MANUFACTURER_ID: number = 256
+  /**
+   * To track disconnection timeout.
+   * @type {number|null}
+   * @constant
+   */
+  private advertisementTimeout: number | null = null
+  /**
+   * The limit in seconds when timeout is triggered
+   * @type {number|null}
+   * @constant
+   */
+  private advertisementTimeoutTime = 10
 
   // private static readonly  STABLE_OFFSET = 14
-
   constructor() {
     super({
       filters: [
@@ -34,7 +50,6 @@ export class WHC06 extends Device implements IWHC06 {
       services: [],
     })
   }
-
   /**
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
@@ -62,11 +77,8 @@ export class WHC06 extends Device implements IWHC06 {
       // Device has no services / characteristics, so we directly call onSuccess
       onSuccess()
 
-      // WH-C06
-      const MANUFACTURER_ID = 256 // 0x0100
-
       this.bluetooth.addEventListener("advertisementreceived", (event) => {
-        const data = event.manufacturerData.get(MANUFACTURER_ID)
+        const data = event.manufacturerData.get(WHC06.MANUFACTURER_ID)
         if (data) {
           // Handle recieved data
           const weight = (data.getUint8(WHC06.WEIGHT_OFFSET) << 8) | data.getUint8(WHC06.WEIGHT_OFFSET + 1)
@@ -108,6 +120,8 @@ export class WHC06 extends Device implements IWHC06 {
             massTotal: Math.max(-1000, numericData).toFixed(1),
           })
         }
+        // Reset "still advertising" counter
+        this.resetAdvertisementTimeout()
       })
 
       // When the companyIdentifier is provided we want to get manufacturerData using watchAdvertisements.
@@ -126,5 +140,32 @@ export class WHC06 extends Device implements IWHC06 {
     } catch (error) {
       onError(error as Error)
     }
+  }
+  /**
+   * Custom check if a Bluetooth device is connected.
+   * For the WH-C06 device, the `gatt.connected` property remains `false` even after the device is connected.
+   * @returns {boolean} A boolean indicating whether the device is connected.
+   */
+  isConnected = (): boolean => {
+    return !!this.bluetooth
+  }
+  /**
+   * Resets the timeout that checks if the device is still advertising.
+   */
+  private resetAdvertisementTimeout = (): void => {
+    // Clear the previous timeout
+    if (this.advertisementTimeout) {
+      clearTimeout(this.advertisementTimeout)
+    }
+
+    // Set a new timeout to stop tracking if no advertisement is received
+    this.advertisementTimeout = window.setTimeout(() => {
+      // Mimic a disconnect
+      const disconnectedEvent = new Event("gattserverdisconnected")
+      Object.defineProperty(disconnectedEvent, "target", { value: this.bluetooth, writable: false })
+      // Also display a e
+      throw new Error(`No advertisement received for ${this.advertisementTimeoutTime} seconds, stopping tracking..`)
+      this.onDisconnected(disconnectedEvent)
+    }, this.advertisementTimeoutTime * 1000) // 10 seconds
   }
 }

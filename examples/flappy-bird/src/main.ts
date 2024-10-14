@@ -10,7 +10,7 @@ if (controllerElement) {
       <option value="">Select device</option>
       <option value="climbro" disabled>Climbro</option>
       <option value="entralpi">Entralpi</option>
-      <option value="forceboard" disabled>Force Board</option>
+      <option value="forceboard">Force Board</option>
       <option value="motherboard">Motherboard</option>
       <option value="smartboard" disabled>mySmartBoard</option>
       <option value="progressor">Progressor</option>
@@ -23,15 +23,17 @@ if (controllerElement) {
       <option value="normal" selected>Normal</option>
       <option value="hard">Hard</option>
     </select>
+    <div id="error" style="display:none;"></div>
   `
 }
 
 const deviceSelectElement = document.querySelector<HTMLSelectElement>("#deviceSelect")
 const weightInputElement = document.querySelector<HTMLInputElement>("#weightInput")
 const difficultySelectElement = document.querySelector<HTMLSelectElement>("#difficultySelect")
+const errorElement = document.querySelector<HTMLDivElement>("#error")
 
-if (deviceSelectElement) {
-  setupDevice(deviceSelectElement)
+if (deviceSelectElement && errorElement) {
+  setupDevice(deviceSelectElement, errorElement)
 }
 
 if (weightInputElement) {

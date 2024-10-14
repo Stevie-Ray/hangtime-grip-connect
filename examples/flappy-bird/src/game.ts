@@ -1,26 +1,19 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
-import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 let mass: number
 let weight = 75
 let difficulty = 0.5
 let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
 
-function getBluetoothData() {
-  device.connect(async () => {
-    // Listen for notifications
-    device.notify((data: massObject) => {
-      mass = Number(data.massTotal)
-    })
-    if (device instanceof Motherboard || device instanceof Progressor) {
-      await device.stream()
-    }
-  })
-}
-
-export function setupDevice(element: HTMLSelectElement) {
-  element.addEventListener("change", () => {
-    const selectedDevice = element.value
+/**
+ * Sets up the device selection functionality and event listeners for streaming, tare, and download actions.
+ *
+ * @param {HTMLSelectElement} selectElement - The HTML select element to select the device.
+ * @param {HTMLDivElement} outputElement - The HTML element to display output/erros.
+ */
+export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTMLDivElement) {
+  selectElement.addEventListener("change", async () => {
+    const selectedDevice = selectElement.value
 
     if (selectedDevice === "climbro") {
       device = new Climbro()
@@ -37,7 +30,24 @@ export function setupDevice(element: HTMLSelectElement) {
     } else if (selectedDevice === "whc06") {
       device = new WHC06()
     }
-    getBluetoothData()
+
+    // Handle notifications
+    device.notify((data) => {
+      mass = Number(data.massTotal)
+    })
+
+    await device.connect(
+      async () => {
+        if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
+          // Request notifications
+          await device.stream()
+        }
+      },
+      (error: Error) => {
+        outputElement.innerHTML = error.message
+        outputElement.style.display = "flex"
+      },
+    )
   })
 }
 
@@ -84,9 +94,15 @@ async function handleUserInput(): Promise<void> {
         state.curr = state.Play
         SFX.start.play()
       } else {
-        getBluetoothData()
-        state.curr = state.Play
-        SFX.start.play()
+        await device.connect(async () => {
+          if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
+            // Request notifications
+            await device.stream()
+            // Play game
+            state.curr = state.Play
+            SFX.start.play()
+          }
+        })
       }
       break
     case state.Play:

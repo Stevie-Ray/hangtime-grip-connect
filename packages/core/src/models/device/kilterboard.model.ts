@@ -67,19 +67,6 @@ export const KilterBoardPlacementRoles = [
 ]
 
 /**
- * Represents climbs_placements from the Kilter Board application
- */
-class ClimbPlacement {
-  position: number
-  role_id: number
-
-  constructor(position: number, role_id: number) {
-    this.position = position
-    this.role_id = role_id
-  }
-}
-
-/**
  * Represents a Aurora Climbing device
  * Kilter Board, Tension Board, Decoy Board, Touchstone Board, Grasshopper Board, Aurora Board, So iLL Board
  */
@@ -145,7 +132,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param data - The array of bytes to calculate the checksum for.
    * @returns The calculated checksum value.
    */
-  checksum(data: number[]) {
+  private checksum(data: number[]) {
     let i = 0
     for (const value of data) {
       i = (i + value) & 255
@@ -157,7 +144,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param data - The array of bytes to wrap.
    * @returns The wrapped byte array.
    */
-  wrapBytes(data: number[]) {
+  private wrapBytes(data: number[]) {
     if (data.length > this.MESSAGE_BODY_MAX_LENGTH) {
       return []
     }
@@ -180,7 +167,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param position - The position to encode.
    * @returns The encoded byte array representing the position.
    */
-  encodePosition(position: number) {
+  private encodePosition(position: number) {
     const position1 = position & 255
     const position2 = (position & 65280) >> 8
 
@@ -192,7 +179,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param color - The color string in hexadecimal format (e.g., 'FFFFFF').
    * @returns The encoded /compressed color value.
    */
-  encodeColor(color: string) {
+  private encodeColor(color: string) {
     const substring = color.substring(0, 2)
     const substring2 = color.substring(2, 4)
 
@@ -212,15 +199,15 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param ledColor - The color of the LED in hexadecimal format (e.g., 'FFFFFF').
    * @returns The encoded byte array representing the placement.
    */
-  encodePlacement(position: number, ledColor: string) {
+  private encodePlacement(position: number, ledColor: string) {
     return [...this.encodePosition(position), this.encodeColor(ledColor)]
   }
   /**
    * Prepares byte arrays for transmission based on a list of climb placements.
-   * @param climbPlacementList - The list of climb placements containing position and role ID.
-   * @returns The final byte array ready for transmission.
+   * @param {{ position: number; role_id: number }[]} climbPlacementList - The list of climb placements containing position and role ID.
+   * @returns {number[]} The final byte array ready for transmission.
    */
-  prepBytesV3(climbPlacementList: ClimbPlacement[]) {
+  private prepBytesV3(climbPlacementList: { position: number; role_id: number }[]) {
     const resultArray: number[][] = []
     let tempArray: number[] = [KilterBoardPacket.V3_MIDDLE]
 
@@ -260,7 +247,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param {Array} list
    * @return {Array}
    */
-  splitEvery(n: number, list: number[]) {
+  private splitEvery(n: number, list: number[]) {
     if (n <= 0) {
       throw new Error("First argument to splitEvery must be a positive integer")
     }
@@ -278,22 +265,22 @@ export class KilterBoard extends Device implements IKilterBoard {
    *
    * @param buffer
    */
-  splitMessages = (buffer: number[]) =>
+  private splitMessages = (buffer: number[]) =>
     this.splitEvery(this.MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
   /**
    * Sends a series of messages to a device.
    */
-  async writeMessageSeries(messages: Uint8Array[]) {
+  private async writeMessageSeries(messages: Uint8Array[]) {
     for (const message of messages) {
       await this.write("uart", "tx", message)
     }
   }
   /**
-   * Configures the LEDs based on an array of climb placements. If a configuration is provided, it prepares and sends a payload to the device.
-   * @param {ClimbPlacement[]} [config] - Optional color or array of climb placements for the LEDs. Ignored if placements are provided.
+   * Configures the LEDs based on an array of climb placements.
+   * @param {{ position: number; role_id: number }[]} config - Array of climb placements for the LEDs.
    * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
    */
-  led = async (config?: ClimbPlacement[]): Promise<number[] | undefined> => {
+  led = async (config: { position: number; role_id: number }[]): Promise<number[] | undefined> => {
     // Handle Kilterboard logic: process placements and send payload if connected
     if (Array.isArray(config)) {
       // Prepares byte arrays for transmission based on a list of climb placements.
