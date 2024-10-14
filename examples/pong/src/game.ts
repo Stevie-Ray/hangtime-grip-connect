@@ -451,7 +451,7 @@ const Game: GameType = {
       // Handle the 'Press any key to begin' function and start the game.
       if (!Pong.running) {
         if (device.isConnected()) {
-          if (device instanceof Motherboard || device instanceof Progressor) {
+          if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
             await device.stream()
           }
           Pong.running = true
