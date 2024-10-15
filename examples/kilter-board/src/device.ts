@@ -5,7 +5,7 @@ const device = new KilterBoard()
 
 export function setupDevice(element: HTMLButtonElement) {
   element.addEventListener("click", async () => {
-    device.connect(async () => {
+    await device.connect(async () => {
       // Map activeHolds array to objects with role_id and position properties
       const placement = activeHolds.map((activeHold) => {
         // Return the row from the extraced data with a matching placement ID

@@ -43,7 +43,7 @@ $ bun add @hangtime/grip-connect
 
 ## Example usage (Motherboard)
 
-Simply importing the utilities you need from `@hangtime/grip-connect`.
+Simply importing the device you need from `@hangtime/grip-connect`.
 
 ```html
 <button id="motherboard" type="button">Connect Motherboard</button>
@@ -52,20 +52,21 @@ Simply importing the utilities you need from `@hangtime/grip-connect`.
 ```js
 import { Motherboard, active } from "@hangtime/grip-connect"
 
+// Initiate device
+const motherboard = new Motherboard()
+
+// Add a custom notify handler
+motherboard.notify((data) => {
+  // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
+  console.log(data)
+})
+
 const motherboardButton = document.querySelector("#motherboard")
 
 motherboardButton.addEventListener("click", () => {
-  // setup device
-  const motherboard = new Motherboard()
   // connect to device
-  motherboard.connect(
+  await motherboard.connect(
     async () => {
-      // Listen for stream notifications
-      motherboard.notify((data) => {
-        // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
-        console.log(data)
-      })
-
       // Reactive check if device is active
       active(
         (isActive) => {
