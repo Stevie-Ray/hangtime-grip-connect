@@ -11,29 +11,44 @@ export class WHC06 extends Device implements IWHC06 {
   /**
    * Offset for the byte location in the manufacturer data to extract the weight.
    * @type {number}
+   * @static
+   * @readonly
    * @constant
    */
-  private static readonly WEIGHT_OFFSET = 10
+  private static readonly weightOffset: number = 10
+
   /**
    * Company identifier for WH-C06, also used by 'TomTom International BV': https://www.bluetooth.com/specifications/assigned-numbers/
    * @type {number}
+   * @static
+   * @readonly
    * @constant
    */
-  private static readonly MANUFACTURER_ID: number = 256
+  private static readonly manufacturerId: number = 256
+
   /**
    * To track disconnection timeout.
    * @type {number|null}
-   * @constant
+   * @private
    */
   private advertisementTimeout: number | null = null
+
   /**
    * The limit in seconds when timeout is triggered
-   * @type {number|null}
-   * @constant
+   * @type {number}
+   * @private
+   * @readonly
    */
-  private advertisementTimeoutTime = 10
+  private readonly advertisementTimeoutTime: number = 10
 
-  // private static readonly  STABLE_OFFSET = 14
+  // /**
+  //  * Offset for the byte location in the manufacturer data to determine weight stability.
+  //  * @type {number}
+  //  * @static
+  //  * @readonly
+  //  * @constant
+  //  */
+  // private static readonly stableOffset: number = 14
   constructor() {
     super({
       filters: [
@@ -78,10 +93,10 @@ export class WHC06 extends Device implements IWHC06 {
       onSuccess()
 
       this.bluetooth.addEventListener("advertisementreceived", (event) => {
-        const data = event.manufacturerData.get(WHC06.MANUFACTURER_ID)
+        const data = event.manufacturerData.get(WHC06.manufacturerId)
         if (data) {
           // Handle recieved data
-          const weight = (data.getUint8(WHC06.WEIGHT_OFFSET) << 8) | data.getUint8(WHC06.WEIGHT_OFFSET + 1)
+          const weight = (data.getUint8(WHC06.weightOffset) << 8) | data.getUint8(WHC06.weightOffset + 1)
           // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
           // const unit = data.getUint8(STABLE_OFFSET) & 0x0f
           const receivedTime: number = Date.now()

@@ -3,11 +3,12 @@
 All devices have the following functions:
 
 ```ts
- /**
+  /**
    * Filters to identify the device during Bluetooth scanning.
    * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
    * @type {BluetoothLEScanFilter[]}
    * @public
+   * @readonly
    */
   filters: BluetoothLEScanFilter[]
 
@@ -16,6 +17,7 @@ All devices have the following functions:
    * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
    * @type {Service[]}
    * @public
+   * @readonly
    */
   services: Service[]
 
@@ -32,6 +34,7 @@ All devices have the following functions:
    * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
    * @type {Commands}
    * @public
+   * @readonly
    */
   commands: Commands
 

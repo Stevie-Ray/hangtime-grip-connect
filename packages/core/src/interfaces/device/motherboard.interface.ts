@@ -5,14 +5,6 @@ import type { IDevice } from "../device.interface"
  */
 export interface IMotherboard extends IDevice {
   /**
-   * Applies calibration to a sample value.
-   * @param {number} sample - The sample value to calibrate.
-   * @param {number[][]} calibration - The calibration data.
-   * @returns {number} The calibrated sample value.
-   */
-  applyCalibration(sample: number, calibration: number[][]): number
-
-  /**
    * Retrieves battery or voltage information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
    */

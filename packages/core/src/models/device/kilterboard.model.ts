@@ -76,28 +76,32 @@ export class KilterBoard extends Device implements IKilterBoard {
    * This constant is used to identify the specific Bluetooth service for Kilter Boards.
    * @type {string}
    * @static
+   * @readonly
+   * @constant
    */
-  static AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
+  static readonly AuroraUUID: string = "4488b571-7806-4df6-bcff-a2897e4953ff"
 
   /**
    * Maximum length of the message body for byte wrapping.
    * This value defines the limit for the size of messages that can be sent or received
    * to ensure proper byte wrapping in communication.
-   *
    * @type {number}
    * @private
+   * @readonly
+   * @constant
    */
-  private MESSAGE_BODY_MAX_LENGTH = 255
+  private static readonly messageBodyMaxLength: number = 255
 
   /**
    * Maximum length of the Bluetooth message chunk.
    * This value sets the upper limit for the size of individual Bluetooth messages
    * sent to and from the device to comply with Bluetooth protocol constraints.
-   *
    * @type {number}
    * @private
+   * @readonly
+   * @constant
    */
-  private MAX_BLUETOOTH_MESSAGE_SIZE = 20
+  private static readonly maxBluetoothMessageSize: number = 20
 
   constructor() {
     super({
@@ -147,7 +151,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @returns The wrapped byte array.
    */
   private wrapBytes(data: number[]) {
-    if (data.length > this.MESSAGE_BODY_MAX_LENGTH) {
+    if (data.length > KilterBoard.messageBodyMaxLength) {
       return []
     }
     /**
@@ -218,7 +222,7 @@ export class KilterBoard extends Device implements IKilterBoard {
     let tempArray: number[] = [KilterBoardPacket.V3_MIDDLE]
 
     for (const climbPlacement of climbPlacementList) {
-      if (tempArray.length + 3 > this.MESSAGE_BODY_MAX_LENGTH) {
+      if (tempArray.length + 3 > KilterBoard.messageBodyMaxLength) {
         resultArray.push(tempArray)
         tempArray = [KilterBoardPacket.V3_MIDDLE]
       }
@@ -274,7 +278,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param buffer
    */
   private splitMessages = (buffer: number[]) =>
-    this.splitEvery(this.MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
+    this.splitEvery(KilterBoard.maxBluetoothMessageSize, buffer).map((arr) => new Uint8Array(arr))
 
   /**
    * Sends a series of messages to a device.

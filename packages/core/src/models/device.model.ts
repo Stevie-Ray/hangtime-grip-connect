@@ -10,16 +10,18 @@ export abstract class Device extends BaseModel implements IDevice {
    * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
    * @type {BluetoothLEScanFilter[]}
    * @public
+   * @readonly
    */
-  filters: BluetoothLEScanFilter[]
+  readonly filters: BluetoothLEScanFilter[]
 
   /**
    * Array of services provided by the device.
    * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
    * @type {Service[]}
    * @public
+   * @readonly
    */
-  services: Service[]
+  readonly services: Service[]
 
   /**
    * Reference to the `BluetoothDevice` object representing this device.
@@ -34,8 +36,9 @@ export abstract class Device extends BaseModel implements IDevice {
    * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
    * @type {Commands}
    * @public
+   * @readonly
    */
-  commands: Commands
+  readonly commands: Commands
 
   /**
    * The BluetoothRemoteGATTServer interface of the Web Bluetooth API represents a GATT Server on a remote device.
@@ -76,6 +79,9 @@ export abstract class Device extends BaseModel implements IDevice {
 
   /**
    * Array of DownloadPacket entries.
+   * This array holds packets that contain data downloaded from the device.
+   * @type {DownloadPacket[]}
+   * @protected
    */
   protected downloadPackets: DownloadPacket[] = [] // Initialize an empty array of DownloadPacket entries
 
@@ -100,6 +106,7 @@ export abstract class Device extends BaseModel implements IDevice {
   /**
    * The last message written to the device.
    * @type {string | Uint8Array | null}
+   * @protected
    */
   protected writeLast: string | Uint8Array | null = null
 

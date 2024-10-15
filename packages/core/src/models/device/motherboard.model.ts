@@ -10,31 +10,35 @@ import type { DownloadPacket } from "../../interfaces/download.interface"
 export class Motherboard extends Device implements IMotherboard {
   /**
    * Length of the packet received from the device.
-   * @private
    * @type {number}
+   * @static
+   * @readonly
+   * @constant
    */
-  private PACKET_LENGTH = 32
+  private static readonly packetLength: number = 32
 
   /**
    * Number of samples contained in the data packet.
-   * @private
    * @type {number}
+   * @static
+   * @readonly
+   * @constant
    */
-  private NUM_SAMPLES = 3
+  private static readonly samplesNumber: number = 3
 
   /**
    * Buffer to store received data from the device.
-   * @private
    * @type {number[]}
+   * @private
    */
   private receiveBuffer: number[] = []
 
   /**
    * Calibration data for each sensor of the device.
-   * @private
    * @type {number[][][]}
+   * @private
    */
-  private CALIBRATION: number[][][] = [[], [], [], []]
+  private calibrationData: number[][][] = [[], [], [], []]
 
   constructor() {
     super({
@@ -132,7 +136,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @param {number[][]} calibration - The calibration data.
    * @returns {number} The calibrated sample value.
    */
-  applyCalibration = (sample: number, calibration: number[][]): number => {
+  private applyCalibration = (sample: number, calibration: number[][]): number => {
     // Extract the calibrated value for the zero point
     const zeroCalibration: number = calibration[0][2]
     // Initialize sign as positive
@@ -224,7 +228,7 @@ export class Motherboard extends Device implements IMotherboard {
           const isAllHex: boolean = /^[0-9A-Fa-f]+$/g.test(receivedData)
 
           // Handle streaming packet
-          if (isAllHex && receivedData.length === this.PACKET_LENGTH) {
+          if (isAllHex && receivedData.length === Motherboard.packetLength) {
             // Base-16 decode the string: convert hex pairs to byte values
             const bytes: number[] = Array.from({ length: receivedData.length / 2 }, (_, i) =>
               Number(`0x${receivedData.substring(i * 2, i * 2 + 2)}`),
@@ -241,7 +245,7 @@ export class Motherboard extends Device implements IMotherboard {
 
             const dataView = new DataView(new Uint8Array(bytes).buffer)
 
-            for (let i = 0; i < this.NUM_SAMPLES; i++) {
+            for (let i = 0; i < Motherboard.samplesNumber; i++) {
               const sampleStart: number = 4 + 3 * i
               // Use DataView to read the 24-bit unsigned integer
               const rawValue =
@@ -255,7 +259,7 @@ export class Motherboard extends Device implements IMotherboard {
               if (packet.samples[i] >= 0x7fffff) {
                 packet.samples[i] -= 0x1000000
               }
-              packet.masses[i] = this.applyCalibration(packet.samples[i], this.CALIBRATION[i])
+              packet.masses[i] = this.applyCalibration(packet.samples[i], this.calibrationData[i])
             }
             // invert center and right values
             packet.masses[1] *= -1
@@ -306,7 +310,7 @@ export class Motherboard extends Device implements IMotherboard {
             if ((receivedData.match(/,/g) || []).length === 3) {
               const parts: string[] = receivedData.split(",")
               const numericParts: number[] = parts.map((x) => parseFloat(x))
-              ;(this.CALIBRATION[numericParts[0]] as number[][]).push(numericParts.slice(1))
+              ;(this.calibrationData[numericParts[0]] as number[][]).push(numericParts.slice(1))
             }
           } else {
             // unhandled data
@@ -384,7 +388,7 @@ export class Motherboard extends Device implements IMotherboard {
     // Reset download packets
     this.downloadPackets.length = 0
     // Read calibration data if not already available
-    if (!this.CALIBRATION[0].length) {
+    if (!this.calibrationData[0].length) {
       await this.calibration()
     }
     // Start streaming data

@@ -39,6 +39,7 @@ export interface IDevice extends IBase {
    * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
    * @type {BluetoothLEScanFilter[]}
    * @public
+   * @readonly
    */
   filters: BluetoothLEScanFilter[]
 
@@ -47,6 +48,7 @@ export interface IDevice extends IBase {
    * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
    * @type {Service[]}
    * @public
+   * @readonly
    */
   services: Service[]
 
@@ -63,6 +65,7 @@ export interface IDevice extends IBase {
    * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
    * @type {Commands}
    * @public
+   * @readonly
    */
   commands: Commands
 
