@@ -96,7 +96,7 @@ motherboardButton.addEventListener("click", () => {
       // await motherboard.stop()
 
       // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
-      // download('json')
+      // motherboard.download('json')
     },
     (error) => {
       // Optinal custom error handeling

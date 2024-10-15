@@ -2,7 +2,6 @@ import { Device } from "../device.model"
 import { applyTare } from "../../helpers/tare"
 import { checkActivity } from "../../helpers/is-active"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
-import { DownloadPackets } from "../../helpers/download"
 
 /**
  * Represents a  Weiheng - WH-C06 (or MAT Muscle Meter) device
@@ -50,6 +49,7 @@ export class WHC06 extends Device implements IWHC06 {
       services: [],
     })
   }
+
   /**
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
@@ -91,7 +91,7 @@ export class WHC06 extends Device implements IWHC06 {
           const numericData = receivedData - applyTare(receivedData)
 
           // Add data to downloadable Array
-          DownloadPackets.push({
+          this.downloadPackets.push({
             received: receivedTime,
             sampleNum: this.dataPointCount,
             battRaw: 0,
@@ -141,6 +141,7 @@ export class WHC06 extends Device implements IWHC06 {
       onError(error as Error)
     }
   }
+
   /**
    * Custom check if a Bluetooth device is connected.
    * For the WH-C06 device, the `gatt.connected` property remains `false` even after the device is connected.
@@ -149,6 +150,7 @@ export class WHC06 extends Device implements IWHC06 {
   isConnected = (): boolean => {
     return !!this.bluetooth
   }
+
   /**
    * Resets the timeout that checks if the device is still advertising.
    */
@@ -163,8 +165,8 @@ export class WHC06 extends Device implements IWHC06 {
       // Mimic a disconnect
       const disconnectedEvent = new Event("gattserverdisconnected")
       Object.defineProperty(disconnectedEvent, "target", { value: this.bluetooth, writable: false })
-      // Also display a e
-      throw new Error(`No advertisement received for ${this.advertisementTimeoutTime} seconds, stopping tracking..`)
+      // Print error to the console
+      console.error(`No advertisement received for ${this.advertisementTimeoutTime} seconds, stopping tracking..`)
       this.onDisconnected(disconnectedEvent)
     }, this.advertisementTimeoutTime * 1000) // 10 seconds
   }

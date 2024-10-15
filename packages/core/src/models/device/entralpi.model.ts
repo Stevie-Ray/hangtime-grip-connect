@@ -2,7 +2,6 @@ import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { applyTare } from "../../helpers/tare"
 import { checkActivity } from "../../helpers/is-active"
-import { DownloadPackets } from "../../helpers/download"
 
 export class Entralpi extends Device implements IEntralpi {
   constructor() {
@@ -173,7 +172,7 @@ export class Entralpi extends Device implements IEntralpi {
         // Tare correction
         const numericData = convertedData - applyTare(convertedData)
         // Add data to downloadable Array
-        DownloadPackets.push({
+        this.downloadPackets.push({
           received: receivedTime,
           sampleNum: this.dataPointCount,
           battRaw: 0,

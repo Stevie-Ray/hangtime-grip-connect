@@ -1,35 +1,46 @@
 import { BaseModel } from "./../models/base.model"
 import type { IDevice, Service } from "../interfaces/device.interface"
 import type { NotifyCallback, massObject, WriteCallback } from "../interfaces/callback.interface"
+import type { DownloadPacket } from "../interfaces/download.interface"
 import type { Commands } from "../interfaces/command.interface"
 
 export abstract class Device extends BaseModel implements IDevice {
   /**
    * Filters to identify the device during Bluetooth scanning.
    * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
+   * @type {BluetoothLEScanFilter[]}
+   * @public
    */
-  public filters: BluetoothLEScanFilter[]
+  filters: BluetoothLEScanFilter[]
 
   /**
    * Array of services provided by the device.
    * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
+   * @type {Service[]}
+   * @public
    */
-  public services: Service[]
+  services: Service[]
 
   /**
    * Reference to the `BluetoothDevice` object representing this device.
    * This is the actual device object obtained from the Web Bluetooth API after a successful connection.
+   * @type {BluetoothDevice | undefined}
+   * @public
    */
-  public bluetooth?: BluetoothDevice | undefined
+  bluetooth?: BluetoothDevice | undefined
 
   /**
    * Object representing the set of commands available for this device.
    * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
+   * @type {Commands}
+   * @public
    */
-  public commands: Commands
+  commands: Commands
 
   /**
    * The BluetoothRemoteGATTServer interface of the Web Bluetooth API represents a GATT Server on a remote device.
+   * @type {BluetoothRemoteGATTServer | undefined}
+   * @private
    */
   private server: BluetoothRemoteGATTServer | undefined
 
@@ -62,6 +73,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * @protected
    */
   protected dataPointCount: number
+
+  /**
+   * Array of DownloadPacket entries.
+   */
+  protected downloadPackets: DownloadPacket[] = [] // Initialize an empty array of DownloadPacket entries
 
   /**
    * Optional callback for handling write operations.
@@ -100,10 +116,12 @@ export abstract class Device extends BaseModel implements IDevice {
     this.massTotalSum = 0
     this.dataPointCount = 0
   }
+
   /**
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
    * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
+   * @public
    */
   connect = async (
     onSuccess: () => void = () => console.log("Connected successfully"),
@@ -135,10 +153,12 @@ export abstract class Device extends BaseModel implements IDevice {
       onError(error as Error)
     }
   }
+
   /**
    * Disconnects the device if it is currently connected.
    * - Checks if the device is connected via it's GATT server.
    * - If the device is connected, it attempts to gracefully disconnect.
+   * @public
    */
   disconnect = (): void => {
     // Verify that the device is connected using the provided helper function
@@ -147,20 +167,141 @@ export abstract class Device extends BaseModel implements IDevice {
       this.bluetooth?.gatt?.disconnect()
     }
   }
+
+  /**
+   * Converts the `downloadPackets` array into a CSV formatted string.
+   * @returns {string} A CSV string representation of the `downloadPackets` data, with each packet on a new line.
+   * @private
+   */
+  private downloadToCSV = (): string => {
+    return this.downloadPackets
+      .map((packet) =>
+        [
+          packet.received.toString(),
+          packet.sampleNum.toString(),
+          packet.battRaw.toString(),
+          ...packet.samples.map(String),
+          ...packet.masses.map(String),
+        ]
+          .map((v) => v.replace(/"/g, '""'))
+          .map((v) => `"${v}"`)
+          .join(","),
+      )
+      .join("\r\n")
+  }
+
+  /**
+   * Converts an array of DownloadPacket objects to a JSON string.
+   * @returns {string} JSON string representation of the data.
+   * @private
+   */
+  private downloadToJSON = (): string => {
+    // Pretty print JSON with 2-space indentation
+    return JSON.stringify(this.downloadPackets, null, 2)
+  }
+
+  /**
+   * Converts an array of DownloadPacket objects to an XML string.
+   * @returns {string}  XML string representation of the data.
+   * @private
+   */
+  private downloadToXML = (): string => {
+    const xmlPackets = this.downloadPackets
+      .map((packet) => {
+        const samples = packet.samples.map((sample) => `<sample>${sample}</sample>`).join("")
+        const masses = packet.masses.map((mass) => `<mass>${mass}</mass>`).join("")
+        return `
+          <packet>
+            <received>${packet.received}</received>
+            <sampleNum>${packet.sampleNum}</sampleNum>
+            <battRaw>${packet.battRaw}</battRaw>
+            <samples>${samples}</samples>
+            <masses>${masses}</masses>
+          </packet>
+        `
+      })
+      .join("")
+    return `<DownloadPackets>${xmlPackets}</DownloadPackets>`
+  }
+
+  /**
+   * Exports the data in the specified format (CSV, JSON, XML) with a filename format:
+   * 'data-export-YYYY-MM-DD-HH-MM-SS.{format}'.
+   *
+   * @param {('csv' | 'json' | 'xml')} [format='csv'] - The format in which to download the data.
+   * Defaults to 'csv'. Accepted values are 'csv', 'json', and 'xml'.
+   *
+   * @returns {void} Initiates a download of the data in the specified format.
+   * @private
+   */
+  download = (format: "csv" | "json" | "xml" = "csv"): void => {
+    let content = ""
+    let mimeType = ""
+    let fileName = ""
+
+    if (format === "csv") {
+      content = this.downloadToCSV()
+      mimeType = "text/csv"
+    } else if (format === "json") {
+      content = this.downloadToJSON()
+      mimeType = "application/json"
+    } else if (format === "xml") {
+      content = this.downloadToXML()
+      mimeType = "application/xml"
+    }
+
+    const now = new Date()
+    // YYYY-MM-DD
+    const date = now.toISOString().split("T")[0]
+    // HH-MM-SS
+    const time = now.toTimeString().split(" ")[0].replace(/:/g, "-")
+
+    fileName = `data-export-${date}-${time}.${format}`
+
+    // Create a Blob object containing the data
+    const blob = new Blob([content], { type: mimeType })
+
+    // Create a URL for the Blob
+    const url = window.URL.createObjectURL(blob)
+
+    // Create a link element
+    const link = document.createElement("a")
+
+    // Set link attributes
+    link.href = url
+    link.setAttribute("download", fileName)
+
+    // Append link to document body
+    document.body.appendChild(link)
+
+    // Programmatically click the link to trigger the download
+    link.click()
+
+    // Clean up: remove the link and revoke the URL
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
   /**
    * Returns UUIDs of all services associated with the device.
    * @returns {string[]} Array of service UUIDs.
+   * @protected
    */
-  getAllServiceUUIDs = () => {
+  protected getAllServiceUUIDs = (): string[] => {
     return this.services.map((service) => service.uuid)
   }
+
   /**
    * Retrieves the characteristic from the device's service.
    * @param {string} serviceId - The UUID of the service.
    * @param {string} characteristicId - The UUID of the characteristic.
    * @returns {BluetoothRemoteGATTCharacteristic | undefined} The characteristic, if found.
+   * @protected
    */
-  getCharacteristic = (serviceId: string, characteristicId: string): BluetoothRemoteGATTCharacteristic | undefined => {
+  protected getCharacteristic = (
+    serviceId: string,
+    characteristicId: string,
+  ): BluetoothRemoteGATTCharacteristic | undefined => {
     // Find the service with the specified serviceId
     const boardService = this.services.find((service) => service.id === serviceId)
     if (boardService) {
@@ -176,11 +317,13 @@ export abstract class Device extends BaseModel implements IDevice {
     // Return undefined if the service or characteristic is not found
     return undefined
   }
+
   /**
    * Handles notifications received from a characteristic.
    * @param {Event} event - The notification event.
+   * @protected
    */
-  handleNotifications = (event: Event): void => {
+  protected handleNotifications = (event: Event): void => {
     const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
     const value: DataView | undefined = characteristic.value
 
@@ -195,9 +338,11 @@ export abstract class Device extends BaseModel implements IDevice {
       }
     }
   }
+
   /**
    * Checks if a Bluetooth device is connected.
    * @returns {boolean} A boolean indicating whether the device is connected.
+   * @public
    */
   isConnected = (): boolean => {
     // Check if the device is defined and available
@@ -207,19 +352,23 @@ export abstract class Device extends BaseModel implements IDevice {
     // Check if the device is connected
     return !!this.bluetooth.gatt?.connected
   }
+
   /**
    * Sets the callback function to be called when notifications are received.
    * @param {NotifyCallback} callback - The callback function to be set.
    * @returns {void}
+   * @public
    */
   notify = (callback: NotifyCallback): void => {
     this.notifyCallback = callback
   }
+
   /**
    * Handles the 'connected' event.
    * @param {Function} onSuccess - Callback function to execute on successful connection.
+   * @public
    */
-  onConnected = async (onSuccess: () => void): Promise<void> => {
+  protected onConnected = async (onSuccess: () => void): Promise<void> => {
     // Connect to GATT server and set up characteristics
     const services: BluetoothRemoteGATTService[] | undefined = await this.server?.getPrimaryServices()
 
@@ -262,21 +411,25 @@ export abstract class Device extends BaseModel implements IDevice {
     // Call the onSuccess callback after successful connection and setup
     onSuccess()
   }
+
   /**
    * Handles the 'disconnected' event.
    * @param {Event} event - The 'disconnected' event.
+   * @public
    */
-  onDisconnected = (event: Event): void => {
+  protected onDisconnected = (event: Event): void => {
     this.bluetooth = undefined
     const device = event.target as BluetoothDevice
     throw new Error(`Device ${device.name} is disconnected.`)
   }
+
   /**
    * Reads the value of the specified characteristic from the device.
    * @param {string} serviceId - The service ID where the characteristic belongs.
    * @param {string} characteristicId - The characteristic ID to read from.
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
    * @returns {Promise<string | undefined>} A promise that resolves when the read operation is completed.
+   * @public
    */
   read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
     if (!this.isConnected()) {
@@ -310,6 +463,7 @@ export abstract class Device extends BaseModel implements IDevice {
 
     return decodedValue
   }
+
   /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
    * @param {string} serviceId - The service UUID of the Bluetooth device containing the target characteristic.
@@ -317,9 +471,8 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {string | Uint8Array | undefined} message - The message to be written to the characteristic. It can be a string or a Uint8Array.
    * @param {number} [duration=0] - Optional. The time in milliseconds to wait before resolving the promise. Defaults to 0 for immediate resolution.
    * @param {WriteCallback} [callback=writeCallback] - Optional. A custom callback to handle the response after the write operation is successful.
-   *
    * @returns {Promise<void>} A promise that resolves once the write operation is complete.
-   *
+   * @public
    * @throws {Error} Throws an error if the characteristic is undefined.
    *
    * @example

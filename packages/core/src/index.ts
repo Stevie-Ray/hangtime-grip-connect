@@ -12,8 +12,6 @@ export {
 // helpers
 export { isEntralpi, isKilterBoard, isMotherboard, isWHC06, isProgressor } from "./helpers/is-device"
 
-export { download } from "./helpers/download"
-
 export { active, isActive } from "./helpers/is-active"
 
 export { tare } from "./helpers/tare"

@@ -37,24 +37,32 @@ export interface IDevice extends IBase {
   /**
    * Filters to identify the device during Bluetooth scanning.
    * Used to match devices that meet specific criteria such as name, service UUIDs, etc.
+   * @type {BluetoothLEScanFilter[]}
+   * @public
    */
   filters: BluetoothLEScanFilter[]
 
   /**
    * Array of services provided by the device.
    * Services represent functionalities that the device supports, such as weight measurement, battery information, or custom services.
+   * @type {Service[]}
+   * @public
    */
   services: Service[]
 
   /**
    * Reference to the `BluetoothDevice` object representing this device.
    * This is the actual device object obtained from the Web Bluetooth API after a successful connection.
+   * @type {BluetoothDevice | undefined}
+   * @public
    */
   bluetooth?: BluetoothDevice
 
   /**
    * Object representing the set of commands available for this device.
    * These commands allow communication with the device to perform various operations such as starting measurements, retrieving data, or calibrating the device.
+   * @type {Commands}
+   * @public
    */
   commands: Commands
 
@@ -62,6 +70,7 @@ export interface IDevice extends IBase {
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
    * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
+   * @public
    */
   connect(onSuccess?: () => void, onError?: (error: Error) => void): Promise<void>
 
@@ -69,32 +78,26 @@ export interface IDevice extends IBase {
    * Disconnects the device if it is currently connected.
    * - Checks if the device is connected via it's GATT server.
    * - If the device is connected, it attempts to gracefully disconnect.
+   * @public
    */
   disconnect(): void
 
   /**
-   * Returns UUIDs of all services associated with the device.
-   * @returns {string[]} Array of service UUIDs.
+   * Exports the data in the specified format (CSV, JSON, XML) with a filename format:
+   * 'data-export-YYYY-MM-DD-HH-MM-SS.{format}'.
+   *
+   * @param {('csv' | 'json' | 'xml')} [format='csv'] - The format in which to download the data.
+   * Defaults to 'csv'. Accepted values are 'csv', 'json', and 'xml'.
+   *
+   * @returns {void} Initiates a download of the data in the specified format.
+   * @private
    */
-  getAllServiceUUIDs(): string[]
-
-  /**
-   * Retrieves the characteristic from the device's service.
-   * @param {string} serviceId - The UUID of the service.
-   * @param {string} characteristicId - The UUID of the characteristic.
-   * @returns {BluetoothRemoteGATTCharacteristic | undefined} The characteristic, if found.
-   */
-  getCharacteristic(serviceId: string, characteristicId: string): BluetoothRemoteGATTCharacteristic | undefined
-
-  /**
-   * Handles notifications received from a characteristic.
-   * @param {Event} event - The notification event.
-   */
-  handleNotifications(event: Event): void
+  download(format?: "csv" | "json" | "xml"): void
 
   /**
    * Checks if a Bluetooth device is connected.
    * @returns {boolean} A boolean indicating whether the device is connected.
+   * @public
    */
   isConnected(): boolean
 
@@ -102,20 +105,9 @@ export interface IDevice extends IBase {
    * Sets the callback function to be called when notifications are received.
    * @param {NotifyCallback} callback - The callback function to be set.
    * @returns {void}
+   * @public
    */
   notify(callback: (data: massObject) => void): void
-
-  /**
-   * Handles the 'connected' event.
-   * @param {Function} onSuccess - Callback function to execute on successful connection.
-   */
-  onConnected(onSuccess: () => void): Promise<void>
-
-  /**
-   * Handles the 'disconnected' event.
-   * @param {Event} event - The 'disconnected' event.
-   */
-  onDisconnected(event: Event): void
 
   /**
    * Reads the value of the specified characteristic from the device.
@@ -123,6 +115,7 @@ export interface IDevice extends IBase {
    * @param {string} characteristicId - The characteristic ID to read from.
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
    * @returns {Promise<string | undefined>} A promise that resolves when the read operation is completed.
+   * @public
    */
   read(serviceId: string, characteristicId: string, duration?: number): Promise<string | undefined>
 
@@ -133,9 +126,8 @@ export interface IDevice extends IBase {
    * @param {string | Uint8Array | undefined} message - The message to be written to the characteristic. It can be a string or a Uint8Array.
    * @param {number} [duration=0] - Optional. The time in milliseconds to wait before resolving the promise. Defaults to 0 for immediate resolution.
    * @param {WriteCallback} [callback=writeCallback] - Optional. A custom callback to handle the response after the write operation is successful.
-   *
    * @returns {Promise<void>} A promise that resolves once the write operation is complete.
-   *
+   * @public
    * @throws {Error} Throws an error if the characteristic is undefined.
    *
    * @example

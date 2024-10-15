@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
-import { DownloadPackets, emptyDownloadPackets } from "../../helpers/download"
 import { checkActivity } from "../../helpers/is-active"
 import { applyTare } from "../../helpers/tare"
 
@@ -200,7 +199,7 @@ export class ForceBoard extends Device implements IForceBoard {
         // Tare correction
         const numericData = convertedReceivedData - applyTare(convertedReceivedData)
         // Add data to downloadable Array
-        DownloadPackets.push({
+        this.downloadPackets.push({
           received: receivedTime,
           sampleNum: this.dataPointCount,
           battRaw: 0,
@@ -263,7 +262,7 @@ export class ForceBoard extends Device implements IForceBoard {
    */
   stream = async (duration = 0): Promise<void> => {
     // Reset download packets
-    emptyDownloadPackets()
+    this.downloadPackets.length = 0
     // Start streaming data
     await this.write("weight", "tx", new Uint8Array([0x04]), duration) // ASCII control character EOT (End of Transmission)
     // Stop streaming if duration is set

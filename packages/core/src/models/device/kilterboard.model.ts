@@ -74,10 +74,10 @@ export class KilterBoard extends Device implements IKilterBoard {
   /**
    * UUID for the Aurora Climbing Advertising service.
    * This constant is used to identify the specific Bluetooth service for Kilter Boards.
-   *
    * @type {string}
+   * @static
    */
-  public static AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
+  static AuroraUUID = "4488b571-7806-4df6-bcff-a2897e4953ff"
 
   /**
    * Maximum length of the message body for byte wrapping.
@@ -88,6 +88,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @private
    */
   private MESSAGE_BODY_MAX_LENGTH = 255
+
   /**
    * Maximum length of the Bluetooth message chunk.
    * This value sets the upper limit for the size of individual Bluetooth messages
@@ -139,6 +140,7 @@ export class KilterBoard extends Device implements IKilterBoard {
     }
     return ~i & 255
   }
+
   /**
    * Wraps a byte array with header and footer bytes for transmission.
    * @param data - The array of bytes to wrap.
@@ -160,6 +162,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    */
     return [1, data.length, this.checksum(data), 2, ...data, 3]
   }
+
   /**
    * Encodes a position into a byte array.
    * The lowest 8 bits of the position get put in the first byte of the group.
@@ -173,6 +176,7 @@ export class KilterBoard extends Device implements IKilterBoard {
 
     return [position1, position2]
   }
+
   /**
    * Encodes a color string into a numeric representation.
    * The rgb color, 3 bits for the R and G components, 2 bits for the B component, with the 3 R bits occupying the high end of the byte and the 2 B bits in the low end (hence 3 G bits in the middle).
@@ -193,6 +197,7 @@ export class KilterBoard extends Device implements IKilterBoard {
 
     return finalParsedResult
   }
+
   /**
    * Encodes a placement (requires a 16-bit position and a 24-bit rgb color. ) into a byte array.
    * @param position - The position to encode.
@@ -202,6 +207,7 @@ export class KilterBoard extends Device implements IKilterBoard {
   private encodePlacement(position: number, ledColor: string) {
     return [...this.encodePosition(position), this.encodeColor(ledColor)]
   }
+
   /**
    * Prepares byte arrays for transmission based on a list of climb placements.
    * @param {{ position: number; role_id: number }[]} climbPlacementList - The list of climb placements containing position and role ID.
@@ -240,6 +246,7 @@ export class KilterBoard extends Device implements IKilterBoard {
 
     return finalResultArray
   }
+
   /**
    * Splits a collection into slices of the specified length.
    * https://github.com/ramda/ramda/blob/master/source/splitEvery.js
@@ -258,6 +265,7 @@ export class KilterBoard extends Device implements IKilterBoard {
     }
     return result
   }
+
   /**
    * The kilter board only supports messages of 20 bytes
    * at a time. This method splits a full message into parts
@@ -267,6 +275,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    */
   private splitMessages = (buffer: number[]) =>
     this.splitEvery(this.MAX_BLUETOOTH_MESSAGE_SIZE, buffer).map((arr) => new Uint8Array(arr))
+
   /**
    * Sends a series of messages to a device.
    */
@@ -275,6 +284,7 @@ export class KilterBoard extends Device implements IKilterBoard {
       await this.write("uart", "tx", message)
     }
   }
+
   /**
    * Configures the LEDs based on an array of climb placements.
    * @param {{ position: number; role_id: number }[]} config - Array of climb placements for the LEDs.

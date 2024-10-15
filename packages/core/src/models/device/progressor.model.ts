@@ -2,7 +2,6 @@ import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
 import struct from "../../helpers/struct"
 import { checkActivity } from "../../helpers/is-active"
-import { DownloadPackets, emptyDownloadPackets } from "../../helpers/download"
 import { applyTare } from "../../helpers/tare"
 
 /**
@@ -144,7 +143,7 @@ export class Progressor extends Device implements IProgressor {
               // Tare correction
               const numericData = weight - applyTare(weight)
               // Add data to downloadable Array
-              DownloadPackets.push({
+              this.downloadPackets.push({
                 received: receivedTime,
                 sampleNum: seconds,
                 battRaw: 0,
@@ -208,7 +207,7 @@ export class Progressor extends Device implements IProgressor {
    */
   stream = async (duration = 0): Promise<void> => {
     // Reset download packets
-    emptyDownloadPackets()
+    this.downloadPackets.length = 0
     // Start streaming data
     await this.write("progressor", "tx", this.commands.START_WEIGHT_MEAS, duration)
     // Stop streaming if duration is set

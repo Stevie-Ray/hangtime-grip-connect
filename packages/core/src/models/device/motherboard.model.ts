@@ -2,7 +2,6 @@ import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
 import { applyTare } from "../../helpers/tare"
 import { checkActivity } from "../../helpers/is-active"
-import { DownloadPackets, emptyDownloadPackets } from "../../helpers/download"
 import type { DownloadPacket } from "../../interfaces/download.interface"
 
 /**
@@ -263,7 +262,7 @@ export class Motherboard extends Device implements IMotherboard {
             packet.masses[2] *= -1
 
             // Add data to downloadable Array
-            DownloadPackets.push({
+            this.downloadPackets.push({
               received: packet.received,
               sampleNum: packet.battRaw,
               battRaw: packet.received,
@@ -383,7 +382,7 @@ export class Motherboard extends Device implements IMotherboard {
    */
   stream = async (duration = 0): Promise<void> => {
     // Reset download packets
-    emptyDownloadPackets()
+    this.downloadPackets.length = 0
     // Read calibration data if not already available
     if (!this.CALIBRATION[0].length) {
       await this.calibration()

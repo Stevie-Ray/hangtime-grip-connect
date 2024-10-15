@@ -7,7 +7,6 @@ import {
   Progressor,
   WHC06,
   active,
-  download,
   tare,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
@@ -126,7 +125,9 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     <div>Download</div>
   `
       downloadButton.addEventListener("click", async () => {
-        download()
+        connectedDevices.forEach(async (device) => {
+          device.download()
+        })
       })
 
       deviceControlDiv.appendChild(downloadButton)
