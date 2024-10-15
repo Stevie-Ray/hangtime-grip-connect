@@ -17,7 +17,7 @@ progressor.connect(async () => {
    * @param {Device} [board] - The device to check.
    * @returns {boolean} - `true` if the device matches, otherwise `false`.
    */
-  if (isProgressor(board)) {
+  if (isProgressor(progressor)) {
     // Handle the Progressor device
   }
 })

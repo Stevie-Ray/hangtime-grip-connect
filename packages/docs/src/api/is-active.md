@@ -1,19 +1,19 @@
 ### Supported Devices
 
 ```ts
-import { Entralpi, Motherboard, Progressor, WHC06 } from "@hangtime/grip-connect"
+import { Entralpi, ForceBoard, Motherboard, Progressor, WHC06 } from "@hangtime/grip-connect"
 ```
 
 ### Basic Usage
 
 ```ts
-import { active, isActive, notify, Progressor } from "@hangtime/grip-connect"
+import { active, isActive, Progressor } from "@hangtime/grip-connect"
 
 const progressor = new Progressor()
 
 progressor.connect(
   // Listen for stream notifications
-  notify((data) => {
+  progressor.notify((data) => {
     // data: { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
 
     // Manually log the current activity status of the device

@@ -50,7 +50,6 @@ export default defineConfig({
         text: "Core API",
         link: "/api/",
         items: [
-          { text: "Download", link: "/api/download" },
           { text: "IsActive", link: "/api/is-active" },
           { text: "IsDevice", link: "/api/is-device" },
           { text: "Tare", link: "/api/tare" },
