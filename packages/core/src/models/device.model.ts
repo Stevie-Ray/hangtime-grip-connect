@@ -102,6 +102,36 @@ export abstract class Device extends BaseModel implements IDevice {
   protected downloadPackets: DownloadPacket[] = [] // Initialize an empty array of DownloadPacket entries
 
   /**
+   * Represents the current tare value for calibration.
+   * @type {number}
+   */
+  private tareCurrent = 0
+
+  /**
+   * Indicates whether the tare calibration process is active.
+   * @type {boolean}
+   */
+  private tareActive = false
+
+  /**
+   * Timestamp when the tare calibration process started.
+   * @type {number | null}
+   */
+  private tareStartTime: number | null = null
+
+  /**
+   * Array holding the samples collected during tare calibration.
+   * @type {number[]}
+   */
+  private tareSamples: number[] = []
+
+  /**
+   * Duration time for the tare calibration process.
+   * @type {number}
+   */
+  private tareDuration = 5000
+
+  /**
    * Optional callback for handling write operations.
    * @callback NotifyCallback
    * @param {massObject} data - The data passed to the callback.
@@ -540,6 +570,46 @@ export abstract class Device extends BaseModel implements IDevice {
     }
 
     return decodedValue
+  }
+
+  /**
+   * Initiates the tare calibration process.
+   * @param {number} duration - The duration time for tare calibration.
+   * @returns {void}
+   * @public
+   */
+  tare(duration = 5000): void {
+    this.tareActive = true
+    this.tareDuration = duration
+    this.tareSamples = []
+    this.tareStartTime = Date.now()
+  }
+
+  /**
+   * Apply tare calibration to the provided sample.
+   * @param {number} sample - The sample to calibrate.
+   * @returns {number} The calibrated tare value.
+   * @protected
+   */
+  protected applyTare(sample: number): number {
+    if (this.tareActive && this.tareStartTime) {
+      // Add current sample to the tare samples array
+      this.tareSamples.push(sample)
+
+      // Check if the tare calibration duration has passed
+      if (Date.now() - this.tareStartTime >= this.tareDuration) {
+        // Calculate the average of the tare samples
+        const total = this.tareSamples.reduce((acc, sample) => acc + sample, 0)
+        this.tareCurrent = total / this.tareSamples.length
+
+        // Reset the tare calibration process
+        this.tareActive = false
+        this.tareStartTime = null
+        this.tareSamples = []
+      }
+    }
+    // Return the current tare-adjusted value
+    return this.tareCurrent
   }
 
   /**

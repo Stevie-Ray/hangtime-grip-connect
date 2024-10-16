@@ -1,13 +1,4 @@
-import {
-  Climbro,
-  Entralpi,
-  ForceBoard,
-  Motherboard,
-  mySmartBoard,
-  Progressor,
-  WHC06,
-  tare,
-} from "@hangtime/grip-connect"
+import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons"
@@ -109,7 +100,9 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     <div>Tare</div>
   `
       tareButton.addEventListener("click", async () => {
-        tare()
+        connectedDevices.forEach(async (device) => {
+          device.tare()
+        })
       })
 
       deviceControlDiv.appendChild(tareButton)

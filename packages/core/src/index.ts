@@ -8,6 +8,3 @@ export {
   WHC06,
   Progressor,
 } from "./models/index"
-
-// helper
-export { tare } from "./helpers/tare"

@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
-import { applyTare } from "../../helpers/tare"
 
 /**
  * Represents a PitchSix Force Board device
@@ -196,7 +195,7 @@ export class ForceBoard extends Device implements IForceBoard {
         // Convert from LBS to KG
         const convertedReceivedData = receivedData * 0.453592
         // Tare correction
-        const numericData = convertedReceivedData - applyTare(convertedReceivedData)
+        const numericData = convertedReceivedData - this.applyTare(convertedReceivedData)
         // Add data to downloadable Array
         this.downloadPackets.push({
           received: receivedTime,

@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
-import { applyTare } from "../../helpers/tare"
 
 export class Entralpi extends Device implements IEntralpi {
   constructor() {
@@ -168,8 +167,11 @@ export class Entralpi extends Device implements IEntralpi {
         const receivedData: string = (rawData.getUint16(0) / 100).toFixed(1)
 
         const convertedData = Number(receivedData)
-        // Tare correction
-        const numericData = convertedData - applyTare(convertedData)
+        // Adjust weight by using the tare value
+        // If tare is 0, use the original weight, otherwise subtract tare and invert.
+        // This will display the romoved or 'no-hanging' weight.
+        const tare = this.applyTare(convertedData)
+        const numericData = tare === 0 ? convertedData : (convertedData - tare) * -1
         // Add data to downloadable Array
         this.downloadPackets.push({
           received: receivedTime,

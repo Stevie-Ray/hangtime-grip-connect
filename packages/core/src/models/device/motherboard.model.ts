@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
-import { applyTare } from "../../helpers/tare"
 import type { DownloadPacket } from "../../interfaces/download.interface"
 
 /**
@@ -278,9 +277,9 @@ export class Motherboard extends Device implements IMotherboard {
             let right: number = packet.masses[2]
 
             // Tare correction
-            left -= applyTare(left)
-            center -= applyTare(center)
-            right -= applyTare(right)
+            left -= this.applyTare(left)
+            center -= this.applyTare(center)
+            right -= this.applyTare(right)
 
             this.massMax = Math.max(Number(this.massMax), Math.max(-1000, left + center + right)).toFixed(1)
 

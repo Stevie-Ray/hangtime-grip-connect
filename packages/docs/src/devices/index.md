@@ -110,6 +110,13 @@ All devices have the following functions:
   read(serviceId: string, characteristicId: string, duration?: number): Promise<string | undefined>
 
   /**
+   * Initiates the tare calibration process.
+   * @param {number} duration - The duration time for tare calibration.
+   * @returns {void}
+   */
+  tare(duration?: number): void
+
+  /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
    * @param {string} serviceId - The service UUID of the Bluetooth device containing the target characteristic.
    * @param {string} characteristicId - The characteristic UUID where the message will be written.

@@ -1,7 +1,6 @@
 import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
 import struct from "../../helpers/struct"
-import { applyTare } from "../../helpers/tare"
 
 /**
  * Represents the possible responses of a Tindeq Progressor device.
@@ -140,7 +139,7 @@ export class Progressor extends Device implements IProgressor {
           for (let [weight, seconds] of iterable) {
             if (typeof weight === "number" && !isNaN(weight) && typeof seconds === "number" && !isNaN(seconds)) {
               // Tare correction
-              const numericData = weight - applyTare(weight)
+              const numericData = weight - this.applyTare(weight)
               // Add data to downloadable Array
               this.downloadPackets.push({
                 received: receivedTime,

@@ -1,5 +1,4 @@
 import { Device } from "../device.model"
-import { applyTare } from "../../helpers/tare"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
 
 /**
@@ -102,7 +101,13 @@ export class WHC06 extends Device implements IWHC06 {
           const receivedData = weight / 100
 
           // Tare correction
-          const numericData = receivedData - applyTare(receivedData)
+          // 0.20kg - 0.20kg = 0kg
+          // 0.40kg - 0.20kg = 0.20kg
+          const numericData = receivedData - this.applyTare(receivedData) * -1
+
+          // what i want (if tare is available)
+          // 75kg - 75kg = 0
+          // 50kg - 75kg = -25kg * -1 = 25kg
 
           // Add data to downloadable Array
           this.downloadPackets.push({

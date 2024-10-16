@@ -84,7 +84,7 @@ document.querySelector("#motherboard").addEventListener("click", () => {
       await motherboard.stream(60000)
 
       // Manualy tare the device when the stream is running
-      // await tare(5000)
+      // await motherboard.tare(5000)
 
       // Manually call stop method if stream is continues
       // await motherboard.stop()
