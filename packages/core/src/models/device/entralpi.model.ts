@@ -169,7 +169,7 @@ export class Entralpi extends Device implements IEntralpi {
         const convertedData = Number(receivedData)
         // Adjust weight by using the tare value
         // If tare is 0, use the original weight, otherwise subtract tare and invert.
-        // This will display the romoved or 'no-hanging' weight.
+        // This will display the removed or 'no-hanging' weight.
         const tare = this.applyTare(convertedData)
         const numericData = tare === 0 ? convertedData : (convertedData - tare) * -1
         // Add data to downloadable Array
