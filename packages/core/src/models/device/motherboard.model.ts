@@ -1,7 +1,6 @@
 import { Device } from "../device.model"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
 import { applyTare } from "../../helpers/tare"
-import { checkActivity } from "../../helpers/is-active"
 import type { DownloadPacket } from "../../interfaces/download.interface"
 
 /**
@@ -294,7 +293,7 @@ export class Motherboard extends Device implements IMotherboard {
             this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
             // Check if device is being used
-            checkActivity(center)
+            this.activityCheck(center)
 
             // Notify with weight data
             this.notifyCallback({

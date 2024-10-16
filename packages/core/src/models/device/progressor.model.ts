@@ -1,7 +1,6 @@
 import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
 import struct from "../../helpers/struct"
-import { checkActivity } from "../../helpers/is-active"
 import { applyTare } from "../../helpers/tare"
 
 /**
@@ -161,7 +160,7 @@ export class Progressor extends Device implements IProgressor {
               this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
               // Check if device is being used
-              checkActivity(numericData)
+              this.activityCheck(numericData)
 
               this.notifyCallback({
                 massMax: this.massMax,

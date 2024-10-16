@@ -1,7 +1,6 @@
 import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 import { applyTare } from "../../helpers/tare"
-import { checkActivity } from "../../helpers/is-active"
 
 export class Entralpi extends Device implements IEntralpi {
   constructor() {
@@ -192,7 +191,7 @@ export class Entralpi extends Device implements IEntralpi {
         this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
         // Check if device is being used
-        checkActivity(numericData)
+        this.activityCheck(numericData)
 
         // Notify with weight data
         this.notifyCallback({

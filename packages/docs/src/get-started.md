@@ -50,42 +50,35 @@ Simply importing the device you need from `@hangtime/grip-connect`.
 ```
 
 ```js
-import { Motherboard, active } from "@hangtime/grip-connect"
+import { Motherboard } from "@hangtime/grip-connect"
 
 // Initiate device
 const motherboard = new Motherboard()
 
-// Add a custom notify handler
+// Optional: Custom data handler
 motherboard.notify((data) => {
   // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
   console.log(data)
 })
 
-const motherboardButton = document.querySelector("#motherboard")
+// Optional: Check if the device is active
+motherboard.active(
+  (isActive) => { console.log(isActive) },
+  // Optionally using a weight threshold and duration
+  { threshold: 2.5, duration: 1000 },
+)
 
-motherboardButton.addEventListener("click", () => {
-  // connect to device
+document.querySelector("#motherboard").addEventListener("click", () => {
+  // Connect to device
   await motherboard.connect(
     async () => {
-      // Reactive check if device is active
-      active(
-        (isActive) => {
-          console.log(isActive)
-        },
-        // Optionally using a weight threshold and duration
-        { threshold: 2.5, duration: 1000 },
-      )
-
-      // Read device specific data: battery + firmware
+      // Example: Read device specific data
       const batteryLevel = await motherboard.battery()
       console.log(batteryLevel)
 
-      const firmwareVersion = await motherboard.firmware()
-      console.log(firmwareVersion)
-
       // LEDs: "green", "red", "orange", or no argument to turn off
-      // await motherboard.led(Motherboard, "red")
-      // await motherboard.led(Motherboard)
+      // await motherboard.led("red")
+      // await motherboard.led()
 
       // Start weight streaming (for a minute) remove parameter for a continues stream
       await motherboard.stream(60000)

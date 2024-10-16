@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
-import { checkActivity } from "../../helpers/is-active"
 import { applyTare } from "../../helpers/tare"
 
 /**
@@ -219,7 +218,7 @@ export class ForceBoard extends Device implements IForceBoard {
         this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
         // Check if device is being used
-        checkActivity(numericData)
+        this.activityCheck(numericData)
 
         // Notify with weight data
         this.notifyCallback({

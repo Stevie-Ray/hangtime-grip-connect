@@ -39,6 +39,24 @@ All devices have the following functions:
   commands: Commands
 
   /**
+   * Sets the callback function to be called when the activity status changes,
+   * and optionally sets the configuration for threshold and duration.
+   *
+   * This function allows you to specify a callback that will be invoked whenever
+   * the activity status changes, indicating whether the device is currently active.
+   * It also allows optionally configuring the threshold and duration used to determine activity.
+   *
+   * @param {ActiveCallback} callback - The callback function to be set. This function
+   *                                      receives a boolean value indicating the new activity status.
+   * @param {object} [options] - Optional configuration object containing the threshold and duration.
+   * @param {number} [options.threshold=2.5] - The threshold value for determining activity.
+   * @param {number} [options.duration=1000] - The duration (in milliseconds) to monitor the input for activity.
+   * @returns {void}
+   * @public
+   */
+  active(callback: ActiveCallback, options?: { threshold?: number; duration?: number }): void
+
+  /**
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
    * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.

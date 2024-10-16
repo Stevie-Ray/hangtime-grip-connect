@@ -6,7 +6,6 @@ import {
   mySmartBoard,
   Progressor,
   WHC06,
-  active,
   tare,
 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
@@ -224,7 +223,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
         })
 
         // Example Reactive check if device is active, optionally using a weight threshold and duration
-        active(
+        device.active(
           (isActive: boolean) => {
             console.log(isActive)
           },

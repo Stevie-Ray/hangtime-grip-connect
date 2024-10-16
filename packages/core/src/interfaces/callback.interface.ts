@@ -54,3 +54,10 @@ export type NotifyCallback = (data: massObject) => void
  * @param {string} data - The string data passed to the callback.
  */
 export type WriteCallback = (data: string) => void
+
+/**
+ * Type definition for the callback function that is called when the activity status changes.
+ * @callback ActiveCallback
+ * @param {boolean} value - The new activity status (true if active, false if not).
+ */
+export type ActiveCallback = (data: boolean) => void

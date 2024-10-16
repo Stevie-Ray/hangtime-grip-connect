@@ -46,15 +46,6 @@ export default defineConfig({
           { text: "WH-C06", link: "/devices/wh-c06" },
         ],
       },
-      {
-        text: "Core API",
-        link: "/api/",
-        items: [
-          { text: "IsActive", link: "/api/is-active" },
-          { text: "IsDevice", link: "/api/is-device" },
-          { text: "Tare", link: "/api/tare" },
-        ],
-      },
     ],
 
     socialLinks: [{ icon: "github", link: "https://github.com/Stevie-Ray/hangtime-grip-connect" }],

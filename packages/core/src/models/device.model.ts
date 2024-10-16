@@ -1,6 +1,6 @@
 import { BaseModel } from "./../models/base.model"
 import type { IDevice, Service } from "../interfaces/device.interface"
-import type { NotifyCallback, massObject, WriteCallback } from "../interfaces/callback.interface"
+import type { NotifyCallback, massObject, WriteCallback, ActiveCallback } from "../interfaces/callback.interface"
 import type { DownloadPacket } from "../interfaces/download.interface"
 import type { Commands } from "../interfaces/command.interface"
 
@@ -46,6 +46,22 @@ export abstract class Device extends BaseModel implements IDevice {
    * @private
    */
   private server: BluetoothRemoteGATTServer | undefined
+
+  /**
+   * The last message written to the device.
+   * @type {string | Uint8Array | null}
+   * @protected
+   */
+  protected writeLast: string | Uint8Array | null = null
+  /**
+   * Indicates whether the device is currently active.
+   * @type {boolean}
+   */
+  protected isActive = false
+  /**
+   * Configuration for threshold and duration.
+   */
+  private activeConfig: { threshold: number; duration: number } = { threshold: 2.5, duration: 1000 }
 
   /**
    * Maximum mass recorded from the device, initialized to "0".
@@ -104,11 +120,13 @@ export abstract class Device extends BaseModel implements IDevice {
   protected writeCallback: WriteCallback = (data: string) => console.log(data)
 
   /**
-   * The last message written to the device.
-   * @type {string | Uint8Array | null}
+   * Optional callback for handling write operations.
+   * @callback ActiveCallback
+   * @param {string} data - The data passed to the callback.
+   * @type {ActiveCallback | undefined}
    * @protected
    */
-  protected writeLast: string | Uint8Array | null = null
+  protected activeCallback: ActiveCallback = (data: boolean) => console.log(data)
 
   constructor(device: Partial<IDevice>) {
     super(device)
@@ -122,6 +140,59 @@ export abstract class Device extends BaseModel implements IDevice {
     this.massAverage = "0"
     this.massTotalSum = 0
     this.dataPointCount = 0
+  }
+
+  /**
+   * Sets the callback function to be called when the activity status changes,
+   * and optionally sets the configuration for threshold and duration.
+   *
+   * This function allows you to specify a callback that will be invoked whenever
+   * the activity status changes, indicating whether the device is currently active.
+   * It also allows optionally configuring the threshold and duration used to determine activity.
+   *
+   * @param {ActiveCallback} callback - The callback function to be set. This function
+   *                                      receives a boolean value indicating the new activity status.
+   * @param {object} [options] - Optional configuration object containing the threshold and duration.
+   * @param {number} [options.threshold=2.5] - The threshold value for determining activity.
+   * @param {number} [options.duration=1000] - The duration (in milliseconds) to monitor the input for activity.
+   * @returns {void}
+   * @public
+   */
+  active = (callback: ActiveCallback, options?: { threshold?: number; duration?: number }): void => {
+    this.activeCallback = callback
+
+    // Update the config values only if provided, otherwise use defaults
+    this.activeConfig = {
+      threshold: options?.threshold ?? this.activeConfig.threshold, // Use new threshold if provided, else use default
+      duration: options?.duration ?? this.activeConfig.duration, // Use new duration if provided, else use default
+    }
+  }
+
+  /**
+   * Checks if a dynamic value is active based on a threshold and duration.
+   *
+   * This function assesses whether a given dynamic value surpasses a specified threshold
+   * and remains active for a specified duration. If the activity status changes from
+   * the previous state, the callback function is called with the updated activity status.
+   *
+   * @param {number} input - The dynamic value to check for activity status.
+   * @returns {Promise<void>} A promise that resolves once the activity check is complete.
+   */
+  protected activityCheck = (input: number): Promise<void> => {
+    return new Promise((resolve) => {
+      // Check the activity status after the specified duration
+      setTimeout(() => {
+        // Determine the activity status based on the stored threshold in the config
+        const activeNow = input > this.activeConfig.threshold
+        if (this.isActive !== activeNow) {
+          this.isActive = activeNow
+          if (this.activeCallback) {
+            this.activeCallback(activeNow)
+          }
+        }
+        resolve()
+      }, this.activeConfig.duration)
+    })
   }
 
   /**
