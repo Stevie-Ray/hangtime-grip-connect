@@ -63,12 +63,14 @@ motherboard.notify((data) => {
 
 // Optional: Check if the device is active
 motherboard.active(
-  (isActive) => { console.log(isActive) },
+  (isActive) => {
+    console.log(isActive)
+  },
   // Optionally using a weight threshold and duration
   { threshold: 2.5, duration: 1000 },
 )
 
-document.querySelector("#motherboard").addEventListener("click", () => {
+document.querySelector("#motherboard").addEventListener("click", async () => {
   // Connect to device
   await motherboard.connect(
     async () => {
@@ -80,8 +82,8 @@ document.querySelector("#motherboard").addEventListener("click", () => {
       // await motherboard.led("red")
       // await motherboard.led()
 
-      // Start weight streaming (for a minute) remove parameter for a continues stream
-      await motherboard.stream(60000)
+      // Start weight streaming (for 30s) remove parameter for a continues stream
+      await motherboard.stream(30000)
 
       // Manualy tare the device when the stream is running
       // await motherboard.tare(5000)
@@ -91,13 +93,14 @@ document.querySelector("#motherboard").addEventListener("click", () => {
 
       // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
       // motherboard.download('json')
+
+      // Optionally disconnect from device after we are done
+      motherboard.disconnect(Motherboard)
     },
     (error) => {
       // Optinal custom error handeling
       console.error(error.message)
     },
   )
-  // Disconnect from device after we are done
-  motherboard.disconnect(Motherboard)
 })
 ```
