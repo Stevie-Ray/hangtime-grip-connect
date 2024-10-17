@@ -29,13 +29,14 @@ if (controllerElement) {
         <input id="weightInput" placeholder="weight" value="5" type="number">
       </div>
       <div>
-      <label for="difficultySelect" title="Pipe gap size">Difficulty</label>
-      <select id="difficultySelect">
-        <option>Select difficulty</option>
-        <option value="easy">Easy</option>
-        <option value="normal" selected>Normal</option>
-        <option value="hard">Hard</option>
-      </select>
+        <label for="difficultySelect" title="Pipe gap size">Difficulty</label>
+        <select id="difficultySelect">
+          <option>Select difficulty</option>
+          <option value="easy">Easy</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
     </div>
     <div id="error" style="display:none;"></div>
   `

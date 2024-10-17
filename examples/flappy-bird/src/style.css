@@ -64,7 +64,7 @@ label {
 
 #error {
   max-width: 384px;
-  white-space: pre;
+  white-space: pre-wrap;
   justify-content: center;
   background-color: #898989;
   border-radius: 1rem;

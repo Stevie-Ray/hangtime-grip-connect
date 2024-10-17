@@ -216,7 +216,8 @@ const pipe: {
   },
   update: function () {
     if (state.curr != state.Play) return
-    if (gameFrames % 100 == 0) {
+    const spawnInterval = device instanceof WHC06 ? 200 : 100
+    if (gameFrames % spawnInterval == 0) {
       this.pipes.push({
         x: scrn.width,
         y: -210 * Math.min(Math.random() + 1, 1.8),
