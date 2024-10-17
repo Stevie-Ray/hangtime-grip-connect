@@ -71,14 +71,17 @@ h2 {
 }
 
 #masses {
+  min-height: 80px;
+}
+
+#masses > div {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   padding-top: 0.5rem;
-  min-height: 80px;
 }
 
-#masses div {
+#masses > div > div {
   display: flex;
   justify-content: center;
   flex: 0 0 calc(33.33% - 1rem);
@@ -113,10 +116,27 @@ h2 {
 }
 
 .input {
-  display: flex;
-  gap: 5px;
-  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.input > button {
+  grid-column: span 1;
+}
+
+.input:last-of-type {
+  border: none;
+  grid-template-columns: 1fr;
+  display: inline-grid;
+  width: auto;
+}
+
+.input > strong {
+  grid-column: span 3;
+  padding: 0.5rem;
 }
 
 button {
@@ -162,7 +182,6 @@ select {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em;
-  margin-bottom: 0.3rem;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
@@ -234,11 +253,15 @@ footer a:hover {
     height: 480px !important;
   }
 
+  .input strong {
+    flex: 0 0 auto;
+  }
+
   #masses {
     min-height: 40px;
   }
 
-  #masses div {
+  #masses > div > div {
     flex: 0 0 auto;
   }
 }

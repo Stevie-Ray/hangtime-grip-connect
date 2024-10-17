@@ -51,12 +51,18 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     })
   }
 
-  function addNewDeviceControl(deviceId: string | undefined) {
+  function addNewDeviceControl(
+    device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06 | undefined,
+  ) {
     // select last input element
     const deviceControlDiv = document.querySelector(".card .input:last-of-type")
-    if (deviceControlDiv) {
-      deviceControlDiv.classList.add(`input-${deviceId}`)
+    if (deviceControlDiv && device) {
+      deviceControlDiv.classList.add(`input-${device.id}`)
       deviceControlDiv.innerHTML = ""
+
+      const deviceName = document.createElement("strong")
+      deviceName.innerHTML = `${device.constructor.name}`
+      deviceControlDiv.appendChild(deviceName)
 
       // Create the "Stop" button
       const streamButton = document.createElement("button")
@@ -71,20 +77,17 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
           streamButton.innerHTML = "<div><i class='fa-solid fa-play'></i></div><div>Start</div>"
           isStreaming = false
           convertFontAwesome()
-          connectedDevices.forEach(async (device) => {
-            if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
-              await device.stop()
-            }
-          })
+
+          if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
+            await device.stop()
+          }
         } else {
           streamButton.innerHTML = "<div><i class='fa-solid fa-stop'></i></div><div>Stop</div>"
           isStreaming = true
           convertFontAwesome()
-          connectedDevices.forEach(async (device) => {
-            if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
-              await device.stream()
-            }
-          })
+          if (device instanceof Motherboard || device instanceof Progressor || device instanceof ForceBoard) {
+            await device.stream()
+          }
         }
       })
 
@@ -100,9 +103,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     <div>Tare</div>
   `
       tareButton.addEventListener("click", async () => {
-        connectedDevices.forEach(async (device) => {
-          device.tare()
-        })
+        device.tare()
       })
 
       deviceControlDiv.appendChild(tareButton)
@@ -117,16 +118,14 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     <div>Download</div>
   `
       downloadButton.addEventListener("click", async () => {
-        connectedDevices.forEach(async (device) => {
-          device.download()
-        })
+        device.download()
       })
 
       deviceControlDiv.appendChild(downloadButton)
 
       // Append the new select div to the card container in the DOM
-
       document.querySelector(".card")?.appendChild(deviceControlDiv)
+      convertFontAwesome()
     }
   }
 
@@ -203,7 +202,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
 
     device?.connect(
       async () => {
-        addNewDeviceControl(device.id)
+        addNewDeviceControl(device)
 
         connectedDevices.push(device)
 

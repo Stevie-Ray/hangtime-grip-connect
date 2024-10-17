@@ -39,7 +39,7 @@ export default defineConfig({
           { text: "Climbro", link: "/devices/climbro" },
           { text: "Entralpi", link: "/devices/entralpi" },
           { text: "Force Board", link: "/devices/forceboard" },
-          { text: "KilterBoard", link: "/devices/kilterboard" },
+          { text: "Kilter Board", link: "/devices/kilterboard" },
           { text: "MotherBoard", link: "/devices/motherboard" },
           { text: "mySmartBoard", link: "/devices/mysmartboard" },
           { text: "Progressor", link: "/devices/progressor" },

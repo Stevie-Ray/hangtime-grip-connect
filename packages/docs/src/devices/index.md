@@ -147,7 +147,7 @@ All devices have the following functions:
 - [Climbro](/devices/climbro)
 - [Entralpi](/devices/entralpi)
 - [ForceBoard](/devices/forceboard)
-- [KilterBoard](/devices/kilterboard)
+- [Kilter Board](/devices/kilterboard)
 - [MotherBoard](/devices/motherboard)
 - [mySmartBoard](/devices/mysmartboard)
 - [Progressor](/devices/progressor)
