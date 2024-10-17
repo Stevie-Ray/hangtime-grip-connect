@@ -29,11 +29,37 @@ body {
   width: 100%;
 }
 
+#controller {
+  margin: 0 auto;
+  width: 100%;
+}
+
 #canvas {
   background-color: #30c0df;
   border: 2px solid black;
   display: block;
-  margin: auto;
+  margin: 0 auto;
+}
+
+#control {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 384px;
+}
+
+#control > div {
+  grid-column: span 1;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  font-size: 0.875rem;
 }
 
 #error {
@@ -46,18 +72,15 @@ body {
   margin: 1rem auto 0;
 }
 
-input {
-  max-width: 120px;
-}
-
+button,
 select,
 input {
   appearance: none;
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em;
-  margin-bottom: 0.3rem;
-  margin-top: 0.6rem;
+  display: block;
+  margin: 0.6rem 0 0.3rem;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
@@ -65,13 +88,17 @@ input {
   cursor: pointer;
   text-align: center;
   transition: border-color 0.25s;
+  max-width: 100%;
 }
 
+button:hover,
 select:hover,
 input:hover {
   border-color: #646cff;
 }
 
+button:focus,
+button:focus-visible,
 select:focus,
 select:focus-visible,
 input:focus,

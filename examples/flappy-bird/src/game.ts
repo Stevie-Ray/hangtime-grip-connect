@@ -1,8 +1,8 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
 
 let mass: number
-let weight = 75
-let difficulty = 0.5
+let weight = 5
+let difficulty = 2
 let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
 
 /**
@@ -51,18 +51,24 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
   })
 }
 
+export function setupTare(element: HTMLDivElement) {
+  element.addEventListener("click", () => {
+    device.tare()
+  })
+}
+
 export function setupDifficulty(element: HTMLSelectElement) {
   element.addEventListener("change", () => {
     const selectedDifficulty = element.value
 
     if (selectedDifficulty === "easy") {
-      difficulty = 0.75
+      difficulty = 2.5
     }
     if (selectedDifficulty === "normal") {
-      difficulty = 0.5
+      difficulty = 2
     }
     if (selectedDifficulty === "hard") {
-      difficulty = 0.25
+      difficulty = 1.5
     }
   })
 }
@@ -87,22 +93,24 @@ scrn.tabIndex = 1
 async function handleUserInput(): Promise<void> {
   switch (state.curr) {
     case state.getReady:
-      if (device.isConnected()) {
-        if (device instanceof Motherboard || device instanceof Progressor) {
-          await device.stream()
-        }
-        state.curr = state.Play
-        SFX.start.play()
-      } else {
-        await device.connect(async () => {
-          if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
-            // Request notifications
+      if (device) {
+        if (device.isConnected()) {
+          if (device instanceof Motherboard || device instanceof Progressor) {
             await device.stream()
-            // Play game
-            state.curr = state.Play
-            SFX.start.play()
           }
-        })
+          state.curr = state.Play
+          SFX.start.play()
+        } else {
+          await device.connect(async () => {
+            if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
+              // Request notifications
+              await device.stream()
+              // Play game
+              state.curr = state.Play
+              SFX.start.play()
+            }
+          })
+        }
       }
       break
     case state.Play:
@@ -196,11 +204,11 @@ const pipe: {
 } = {
   top: { sprite: new Image() },
   bot: { sprite: new Image() },
-  gap: 85,
+  gap: 85 * difficulty,
   moved: true,
   pipes: [],
   draw: function () {
-    this.gap = 50 + difficulty * 150
+    this.gap = 85 * difficulty
     for (const p of this.pipes) {
       sctx.drawImage(this.top.sprite, p.x, p.y)
       sctx.drawImage(this.bot.sprite, p.x, p.y + parseFloat(String(this.top.sprite.height)) + this.gap)
@@ -210,7 +218,7 @@ const pipe: {
     if (state.curr != state.Play) return
     if (gameFrames % 100 == 0) {
       this.pipes.push({
-        x: parseFloat(String(scrn.width)),
+        x: scrn.width,
         y: -210 * Math.min(Math.random() + 1, 1.8),
       })
     }
@@ -233,6 +241,7 @@ const bird: {
   gravity: number
   thrust: number
   frame: number
+  isFlapping: boolean
   draw: () => void
   update: () => void
   flap: () => void
@@ -247,6 +256,7 @@ const bird: {
   gravity: 0.125,
   thrust: 3.6,
   frame: 0,
+  isFlapping: false,
   draw: function () {
     const h = this.animations[this.frame].sprite.height
     const w = this.animations[this.frame].sprite.width
@@ -266,8 +276,14 @@ const bird: {
         break
       case state.Play:
         this.frame += gameFrames % 5 == 0 ? 1 : 0
-        if (mass && this.y > 0) {
-          this.speed -= (this.thrust / weight) * (mass * difficulty)
+        if (mass > weight && this.y > 0) {
+          if (!this.isFlapping) {
+            SFX.flap.play()
+            this.isFlapping = true
+          }
+          this.speed = -(mass / 2)
+        } else if (mass <= weight) {
+          this.isFlapping = false
         }
         this.y += this.speed
         this.setRotation()
