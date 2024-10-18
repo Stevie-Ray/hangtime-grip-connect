@@ -1,6 +1,5 @@
 import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
-import struct from "../../helpers/struct"
 
 /**
  * Represents the possible responses of a Tindeq Progressor device.
@@ -129,15 +128,25 @@ export class Progressor extends Device implements IProgressor {
 
     if (value) {
       if (value.buffer) {
-        const buffer: ArrayBuffer = value.buffer
-        const rawData: DataView = new DataView(buffer)
         const receivedTime: number = Date.now()
-        const [kind] = struct("<bb").unpack(rawData.buffer.slice(0, 2))
+        // Read the first byte of the buffer to determine the kind of message
+        const kind = value.getInt8(0)
+        // Check if the message is a weight measurement
         if (kind === ProgressorResponses.WEIGHT_MEASURE) {
-          const iterable: IterableIterator<unknown[]> = struct("<fi").iter_unpack(rawData.buffer.slice(2))
-          // eslint-disable-next-line prefer-const
-          for (let [weight, seconds] of iterable) {
-            if (typeof weight === "number" && !isNaN(weight) && typeof seconds === "number" && !isNaN(seconds)) {
+          // Start parsing data from the 3rd byte (index 2)
+          let offset = 2
+          // Continue parsing while there's data left in the buffer
+          while (offset < value.byteLength) {
+            // Read a 32-bit float (4 bytes) for the weight, using little-endian
+            const weight = value.getFloat32(offset, true)
+            // Move the offset by 4 bytes
+            offset += 4
+            // Read a 32-bit integer (4 bytes) for the seconds, using little-endian
+            const seconds = value.getInt32(offset, true)
+            // Move the offset by 4 bytes
+            offset += 4
+            // Check if both weight and seconds are valid numbers
+            if (!isNaN(weight) && !isNaN(seconds)) {
               // Tare correction
               const numericData = weight - this.applyTare(weight)
               // Add data to downloadable Array
@@ -171,16 +180,16 @@ export class Progressor extends Device implements IProgressor {
         } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
           if (!this.writeLast) return
 
-          let value = ""
+          let output = ""
 
           if (this.writeLast === this.commands.GET_BATT_VLTG) {
-            value = new DataView(rawData.buffer, 2).getUint32(0, true).toString()
+            output = new DataView(value.buffer, 2).getUint32(0, true).toString()
           } else if (this.writeLast === this.commands.GET_FW_VERSION) {
-            value = new TextDecoder().decode(rawData.buffer.slice(2))
+            output = new TextDecoder().decode(new Uint8Array(value.buffer).slice(2))
           } else if (this.writeLast === this.commands.GET_ERR_INFO) {
-            value = new TextDecoder().decode(rawData.buffer.slice(2))
+            output = new TextDecoder().decode(new Uint8Array(value.buffer.slice(2)))
           }
-          this.writeCallback(value)
+          this.writeCallback(output)
         } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
           console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
         } else {

@@ -187,11 +187,9 @@ export class ForceBoard extends Device implements IForceBoard {
     const value: DataView | undefined = characteristic.value
     if (value) {
       if (value.buffer) {
-        const buffer: ArrayBuffer = value.buffer
-        const rawData: DataView = new DataView(buffer)
         const receivedTime: number = Date.now()
 
-        const receivedData = rawData.getUint8(4) // Read the value at index 4
+        const receivedData = value.getUint8(4) // Read the value at index 4
         // Convert from LBS to KG
         const convertedReceivedData = receivedData * 0.453592
         // Tare correction

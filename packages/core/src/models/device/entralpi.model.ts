@@ -161,10 +161,8 @@ export class Entralpi extends Device implements IEntralpi {
 
     if (value) {
       if (value.buffer) {
-        const buffer: ArrayBuffer = value.buffer
-        const rawData: DataView = new DataView(buffer)
         const receivedTime: number = Date.now()
-        const receivedData: string = (rawData.getUint16(0) / 100).toFixed(1)
+        const receivedData: string = (value.getUint16(0) / 100).toFixed(1)
 
         const convertedData = Number(receivedData)
         // Adjust weight by using the tare value

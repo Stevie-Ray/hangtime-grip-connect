@@ -437,10 +437,7 @@ export abstract class Device extends BaseModel implements IDevice {
 
     if (value) {
       if (value.buffer) {
-        const buffer: ArrayBuffer = value.buffer
-        console.log(new Uint8Array(buffer))
-        const rawData: DataView = new DataView(buffer)
-        console.log(rawData)
+        console.log(value)
       } else {
         console.log(value)
       }
