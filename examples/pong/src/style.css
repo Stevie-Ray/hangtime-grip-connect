@@ -34,9 +34,42 @@ body {
   margin: auto;
 }
 
+#controller {
+  margin: 0 auto;
+  width: 100%;
+}
+
+#canvas {
+  background-color: #30c0df;
+  border: 2px solid black;
+  display: block;
+  margin: 0 auto;
+}
+
+#control {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 384px;
+}
+
+#control > div {
+  grid-column: span 1;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
 #error {
   max-width: 384px;
-  white-space: pre;
+  white-space: pre-wrap;
   justify-content: center;
   background-color: #898989;
   border-radius: 1rem;
@@ -44,10 +77,7 @@ body {
   margin: 1rem auto 0;
 }
 
-input {
-  max-width: 120px;
-}
-
+button,
 select,
 input {
   appearance: none;

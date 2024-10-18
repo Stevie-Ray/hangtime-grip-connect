@@ -1,7 +1,7 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
 
 let mass: number
-let weight = 75
+let weight = 5
 let difficulty = 0.5
 let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
 
@@ -51,18 +51,24 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
   })
 }
 
+export function setupTare(element: HTMLDivElement) {
+  element.addEventListener("click", () => {
+    device.tare()
+  })
+}
+
 export function setupDifficulty(element: HTMLSelectElement) {
   element.addEventListener("change", () => {
     const selectedDifficulty = element.value
 
     if (selectedDifficulty === "easy") {
-      difficulty = 0.75
-    }
-    if (selectedDifficulty === "normal") {
       difficulty = 0.5
     }
+    if (selectedDifficulty === "normal") {
+      difficulty = 0.75
+    }
     if (selectedDifficulty === "hard") {
-      difficulty = 0.25
+      difficulty = 1
     }
   })
 }
@@ -264,8 +270,14 @@ const Game: GameType = {
       // Move player if they player.move value was updated by a keyboard event
       if (this.player.move === DIRECTION.UP) this.player.y -= this.player.speed
       else if (this.player.move === DIRECTION.DOWN) this.player.y += this.player.speed
-      else if (mass) {
-        this.player.y = ((mass * 10 * difficulty) / weight) * this.canvas.height
+
+      if (mass) {
+        // Calculate the target position based on mass and weight
+        const targetPositionRatio = Math.min(Math.max(mass / weight, 0), 1)
+        const targetY = (1 - targetPositionRatio) * (this.canvas.height - this.player.height)
+        // Smoothly interpolate between current position and target position
+        const smoothFactor = 0.1 // (0.1 = 10% movement per frame)
+        this.player.y += (targetY - this.player.y) * smoothFactor
       }
 
       // On new serve (start of each turn) move the ball to the correct side
@@ -283,10 +295,10 @@ const Game: GameType = {
         this.player.y = this.canvas.height - this.player.height
 
       // Move ball in intended direction based on moveY and moveX values
-      if (this.ball.moveY === DIRECTION.UP) this.ball.y -= this.ball.speed / 1.5
-      else if (this.ball.moveY === DIRECTION.DOWN) this.ball.y += this.ball.speed / 1.5
-      if (this.ball.moveX === DIRECTION.LEFT) this.ball.x -= this.ball.speed
-      else if (this.ball.moveX === DIRECTION.RIGHT) this.ball.x += this.ball.speed
+      if (this.ball.moveY === DIRECTION.UP) this.ball.y -= (this.ball.speed * difficulty) / 1.5
+      else if (this.ball.moveY === DIRECTION.DOWN) this.ball.y += (this.ball.speed * difficulty) / 1.5
+      if (this.ball.moveX === DIRECTION.LEFT) this.ball.x -= this.ball.speed * difficulty
+      else if (this.ball.moveX === DIRECTION.RIGHT) this.ball.x += this.ball.speed * difficulty
 
       // Handle paddle (AI) UP and DOWN movement
       if (this.paddle.y > this.ball.y - this.paddle.height / 2) {
@@ -427,22 +439,24 @@ const Game: GameType = {
   listen: function () {
     document.addEventListener("touchstart", async function () {
       if (!Pong.running) {
-        if (device.isConnected()) {
-          if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
-            await device.stream()
-          }
-          Pong.running = true
-          window.requestAnimationFrame(Pong.loop)
-        } else {
-          await device.connect(async () => {
+        if (device) {
+          if (device.isConnected()) {
             if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
-              // Request notifications
               await device.stream()
-              // Play game
-              Pong.running = true
-              window.requestAnimationFrame(Pong.loop)
             }
-          })
+            Pong.running = true
+            window.requestAnimationFrame(Pong.loop)
+          } else {
+            await device.connect(async () => {
+              if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
+                // Request notifications
+                await device.stream()
+                // Play game
+                Pong.running = true
+                window.requestAnimationFrame(Pong.loop)
+              }
+            })
+          }
         }
       }
     })
@@ -450,22 +464,24 @@ const Game: GameType = {
     document.addEventListener("keydown", async function (key) {
       // Handle the 'Press any key to begin' function and start the game.
       if (!Pong.running) {
-        if (device.isConnected()) {
-          if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
-            await device.stream()
-          }
-          Pong.running = true
-          window.requestAnimationFrame(Pong.loop)
-        } else {
-          await device.connect(async () => {
+        if (device) {
+          if (device.isConnected()) {
             if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
-              // Request notifications
               await device.stream()
-              // Play game
-              Pong.running = true
-              window.requestAnimationFrame(Pong.loop)
             }
-          })
+            Pong.running = true
+            window.requestAnimationFrame(Pong.loop)
+          } else {
+            await device.connect(async () => {
+              if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
+                // Request notifications
+                await device.stream()
+                // Play game
+                Pong.running = true
+                window.requestAnimationFrame(Pong.loop)
+              }
+            })
+          }
         }
       }
       // Handle up arrow and w key events
