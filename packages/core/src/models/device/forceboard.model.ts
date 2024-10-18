@@ -188,41 +188,45 @@ export class ForceBoard extends Device implements IForceBoard {
     if (value) {
       if (value.buffer) {
         const receivedTime: number = Date.now()
+        const dataArray = new Uint8Array(value.buffer)
+        // Skip the first 2 bytes, which are the command and length
+        // The data is sent in groups of 3 bytes
+        for (let i = 2; i < dataArray.length; i += 3) {
+          const receivedData = (dataArray[i] << 16) | (dataArray[i + 1] << 8) | dataArray[i + 2]
+          // Convert from LBS to KG
+          const convertedReceivedData = receivedData * 0.453592
+          // Tare correction
+          const numericData = convertedReceivedData - this.applyTare(convertedReceivedData)
+          // Add data to downloadable Array
+          this.downloadPackets.push({
+            received: receivedTime,
+            sampleNum: this.dataPointCount,
+            battRaw: 0,
+            samples: [convertedReceivedData],
+            masses: [numericData],
+          })
 
-        const receivedData = value.getUint8(4) // Read the value at index 4
-        // Convert from LBS to KG
-        const convertedReceivedData = receivedData * 0.453592
-        // Tare correction
-        const numericData = convertedReceivedData - this.applyTare(convertedReceivedData)
-        // Add data to downloadable Array
-        this.downloadPackets.push({
-          received: receivedTime,
-          sampleNum: this.dataPointCount,
-          battRaw: 0,
-          samples: [convertedReceivedData],
-          masses: [numericData],
-        })
+          // Update massMax
+          this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
 
-        // Update massMax
-        this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
+          // Update running sum and count
+          const currentMassTotal = Math.max(-1000, numericData)
+          this.massTotalSum += currentMassTotal
+          this.dataPointCount++
 
-        // Update running sum and count
-        const currentMassTotal = Math.max(-1000, numericData)
-        this.massTotalSum += currentMassTotal
-        this.dataPointCount++
+          // Calculate the average dynamically
+          this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
 
-        // Calculate the average dynamically
-        this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+          // Check if device is being used
+          this.activityCheck(numericData)
 
-        // Check if device is being used
-        this.activityCheck(numericData)
-
-        // Notify with weight data
-        this.notifyCallback({
-          massMax: this.massMax,
-          massAverage: this.massAverage,
-          massTotal: Math.max(-1000, numericData).toFixed(1),
-        })
+          // Notify with weight data
+          this.notifyCallback({
+            massMax: this.massMax,
+            massAverage: this.massAverage,
+            massTotal: Math.max(-1000, numericData).toFixed(1),
+          })
+        }
       }
     }
   }
