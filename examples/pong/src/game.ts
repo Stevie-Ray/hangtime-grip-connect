@@ -53,7 +53,7 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
 
 export function setupTare(element: HTMLDivElement) {
   element.addEventListener("click", () => {
-    device.tare()
+    device?.tare()
   })
 }
 
