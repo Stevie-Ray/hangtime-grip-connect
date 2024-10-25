@@ -117,14 +117,14 @@ h2 {
 
 .input {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
 }
 .input > button {
-  grid-column: span 1;
+  grid-column: span 2;
 }
 
 .input:last-of-type {
@@ -135,7 +135,7 @@ h2 {
 }
 
 .input > strong {
-  grid-column: span 3;
+  grid-column: span 4;
   padding: 0.5rem;
 }
 
@@ -255,6 +255,10 @@ footer a:hover {
 
   .input strong {
     flex: 0 0 auto;
+  }
+
+  .input > button {
+    grid-column: span 1;
   }
 
   #masses {

@@ -201,10 +201,9 @@ export class Motherboard extends Device implements IMotherboard {
    * to extract samples, calibrate masses, and update running averages of mass data.
    * If the received data is not a valid hex packet, it returns the unprocessed data.
    *
-   * @param {Event} event - The notification event.
+   * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    */
-  handleNotifications = (event: Event): void => {
-    const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
+  handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
 
     if (value) {

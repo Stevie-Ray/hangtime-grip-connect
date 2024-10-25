@@ -210,18 +210,29 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   protected activityCheck = (input: number): Promise<void> => {
     return new Promise((resolve) => {
-      // Check the activity status after the specified duration
-      setTimeout(() => {
-        // Determine the activity status based on the stored threshold in the config
-        const activeNow = input > this.activeConfig.threshold
-        if (this.isActive !== activeNow) {
-          this.isActive = activeNow
-          if (this.activeCallback) {
-            this.activeCallback(activeNow)
+      const startTime = Date.now()
+      const checkActivity = () => {
+        const currentTime = Date.now()
+        const elapsedTime = currentTime - startTime
+
+        if (elapsedTime >= this.activeConfig.duration) {
+          // Determine the activity status based on the most recent input
+          const activeNow = input > this.activeConfig.threshold
+          if (this.isActive !== activeNow) {
+            this.isActive = activeNow
+            if (this.activeCallback) {
+              this.activeCallback(activeNow)
+            }
           }
+          resolve()
+        } else {
+          // Continue checking until the duration is met
+          requestAnimationFrame(checkActivity)
         }
-        resolve()
-      }, this.activeConfig.duration)
+      }
+
+      // Start the activity check
+      checkActivity()
     })
   }
 
@@ -264,15 +275,40 @@ export abstract class Device extends BaseModel implements IDevice {
 
   /**
    * Disconnects the device if it is currently connected.
-   * - Checks if the device is connected via it's GATT server.
-   * - If the device is connected, it attempts to gracefully disconnect.
+   * - Removes all notification listeners from the device's characteristics.
+   * - Removes the 'gattserverdisconnected' event listener.
+   * - Attempts to gracefully disconnect the device's GATT server.
+   * - Resets relevant properties to their initial states.
+   * @returns {void}
    * @public
+   *
+   * @example
+   * device.disconnect();
    */
   disconnect = (): void => {
-    // Verify that the device is connected using the provided helper function
     if (this.isConnected()) {
+      // Remove all notification listeners
+      this.services.forEach((service) => {
+        service.characteristics.forEach((char) => {
+          if (char.characteristic && char.id === "rx") {
+            char.characteristic.stopNotifications()
+            char.characteristic.removeEventListener("characteristicvaluechanged", (event: Event) => {
+              const target = event.target as BluetoothRemoteGATTCharacteristic
+              if (target && target.value) {
+                this.handleNotifications(target)
+              }
+            })
+          }
+        })
+      })
+      // Remove disconnect listener
+      this.bluetooth?.removeEventListener("gattserverdisconnected", this.onDisconnected)
       // Safely attempt to disconnect the device's GATT server, if available
       this.bluetooth?.gatt?.disconnect()
+      // Reset properties
+      this.server = undefined
+      this.writeLast = null
+      this.isActive = false
     }
   }
 
@@ -282,7 +318,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * @private
    */
   private downloadToCSV = (): string => {
-    return this.downloadPackets
+    const packets = [...this.downloadPackets]
+    if (packets.length === 0) {
+      return ""
+    }
+    return packets
       .map((packet) =>
         [
           packet.received.toString(),
@@ -396,7 +436,7 @@ export abstract class Device extends BaseModel implements IDevice {
    * @protected
    */
   protected getAllServiceUUIDs = (): string[] => {
-    return this.services.map((service) => service.uuid)
+    return this.services.filter((service) => service?.uuid).map((service) => service.uuid)
   }
 
   /**
@@ -428,19 +468,20 @@ export abstract class Device extends BaseModel implements IDevice {
 
   /**
    * Handles notifications received from a characteristic.
-   * @param {Event} event - The notification event.
-   * @protected
+   * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
+   *
    */
-  protected handleNotifications = (event: Event): void => {
-    const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
-    const value: DataView | undefined = characteristic.value
+  protected handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
+    const value = characteristic.value
 
-    if (value) {
-      if (value.buffer) {
-        console.log(value)
-      } else {
-        console.log(value)
-      }
+    if (!value) {
+      return
+    }
+
+    if (value.buffer) {
+      console.log(value)
+    } else {
+      console.log(value)
     }
   }
 
@@ -474,8 +515,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * @public
    */
   protected onConnected = async (onSuccess: () => void): Promise<void> => {
+    if (!this.server) {
+      throw new Error("GATT server is not available")
+    }
     // Connect to GATT server and set up characteristics
-    const services: BluetoothRemoteGATTService[] | undefined = await this.server?.getPrimaryServices()
+    const services: BluetoothRemoteGATTService[] | undefined = await this.server.getPrimaryServices()
 
     if (!services || services.length === 0) {
       throw new Error("No services found")
@@ -502,7 +546,10 @@ export abstract class Device extends BaseModel implements IDevice {
               if (element.id === "rx") {
                 matchingCharacteristic.startNotifications()
                 matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) => {
-                  this.handleNotifications(event)
+                  const target = event.target as BluetoothRemoteGATTCharacteristic
+                  if (target && target.value) {
+                    this.handleNotifications(target)
+                  }
                 })
               }
             }
@@ -525,7 +572,7 @@ export abstract class Device extends BaseModel implements IDevice {
   protected onDisconnected = (event: Event): void => {
     this.bluetooth = undefined
     const device = event.target as BluetoothDevice
-    throw new Error(`Device ${device.name} is disconnected.`)
+    console.warn(`Device ${device.name} is disconnected.`)
   }
 
   /**
@@ -572,14 +619,16 @@ export abstract class Device extends BaseModel implements IDevice {
   /**
    * Initiates the tare calibration process.
    * @param {number} duration - The duration time for tare calibration.
-   * @returns {void}
+   * @returns {boolean} A boolean indicating whether the tare calibration was successful.
    * @public
    */
-  tare(duration = 5000): void {
+  tare(duration = 5000): boolean {
+    if (this.tareActive) return false
     this.tareActive = true
     this.tareDuration = duration
     this.tareSamples = []
     this.tareStartTime = Date.now()
+    return true
   }
 
   /**
@@ -635,7 +684,7 @@ export abstract class Device extends BaseModel implements IDevice {
   ): Promise<void> => {
     // Check if not connected or no message is provided
     if (!this.isConnected() || message === undefined) {
-      return undefined
+      return Promise.resolve()
     }
     // Get the characteristic from the service
     const characteristic = this.getCharacteristic(serviceId, characteristicId)

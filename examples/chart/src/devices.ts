@@ -64,6 +64,19 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
       deviceName.innerHTML = `${device.constructor.name}`
       deviceControlDiv.appendChild(deviceName)
 
+      // Create the "Disconnect" button
+      const disconnectButton = document.createElement("button")
+      disconnectButton.innerHTML = `
+    <div>
+      <i class="fa-solid fa-link-slash"></i>
+    </div>
+    <div>Disconnect</div>
+  `
+      disconnectButton.addEventListener("click", async () => {
+        await device.disconnect()
+      })
+      deviceControlDiv.appendChild(disconnectButton)
+
       // Create the "Stop" button
       const streamButton = document.createElement("button")
       streamButton.innerHTML = `

@@ -180,10 +180,9 @@ export class ForceBoard extends Device implements IForceBoard {
    * and updates mass data including maximum and average values.
    * It also handles command responses for retrieving device information.
    *
-   * @param {Event} event - The notification event.
+   * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    */
-  handleNotifications = (event: Event): void => {
-    const characteristic: BluetoothRemoteGATTCharacteristic = event.target as BluetoothRemoteGATTCharacteristic
+  handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
     if (value) {
       if (value.buffer) {
