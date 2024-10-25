@@ -187,6 +187,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {number} [options.duration=1000] - The duration (in milliseconds) to monitor the input for activity.
    * @returns {void}
    * @public
+   *
+   * @example
+   * device.active((isActive) => {
+   *   console.log(`Device is ${isActive ? 'active' : 'inactive'}`);
+   * }, { threshold: 3.0, duration: 1500 });
    */
   active = (callback: ActiveCallback, options?: { threshold?: number; duration?: number }): void => {
     this.activeCallback = callback
@@ -207,6 +212,9 @@ export abstract class Device extends BaseModel implements IDevice {
    *
    * @param {number} input - The dynamic value to check for activity status.
    * @returns {Promise<void>} A promise that resolves once the activity check is complete.
+   *
+   * @example
+   * await device.activityCheck(5.0);
    */
   protected activityCheck = (input: number): Promise<void> => {
     return new Promise((resolve) => {
@@ -241,6 +249,12 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
    * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
    * @public
+   *
+   * @example
+   * device.connect(
+   *   () => console.log("Connected successfully"),
+   *   (error) => console.error("Connection failed:", error)
+   * );
    */
   connect = async (
     onSuccess: () => void = () => console.log("Connected successfully"),
@@ -316,6 +330,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * Converts the `downloadPackets` array into a CSV formatted string.
    * @returns {string} A CSV string representation of the `downloadPackets` data, with each packet on a new line.
    * @private
+   *
+   * @example
+   * const csvData = device.downloadToCSV();
+   * console.log(csvData);
    */
   private downloadToCSV = (): string => {
     const packets = [...this.downloadPackets]
@@ -342,6 +360,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * Converts an array of DownloadPacket objects to a JSON string.
    * @returns {string} JSON string representation of the data.
    * @private
+   *
+   * @example
+   * const jsonData = device.downloadToJSON();
+   * console.log(jsonData);
    */
   private downloadToJSON = (): string => {
     // Pretty print JSON with 2-space indentation
@@ -352,6 +374,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * Converts an array of DownloadPacket objects to an XML string.
    * @returns {string}  XML string representation of the data.
    * @private
+   *
+   * @example
+   * const xmlData = device.downloadToXML();
+   * console.log(xmlData);
    */
   private downloadToXML = (): string => {
     const xmlPackets = this.downloadPackets
@@ -381,6 +407,9 @@ export abstract class Device extends BaseModel implements IDevice {
    *
    * @returns {void} Initiates a download of the data in the specified format.
    * @private
+   *
+   * @example
+   * device.download('json');
    */
   download = (format: "csv" | "json" | "xml" = "csv"): void => {
     let content = ""
@@ -434,6 +463,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * Returns UUIDs of all services associated with the device.
    * @returns {string[]} Array of service UUIDs.
    * @protected
+   *
+   * @example
+   * const serviceUUIDs = device.getAllServiceUUIDs();
+   * console.log(serviceUUIDs);
    */
   protected getAllServiceUUIDs = (): string[] => {
     return this.services.filter((service) => service?.uuid).map((service) => service.uuid)
@@ -445,6 +478,12 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {string} characteristicId - The UUID of the characteristic.
    * @returns {BluetoothRemoteGATTCharacteristic | undefined} The characteristic, if found.
    * @protected
+   *
+   * @example
+   * const characteristic = device.getCharacteristic('battery', 'level');
+   * if (characteristic) {
+   *   console.log('Characteristic found');
+   * }
    */
   protected getCharacteristic = (
     serviceId: string,
@@ -470,6 +509,8 @@ export abstract class Device extends BaseModel implements IDevice {
    * Handles notifications received from a characteristic.
    * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    *
+   * @example
+   * device.handleNotifications(someCharacteristic);
    */
   protected handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value = characteristic.value
@@ -489,6 +530,13 @@ export abstract class Device extends BaseModel implements IDevice {
    * Checks if a Bluetooth device is connected.
    * @returns {boolean} A boolean indicating whether the device is connected.
    * @public
+   *
+   * @example
+   * if (device.isConnected()) {
+   *   console.log('Device is connected');
+   * } else {
+   *   console.log('Device is not connected');
+   * }
    */
   isConnected = (): boolean => {
     // Check if the device is defined and available
@@ -504,6 +552,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {NotifyCallback} callback - The callback function to be set.
    * @returns {void}
    * @public
+   *
+   * @example
+   * device.notify((data) => {
+   *   console.log('Received notification:', data);
+   * });
    */
   notify = (callback: NotifyCallback): void => {
     this.notifyCallback = callback
@@ -513,6 +566,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * Handles the 'connected' event.
    * @param {Function} onSuccess - Callback function to execute on successful connection.
    * @public
+   *
+   * @example
+   * device.onConnected(() => {
+   *   console.log('Device connected successfully');
+   * });
    */
   protected onConnected = async (onSuccess: () => void): Promise<void> => {
     if (!this.server) {
@@ -568,6 +626,9 @@ export abstract class Device extends BaseModel implements IDevice {
    * Handles the 'disconnected' event.
    * @param {Event} event - The 'disconnected' event.
    * @public
+   *
+   * @example
+   * device.onDisconnected(event);
    */
   protected onDisconnected = (event: Event): void => {
     this.bluetooth = undefined
@@ -582,6 +643,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
    * @returns {Promise<string | undefined>} A promise that resolves when the read operation is completed.
    * @public
+   *
+   * @example
+   * const value = await device.read('battery', 'level', 1000);
+   * console.log('Battery level:', value);
    */
   read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
     if (!this.isConnected()) {
@@ -621,6 +686,14 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {number} duration - The duration time for tare calibration.
    * @returns {boolean} A boolean indicating whether the tare calibration was successful.
    * @public
+   *
+   * @example
+   * const success = device.tare(5000);
+   * if (success) {
+   *   console.log('Tare calibration started');
+   * } else {
+   *   console.log('Tare calibration failed to start');
+   * }
    */
   tare(duration = 5000): boolean {
     if (this.tareActive) return false
@@ -636,6 +709,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {number} sample - The sample to calibrate.
    * @returns {number} The calibrated tare value.
    * @protected
+   *
+   * @example
+   * const calibratedSample = device.applyTare(rawSample);
+   * console.log('Calibrated sample:', calibratedSample);
    */
   protected applyTare(sample: number): number {
     if (this.tareActive && this.tareStartTime) {

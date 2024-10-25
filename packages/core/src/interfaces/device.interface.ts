@@ -70,18 +70,53 @@ export interface IDevice extends IBase {
   commands: Commands
 
   /**
+   * Sets the callback function to be called when the activity status changes,
+   * and optionally sets the configuration for threshold and duration.
+   *
+   * This function allows you to specify a callback that will be invoked whenever
+   * the activity status changes, indicating whether the device is currently active.
+   * It also allows optionally configuring the threshold and duration used to determine activity.
+   *
+   * @param {ActiveCallback} callback - The callback function to be set. This function
+   *                                      receives a boolean value indicating the new activity status.
+   * @param {object} [options] - Optional configuration object containing the threshold and duration.
+   * @param {number} [options.threshold=2.5] - The threshold value for determining activity.
+   * @param {number} [options.duration=1000] - The duration (in milliseconds) to monitor the input for activity.
+   * @returns {void}
+   * @public
+   *
+   * @example
+   * device.active((isActive) => {
+   *   console.log(`Device is ${isActive ? 'active' : 'inactive'}`);
+   * }, { threshold: 3.0, duration: 1500 });
+   */
+  active(callback?: (data: boolean) => void, options?: { threshold?: number; duration?: number }): void
+
+  /**
    * Connects to a Bluetooth device.
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
    * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
    * @public
+   *
+   * @example
+   * device.connect(
+   *   () => console.log("Connected successfully"),
+   *   (error) => console.error("Connection failed:", error)
+   * );
    */
   connect(onSuccess?: () => void, onError?: (error: Error) => void): Promise<void>
 
   /**
    * Disconnects the device if it is currently connected.
-   * - Checks if the device is connected via it's GATT server.
-   * - If the device is connected, it attempts to gracefully disconnect.
+   * - Removes all notification listeners from the device's characteristics.
+   * - Removes the 'gattserverdisconnected' event listener.
+   * - Attempts to gracefully disconnect the device's GATT server.
+   * - Resets relevant properties to their initial states.
+   * @returns {void}
    * @public
+   *
+   * @example
+   * device.disconnect();
    */
   disconnect(): void
 
@@ -94,6 +129,9 @@ export interface IDevice extends IBase {
    *
    * @returns {void} Initiates a download of the data in the specified format.
    * @private
+   *
+   * @example
+   * device.download('json');
    */
   download(format?: "csv" | "json" | "xml"): void
 
@@ -101,6 +139,13 @@ export interface IDevice extends IBase {
    * Checks if a Bluetooth device is connected.
    * @returns {boolean} A boolean indicating whether the device is connected.
    * @public
+   *
+   * @example
+   * if (device.isConnected()) {
+   *   console.log('Device is connected');
+   * } else {
+   *   console.log('Device is not connected');
+   * }
    */
   isConnected(): boolean
 
@@ -109,6 +154,11 @@ export interface IDevice extends IBase {
    * @param {NotifyCallback} callback - The callback function to be set.
    * @returns {void}
    * @public
+   *
+   * @example
+   * device.notify((data) => {
+   *   console.log('Received notification:', data);
+   * });
    */
   notify(callback: (data: massObject) => void): void
 
@@ -119,15 +169,28 @@ export interface IDevice extends IBase {
    * @param {number} [duration=0] - The duration to wait before resolving the promise, in milliseconds.
    * @returns {Promise<string | undefined>} A promise that resolves when the read operation is completed.
    * @public
+   *
+   * @example
+   * const value = await device.read('battery', 'level', 1000);
+   * console.log('Battery level:', value);
    */
   read(serviceId: string, characteristicId: string, duration?: number): Promise<string | undefined>
 
   /**
    * Initiates the tare calibration process.
    * @param {number} duration - The duration time for tare calibration.
-   * @returns {void}
+   * @returns {boolean} A boolean indicating whether the tare calibration was successful.
+   * @public
+   *
+   * @example
+   * const success = device.tare(5000);
+   * if (success) {
+   *   console.log('Tare calibration started');
+   * } else {
+   *   console.log('Tare calibration failed to start');
+   * }
    */
-  tare(duration?: number): void
+  tare(duration?: number): boolean
 
   /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
