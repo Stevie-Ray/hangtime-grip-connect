@@ -207,6 +207,8 @@ export class Motherboard extends Device implements IMotherboard {
     const value: DataView | undefined = characteristic.value
 
     if (value) {
+      // Update timestamp
+      this.updateTimestamp()
       if (value.buffer) {
         for (let i = 0; i < value.byteLength; i++) {
           this.receiveBuffer.push(value.getUint8(i))

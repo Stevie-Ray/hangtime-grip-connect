@@ -159,6 +159,8 @@ export class Entralpi extends Device implements IEntralpi {
     const value: DataView | undefined = characteristic.value
 
     if (value) {
+      // Update timestamp
+      this.updateTimestamp()
       if (value.buffer) {
         const receivedTime: number = Date.now()
         const receivedData: string = (value.getUint16(0) / 100).toFixed(1)

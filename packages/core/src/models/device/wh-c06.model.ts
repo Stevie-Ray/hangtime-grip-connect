@@ -86,6 +86,8 @@ export class WHC06 extends Device implements IWHC06 {
       if (!this.bluetooth.gatt) {
         throw new Error("GATT is not available on this device")
       }
+      // Update timestamp
+      this.updateTimestamp()
 
       // Device has no services / characteristics, so we directly call onSuccess
       onSuccess()

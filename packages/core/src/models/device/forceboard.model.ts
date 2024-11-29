@@ -185,6 +185,8 @@ export class ForceBoard extends Device implements IForceBoard {
   handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
     if (value) {
+      // Update timestamp
+      this.updateTimestamp()
       if (value.buffer) {
         const receivedTime: number = Date.now()
         const dataArray = new Uint8Array(value.buffer)

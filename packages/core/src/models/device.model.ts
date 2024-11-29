@@ -170,6 +170,9 @@ export abstract class Device extends BaseModel implements IDevice {
     this.massAverage = "0"
     this.massTotalSum = 0
     this.dataPointCount = 0
+
+    this.createdAt = new Date()
+    this.updatedAt = new Date()
   }
 
   /**
@@ -301,6 +304,7 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   disconnect = (): void => {
     if (this.isConnected()) {
+      this.updateTimestamp()
       // Remove all notification listeners
       this.services.forEach((service) => {
         service.characteristics.forEach((char) => {
@@ -519,6 +523,8 @@ export abstract class Device extends BaseModel implements IDevice {
       return
     }
 
+    this.updateTimestamp()
+
     if (value.buffer) {
       console.log(value)
     } else {
@@ -573,6 +579,8 @@ export abstract class Device extends BaseModel implements IDevice {
    * });
    */
   protected onConnected = async (onSuccess: () => void): Promise<void> => {
+    this.updateTimestamp()
+
     if (!this.server) {
       throw new Error("GATT server is not available")
     }
@@ -657,6 +665,7 @@ export abstract class Device extends BaseModel implements IDevice {
     if (!characteristic) {
       throw new Error("Characteristic is undefined")
     }
+    this.updateTimestamp()
     // Decode the value based on characteristicId and serviceId
     let decodedValue: string
     const decoder = new TextDecoder("utf-8")
@@ -697,6 +706,7 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   tare(duration = 5000): boolean {
     if (this.tareActive) return false
+    this.updateTimestamp()
     this.tareActive = true
     this.tareDuration = duration
     this.tareSamples = []
@@ -736,6 +746,19 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
+   * Updates the timestamp of the last device interaction.
+   * This method sets the updatedAt property to the current date and time.
+   * @protected
+   *
+   * @example
+   * device.updateTimestamp();
+   * console.log('Last updated:', device.updatedAt);
+   */
+  protected updateTimestamp = (): void => {
+    this.updatedAt = new Date()
+  }
+
+  /**
    * Writes a message to the specified characteristic of a Bluetooth device and optionally provides a callback to handle responses.
    * @param {string} serviceId - The service UUID of the Bluetooth device containing the target characteristic.
    * @param {string} characteristicId - The characteristic UUID where the message will be written.
@@ -768,6 +791,7 @@ export abstract class Device extends BaseModel implements IDevice {
     if (!characteristic) {
       throw new Error("Characteristic is undefined")
     }
+    this.updateTimestamp()
     // Convert the message to Uint8Array if it's a string
     const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
     // Write the value to the characteristic

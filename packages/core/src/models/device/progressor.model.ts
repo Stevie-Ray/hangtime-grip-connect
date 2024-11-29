@@ -126,6 +126,8 @@ export class Progressor extends Device implements IProgressor {
     const value: DataView | undefined = characteristic.value
 
     if (value) {
+      // Update timestamp
+      this.updateTimestamp()
       if (value.buffer) {
         const receivedTime: number = Date.now()
         // Read the first byte of the buffer to determine the kind of message
