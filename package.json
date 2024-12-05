@@ -36,7 +36,7 @@
   ],
   "dependencies": {
     "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.5.9"
+    "@hangtime/grip-connect": "^0.5.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
@@ -46,9 +46,9 @@
     "eslint": "^9.16.0",
     "husky": "^9.1.7",
     "jiti": "^2.4.1",
-    "prettier": "^3.4.1",
+    "prettier": "^3.4.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.16.0"
+    "typescript-eslint": "^8.17.0"
   }
 }

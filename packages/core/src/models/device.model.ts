@@ -158,6 +158,24 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   protected activeCallback: ActiveCallback = (data: boolean) => console.log(data)
 
+  /**
+   * Event listener for handling the 'gattserverdisconnected' event.
+   * This listener delegates the event to the `onDisconnected` method.
+   *
+   * @private
+   * @type {(event: Event) => void}
+   */
+  private onDisconnectedListener = (event: Event) => this.onDisconnected(event)
+
+  /**
+   * A map that stores notification event listeners keyed by characteristic UUIDs.
+   * This allows for proper addition and removal of event listeners associated with each characteristic.
+   *
+   * @private
+   * @type {Map<string, EventListener>}
+   */
+  private notificationListeners = new Map<string, EventListener>()
+
   constructor(device: Partial<IDevice>) {
     super(device)
 
@@ -221,29 +239,19 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   protected activityCheck = (input: number): Promise<void> => {
     return new Promise((resolve) => {
-      const startTime = Date.now()
-      const checkActivity = () => {
-        const currentTime = Date.now()
-        const elapsedTime = currentTime - startTime
-
-        if (elapsedTime >= this.activeConfig.duration) {
-          // Determine the activity status based on the most recent input
-          const activeNow = input > this.activeConfig.threshold
-          if (this.isActive !== activeNow) {
-            this.isActive = activeNow
-            if (this.activeCallback) {
-              this.activeCallback(activeNow)
-            }
+      const startValue = input
+      const { threshold, duration } = this.activeConfig
+      setTimeout(() => {
+        // After waiting for `duration`, check if still active (for a real scenario, you might store a last known input)
+        const activeNow = startValue > threshold
+        if (this.isActive !== activeNow) {
+          this.isActive = activeNow
+          if (this.activeCallback) {
+            this.activeCallback(activeNow)
           }
-          resolve()
-        } else {
-          // Continue checking until the duration is met
-          requestAnimationFrame(checkActivity)
         }
-      }
-
-      // Start the activity check
-      checkActivity()
+        resolve()
+      }, duration)
     })
   }
 
@@ -264,6 +272,9 @@ export abstract class Device extends BaseModel implements IDevice {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
+      if (typeof navigator === "undefined" || !("bluetooth" in navigator)) {
+        throw new Error("Web Bluetooth API not supported in this environment.")
+      }
       // Request device and set up connection
       const deviceServices = this.getAllServiceUUIDs()
 
@@ -276,9 +287,7 @@ export abstract class Device extends BaseModel implements IDevice {
         throw new Error("GATT is not available on this device")
       }
 
-      this.bluetooth.addEventListener("gattserverdisconnected", (event) => {
-        this.onDisconnected(event)
-      })
+      this.bluetooth.addEventListener("gattserverdisconnected", this.onDisconnectedListener)
 
       this.server = await this.bluetooth.gatt.connect()
 
@@ -308,19 +317,19 @@ export abstract class Device extends BaseModel implements IDevice {
       // Remove all notification listeners
       this.services.forEach((service) => {
         service.characteristics.forEach((char) => {
+          // TODO: remove device-specific logic
           if (char.characteristic && char.id === "rx") {
             char.characteristic.stopNotifications()
-            char.characteristic.removeEventListener("characteristicvaluechanged", (event: Event) => {
-              const target = event.target as BluetoothRemoteGATTCharacteristic
-              if (target && target.value) {
-                this.handleNotifications(target)
-              }
-            })
+            const listener = this.notificationListeners.get(char.uuid)
+            if (listener) {
+              char.characteristic.removeEventListener("characteristicvaluechanged", listener)
+              this.notificationListeners.delete(char.uuid)
+            }
           }
         })
       })
       // Remove disconnect listener
-      this.bluetooth?.removeEventListener("gattserverdisconnected", this.onDisconnected)
+      this.bluetooth?.removeEventListener("gattserverdisconnected", this.onDisconnectedListener)
       // Safely attempt to disconnect the device's GATT server, if available
       this.bluetooth?.gatt?.disconnect()
       // Reset properties
@@ -416,6 +425,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * device.download('json');
    */
   download = (format: "csv" | "json" | "xml" = "csv"): void => {
+    if (typeof document === "undefined" || typeof window === "undefined") {
+      console.warn("Download is not supported outside a browser environment.")
+      return
+    }
     let content = ""
     let mimeType = ""
     let fileName = ""
@@ -518,18 +531,11 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   protected handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value = characteristic.value
-
-    if (!value) {
-      return
-    }
+    if (!value) return
 
     this.updateTimestamp()
-
-    if (value.buffer) {
-      console.log(value)
-    } else {
-      console.log(value)
-    }
+    // Received notification data
+    console.log(value)
   }
 
   /**
@@ -608,15 +614,17 @@ export abstract class Device extends BaseModel implements IDevice {
             if (element) {
               element.characteristic = matchingCharacteristic
 
-              // notify
+              // TODO: remove device-specific logic
               if (element.id === "rx") {
                 matchingCharacteristic.startNotifications()
-                matchingCharacteristic.addEventListener("characteristicvaluechanged", (event: Event) => {
+                const listener = (event: Event) => {
                   const target = event.target as BluetoothRemoteGATTCharacteristic
                   if (target && target.value) {
                     this.handleNotifications(target)
                   }
-                })
+                }
+                matchingCharacteristic.addEventListener("characteristicvaluechanged", listener)
+                this.notificationListeners.set(element.uuid, listener)
               }
             }
           } else {
@@ -639,9 +647,8 @@ export abstract class Device extends BaseModel implements IDevice {
    * device.onDisconnected(event);
    */
   protected onDisconnected = (event: Event): void => {
-    this.bluetooth = undefined
-    const device = event.target as BluetoothDevice
-    console.warn(`Device ${device.name} is disconnected.`)
+    console.warn(`Device ${(event.target as BluetoothDevice).name} is disconnected.`)
+    this.disconnect()
   }
 
   /**
@@ -663,7 +670,7 @@ export abstract class Device extends BaseModel implements IDevice {
     // Get the characteristic from the service
     const characteristic = this.getCharacteristic(serviceId, characteristicId)
     if (!characteristic) {
-      throw new Error("Characteristic is undefined")
+      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
     }
     this.updateTimestamp()
     // Decode the value based on characteristicId and serviceId
@@ -789,7 +796,7 @@ export abstract class Device extends BaseModel implements IDevice {
     // Get the characteristic from the service
     const characteristic = this.getCharacteristic(serviceId, characteristicId)
     if (!characteristic) {
-      throw new Error("Characteristic is undefined")
+      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
     }
     this.updateTimestamp()
     // Convert the message to Uint8Array if it's a string

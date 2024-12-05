@@ -8,7 +8,7 @@ export abstract class BaseModel {
   updatedAt?: Date
 
   constructor(base: IBase) {
-    this.id = base.id ? base.id : self.crypto.randomUUID()
+    this.id = base.id ?? globalThis.crypto?.randomUUID()
 
     this.createdAt = base.createdAt
     this.updatedAt = base.updatedAt
