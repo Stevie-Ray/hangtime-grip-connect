@@ -113,7 +113,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
 - ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
-- ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu Scale
+- ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
 - ➡️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
