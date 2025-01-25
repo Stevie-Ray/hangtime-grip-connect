@@ -5,6 +5,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,7 +30,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Go to subfolder and publish package
+      - name: Publish JSR package
+        run: npx jsr publish
+
+      - name: Go to subfolder and publish NPM package
         run: cd packages/core && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
