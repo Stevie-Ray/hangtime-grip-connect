@@ -155,7 +155,7 @@ export class Entralpi extends Device implements IEntralpi {
    *
    * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    */
-  handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
+  override handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
 
     if (value) {

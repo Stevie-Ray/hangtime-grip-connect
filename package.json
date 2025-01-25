@@ -35,14 +35,11 @@
     "packages/*",
     "examples/*"
   ],
-  "dependencies": {
-    "@grip-connect/docs": "*",
-    "@hangtime/grip-connect": "^0.5.10"
-  },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.17.16",
+    "@types/w3c-web-serial": "^1.0.7",
     "@types/web-bluetooth": "^0.0.20",
     "eslint": "^9.19.0",
     "husky": "^9.1.7",

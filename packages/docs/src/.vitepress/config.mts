@@ -48,6 +48,11 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [{ icon: "github", link: "https://github.com/Stevie-Ray/hangtime-grip-connect" }],
+    socialLinks: [
+      {
+        icon: "github",
+        link: "https://github.com/Stevie-Ray/hangtime-grip-connect",
+      },
+    ],
   },
 })

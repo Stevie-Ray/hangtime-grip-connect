@@ -182,7 +182,7 @@ export class ForceBoard extends Device implements IForceBoard {
    *
    * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    */
-  handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
+  override handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
     if (value) {
       // Update timestamp

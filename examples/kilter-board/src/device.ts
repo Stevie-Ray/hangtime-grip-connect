@@ -587,7 +587,7 @@ const circles: SVGCircleElement[] = data.map((item) => {
   circle.setAttribute("data-led-position", item[3]?.toString())
   circle.setAttribute("id", item[4]?.toString()) // placement_id
   // Circle click event listener
-  circle.addEventListener("click", async (event) => {
+  circle.addEventListener("click", (event) => {
     const targetElement = event.target as SVGElement | null
 
     // Get the current stroke color of the clicked circle
@@ -648,13 +648,13 @@ if (svg) {
  */
 function updateURL() {
   const routeParam = getFrames()
-  const currentUrl = new URL(window.location.href)
+  const currentUrl = new URL(globalThis.location.href)
 
   // Set the 'route' parameter
   currentUrl.searchParams.set("route", routeParam)
 
   // Update the URL without reloading the page
-  window.history.pushState({}, "", currentUrl)
+  globalThis.history.pushState({}, "", currentUrl)
 }
 /**
  * Updates  the inner HTML with the payload in hexadecimal format.
@@ -768,7 +768,7 @@ function setFrames(routeParam: string) {
   })
 }
 
-const currentUrl = new URL(window.location.href)
+const currentUrl = new URL(globalThis.location.href)
 const routeParam = currentUrl.searchParams.get("route")
 
 if (routeParam) {

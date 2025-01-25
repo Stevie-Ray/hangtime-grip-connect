@@ -161,7 +161,7 @@ export class KilterBoard extends Device implements IKilterBoard {
   - 0x2
   - *packets
   - 0x3
-  
+
   First byte is always 1, the second is a number of packets, then checksum, then 2, packets themselves, and finally 3.
    */
     return [1, data.length, this.checksum(data), 2, ...data, 3]

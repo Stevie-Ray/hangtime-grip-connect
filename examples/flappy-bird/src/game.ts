@@ -137,7 +137,12 @@ scrn.onkeydown = function keyDown(e: KeyboardEvent): void {
 
 let gameFrames = 0
 const dx = 2
-const state: { curr: number; getReady: number; Play: number; gameOver: number } = {
+const state: {
+  curr: number
+  getReady: number
+  Play: number
+  gameOver: number
+} = {
   curr: 0,
   getReady: 0,
   Play: 1,
@@ -249,7 +254,14 @@ const bird: {
   setRotation: () => void
   collisioned: () => boolean
 } = {
-  animations: [{ sprite: new Image() }, { sprite: new Image() }, { sprite: new Image() }, { sprite: new Image() }],
+  animations: [
+    { sprite: new Image() },
+    { sprite: new Image() },
+    {
+      sprite: new Image(),
+    },
+    { sprite: new Image() },
+  ],
   rotatation: 0,
   x: 50,
   y: 100,
@@ -391,16 +403,16 @@ const UI = {
     sctx.fillStyle = "#FFFFFF"
     sctx.strokeStyle = "#000000"
     switch (state.curr) {
-      case state.Play:
+      case state.Play: {
         sctx.lineWidth = 2
         sctx.font = "35px Squada One"
         sctx.fillText(String(this.score.curr), scrn.width / 2 - 5, 50)
         sctx.strokeText(String(this.score.curr), scrn.width / 2 - 5, 50)
         break
-      case state.gameOver:
+      }
+      case state.gameOver: {
         sctx.lineWidth = 2
         sctx.font = "40px Squada One"
-        // eslint-disable-next-line no-case-declarations
         const sc = `SCORE :     ${this.score.curr}`
         try {
           this.score.best = Math.max(this.score.curr, Number(localStorage.getItem("best")))
@@ -415,8 +427,8 @@ const UI = {
           sctx.fillText(sc, scrn.width / 2 - 85, scrn.height / 2 + 15)
           sctx.strokeText(sc, scrn.width / 2 - 85, scrn.height / 2 + 15)
         }
-
         break
+      }
     }
   },
   update: function () {

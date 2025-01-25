@@ -1,7 +1,7 @@
 import "./style.css"
 import "./game"
 
-import { setupDevice, setupWeight, setupDifficulty, setupTare } from "./game"
+import { setupDevice, setupDifficulty, setupTare, setupWeight } from "./game"
 
 const controllerElement = document.querySelector<HTMLDivElement>("#controller")
 if (controllerElement) {

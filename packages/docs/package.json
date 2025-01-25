@@ -1,5 +1,5 @@
 {
-  "name": "@grip-connect/docs",
+  "name": "@hangtime/grip-connect-docs",
   "private": true,
   "scripts": {
     "docs:dev": "vitepress dev src --open --host",

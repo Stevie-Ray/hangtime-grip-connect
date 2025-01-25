@@ -115,7 +115,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     </div>
     <div>Tare</div>
   `
-      tareButton.addEventListener("click", async () => {
+      tareButton.addEventListener("click", () => {
         device.tare()
       })
 
@@ -130,7 +130,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
     </div>
     <div>Download</div>
   `
-      downloadButton.addEventListener("click", async () => {
+      downloadButton.addEventListener("click", () => {
         device.download()
       })
 
@@ -301,7 +301,9 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
             const celsius = ((temperatureLevel - 32) * 5) / 9
             console.log("Temperature Level Fahrenheit:", temperatureLevel.toString())
             console.log("Temperature Level in Celsius:", celsius.toFixed(1))
-            outputElement.textContent += `Temperature Level: ${temperatureLevel.toString()}°F / ${celsius.toFixed(1)}°C\r\n`
+            outputElement.textContent += `Temperature Level: ${temperatureLevel.toString()}°F / ${celsius.toFixed(
+              1,
+            )}°C\r\n`
           }
         }
 

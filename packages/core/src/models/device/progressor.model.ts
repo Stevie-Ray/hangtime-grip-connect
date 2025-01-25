@@ -122,7 +122,7 @@ export class Progressor extends Device implements IProgressor {
    *
    * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    */
-  handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
+  override handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
 
     if (value) {

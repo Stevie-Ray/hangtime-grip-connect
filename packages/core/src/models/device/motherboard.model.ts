@@ -203,7 +203,7 @@ export class Motherboard extends Device implements IMotherboard {
    *
    * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
    */
-  handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
+  override handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
     const value: DataView | undefined = characteristic.value
 
     if (value) {

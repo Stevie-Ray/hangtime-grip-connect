@@ -68,7 +68,7 @@ export class WHC06 extends Device implements IWHC06 {
    * @param {Function} [onSuccess] - Optional callback function to execute on successful connection. Default logs success.
    * @param {Function} [onError] - Optional callback function to execute on error. Default logs the error.
    */
-  connect = async (
+  override connect = async (
     onSuccess: () => void = () => console.log("Connected successfully"),
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
@@ -168,7 +168,7 @@ export class WHC06 extends Device implements IWHC06 {
    * For the WH-C06 device, the `gatt.connected` property remains `false` even after the device is connected.
    * @returns {boolean} A boolean indicating whether the device is connected.
    */
-  isConnected = (): boolean => {
+  override isConnected = (): boolean => {
     return !!this.bluetooth
   }
 
@@ -182,10 +182,13 @@ export class WHC06 extends Device implements IWHC06 {
     }
 
     // Set a new timeout to stop tracking if no advertisement is received
-    this.advertisementTimeout = window.setTimeout(() => {
+    this.advertisementTimeout = globalThis.setTimeout(() => {
       // Mimic a disconnect
       const disconnectedEvent = new Event("gattserverdisconnected")
-      Object.defineProperty(disconnectedEvent, "target", { value: this.bluetooth, writable: false })
+      Object.defineProperty(disconnectedEvent, "target", {
+        value: this.bluetooth,
+        writable: false,
+      })
       // Print error to the console
       console.error(`No advertisement received for ${this.advertisementTimeoutTime} seconds, stopping tracking..`)
       this.onDisconnected(disconnectedEvent)

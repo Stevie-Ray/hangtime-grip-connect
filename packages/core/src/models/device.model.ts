@@ -1,6 +1,6 @@
 import { BaseModel } from "./../models/base.model"
 import type { IDevice, Service } from "../interfaces/device.interface"
-import type { NotifyCallback, massObject, WriteCallback, ActiveCallback } from "../interfaces/callback.interface"
+import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface"
 import type { DownloadPacket } from "../interfaces/download.interface"
 import type { Commands } from "../interfaces/command.interface"
 
@@ -61,7 +61,10 @@ export abstract class Device extends BaseModel implements IDevice {
   /**
    * Configuration for threshold and duration.
    */
-  private activeConfig: { threshold: number; duration: number } = { threshold: 2.5, duration: 1000 }
+  private activeConfig: { threshold: number; duration: number } = {
+    threshold: 2.5,
+    duration: 1000,
+  }
 
   /**
    * Maximum mass recorded from the device, initialized to "0".
@@ -456,7 +459,7 @@ export abstract class Device extends BaseModel implements IDevice {
     const blob = new Blob([content], { type: mimeType })
 
     // Create a URL for the Blob
-    const url = window.URL.createObjectURL(blob)
+    const url = globalThis.URL.createObjectURL(blob)
 
     // Create a link element
     const link = document.createElement("a")
@@ -473,7 +476,7 @@ export abstract class Device extends BaseModel implements IDevice {
 
     // Clean up: remove the link and revoke the URL
     document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+    globalThis.URL.revokeObjectURL(url)
   }
 
   /**

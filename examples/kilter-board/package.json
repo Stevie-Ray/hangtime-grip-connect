@@ -12,6 +12,7 @@
     "@hangtime/grip-connect": "^0.5.10"
   },
   "devDependencies": {
+    "@types/w3c-web-serial": "^1.0.7",
     "typescript": "^5.7.3",
     "vite": "^6.0.11"
   },

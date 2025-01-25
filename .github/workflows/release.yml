@@ -30,10 +30,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish JSR package
-        run: npx jsr publish
+      - name: Go to subfolder
+        run: cd packages/core
 
-      - name: Go to subfolder and publish NPM package
-        run: cd packages/core && npm publish --access public
+      - name: publish NPM package
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish JSR package
+        run: npx jsr publish

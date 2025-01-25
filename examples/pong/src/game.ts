@@ -196,7 +196,7 @@ const Game: GameType = {
       }
     }
 
-    this.canvas.width = Math.min(window.innerWidth, window.innerHeight) * 1.9 // 1.9 to keep some margin
+    this.canvas.width = Math.min(globalThis.innerWidth, globalThis.innerHeight) * 1.9 // 1.9 to keep some margin
     this.canvas.height = (5 / 7) * this.canvas.width
 
     this.canvas.style.width = `${this.canvas.width / 2}px`
@@ -262,14 +262,22 @@ const Game: GameType = {
   update: function () {
     if (!this.over) {
       // If the ball collides with the bound limits - correct the x and y coords.
-      if (this.ball.x <= 0) Pong._resetTurn.call(this, this.paddle, this.player)
-      if (this.ball.x >= this.canvas.width - this.ball.width) Pong._resetTurn.call(this, this.player, this.paddle)
+      if (this.ball.x <= 0) {
+        Pong._resetTurn.call(this, this.paddle, this.player)
+      }
+      if (this.ball.x >= this.canvas.width - this.ball.width) {
+        Pong._resetTurn.call(this, this.player, this.paddle)
+      }
       if (this.ball.y <= 0) this.ball.moveY = DIRECTION.DOWN
-      if (this.ball.y >= this.canvas.height - this.ball.height) this.ball.moveY = DIRECTION.UP
+      if (this.ball.y >= this.canvas.height - this.ball.height) {
+        this.ball.moveY = DIRECTION.UP
+      }
 
       // Move player if they player.move value was updated by a keyboard event
       if (this.player.move === DIRECTION.UP) this.player.y -= this.player.speed
-      else if (this.player.move === DIRECTION.DOWN) this.player.y += this.player.speed
+      else if (this.player.move === DIRECTION.DOWN) {
+        this.player.y += this.player.speed
+      }
 
       if (mass) {
         // Calculate the target position based on mass and weight
@@ -291,29 +299,38 @@ const Game: GameType = {
 
       // If the player collides with the bound limits, update the x and y coords.
       if (this.player.y <= 0) this.player.y = 0
-      else if (this.player.y >= this.canvas.height - this.player.height)
+      else if (this.player.y >= this.canvas.height - this.player.height) {
         this.player.y = this.canvas.height - this.player.height
+      }
 
       // Move ball in intended direction based on moveY and moveX values
-      if (this.ball.moveY === DIRECTION.UP) this.ball.y -= (this.ball.speed * difficulty) / 1.5
-      else if (this.ball.moveY === DIRECTION.DOWN) this.ball.y += (this.ball.speed * difficulty) / 1.5
-      if (this.ball.moveX === DIRECTION.LEFT) this.ball.x -= this.ball.speed * difficulty
-      else if (this.ball.moveX === DIRECTION.RIGHT) this.ball.x += this.ball.speed * difficulty
+      if (this.ball.moveY === DIRECTION.UP) {
+        this.ball.y -= (this.ball.speed * difficulty) / 1.5
+      } else if (this.ball.moveY === DIRECTION.DOWN) {
+        this.ball.y += (this.ball.speed * difficulty) / 1.5
+      }
+      if (this.ball.moveX === DIRECTION.LEFT) {
+        this.ball.x -= this.ball.speed * difficulty
+      } else if (this.ball.moveX === DIRECTION.RIGHT) {
+        this.ball.x += this.ball.speed * difficulty
+      }
 
       // Handle paddle (AI) UP and DOWN movement
       if (this.paddle.y > this.ball.y - this.paddle.height / 2) {
-        if (this.ball.moveX === DIRECTION.RIGHT) this.paddle.y -= this.paddle.speed / 1.5
-        else this.paddle.y -= this.paddle.speed / 4
+        if (this.ball.moveX === DIRECTION.RIGHT) {
+          this.paddle.y -= this.paddle.speed / 1.5
+        } else this.paddle.y -= this.paddle.speed / 4
       }
       if (this.paddle.y < this.ball.y - this.paddle.height / 2) {
-        if (this.ball.moveX === DIRECTION.RIGHT) this.paddle.y += this.paddle.speed / 1.5
-        else this.paddle.y += this.paddle.speed / 4
+        if (this.ball.moveX === DIRECTION.RIGHT) {
+          this.paddle.y += this.paddle.speed / 1.5
+        } else this.paddle.y += this.paddle.speed / 4
       }
 
       // Handle paddle (AI) wall collision
-      if (this.paddle.y >= this.canvas.height - this.paddle.height)
+      if (this.paddle.y >= this.canvas.height - this.paddle.height) {
         this.paddle.y = this.canvas.height - this.paddle.height
-      else if (this.paddle.y <= 0) this.paddle.y = 0
+      } else if (this.paddle.y <= 0) this.paddle.y = 0
 
       // Handle Player-Ball collisions
       if (this.ball.x - this.ball.width <= this.player.x && this.ball.x >= this.player.x - this.player.width) {
@@ -357,8 +374,7 @@ const Game: GameType = {
 
         beep3.play()
       }
-    }
-    // Check to see if the paddle/AI has won the round.
+    } // Check to see if the paddle/AI has won the round.
     else if (this.paddle.score === rounds[this.round]) {
       this.over = true
       setTimeout(function () {
@@ -445,7 +461,7 @@ const Game: GameType = {
               await device.stream()
             }
             Pong.running = true
-            window.requestAnimationFrame(Pong.loop)
+            globalThis.requestAnimationFrame(Pong.loop)
           } else {
             await device.connect(async () => {
               if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
@@ -453,7 +469,7 @@ const Game: GameType = {
                 await device.stream()
                 // Play game
                 Pong.running = true
-                window.requestAnimationFrame(Pong.loop)
+                globalThis.requestAnimationFrame(Pong.loop)
               }
             })
           }
@@ -470,7 +486,7 @@ const Game: GameType = {
               await device.stream()
             }
             Pong.running = true
-            window.requestAnimationFrame(Pong.loop)
+            globalThis.requestAnimationFrame(Pong.loop)
           } else {
             await device.connect(async () => {
               if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
@@ -478,17 +494,21 @@ const Game: GameType = {
                 await device.stream()
                 // Play game
                 Pong.running = true
-                window.requestAnimationFrame(Pong.loop)
+                globalThis.requestAnimationFrame(Pong.loop)
               }
             })
           }
         }
       }
       // Handle up arrow and w key events
-      if (key.key === "ArrowUp" || key.key === "w") Pong.player.move = DIRECTION.UP
+      if (key.key === "ArrowUp" || key.key === "w") {
+        Pong.player.move = DIRECTION.UP
+      }
 
       // Handle down arrow and s key events
-      if (key.key === "ArrowDown" || key.key === "s") Pong.player.move = DIRECTION.DOWN
+      if (key.key === "ArrowDown" || key.key === "s") {
+        Pong.player.move = DIRECTION.DOWN
+      }
     })
 
     // Stop the player from moving when there are no keys being pressed.

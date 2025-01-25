@@ -1,0 +1,19 @@
+{
+  "tasks": {},
+  "workspace": {
+    "members": ["packages/*", "examples/*"]
+  },
+  "lint": {
+    "include": ["packages/", "examples/"]
+  },
+  "fmt": {
+    "lineWidth": 120,
+    "indentWidth": 2,
+    "semiColons": false,
+    "singleQuote": false
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "dom"]
+  },
+  "unstable": ["sloppy-imports"]
+}

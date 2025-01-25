@@ -5,6 +5,6 @@ export {
   KilterBoard,
   Motherboard,
   mySmartBoard,
-  WHC06,
   Progressor,
+  WHC06,
 } from "./models/index"
