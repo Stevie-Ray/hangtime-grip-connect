@@ -2,7 +2,8 @@ import { Device } from "../device.model"
 import type { IProgressor } from "../../interfaces/device/progressor.interface"
 
 /**
- * Represents the possible responses of a Tindeq Progressor device.
+ * Represents a Tindeq Progressor device.
+ * {@link https://tindeq.com}
  */
 enum ProgressorResponses {
   /**
@@ -37,7 +38,7 @@ enum ProgressorResponses {
 }
 
 /**
- * Represents a Tindeq Progressor device
+ * Represents a Tindeq Progressor device.
  */
 export class Progressor extends Device implements IProgressor {
   constructor() {

@@ -67,8 +67,9 @@ export const KilterBoardPlacementRoles = [
 ]
 
 /**
- * Represents a Aurora Climbing device
+ * Represents a Aurora Climbing device.
  * Kilter Board, Tension Board, Decoy Board, Touchstone Board, Grasshopper Board, Aurora Board, So iLL Board
+ * {@link https://auroraclimbing.com}
  */
 export class KilterBoard extends Device implements IKilterBoard {
   /**

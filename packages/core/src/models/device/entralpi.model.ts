@@ -1,6 +1,10 @@
 import { Device } from "../device.model"
 import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
 
+/**
+ * Represents a Entralpi device.
+ * {@link https://entralpi.com}
+ */
 export class Entralpi extends Device implements IEntralpi {
   constructor() {
     super({

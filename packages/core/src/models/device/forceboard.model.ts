@@ -2,7 +2,8 @@ import { Device } from "../device.model"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
 
 /**
- * Represents a PitchSix Force Board device
+ * Represents a PitchSix Force Board device.
+ * {@link https://pitchsix.com}
  */
 export class ForceBoard extends Device implements IForceBoard {
   constructor() {

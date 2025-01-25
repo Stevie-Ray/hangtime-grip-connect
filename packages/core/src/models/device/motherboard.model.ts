@@ -3,7 +3,8 @@ import type { IMotherboard } from "../../interfaces/device/motherboard.interface
 import type { DownloadPacket } from "../../interfaces/download.interface"
 
 /**
- * Represents a Griptonite Motherboard device
+ * Represents a Griptonite Motherboard device.
+ * {@link https://griptonite.io}
  */
 export class Motherboard extends Device implements IMotherboard {
   /**

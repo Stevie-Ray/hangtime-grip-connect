@@ -1,7 +1,7 @@
 import type { IDevice } from "../device.interface"
 
 /**
- * Interface representing the Griptonite Motherboard device.
+ * Interface representing the Griptonite Motherboard device, extending the base Device interface.
  */
 export interface IMotherboard extends IDevice {
   /**

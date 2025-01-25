@@ -1,5 +1,3 @@
-// @ts-types="npm:@types/web-bluetooth@^0.0.20"
-
 export { Climbro } from "./device/climbro.model"
 
 export { Entralpi } from "./device/entralpi.model"

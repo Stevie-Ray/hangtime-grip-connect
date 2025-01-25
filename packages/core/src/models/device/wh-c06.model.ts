@@ -2,8 +2,10 @@ import { Device } from "../device.model"
 import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
 
 /**
- * Represents a  Weiheng - WH-C06 (or MAT Muscle Meter) device
- * Enable 'Experimental Web Platform features' Chrome Flags.
+ * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.
+ * To use this device enable: `chrome://flags/#enable-experimental-web-platform-features`.
+ * {@link https://googlechrome.github.io/samples/web-bluetooth/scan.html| Web Bluetooth}
+ * {@link https://weihengmanufacturer.com}
  */
 export class WHC06 extends Device implements IWHC06 {
   /**

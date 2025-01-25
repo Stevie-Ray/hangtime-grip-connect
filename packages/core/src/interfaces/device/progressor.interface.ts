@@ -1,7 +1,7 @@
 import type { IDevice } from "../device.interface"
 
 /**
- * Interface representing the Tindeq Progressor device.
+ * Interface representing the Tindeq Progressor device, extending the base Device interface.
  */
 export interface IProgressor extends IDevice {
   /**

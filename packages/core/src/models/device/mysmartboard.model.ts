@@ -2,8 +2,9 @@ import { Device } from "../device.model"
 import type { ImySmartBoard } from "../../interfaces/device/mysmartboard.interface"
 
 /**
- * Represents a mySmartBoard device
+ * Represents a Smartboard Climbing mySmartBoard device.
  * TODO: Add services, do you own a mySmartBoard? Help us!
+ * {@link https://www.smartboard-climbing.com}
  */
 export class mySmartBoard extends Device implements ImySmartBoard {
   constructor() {
