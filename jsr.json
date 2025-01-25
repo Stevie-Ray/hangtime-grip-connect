@@ -3,7 +3,7 @@
   "version": "0.5.10",
   "license": "BSD-2-Clause",
   "exports": {
-    ".": "./packages/core/index.ts"
+    ".": "./packages/core/src/index.ts"
   },
   "publish": {
     "include": ["packages/core/**/*.ts", "LICENSE", "README.md"],

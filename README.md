@@ -35,7 +35,8 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 
 ## Install
 
-This project can be found in the [NPM package registry](https://www.npmjs.com/package/@hangtime/grip-connect).
+This project can be found in the [NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and
+[JSR](https://jsr.io/@hangtime/grip-connect) package registries.
 
 ```sh [npm]
 $ npm install @hangtime/grip-connect
