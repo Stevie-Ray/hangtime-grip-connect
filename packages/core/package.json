@@ -36,11 +36,5 @@
   "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/",
   "dependencies": {
     "webbluetooth": "^3.2.1"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
   }
 }
