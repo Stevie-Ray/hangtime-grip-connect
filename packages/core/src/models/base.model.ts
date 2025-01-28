@@ -1,4 +1,4 @@
-import type { IBase } from "../interfaces/base.interface"
+import type { IBase } from "../interfaces/base.interface.js"
 
 export abstract class BaseModel {
   id?: string

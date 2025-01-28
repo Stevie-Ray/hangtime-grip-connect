@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect",
-  "version": "0.5.11",
+  "version": "0.6.0",
   "description": "Griptonite Motherboard, Tindeq Progressor, PitchSix Force Board, WHC-06, Entralpi, Climbro, mySmartBoard: Web Bluetooth API Force-Sensing strength analysis for climbers",
   "type": "module",
   "main": "dist/index.js",
@@ -33,5 +33,14 @@
   "bugs": {
     "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
   },
-  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/",
+  "dependencies": {
+    "webbluetooth": "^3.2.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
 }

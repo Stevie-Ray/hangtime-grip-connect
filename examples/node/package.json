@@ -1,0 +1,14 @@
+{
+  "name": "@grip-connect/node",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "This example demonstrates how to use Grip Connect in a Node.js environment.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@hangtime/grip-connect": "^0.6.0"
+  }
+}

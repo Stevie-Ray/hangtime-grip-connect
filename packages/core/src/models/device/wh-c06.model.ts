@@ -1,5 +1,5 @@
-import { Device } from "../device.model"
-import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
+import { Device } from "../device.model.js"
+import type { IWHC06 } from "../../interfaces/device/wh-c06.interface.js"
 
 /**
  * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.
@@ -31,7 +31,7 @@ export class WHC06 extends Device implements IWHC06 {
    * @type {number|null}
    * @private
    */
-  private advertisementTimeout: number | null = null
+  private advertisementTimeout: ReturnType<typeof setTimeout> | null = null
 
   /**
    * The limit in seconds when timeout is triggered
@@ -80,7 +80,9 @@ export class WHC06 extends Device implements IWHC06 {
         (filter) => filter.manufacturerData?.map((data) => data.companyIdentifier) || [],
       )
 
-      this.bluetooth = await navigator.bluetooth.requestDevice({
+      const bluetooth = await this.getBluetooth()
+
+      this.bluetooth = await bluetooth.requestDevice({
         filters: this.filters,
         optionalManufacturerData,
       })

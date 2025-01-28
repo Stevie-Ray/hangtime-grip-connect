@@ -1,6 +1,6 @@
-import type { IBase } from "./base.interface"
-import type { massObject } from "./callback.interface"
-import type { Commands } from "./command.interface"
+import type { IBase } from "./base.interface.js"
+import type { massObject } from "./callback.interface.js"
+import type { Commands } from "./command.interface.js"
 
 /**
  * Represents a characteristic of a Bluetooth service.

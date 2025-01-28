@@ -1,5 +1,5 @@
-import { Device } from "../device.model"
-import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
+import { Device } from "../device.model.js"
+import type { IForceBoard } from "../../interfaces/device/forceboard.interface.js"
 
 /**
  * Represents a PitchSix Force Board device.

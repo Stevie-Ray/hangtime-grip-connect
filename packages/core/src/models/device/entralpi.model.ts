@@ -1,5 +1,5 @@
-import { Device } from "../device.model"
-import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
+import { Device } from "../device.model.js"
+import type { IEntralpi } from "../../interfaces/device/entralpi.interface.js"
 
 /**
  * Represents a Entralpi device.

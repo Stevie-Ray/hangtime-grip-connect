@@ -1,6 +1,6 @@
-import { Device } from "../device.model"
-import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
-import type { DownloadPacket } from "../../interfaces/download.interface"
+import { Device } from "../device.model.js"
+import type { IMotherboard } from "../../interfaces/device/motherboard.interface.js"
+import type { DownloadPacket } from "../../interfaces/download.interface.js"
 
 /**
  * Represents a Griptonite Motherboard device.

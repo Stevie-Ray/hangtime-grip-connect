@@ -9,4 +9,4 @@ export {
   mySmartBoard,
   Progressor,
   WHC06,
-} from "./models/index"
+} from "./models/index.js"

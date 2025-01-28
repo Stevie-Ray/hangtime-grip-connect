@@ -4,7 +4,11 @@
     "members": ["packages/*", "examples/*"]
   },
   "lint": {
-    "include": ["packages/", "examples/"]
+    "include": ["packages/", "examples/"],
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": ["no-sloppy-imports"]
+    }
   },
   "fmt": {
     "lineWidth": 120,

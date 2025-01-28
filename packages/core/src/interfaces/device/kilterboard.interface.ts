@@ -1,4 +1,4 @@
-import type { IDevice } from "../device.interface"
+import type { IDevice } from "../device.interface.js"
 /**
  * Interface representing the KilterBoard device, extending the base Device interface.
  */

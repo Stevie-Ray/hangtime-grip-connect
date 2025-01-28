@@ -1,8 +1,8 @@
-import { BaseModel } from "./../models/base.model"
-import type { IDevice, Service } from "../interfaces/device.interface"
-import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface"
-import type { DownloadPacket } from "../interfaces/download.interface"
-import type { Commands } from "../interfaces/command.interface"
+import { BaseModel } from "./../models/base.model.js"
+import type { IDevice, Service } from "../interfaces/device.interface.js"
+import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface.js"
+import type { DownloadPacket } from "../interfaces/download.interface.js"
+import type { Commands } from "../interfaces/command.interface.js"
 
 export abstract class Device extends BaseModel implements IDevice {
   /**
@@ -275,13 +275,12 @@ export abstract class Device extends BaseModel implements IDevice {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      if (typeof navigator === "undefined" || !("bluetooth" in navigator)) {
-        throw new Error("Web Bluetooth API not supported in this environment.")
-      }
       // Request device and set up connection
       const deviceServices = this.getAllServiceUUIDs()
 
-      this.bluetooth = await navigator.bluetooth.requestDevice({
+      const bluetooth = await this.getBluetooth()
+
+      this.bluetooth = await bluetooth.requestDevice({
         filters: this.filters,
         optionalServices: deviceServices,
       })
@@ -490,6 +489,23 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   protected getAllServiceUUIDs = (): string[] => {
     return this.services.filter((service) => service?.uuid).map((service) => service.uuid)
+  }
+
+  /**
+   * Attempt to use ES module import rather than require.
+   * This approach uses an async dynamic import for `webbluetooth`,
+   * so we can fallback if `navigator.bluetooth` is unavailable.
+   */
+  protected async getBluetooth() {
+    // If we're in a browser with real Web Bluetooth available:
+    if (typeof navigator !== "undefined" && "bluetooth" in navigator) {
+      return navigator.bluetooth
+    }
+
+    // Otherwise, we're likely in Node or an environment without `navigator.bluetooth`.
+    // Use a dynamic import for the ESM version:
+    const { bluetooth } = await import("webbluetooth")
+    return bluetooth
   }
 
   /**
