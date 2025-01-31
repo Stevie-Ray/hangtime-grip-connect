@@ -95,7 +95,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
       // motherboard.download('json')
 
       // Optionally disconnect from device after we are done
-      motherboard.disconnect(Motherboard)
+      motherboard.disconnect()
     },
     (error) => {
       // Optinal custom error handeling

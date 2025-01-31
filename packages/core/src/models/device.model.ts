@@ -420,30 +420,21 @@ export abstract class Device extends BaseModel implements IDevice {
    * @param {('csv' | 'json' | 'xml')} [format='csv'] - The format in which to download the data.
    * Defaults to 'csv'. Accepted values are 'csv', 'json', and 'xml'.
    *
-   * @returns {void} Initiates a download of the data in the specified format.
-   * @private
+   * @returns {Promise<void>} Resolves when the data has been downloaded/written
+   * @public
    *
    * @example
-   * device.download('json');
+   * await device.download('json');
    */
-  download = (format: "csv" | "json" | "xml" = "csv"): void => {
-    if (typeof document === "undefined" || typeof window === "undefined") {
-      console.warn("Download is not supported outside a browser environment.")
-      return
-    }
+  download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
-    let mimeType = ""
-    let fileName = ""
 
     if (format === "csv") {
       content = this.downloadToCSV()
-      mimeType = "text/csv"
     } else if (format === "json") {
       content = this.downloadToJSON()
-      mimeType = "application/json"
     } else if (format === "xml") {
       content = this.downloadToXML()
-      mimeType = "application/xml"
     }
 
     const now = new Date()
@@ -452,30 +443,41 @@ export abstract class Device extends BaseModel implements IDevice {
     // HH-MM-SS
     const time = now.toTimeString().split(" ")[0].replace(/:/g, "-")
 
-    fileName = `data-export-${date}-${time}.${format}`
+    const fileName = `data-export-${date}-${time}.${format}`
 
-    // Create a Blob object containing the data
-    const blob = new Blob([content], { type: mimeType })
+    if (typeof window !== "undefined" && typeof document !== "undefined") {
+      const mimeTypes = {
+        csv: "text/csv",
+        json: "application/json",
+        xml: "application/xml",
+      }
 
-    // Create a URL for the Blob
-    const url = globalThis.URL.createObjectURL(blob)
+      // Create a Blob object containing the data
+      const blob = new Blob([content], { type: mimeTypes[format] })
+      // Create a URL for the Blob
+      const url = globalThis.URL.createObjectURL(blob)
 
-    // Create a link element
-    const link = document.createElement("a")
+      // Create a link element
+      const link = document.createElement("a")
 
-    // Set link attributes
-    link.href = url
-    link.setAttribute("download", fileName)
+      // Set link attributes
+      link.href = url
+      link.setAttribute("download", fileName)
 
-    // Append link to document body
-    document.body.appendChild(link)
+      // Append link to document body
+      document.body.appendChild(link)
 
-    // Programmatically click the link to trigger the download
-    link.click()
+      // Programmatically click the link to trigger the download
+      link.click()
 
-    // Clean up: remove the link and revoke the URL
-    document.body.removeChild(link)
-    globalThis.URL.revokeObjectURL(url)
+      // Clean up: remove the link and revoke the URL
+      document.body.removeChild(link)
+      globalThis.URL.revokeObjectURL(url)
+    } else {
+      const { writeFile } = await import("node:fs/promises")
+      await writeFile(fileName, content)
+      console.log(`File saved as ${fileName}`)
+    }
   }
 
   /**
