@@ -494,20 +494,28 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
-   * Attempt to use ES module import rather than require.
-   * This approach uses an async dynamic import for `webbluetooth`,
-   * so we can fallback if `navigator.bluetooth` is unavailable.
+   * Returns the Bluetooth instance available for the current environment.
+   * In browsers, it returns the native Web Bluetooth API (i.e. `navigator.bluetooth`).
+   * In a Node.js environment, it dynamically imports the `webbluetooth` package.
+   * {@link https://github.com/thegecko/webbluetooth}
+   *
+   * @returns {Promise<Bluetooth>} A promise that resolves to the Bluetooth instance.
+   * @throws {Error} If Web Bluetooth is not available in the current environment.
    */
-  protected async getBluetooth() {
-    // If we're in a browser with real Web Bluetooth available:
-    if (typeof navigator !== "undefined" && "bluetooth" in navigator) {
+  protected async getBluetooth(): Promise<Bluetooth> {
+    // If running in a browser with native Web Bluetooth support:
+    if (typeof navigator !== "undefined" && navigator.bluetooth) {
       return navigator.bluetooth
     }
 
-    // Otherwise, we're likely in Node or an environment without `navigator.bluetooth`.
-    // Use a dynamic import for the ESM version:
-    const { bluetooth } = await import("webbluetooth")
-    return bluetooth
+    // If running in a Node.js environment:
+    if (typeof process !== "undefined" && process.versions?.node) {
+      const { bluetooth } = await import("webbluetooth")
+      return bluetooth
+    }
+
+    // If neither environment provides Web Bluetooth, throw an error:
+    throw new Error("Bluetooth not available.")
   }
 
   /**
