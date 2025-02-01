@@ -2346,7 +2346,7 @@
             "npm:@fortawesome/free-brands-svg-icons@^6.7.2",
             "npm:@fortawesome/free-regular-svg-icons@^6.7.2",
             "npm:@fortawesome/free-solid-svg-icons@^6.7.2",
-            "npm:@hangtime/grip-connect@0.6",
+            "npm:@hangtime/grip-connect@~0.6.1",
             "npm:chart.js@^4.4.7",
             "npm:typescript@^5.7.3",
             "npm:vite@^6.0.11"
@@ -2356,7 +2356,7 @@
       "examples/flappy-bird": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@0.6",
+            "npm:@hangtime/grip-connect@~0.6.1",
             "npm:typescript@^5.7.3",
             "npm:vite@^6.0.11"
           ]
@@ -2365,26 +2365,26 @@
       "examples/kilter-board": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@0.6",
+            "npm:@hangtime/grip-connect@~0.6.1",
             "npm:@types/w3c-web-serial@^1.0.7",
             "npm:typescript@^5.7.3",
             "npm:vite@^6.0.11"
           ]
         }
       },
-      "examples/node": {
-        "packageJson": {
-          "dependencies": [
-            "npm:@hangtime/grip-connect@0.6"
-          ]
-        }
-      },
       "examples/pong": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@0.6",
+            "npm:@hangtime/grip-connect@~0.6.1",
             "npm:typescript@^5.7.3",
             "npm:vite@^6.0.11"
+          ]
+        }
+      },
+      "examples/runtime": {
+        "packageJson": {
+          "dependencies": [
+            "npm:@hangtime/grip-connect@~0.6.1"
           ]
         }
       },

@@ -35,7 +35,7 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 
 ## Install
 
-This package is compatible with both Node.js and browser environments. It can be found in the
+This package is compatible with Node.js, Bun, Deno and browser environments. It can be found in the
 [NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and [JSR](https://jsr.io/@hangtime/grip-connect) package
 registries.
 

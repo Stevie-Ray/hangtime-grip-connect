@@ -29,7 +29,7 @@ export abstract class Device extends BaseModel implements IDevice {
    * @type {BluetoothDevice | undefined}
    * @public
    */
-  bluetooth?: BluetoothDevice | undefined
+  bluetooth?: BluetoothDevice
 
   /**
    * Object representing the set of commands available for this device.
@@ -240,22 +240,16 @@ export abstract class Device extends BaseModel implements IDevice {
    * @example
    * await device.activityCheck(5.0);
    */
-  protected activityCheck = (input: number): Promise<void> => {
-    return new Promise((resolve) => {
-      const startValue = input
-      const { threshold, duration } = this.activeConfig
-      setTimeout(() => {
-        // After waiting for `duration`, check if still active (for a real scenario, you might store a last known input)
-        const activeNow = startValue > threshold
-        if (this.isActive !== activeNow) {
-          this.isActive = activeNow
-          if (this.activeCallback) {
-            this.activeCallback(activeNow)
-          }
-        }
-        resolve()
-      }, duration)
-    })
+  protected activityCheck = async (input: number): Promise<void> => {
+    const startValue = input
+    const { threshold, duration } = this.activeConfig
+    // After waiting for `duration`, check if still active.
+    await new Promise((resolve) => setTimeout(resolve, duration))
+    const activeNow = startValue > threshold
+    if (this.isActive !== activeNow) {
+      this.isActive = activeNow
+      this.activeCallback?.(activeNow)
+    }
   }
 
   /**
@@ -319,7 +313,7 @@ export abstract class Device extends BaseModel implements IDevice {
       // Remove all notification listeners
       this.services.forEach((service) => {
         service.characteristics.forEach((char) => {
-          // TODO: remove device-specific logic
+          // Look for the "rx" characteristic that accepts notifications
           if (char.characteristic && char.id === "rx") {
             char.characteristic.stopNotifications()
             const listener = this.notificationListeners.get(char.uuid)
@@ -508,47 +502,14 @@ export abstract class Device extends BaseModel implements IDevice {
       return navigator.bluetooth
     }
 
-    // If running in a Node.js environment:
+    // If running in Node.js or Deno 2.0+
     if (typeof process !== "undefined" && process.versions?.node) {
       const { bluetooth } = await import("webbluetooth")
       return bluetooth
     }
 
-    // If neither environment provides Web Bluetooth, throw an error:
+    // If none of the above conditions are met, throw an error.
     throw new Error("Bluetooth not available.")
-  }
-
-  /**
-   * Retrieves the characteristic from the device's service.
-   * @param {string} serviceId - The UUID of the service.
-   * @param {string} characteristicId - The UUID of the characteristic.
-   * @returns {BluetoothRemoteGATTCharacteristic | undefined} The characteristic, if found.
-   * @protected
-   *
-   * @example
-   * const characteristic = device.getCharacteristic('battery', 'level');
-   * if (characteristic) {
-   *   console.log('Characteristic found');
-   * }
-   */
-  protected getCharacteristic = (
-    serviceId: string,
-    characteristicId: string,
-  ): BluetoothRemoteGATTCharacteristic | undefined => {
-    // Find the service with the specified serviceId
-    const boardService = this.services.find((service) => service.id === serviceId)
-    if (boardService) {
-      // If the service is found, find the characteristic with the specified characteristicId
-      const boardCharacteristic = boardService.characteristics.find(
-        (characteristic) => characteristic.id === characteristicId,
-      )
-      if (boardCharacteristic) {
-        // If the characteristic is found, return it
-        return boardCharacteristic.characteristic
-      }
-    }
-    // Return undefined if the service or characteristic is not found
-    return undefined
   }
 
   /**
@@ -581,7 +542,7 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   isConnected = (): boolean => {
     // Check if the device is defined and available
-    if (!this?.bluetooth) {
+    if (!this.bluetooth) {
       return false
     }
     // Check if the device is connected
@@ -620,7 +581,7 @@ export abstract class Device extends BaseModel implements IDevice {
       throw new Error("GATT server is not available")
     }
     // Connect to GATT server and set up characteristics
-    const services: BluetoothRemoteGATTService[] | undefined = await this.server.getPrimaryServices()
+    const services: BluetoothRemoteGATTService[] = await this.server.getPrimaryServices()
 
     if (!services || services.length === 0) {
       throw new Error("No services found")
@@ -630,7 +591,7 @@ export abstract class Device extends BaseModel implements IDevice {
       const matchingService = this.services.find((boardService) => boardService.uuid === service.uuid)
 
       if (matchingService) {
-        // Android bug: Introduce a delay before getting characteristics
+        // Android bug: Add a small delay before getting characteristics
         await new Promise((resolve) => setTimeout(resolve, 100))
 
         const characteristics = await service.getCharacteristics()
@@ -639,21 +600,28 @@ export abstract class Device extends BaseModel implements IDevice {
           const matchingCharacteristic = characteristics.find((char) => char.uuid === characteristic.uuid)
 
           if (matchingCharacteristic) {
-            const element = matchingService.characteristics.find((char) => char.uuid === matchingCharacteristic.uuid)
-            if (element) {
-              element.characteristic = matchingCharacteristic
-
-              // TODO: remove device-specific logic
-              if (element.id === "rx") {
+            // Find the corresponding characteristic descriptor in the service's characteristics array
+            const descriptor = matchingService.characteristics.find((char) => char.uuid === matchingCharacteristic.uuid)
+            if (descriptor) {
+              // Assign the actual Bluetooth characteristic object to the descriptor so it can be used later
+              descriptor.characteristic = matchingCharacteristic
+              // Look for the "rx" characteristic id that accepts notifications
+              if (descriptor.id === "rx") {
+                // Start receiving notifications for changes on this characteristic
                 matchingCharacteristic.startNotifications()
+                // Triggered when the characteristic's value changes
                 const listener = (event: Event) => {
+                  // Cast the event's target to a BluetoothRemoteGATTCharacteristic to access its properties
                   const target = event.target as BluetoothRemoteGATTCharacteristic
                   if (target && target.value) {
+                    // Delegate the data to handleNotifications method
                     this.handleNotifications(target)
                   }
                 }
+                // Attach the event listener to listen for changes in the characteristic's value
                 matchingCharacteristic.addEventListener("characteristicvaluechanged", listener)
-                this.notificationListeners.set(element.uuid, listener)
+                // Store the listener so it can be referenced (for later removal)
+                this.notificationListeners.set(descriptor.uuid, listener)
               }
             }
           } else {
@@ -662,7 +630,6 @@ export abstract class Device extends BaseModel implements IDevice {
         }
       }
     }
-
     // Call the onSuccess callback after successful connection and setup
     onSuccess()
   }
@@ -697,7 +664,10 @@ export abstract class Device extends BaseModel implements IDevice {
       return undefined
     }
     // Get the characteristic from the service
-    const characteristic = this.getCharacteristic(serviceId, characteristicId)
+    const characteristic = this.services
+      .find((service) => service.id === serviceId)
+      ?.characteristics.find((char) => char.id === characteristicId)?.characteristic
+
     if (!characteristic) {
       throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
     }
@@ -823,7 +793,10 @@ export abstract class Device extends BaseModel implements IDevice {
       return Promise.resolve()
     }
     // Get the characteristic from the service
-    const characteristic = this.getCharacteristic(serviceId, characteristicId)
+    const characteristic = this.services
+      .find((service) => service.id === serviceId)
+      ?.characteristics.find((char) => char.id === characteristicId)?.characteristic
+
     if (!characteristic) {
       throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
     }

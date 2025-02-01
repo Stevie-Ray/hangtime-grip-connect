@@ -1,9 +1,9 @@
 {
-  "name": "@grip-connect/node",
+  "name": "@grip-connect/runtime",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "This example demonstrates how to use Grip Connect in a Node.js environment.",
+  "description": "This example demonstrates how to use Grip Connect in a Node.js, Bun or Deno environment.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
