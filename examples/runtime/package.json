@@ -10,5 +10,9 @@
   },
   "dependencies": {
     "@hangtime/grip-connect": "^0.6.1"
-  }
+  },
+  "trustedDependencies": [
+    "@hangtime/grip-connect",
+    "webbluetooth"
+  ]
 }

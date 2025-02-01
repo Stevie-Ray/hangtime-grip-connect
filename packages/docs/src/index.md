@@ -6,8 +6,8 @@ title: "Documentation"
 hero:
   name: "Force-Sensing Climbing Training"
   tagline:
-    A Web Bluetooth API client that can establish connections with various Force-Sensing Hangboards / Dynamometers /
-    Plates / LED system boards used by climbers.
+    A Bluetooth API client that can establish connections with various Force-Sensing Hangboards / Dynamometers / Plates
+    / LED system boards used by climbers.
 
   actions:
     - theme: brand
