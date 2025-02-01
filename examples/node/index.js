@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Progressor } from "@hangtime/grip-connect"
 
 const progressor = new Progressor()
@@ -15,6 +14,6 @@ progressor.connect(
 
     await progressor.download()
 
-    await progressor.disconnect()
+    progressor.disconnect()
   },
 )

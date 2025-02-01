@@ -1,4 +1,13 @@
-// @ts-types="npm:@types/web-bluetooth@^0.0.20"
+export type {
+  IClimbro,
+  IEntralpi,
+  IForceBoard,
+  IKilterBoard,
+  IMotherboard,
+  ImySmartBoard,
+  IProgressor,
+  IWHC06,
+} from "./interfaces/index.js"
 
 export {
   Climbro,

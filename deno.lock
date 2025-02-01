@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:@eslint/js@^9.19.0": "9.19.0",
     "npm:@eslint/js@^9.9.0": "9.19.0",
     "npm:@fortawesome/fontawesome-svg-core@^6.7.2": "6.7.2",
     "npm:@fortawesome/free-brands-svg-icons@^6.7.2": "6.7.2",
@@ -12,6 +13,7 @@
     "npm:@types/web-bluetooth@^0.0.20": "0.0.20",
     "npm:chart.js@^4.4.7": "4.4.7",
     "npm:eslint@^9.19.0": "9.19.0_jiti@2.4.2",
+    "npm:globals@^15.14.0": "15.14.0",
     "npm:husky@^9.1.7": "9.1.7",
     "npm:jiti@^2.4.2": "2.4.2",
     "npm:prettier@^3.4.2": "3.4.2",
@@ -379,7 +381,7 @@
         "ajv",
         "debug",
         "espree",
-        "globals",
+        "globals@14.0.0",
         "ignore",
         "import-fresh",
         "js-yaml",
@@ -1453,6 +1455,9 @@
     "globals@14.0.0": {
       "integrity": "sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ=="
     },
+    "globals@15.14.0": {
+      "integrity": "sha512-OkToC372DtlQeje9/zHIo5CT8lRP/FUgEOKBEhU4e0abL7J7CD24fD9ohiLN5hagG/kWCYj4K5oaxxtj2Z0Dig=="
+    },
     "graceful-fs@4.2.11": {
       "integrity": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="
     },
@@ -2318,12 +2323,13 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@eslint/js@^9.9.0",
+        "npm:@eslint/js@^9.19.0",
         "npm:@types/eslint__js@^8.42.3",
         "npm:@types/node@^20.17.16",
         "npm:@types/w3c-web-serial@^1.0.7",
         "npm:@types/web-bluetooth@^0.0.20",
         "npm:eslint@^9.19.0",
+        "npm:globals@^15.14.0",
         "npm:husky@^9.1.7",
         "npm:jiti@^2.4.2",
         "npm:prettier@^3.4.2",

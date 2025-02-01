@@ -9,6 +9,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.6.0"
+    "@hangtime/grip-connect": "^0.6.1"
   }
 }

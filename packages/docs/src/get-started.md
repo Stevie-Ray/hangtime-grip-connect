@@ -92,7 +92,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
       // await motherboard.stop()
 
       // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
-      // motherboard.download('json')
+      // await motherboard.download('json')
 
       // Optionally disconnect from device after we are done
       motherboard.disconnect()

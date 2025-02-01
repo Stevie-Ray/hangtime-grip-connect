@@ -136,9 +136,9 @@ export class KilterBoard extends Device implements IKilterBoard {
   /**
    * Calculates the checksum for a byte array by summing up all bytes ot hre packet in a single-byte variable.
    * @param data - The array of bytes to calculate the checksum for.
-   * @returns The calculated checksum value.
+   * @returns {number} The calculated checksum value.
    */
-  private checksum(data: number[]) {
+  private checksum(data: number[]): number {
     let i = 0
     for (const value of data) {
       i = (i + value) & 255
@@ -149,9 +149,9 @@ export class KilterBoard extends Device implements IKilterBoard {
   /**
    * Wraps a byte array with header and footer bytes for transmission.
    * @param data - The array of bytes to wrap.
-   * @returns The wrapped byte array.
+   * @returns {number[]} The wrapped byte array.
    */
-  private wrapBytes(data: number[]) {
+  private wrapBytes(data: number[]): number[] {
     if (data.length > KilterBoard.messageBodyMaxLength) {
       return []
     }
@@ -173,9 +173,9 @@ export class KilterBoard extends Device implements IKilterBoard {
    * The lowest 8 bits of the position get put in the first byte of the group.
    * The highest 8 bits of the position get put in the second byte of the group.
    * @param position - The position to encode.
-   * @returns The encoded byte array representing the position.
+   * @returns {number[]} The encoded byte array representing the position.
    */
-  private encodePosition(position: number) {
+  private encodePosition(position: number): number[] {
     const position1 = position & 255
     const position2 = (position & 65280) >> 8
 
@@ -188,7 +188,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param color - The color string in hexadecimal format (e.g., 'FFFFFF').
    * @returns The encoded /compressed color value.
    */
-  private encodeColor(color: string) {
+  private encodeColor(color: string): number {
     const substring = color.substring(0, 2)
     const substring2 = color.substring(2, 4)
 
@@ -209,7 +209,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param ledColor - The color of the LED in hexadecimal format (e.g., 'FFFFFF').
    * @returns The encoded byte array representing the placement.
    */
-  private encodePlacement(position: number, ledColor: string) {
+  private encodePlacement(position: number, ledColor: string): number[] {
     return [...this.encodePosition(position), this.encodeColor(ledColor)]
   }
 
@@ -218,7 +218,7 @@ export class KilterBoard extends Device implements IKilterBoard {
    * @param {{ position: number; role_id: number }[]} climbPlacementList - The list of climb placements containing position and role ID.
    * @returns {number[]} The final byte array ready for transmission.
    */
-  private prepBytesV3(climbPlacementList: { position: number; role_id: number }[]) {
+  private prepBytesV3(climbPlacementList: { position: number; role_id: number }[]): number[] {
     const resultArray: number[][] = []
     let tempArray: number[] = [KilterBoardPacket.V3_MIDDLE]
 
@@ -257,9 +257,9 @@ export class KilterBoard extends Device implements IKilterBoard {
    * https://github.com/ramda/ramda/blob/master/source/splitEvery.js
    * @param {Number} n
    * @param {Array} list
-   * @return {Array}
+   * @return {Array<number[]>}
    */
-  private splitEvery(n: number, list: number[]) {
+  private splitEvery(n: number, list: number[]): number[][] {
     if (n <= 0) {
       throw new Error("First argument to splitEvery must be a positive integer")
     }
