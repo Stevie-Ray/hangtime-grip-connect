@@ -1,24 +1,44 @@
 # Grip Connect - Runtime
 
-This example demonstrates how to use Grip Connect in a Node.js, Bun or Deno environment.
+This example demonstrates how to use Grip Connect in a Node.js, Bun, or Deno environment.
 
 ## Setup
 
 ### Node.js
 
+Install the package using npm:
+
 ```bash
 npm install @hangtime/grip-connect
 ```
 
-### Deno
+### Bun
 
-Make sure you add `--allow-scripts` to run the `postinstall` script:
+Install with Bun using:
 
 ```bash
-deno add jsr:@hangtime/grip-connect --allow-scripts
+bun add @hangtime/grip-connect
 ```
 
-Also add the following in the root `deno.json` file:
+Also, update your `package.json` file to include:
+
+```json
+{
+  "trustedDependencies": ["@hangtime/grip-connect", "webbluetooth"]
+}
+```
+
+This configuration ensures the post-install script runs correctly.
+
+### Deno
+
+To install for Deno, add the package with permission to run `postinstall` scripts:
+
+```bash
+deno add jsr:@hangtime/grip-connect --allow-scripts="npm:webbluetooth"
+```
+
+Then, ensure your root `deno.json` file includes the following configuration to automatically manage Node modules:
 
 ```json
 {
@@ -26,16 +46,17 @@ Also add the following in the root `deno.json` file:
 }
 ```
 
-### Bun
+## Usage
+
+To run the example:
 
 ```bash
-bun add @hangtime/grip-connect
-```
+# Node.js
+node index.js
 
-Make sure you have the following in your `package.json` file, to execute `postinstall` script:
+# Bun
+bun index.js
 
-```json
-{
-  "trustedDependencies": ["@hangtime/grip-connect", "webbluetooth"]
-}
+# Deno
+deno run --allow-env --allow-read --allow-sys --allow-ffi index.js
 ```
