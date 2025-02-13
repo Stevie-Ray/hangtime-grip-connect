@@ -1,5 +1,5 @@
-import { Device } from "../device.model.js"
-import type { IClimbro } from "../../interfaces/device/climbro.interface.js"
+import { Device } from "../device.model"
+import type { IClimbro } from "../../interfaces/device/climbro.interface"
 
 /**
  * Represents a Climbro device.

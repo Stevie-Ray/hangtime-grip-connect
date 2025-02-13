@@ -1,4 +1,4 @@
-import type { IDevice } from "../device.interface.js"
+import type { IDevice } from "../device.interface"
 /**
  * Interface representing the Climbro device, extending the base Device interface.
  */

@@ -36,18 +36,18 @@
     "examples/*"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.19.0",
+    "@eslint/js": "^9.20.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.17.17",
+    "@types/node": "^20.17.18",
     "@types/w3c-web-serial": "^1.0.7",
     "@types/web-bluetooth": "^0.0.20",
-    "eslint": "^9.19.0",
-    "globals": "^15.14.0",
+    "eslint": "^9.20.1",
+    "globals": "^15.15.0",
     "husky": "^9.1.7",
     "jiti": "^2.4.2",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.23.0"
+    "typescript-eslint": "^8.24.0"
   }
 }

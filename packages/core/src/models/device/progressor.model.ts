@@ -1,5 +1,5 @@
-import { Device } from "../device.model.js"
-import type { IProgressor } from "../../interfaces/device/progressor.interface.js"
+import { Device } from "../device.model"
+import type { IProgressor } from "../../interfaces/device/progressor.interface"
 
 /**
  * Progressor responses

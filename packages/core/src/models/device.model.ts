@@ -1,8 +1,8 @@
-import { BaseModel } from "./../models/base.model.js"
-import type { IDevice, Service } from "../interfaces/device.interface.js"
-import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface.js"
-import type { DownloadPacket } from "../interfaces/download.interface.js"
-import type { Commands } from "../interfaces/command.interface.js"
+import { BaseModel } from "./../models/base.model"
+import type { IDevice, Service } from "../interfaces/device.interface"
+import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface"
+import type { DownloadPacket } from "../interfaces/download.interface"
+import type { Commands } from "../interfaces/command.interface"
 
 export abstract class Device extends BaseModel implements IDevice {
   /**
@@ -490,7 +490,7 @@ export abstract class Device extends BaseModel implements IDevice {
   /**
    * Returns the Bluetooth instance available for the current environment.
    * In browsers, it returns the native Web Bluetooth API (i.e. `navigator.bluetooth`).
-   * In a Node.js environment, it dynamically imports the `webbluetooth` package.
+   * In a Node, Bun, or Deno environment, it dynamically imports the `webbluetooth` package.
    * {@link https://github.com/thegecko/webbluetooth}
    *
    * @returns {Promise<Bluetooth>} A promise that resolves to the Bluetooth instance.
@@ -502,7 +502,9 @@ export abstract class Device extends BaseModel implements IDevice {
       return navigator.bluetooth
     }
 
-    // If running in Node.js or Deno 2.0+
+    const process = await import("node:process")
+
+    // If running in Node, Bun, or Deno environment
     if (typeof process !== "undefined" && process.versions?.node) {
       const { bluetooth } = await import("webbluetooth")
       return bluetooth

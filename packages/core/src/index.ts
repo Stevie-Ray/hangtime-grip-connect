@@ -7,7 +7,7 @@ export type {
   ImySmartBoard,
   IProgressor,
   IWHC06,
-} from "./interfaces/index.js"
+} from "./interfaces/index"
 
 export {
   Climbro,
@@ -18,4 +18,4 @@ export {
   mySmartBoard,
   Progressor,
   WHC06,
-} from "./models/index.js"
+} from "./models/index"

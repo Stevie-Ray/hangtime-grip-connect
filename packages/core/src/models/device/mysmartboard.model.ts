@@ -1,5 +1,5 @@
-import { Device } from "../device.model.js"
-import type { ImySmartBoard } from "../../interfaces/device/mysmartboard.interface.js"
+import { Device } from "../device.model"
+import type { ImySmartBoard } from "../../interfaces/device/mysmartboard.interface"
 
 /**
  * Represents a Smartboard Climbing mySmartBoard device.

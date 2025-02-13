@@ -1,5 +1,5 @@
-import { Device } from "../device.model.js"
-import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface.js"
+import { Device } from "../device.model"
+import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface"
 
 /**
  * For API level 2 and API level 3.
@@ -254,7 +254,7 @@ export class KilterBoard extends Device implements IKilterBoard {
 
   /**
    * Splits a collection into slices of the specified length.
-   * https://github.com/ramda/ramda/blob/master/source/splitEvery.js
+   * https://github.com/ramda/ramda/blob/master/source/splitEvery
    * @param {Number} n
    * @param {Array} list
    * @return {Array<number[]>}
