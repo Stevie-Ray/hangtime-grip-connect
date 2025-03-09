@@ -42,6 +42,7 @@
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
     "types": [
+      "node",
       "web-bluetooth",
       "w3c-web-serial"
     ] /* Specify type package names to be included without being referenced in a source file. */,

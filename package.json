@@ -36,12 +36,12 @@
     "examples/*"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
+    "@eslint/js": "^9.22.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.17.23",
+    "@types/node": "^20.17.24",
     "@types/w3c-web-serial": "^1.0.8",
     "@types/web-bluetooth": "^0.0.21",
-    "eslint": "^9.21.0",
+    "eslint": "^9.22.0",
     "globals": "^16.0.0",
     "husky": "^9.1.7",
     "jiti": "^2.4.2",
