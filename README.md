@@ -155,7 +155,7 @@ A special thank you to:
 - [@ecstrema](https://github.com/ecstrema) for providing [examples](https://github.com/ecstrema/entralpi-games) on how
   to play games with the Entralpi.
 - [Tindeq](https://tindeq.com/) for providing an open [Progressor API](https://tindeq.com/progressor_api/).
-- [PitchSix][https://pitchsix.com/] for the [Force Board Portable Public API](https://pitchsix.com/pages/downloads).
+- [PitchSix](https://pitchsix.com/) for the [Force Board Portable Public API](https://pitchsix.com/pages/downloads).
 - [@StuartLittlefair](https://github.com/StuartLittlefair) for his
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
 - [@Phil9l](https://github.com/phil9l) for his research and providing a [blog](https://bazun.me/blog/kiterboard/) on how
