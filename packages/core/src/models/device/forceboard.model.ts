@@ -108,13 +108,13 @@ export class ForceBoard extends Device implements IForceBoard {
               uuid: "9a88d681-8df2-4afe-9e0d-c2bbbe773dd0",
             },
             {
-              name: "Read + Notify",
+              name: "Force Data",
               id: "rx",
               uuid: "9a88d682-8df2-4afe-9e0d-c2bbbe773dd0",
             },
             {
-              name: "Write",
-              id: "",
+              name: "Tare",
+              id: "tare",
               uuid: "9a88d683-8df2-4afe-9e0d-c2bbbe773dd0",
             },
             {
@@ -123,8 +123,8 @@ export class ForceBoard extends Device implements IForceBoard {
               uuid: "9a88d685-8df2-4afe-9e0d-c2bbbe773dd0",
             },
             {
-              name: "Write",
-              id: "",
+              name: "Threshold",
+              id: "threshold",
               uuid: "9a88d686-8df2-4afe-9e0d-c2bbbe773dd0",
             },
             {
@@ -145,12 +145,12 @@ export class ForceBoard extends Device implements IForceBoard {
           ],
         },
         {
-          name: "Weight Serivce",
+          name: "Weight Service",
           id: "weight",
           uuid: "467a8516-6e39-11eb-9439-0242ac130002",
           characteristics: [
             {
-              name: "Read + Write",
+              name: "Device Mode",
               id: "tx",
               uuid: "467a8517-6e39-11eb-9439-0242ac130002",
             },
@@ -163,7 +163,10 @@ export class ForceBoard extends Device implements IForceBoard {
         },
       ],
       commands: {
-        STOP_WEIGHT_MEAS: "",
+        START_WEIGHT_MEAS: String.fromCharCode(0x04), // Streaming Data Mode: continuously streams force data.
+        TARE_SCALE: String.fromCharCode(0x05), // Tare function: zeroes out the current load value
+        START_QUICK_MEAS: String.fromCharCode(0x06), // Quick Start Mode: Starts data transmission when a force value exceeds the Threshold and stops data transmission when the force data drops below the Threshold.
+        STOP_WEIGHT_MEAS: String.fromCharCode(0x07), // Idle Mode: Force Board is idle.
       },
     })
   }
@@ -191,43 +194,51 @@ export class ForceBoard extends Device implements IForceBoard {
       if (value.buffer) {
         const receivedTime: number = Date.now()
         const dataArray = new Uint8Array(value.buffer)
-        // Skip the first 2 bytes, which are the command and length
-        // The data is sent in groups of 3 bytes
-        for (let i = 2; i < dataArray.length; i += 3) {
-          const receivedData = (dataArray[i] << 16) | (dataArray[i + 1] << 8) | dataArray[i + 2]
-          // Convert from LBS to KG
-          const convertedReceivedData = receivedData * 0.453592
-          // Tare correction
-          const numericData = convertedReceivedData - this.applyTare(convertedReceivedData)
-          // Add data to downloadable Array
-          this.downloadPackets.push({
-            received: receivedTime,
-            sampleNum: this.dataPointCount,
-            battRaw: 0,
-            samples: [convertedReceivedData],
-            masses: [numericData],
-          })
 
-          // Update massMax
-          this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
+        // First two bytes contain the number of samples in the packet
+        const numSamples = (dataArray[0] << 8) | dataArray[1]
 
-          // Update running sum and count
-          const currentMassTotal = Math.max(-1000, numericData)
-          this.massTotalSum += currentMassTotal
-          this.dataPointCount++
+        // Process each sample (3 bytes per sample)
+        for (let i = 0; i < numSamples; i++) {
+          const offset = 2 + i * 3 // Skip the first 2 bytes which indicate number of samples
+          if (offset + 2 < dataArray.length) {
+            // Sample = byte1*32768 + byte2*256 + byte3
+            const receivedData = dataArray[offset] * 32768 + dataArray[offset + 1] * 256 + dataArray[offset + 2]
 
-          // Calculate the average dynamically
-          this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+            // Convert from LBS to KG
+            const convertedReceivedData = receivedData * 0.453592
+            // Tare correction
+            const numericData = convertedReceivedData - this.applyTare(convertedReceivedData)
+            // Add data to downloadable Array
+            this.downloadPackets.push({
+              received: receivedTime,
+              sampleNum: this.dataPointCount,
+              battRaw: 0,
+              samples: [convertedReceivedData],
+              masses: [numericData],
+            })
 
-          // Check if device is being used
-          this.activityCheck(numericData)
+            // Update massMax
+            this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
 
-          // Notify with weight data
-          this.notifyCallback({
-            massMax: this.massMax,
-            massAverage: this.massAverage,
-            massTotal: Math.max(-1000, numericData).toFixed(1),
-          })
+            // Update running sum and count
+            const currentMassTotal = Math.max(-1000, numericData)
+            this.massTotalSum += currentMassTotal
+            this.dataPointCount++
+
+            // Calculate the average dynamically
+            this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+
+            // Check if device is being used
+            this.activityCheck(numericData)
+
+            // Notify with weight data
+            this.notifyCallback({
+              massMax: this.massMax,
+              massAverage: this.massAverage,
+              massTotal: Math.max(-1000, numericData).toFixed(1),
+            })
+          }
         }
       }
     }
@@ -250,7 +261,7 @@ export class ForceBoard extends Device implements IForceBoard {
   }
 
   /**
-   * Stops the data stream on the specified device.
+   * Stops the data stream on the specified device by setting it to Idle mode.
    * @returns {Promise<void>} A promise that resolves when the stream is stopped.
    */
   stop = async (): Promise<void> => {
@@ -258,26 +269,66 @@ export class ForceBoard extends Device implements IForceBoard {
   }
 
   /**
-   * Starts streaming data from the specified device.
+   * Starts streaming data from the specified device in Streaming Data Mode.
    * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream = async (duration = 0): Promise<void> => {
-    // Reset download packets
-    this.downloadPackets.length = 0
-    // Start streaming data
-    await this.write("weight", "tx", new Uint8Array([0x04]), duration) // ASCII control character EOT (End of Transmission)
-    // Stop streaming if duration is set
-    if (duration !== 0) {
-      await this.stop()
-    }
+    // Start streaming data - Streaming Data Mode
+    await this.write("weight", "tx", this.commands.START_WEIGHT_MEAS, duration)
+  }
+
+  /**
+   * Sets the threshold in Lbs for the Quick Start mode.
+   * @param {number} thresholdLbs - The threshold value in pounds.
+   * @returns {Promise<void>} A promise that resolves when the threshold is set.
+   */
+  threshold = async (thresholdLbs: number): Promise<void> => {
+    const thresholdHex = thresholdLbs.toString(16).padStart(6, "0")
+    // 3-byte array from the hex string
+    const bytes = new Uint8Array(3)
+    bytes[0] = parseInt(thresholdHex.substring(0, 2), 16)
+    bytes[1] = parseInt(thresholdHex.substring(2, 4), 16)
+    bytes[2] = parseInt(thresholdHex.substring(4, 6), 16)
+
+    await this.write("forceboard", "threshold", String.fromCharCode(...bytes), 0)
+  }
+
+  /**
+   * Tares the Force Board device using a characteristic to zero out the current load value.
+   * @returns {Promise<void>} A promise that resolves when the tare operation is completed.
+   */
+  tareByCharacteristic = async (): Promise<void> => {
+    // Send tare command (0x01) to the tare characteristic
+    const tareValue = String.fromCharCode(0x01)
+    await this.write("forceboard", "tare", tareValue, 0)
+  }
+
+  /**
+   * Initiates a tare routine via the Device Mode characteristic.
+   * Writes 0x05 to the Device Mode characteristic to zero out the current load value.
+   * @returns {Promise<void>} A promise that resolves when the tare operation is completed.
+   */
+  tareByMode = async (): Promise<void> => {
+    await this.write("weight", "tx", this.commands.TARE_SCALE, 0)
   }
 
   /**
    * Retrieves temperature information from the device.
-   * @returns {Promise<string>} A Promise that resolves with the manufacturer information,
+   * @returns {Promise<string>} A Promise that resolves with the temperature information,
    */
   temperature = async (): Promise<string | undefined> => {
     return await this.read("temperature", "level", 250)
+  }
+
+  /**
+   * Starts the Force Board in Quick Start mode.
+   * Writes 0x06 to the Device Mode characteristic.
+   * @param {number} [duration=0] - The duration in milliseconds. If set to 0, mode will continue indefinitely.
+   * @returns {Promise<void>} A promise that resolves when the operation is completed.
+   */
+  quick = async (duration = 0): Promise<void> => {
+    // Start in Quick Start mode
+    await this.write("weight", "tx", this.commands.START_QUICK_MEAS, duration)
   }
 }

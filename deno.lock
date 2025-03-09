@@ -2308,7 +2308,7 @@
             "npm:@fortawesome/free-brands-svg-icons@^6.7.2",
             "npm:@fortawesome/free-regular-svg-icons@^6.7.2",
             "npm:@fortawesome/free-solid-svg-icons@^6.7.2",
-            "npm:@hangtime/grip-connect@~0.6.2",
+            "npm:@hangtime/grip-connect@0.7",
             "npm:chart.js@^4.4.8",
             "npm:typescript@^5.8.2",
             "npm:vite@^6.2.1"
@@ -2318,7 +2318,7 @@
       "examples/flappy-bird": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@~0.6.2",
+            "npm:@hangtime/grip-connect@0.7",
             "npm:typescript@^5.8.2",
             "npm:vite@^6.2.1"
           ]
@@ -2327,7 +2327,7 @@
       "examples/kilter-board": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@~0.6.2",
+            "npm:@hangtime/grip-connect@0.7",
             "npm:@types/w3c-web-serial@^1.0.8",
             "npm:typescript@^5.8.2",
             "npm:vite@^6.2.1"
@@ -2337,7 +2337,7 @@
       "examples/pong": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@~0.6.2",
+            "npm:@hangtime/grip-connect@0.7",
             "npm:typescript@^5.8.2",
             "npm:vite@^6.2.1"
           ]
@@ -2346,7 +2346,7 @@
       "examples/runtime": {
         "packageJson": {
           "dependencies": [
-            "npm:@hangtime/grip-connect@~0.6.2"
+            "npm:@hangtime/grip-connect@0.7"
           ]
         }
       },

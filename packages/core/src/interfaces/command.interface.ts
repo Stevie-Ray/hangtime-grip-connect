@@ -48,6 +48,15 @@ export interface Commands {
    */
   GET_CALIBRATION?: string
 
+  // Force Board Portable
+
+  /**
+   * Sets the Force Board into Quick Start mode.
+   * In this mode, data transmission starts when force exceeds the threshold
+   * and stops when force drops below the threshold.
+   */
+  START_QUICK_MEAS?: string
+
   // Tindeq Progressor
 
   /**
