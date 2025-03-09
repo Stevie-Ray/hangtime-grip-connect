@@ -6,7 +6,6 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["web-bluetooth", "w3c-web-serial"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
