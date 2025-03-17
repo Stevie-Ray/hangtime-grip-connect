@@ -8,9 +8,8 @@ the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
 [Tindeq Progressor](https://tindeq.com/product/progressor/),
 [PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
 [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
-[Forma DUE](https://forma.training/products/due-pre-sale),
-[Entralpi](https://entralpi.com/), [Climbro](https://climbro.com/), or
-[mySmartBoard](https://www.smartboard-climbing.com/)
+[Forma DUE](https://forma.training/products/due-pre-sale), [Entralpi](https://entralpi.com/),
+[Climbro](https://climbro.com/), or [mySmartBoard](https://www.smartboard-climbing.com/)
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
 [Kilter Board](https://settercloset.com/pages/the-kilter-board),
