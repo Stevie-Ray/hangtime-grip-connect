@@ -6,6 +6,7 @@ export type {
   IMotherboard,
   ImySmartBoard,
   IProgressor,
+  ISmartBoardPro,
   IWHC06,
 } from "./interfaces/index"
 
@@ -17,5 +18,6 @@ export {
   Motherboard,
   mySmartBoard,
   Progressor,
+  SmartBoardPro,
   WHC06,
 } from "./models/index"

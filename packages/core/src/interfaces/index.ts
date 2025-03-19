@@ -12,4 +12,6 @@ export type { ImySmartBoard } from "./device/mysmartboard.interface"
 
 export type { IProgressor } from "./device/progressor.interface"
 
+export type { ISmartBoardPro } from "./device/smartboard-pro.interface"
+
 export type { IWHC06 } from "./device/wh-c06.interface"

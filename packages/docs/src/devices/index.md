@@ -190,10 +190,12 @@ All devices have the following functions:
 ### Device specific features
 
 - [Climbro](/devices/climbro)
+- [DUE](/devices/due)
 - [Entralpi](/devices/entralpi)
 - [ForceBoard](/devices/forceboard)
 - [Kilter Board](/devices/kilterboard)
 - [MotherBoard](/devices/motherboard)
 - [mySmartBoard](/devices/mysmartboard)
 - [Progressor](/devices/progressor)
+- [SmartBoard Pro](/devices/smartboard-pro)
 - [WH-C06](/devices/wh-c06)

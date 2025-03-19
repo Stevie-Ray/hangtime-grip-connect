@@ -127,6 +127,8 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ➡️ [Forma - DUE](https://stevie-ray.github.io/hangtime-grip-connect/devices/due.html)
 - ➡️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
+- ➡️
+  [Smartboard Climbing - SmartBoard Pro](https://stevie-ray.github.io/hangtime-grip-connect/devices/smartboard-pro.html)
 
 ## Features
 
