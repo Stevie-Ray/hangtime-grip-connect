@@ -9,6 +9,6 @@ export default tseslint.config(
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   {
-    ignores: ["**/dist", "**/cache"],
+    ignores: ["**/dist", "**/cache", "**/android", "**/ios"],
   },
 ) satisfies Config
