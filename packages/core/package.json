@@ -35,6 +35,7 @@
   },
   "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/",
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^7.0.0",
     "webbluetooth": "^3.3.2"
   }
 }
