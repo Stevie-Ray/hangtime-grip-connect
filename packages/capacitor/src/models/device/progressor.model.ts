@@ -1,5 +1,5 @@
 import { Device } from "../device.model"
-import type { IProgressor } from "../../interfaces/device/progressor.interface"
+import type { IProgressor } from "@hangtime/grip-connect/src/interfaces/device/progressor.interface"
 
 /**
  * Progressor responses

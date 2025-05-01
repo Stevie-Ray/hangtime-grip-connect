@@ -1,6 +1,6 @@
 import { Device } from "../device.model"
-import type { IMotherboard } from "../../interfaces/device/motherboard.interface"
-import type { DownloadPacket } from "../../interfaces/download.interface"
+import type { IMotherboard } from "@hangtime/grip-connect/src/interfaces/device/motherboard.interface"
+import type { DownloadPacket } from "@hangtime/grip-connect/src/interfaces/download.interface"
 
 /**
  * Represents a Griptonite Motherboard device.

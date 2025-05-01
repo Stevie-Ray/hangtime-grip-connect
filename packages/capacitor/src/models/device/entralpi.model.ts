@@ -1,5 +1,5 @@
 import { Device } from "../device.model"
-import type { IEntralpi } from "../../interfaces/device/entralpi.interface"
+import type { IEntralpi } from "@hangtime/grip-connect/src/interfaces/device/entralpi.interface"
 
 /**
  * Represents a Entralpi device.

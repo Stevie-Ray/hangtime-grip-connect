@@ -1,6 +1,6 @@
-import type { IDevice } from "../interfaces/device.interface"
-import { Device } from "./device.model"
 import { BleClient, type BleDevice, type RequestBleDeviceOptions } from "@capacitor-community/bluetooth-le"
+import { Device as BaseDevice } from "@hangtime/grip-connect/src/models/device.model"
+import type { IDevice } from "@hangtime/grip-connect/src/interfaces/device.interface"
 
 // Interface for Capacitor devices, that extends IDevice where possible
 interface ICapacitorDevice {
@@ -10,7 +10,25 @@ interface ICapacitorDevice {
   device?: BleDevice
 }
 
-export abstract class Capacitor extends Device {
+/**
+ * Base class for all device models in the capacitor package.
+ * Extends the core Device class to add capacitor-specific functionality.
+ */
+export class Device extends BaseDevice implements IDevice {
+  /**
+   * Maximum mass value recorded.
+   * @type {string}
+   * @protected
+   */
+  protected massMax = "0"
+
+  /**
+   * Average mass value calculated.
+   * @type {string}
+   * @protected
+   */
+  protected massAverage = "0"
+
   filters: RequestBleDeviceOptions[]
   device?: BleDevice
 
@@ -73,7 +91,7 @@ export abstract class Capacitor extends Device {
         for (const characteristic of matchingService.characteristics) {
           if (characteristic.id === "rx") {
             await BleClient.startNotifications(this.device.deviceId, service.uuid, characteristic.uuid, (value) => {
-              this.handleDataNotifications(value)
+              this.handleNotifications(value)
             })
           }
         }
@@ -82,8 +100,7 @@ export abstract class Capacitor extends Device {
     onSuccess()
   }
 
-  // TODO: make override of handleNotifications, and make sure it uses DataView.
-  handleDataNotifications = (value: DataView): void => {
+  handleNotifications = (value: DataView): void => {
     if (!value) return
 
     this.updateTimestamp()

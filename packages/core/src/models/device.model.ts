@@ -516,13 +516,12 @@ export abstract class Device extends BaseModel implements IDevice {
 
   /**
    * Handles notifications received from a characteristic.
-   * @param {BluetoothRemoteGATTCharacteristic} characteristic - The notification event.
+   * @param {DataView} value - The notification event.
    *
    * @example
    * device.handleNotifications(someCharacteristic);
    */
-  protected handleNotifications = (characteristic: BluetoothRemoteGATTCharacteristic): void => {
-    const value = characteristic.value
+  protected handleNotifications = (value: DataView): void => {
     if (!value) return
 
     this.updateTimestamp()
@@ -617,7 +616,7 @@ export abstract class Device extends BaseModel implements IDevice {
                   const target = event.target as BluetoothRemoteGATTCharacteristic
                   if (target && target.value) {
                     // Delegate the data to handleNotifications method
-                    this.handleNotifications(target)
+                    this.handleNotifications(target.value)
                   }
                 }
                 // Attach the event listener to listen for changes in the characteristic's value

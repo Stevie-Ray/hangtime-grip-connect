@@ -1,5 +1,5 @@
 import { Device } from "../device.model"
-import type { IForceBoard } from "../../interfaces/device/forceboard.interface"
+import type { IForceBoard } from "@hangtime/grip-connect/src/interfaces/device/forceboard.interface"
 
 /**
  * Represents a PitchSix Force Board device.

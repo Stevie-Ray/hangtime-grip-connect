@@ -24,6 +24,7 @@
     "preview:examples:pong": "npm run preview --workspace ./examples/pong",
     "build": "tsc --build --verbose --force",
     "build:core": "npm run build --workspace ./packages/core",
+    "build:capacitor": "npm run build --workspace ./packages/capacitor",
     "build:docs": "npm run docs:build --workspace ./packages/docs",
     "build:examples:chart": "npm run build && npm run build --workspace ./examples/chart",
     "build:examples:flappy-bird": "npm run build && npm run build --workspace ./examples/flappy-bird",
@@ -38,7 +39,7 @@
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.17.30",
+    "@types/node": "^20.17.32",
     "@types/w3c-web-serial": "^1.0.8",
     "@types/web-bluetooth": "^0.0.21",
     "eslint": "^9.25.1",
@@ -48,6 +49,6 @@
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.0"
+    "typescript-eslint": "^8.31.1"
   }
 }

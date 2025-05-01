@@ -2,7 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "include": ["packages/**/src/**/*", "examples/**/src/**/*"],
   "references": [
-    { "path": "packages/core" }
+    // { "path": "packages/core" },
+    // { "path": "packages/capacitor" }
     // { "path": "examples/chart" },
     // { "path": "examples/flappy-bird" },
     // { "path": "examples/kilter-board" },

@@ -1,3 +1,7 @@
+export type { IDevice } from "./interfaces/device.interface"
+
+export { Device } from "./models/device.model"
+
 export type {
   IClimbro,
   IEntralpi,
