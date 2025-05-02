@@ -17,12 +17,12 @@ export class Progressor extends ProgressorBase {
       const deviceServices = this.getAllServiceUUIDs()
       await BleClient.initialize()
 
-      const filterOptions = Object.assign({}, ...this.filters);
+      const filterOptions = Object.assign({}, ...this.filters)
 
       this.device = await BleClient.requestDevice({
         ...filterOptions,
-        optionalServices: deviceServices
-      });
+        optionalServices: deviceServices,
+      })
 
       await BleClient.connect(this.device.deviceId, (deviceId) => console.log(deviceId))
 
@@ -69,8 +69,7 @@ export class Progressor extends ProgressorBase {
       return Promise.resolve()
     }
     // Get the characteristic from the service
-    const service = this.services
-    .find((service) => service.id === serviceId)
+    const service = this.services.find((service) => service.id === serviceId)
     const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
 
     if (!service || !characteristic) {
@@ -80,7 +79,12 @@ export class Progressor extends ProgressorBase {
     // Convert the message to Uint8Array if it's a string
     const valueToWrite = typeof message === "string" ? new TextEncoder().encode(message) : message
     // Write the value to the characteristic
-    await BleClient.writeWithoutResponse(this.device.deviceId, service.uuid, characteristic.uuid, new DataView(valueToWrite.buffer))
+    await BleClient.writeWithoutResponse(
+      this.device.deviceId,
+      service.uuid,
+      characteristic.uuid,
+      new DataView(valueToWrite.buffer),
+    )
     // Update the last written message
     this.writeLast = message
     // Assign the provided callback to `writeCallback`
