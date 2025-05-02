@@ -1,5 +1,15 @@
 import { SplashScreen } from '@capacitor/splash-screen';
-import { BleClient } from '@capacitor-community/bluetooth-le';
+import {
+  Climbro,
+  Entralpi,
+  ForceBoard,
+  KilterBoard,
+  Motherboard,
+  mySmartBoard,
+  Progressor,
+  SmartBoardPro,
+  WHC06
+} from '@hangtime/grip-connect-capacitor';
 
 window.customElements.define(
   'capacitor-welcome',
@@ -71,6 +81,28 @@ window.customElements.define(
         display: flex;
         gap: 10px;
       }
+      select {
+        appearance: none;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        padding: 0.6em;
+        font-size: 1em;
+        font-weight: 500;
+        font-family: inherit;
+        background-color: #fff;
+        cursor: pointer;
+        text-align: center;
+        transition: border-color 0.25s;
+        width: 100%;
+        max-width: 300px;
+      }
+      select:hover {
+        border-color: #73B5F6;
+      }
+      select:focus {
+        outline: none;
+        border-color: #73B5F6;
+      }
     </style>
     <div>
       <capacitor-welcome-titlebar>
@@ -96,7 +128,18 @@ window.customElements.define(
           This demo shows how to connect to a Bluetooth LE device.
         </p>
         <p>
-          <button class="button" id="select-device">Select Device</button>
+          <select id="device-select">
+            <option value="">Select device</option>
+            <option value="climbro" disabled>Climbro</option>
+            <option value="entralpi">Entralpi</option>
+            <option value="forceboard">Force Board</option>
+            <option value="kilterboard">Kilter Board</option>
+            <option value="motherboard">Motherboard</option>
+            <option value="smartboard" disabled>mySmartBoard</option>
+            <option value="progressor">Progressor</option>
+            <option value="smartboardpro">Smart Board Pro</option>
+            <option value="whc06">WH-C06</option>
+          </select>
         </p>
         <div id="ble-device"></div>
       </main>
@@ -105,37 +148,63 @@ window.customElements.define(
     }
 
     connectedCallback() {
-      const selectButton = this.shadowRoot.querySelector('#select-device');
+      const deviceSelect = this.shadowRoot.querySelector('#device-select');
       const deviceContainer = this.shadowRoot.querySelector('#ble-device');
-      let selectedDevice = null;
 
-      selectButton.addEventListener('click', async () => {
+      deviceSelect.addEventListener('change', async () => {
         try {
-          // Initialize the BLE client
-          await BleClient.initialize();
+          // // Initialize the BLE client
+          // await BleClient.initialize();
 
           // Clear previous results
           deviceContainer.innerHTML = '';
 
-          // Request device selection
-          selectedDevice = await BleClient.requestDevice({
-            services: [], // Empty array means all services
-            optionalServices: [], // Optional services to include
-            acceptAllDevices: true // Allow any device to be selected
-          });
+          const selectedDeviceType = deviceSelect.value;
+          let device;
+
+          // Create the appropriate device instance based on selection
+          switch (selectedDeviceType) {
+            case 'climbro':
+              device = new Climbro();
+              break;
+            case 'entralpi':
+              device = new Entralpi();
+              break;
+            case 'forceboard':
+              device = new ForceBoard();
+              break;
+            case 'kilterboard':
+              device = new KilterBoard();
+              break;
+            case 'motherboard':
+              device = new Motherboard();
+              break;
+            case 'smartboard':
+              device = new mySmartBoard();
+              break;
+            case 'progressor':
+              device = new Progressor();
+              break;
+            case 'smartboardpro':
+              device = new SmartBoardPro();
+              break;
+            case 'whc06':
+              device = new WHC06();
+              break;
+            default:
+              return;
+          }
 
           // Display device information and connection controls
           const deviceElement = document.createElement('div');
           deviceElement.className = 'device-info';
           deviceElement.innerHTML = `
-            <strong>${selectedDevice.name || 'Unknown Device'}</strong><br>
-            ID: ${selectedDevice.deviceId}<br>
-            <span id="connection-status">Connected: ${selectedDevice.connected ? 'Yes' : 'No'}</span>
+            <strong>${device.constructor.name}</strong><br>
             <div class="button-group">
-              <button class="button" id="connect-device" ${selectedDevice.connected ? 'disabled' : ''}>
+              <button class="button" id="connect-device">
                 Connect
               </button>
-              <button class="button" id="disconnect-device" ${!selectedDevice.connected ? 'disabled' : ''}>
+              <button class="button" id="disconnect-device" disabled>
                 Disconnect
               </button>
             </div>
@@ -148,10 +217,19 @@ window.customElements.define(
 
           connectButton.addEventListener('click', async () => {
             try {
-              await BleClient.connect(selectedDevice.deviceId);
+              await device.connect(
+                async () => {
+                  device.notify((data) => {
+                   console.log(data)
+                  })
+                  await device.stream()
+                },
+                (error) => {
+                  console.log(error)
+                },
+              );
               connectButton.disabled = true;
               disconnectButton.disabled = false;
-              deviceElement.querySelector('#connection-status').textContent = 'Connected: Yes';
             } catch (error) {
               console.error('Error connecting to device:', error);
               deviceContainer.innerHTML = `<div class="device-info">Error connecting: ${error.message}</div>`;
@@ -160,21 +238,18 @@ window.customElements.define(
 
           disconnectButton.addEventListener('click', async () => {
             try {
-              await BleClient.disconnect(selectedDevice.deviceId);
+              await device.disconnect();
               connectButton.disabled = false;
               disconnectButton.disabled = true;
-              deviceElement.querySelector('#connection-status').textContent = 'Connected: No';
             } catch (error) {
               console.error('Error disconnecting from device:', error);
               deviceContainer.innerHTML = `<div class="device-info">Error disconnecting: ${error.message}</div>`;
             }
           });
 
-          selectButton.textContent = 'Select Device';
         } catch (error) {
           console.error('Error selecting device:', error);
           deviceContainer.innerHTML = `<div class="device-info">Error: ${error.message}</div>`;
-          selectButton.textContent = 'Select Device';
         }
       });
     }

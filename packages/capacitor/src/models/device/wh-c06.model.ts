@@ -27,10 +27,12 @@ export class WHC06 extends WHC06Base {
       const deviceServices = this.getAllServiceUUIDs()
       await BleClient.initialize()
 
+      const filterOptions = Object.assign({}, ...this.filters);
+
       this.device = await BleClient.requestDevice({
-        ...this.filters,
-        optionalServices: deviceServices,
-      })
+        ...filterOptions,
+        optionalServices: deviceServices
+      });
 
       await BleClient.connect(this.device.deviceId, (deviceId) => console.log(deviceId))
 

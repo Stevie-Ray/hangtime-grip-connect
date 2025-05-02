@@ -13,7 +13,8 @@
     "@capacitor/android": "^7.2.0",
     "@capacitor/core": "^7.2.0",
     "@capacitor/ios": "^7.2.0",
-    "@capacitor/splash-screen": "^7.0.1"
+    "@capacitor/splash-screen": "^7.0.1",
+    "@hangtime/grip-connect-capacitor": "file:../../packages/capacitor"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.2.0",
