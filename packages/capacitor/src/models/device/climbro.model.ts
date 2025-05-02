@@ -1,6 +1,6 @@
 import { BleClient, type BleDevice, type RequestBleDeviceOptions } from "@capacitor-community/bluetooth-le"
 import { Climbro as ClimbroBase } from "@hangtime/grip-connect/src/index"
-import type { IDeviceCapacitor } from "../../interface/device.capacitor.interface"
+import type { IDeviceCapacitor } from "../../interfaces/device.capacitor.interface"
 
 /**
  * Represents a Climbro device.
