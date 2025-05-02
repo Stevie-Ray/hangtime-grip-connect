@@ -1,16 +1,66 @@
-import { Device } from "../device.model"
-import type { IClimbro } from "@hangtime/grip-connect/src/interfaces/device/climbro.interface"
+import { BleClient, type BleDevice, type RequestBleDeviceOptions } from "@capacitor-community/bluetooth-le"
+import { Climbro as ClimbroBase } from "@hangtime/grip-connect/src/index"
+import type { IDeviceCapacitor } from "../../interface/device.capacitor.interface"
 
 /**
  * Represents a Climbro device.
  * TODO: Add services, do you own a Climbro? Help us!
  * {@link https://climbro.com/}
  */
-export class Climbro extends Device implements IClimbro {
-  constructor() {
-    super({
-      filters: [{ name: "Climbro" }],
-      services: [],
-    })
+export class Climbro extends ClimbroBase {
+  filters: RequestBleDeviceOptions[]
+  device?: BleDevice
+
+  constructor(device: Partial<IDeviceCapacitor>) {
+    super()
+
+    this.filters = device.filters || []
+    this.device = device.device
+  }
+
+  override connect = async (
+    onSuccess: () => void = () => console.log("Connected successfully"),
+    onError: (error: Error) => void = (error) => console.error(error),
+  ): Promise<void> => {
+    try {
+      const deviceServices = this.getAllServiceUUIDs()
+      await BleClient.initialize()
+
+      this.device = await BleClient.requestDevice({
+        ...this.filters,
+        optionalServices: deviceServices,
+      })
+
+      await BleClient.connect(this.device.deviceId, (deviceId) => console.log(deviceId))
+
+      await this.onConnected(onSuccess)
+    } catch (error) {
+      onError(error as Error)
+    }
+  }
+
+  override onConnected = async (onSuccess: () => void): Promise<void> => {
+    this.updateTimestamp()
+
+    if (!this.device) {
+      throw new Error("Device is not available")
+    }
+
+    const services = await BleClient.getServices(this.device.deviceId)
+
+    for (const service of services) {
+      const matchingService = this.services.find((boardService) => boardService.uuid === service.uuid)
+
+      if (matchingService) {
+        for (const characteristic of matchingService.characteristics) {
+          if (characteristic.id === "rx") {
+            await BleClient.startNotifications(this.device.deviceId, service.uuid, characteristic.uuid, (value) => {
+              this.handleNotifications(value)
+            })
+          }
+        }
+      }
+    }
+    onSuccess()
   }
 }

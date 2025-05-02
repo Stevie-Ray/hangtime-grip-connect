@@ -1,4 +1,4 @@
-import { KilterBoard } from "@hangtime/grip-connect"
+import { KilterBoard } from "@hangtime/grip-connect/src/index"
 import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/models/device/kilterboard.model"
 
 const device = new KilterBoard()
@@ -681,7 +681,7 @@ async function updatePayload() {
   if (activeHoldsHtml !== null && payload) {
     activeHoldsHtml.innerHTML = payload
       // Converts byte array to hexadecimal strings using zfill function.
-      .map((x) => zfill(x.toString(16), 2))
+      .map((x: number) => zfill(x.toString(16), 2))
       .join("")
   }
 }

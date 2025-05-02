@@ -1,4 +1,13 @@
-import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
+import {
+  Climbro,
+  Entralpi,
+  ForceBoard,
+  Motherboard,
+  mySmartBoard,
+  Progressor,
+  WHC06,
+} from "@hangtime/grip-connect/src/index"
+import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 let mass: number
 let weight = 5
@@ -32,7 +41,7 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
     }
 
     // Handle notifications
-    device.notify((data) => {
+    device.notify((data: massObject) => {
       mass = Number(data.massTotal)
     })
 

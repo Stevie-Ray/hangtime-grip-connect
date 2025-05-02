@@ -1,5 +1,3 @@
-export { Device } from "./models/device.model"
-
 export {
   Climbro,
   Entralpi,
