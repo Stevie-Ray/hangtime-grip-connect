@@ -58,7 +58,7 @@ export class Climbro extends ClimbroBase {
     onSuccess()
   }
 
-  read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
+  override read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
     if (this.device === undefined) {
       return undefined
     }

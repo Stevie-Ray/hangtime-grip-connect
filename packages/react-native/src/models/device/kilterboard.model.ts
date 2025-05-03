@@ -91,7 +91,7 @@ export class KilterBoard extends KilterBoardBase {
     onSuccess()
   }
 
-  read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
+  override read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
     if (!this.device) {
       return undefined
     }

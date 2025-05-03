@@ -1,12 +1,25 @@
 {
-  "name": "@hangtime/grip-connect",
+  "name": "@hangtime/grip-connect-cli",
   "version": "0.7.0",
-  "description": "Griptonite Motherboard, Tindeq Progressor, PitchSix Force Board, WHC-06, Entralpi, Climbro, mySmartBoard: Bluetooth API Force-Sensing strength analysis for climbers",
+  "description": "CLI tool for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc --build"
+  },
+  "dependencies": {
+    "@hangtime/grip-connect": "^0.7.0",
+    "webbluetooth": "^3.3.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "license": "BSD-2-Clause",

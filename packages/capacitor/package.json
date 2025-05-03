@@ -1,6 +1,7 @@
 {
   "name": "@hangtime/grip-connect-capacitor",
-  "version": "0.0.0",
+  "version": "0.7.0",
+  "description": "Capacitor plugin for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,9 +16,35 @@
   },
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^7.0.0",
-    "@hangtime/grip-connect": "file:../core"
+    "@hangtime/grip-connect": "^0.7.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
-  }
+  },
+  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
+  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
+  },
+  "keywords": [
+    "climbing",
+    "bluetooth",
+    "griptonite",
+    "hangboard",
+    "hangboarding",
+    "beastmaker",
+    "motherboard",
+    "tindeq",
+    "progressor",
+    "pitchsix",
+    "forceboard",
+    "entralpi",
+    "wh-c06",
+    "kilterboard"
+  ],
+  "bugs": {
+    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
+  },
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
 }

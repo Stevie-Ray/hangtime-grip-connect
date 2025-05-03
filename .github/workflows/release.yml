@@ -30,8 +30,26 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: publish NPM package
+      - name: Publish Core package
         working-directory: ./packages/core
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish CLI package
+        working-directory: ./packages/cli
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Capacitor package
+        working-directory: ./packages/capacitor
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish React Native package
+        working-directory: ./packages/react-native
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

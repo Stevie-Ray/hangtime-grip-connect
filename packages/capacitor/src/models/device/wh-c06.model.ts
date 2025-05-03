@@ -59,7 +59,7 @@ export class WHC06 extends WHC06Base {
     onSuccess()
   }
 
-  read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
+  override read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
     if (this.device === undefined) {
       return undefined
     }
