@@ -1,4 +1,4 @@
-import { SplashScreen } from '@capacitor/splash-screen';
+import { SplashScreen } from "@capacitor/splash-screen"
 import {
   Climbro,
   Entralpi,
@@ -8,18 +8,18 @@ import {
   mySmartBoard,
   Progressor,
   SmartBoardPro,
-  WHC06
-} from '@hangtime/grip-connect-capacitor';
+  WHC06,
+} from "@hangtime/grip-connect-capacitor"
 
 window.customElements.define(
-  'capacitor-welcome',
+  "capacitor-welcome",
   class extends HTMLElement {
     constructor() {
-      super();
+      super()
 
-      SplashScreen.hide();
+      SplashScreen.hide()
 
-      const root = this.attachShadow({ mode: 'open' });
+      const root = this.attachShadow({ mode: "open" })
 
       root.innerHTML = `
     <style>
@@ -144,60 +144,60 @@ window.customElements.define(
         <div id="ble-device"></div>
       </main>
     </div>
-    `;
+    `
     }
 
     connectedCallback() {
-      const deviceSelect = this.shadowRoot.querySelector('#device-select');
-      const deviceContainer = this.shadowRoot.querySelector('#ble-device');
+      const deviceSelect = this.shadowRoot.querySelector("#device-select")
+      const deviceContainer = this.shadowRoot.querySelector("#ble-device")
 
-      deviceSelect.addEventListener('change', async () => {
+      deviceSelect.addEventListener("change", async () => {
         try {
           // // Initialize the BLE client
           // await BleClient.initialize();
 
           // Clear previous results
-          deviceContainer.innerHTML = '';
+          deviceContainer.innerHTML = ""
 
-          const selectedDeviceType = deviceSelect.value;
-          let device;
+          const selectedDeviceType = deviceSelect.value
+          let device
 
           // Create the appropriate device instance based on selection
           switch (selectedDeviceType) {
-            case 'climbro':
-              device = new Climbro();
-              break;
-            case 'entralpi':
-              device = new Entralpi();
-              break;
-            case 'forceboard':
-              device = new ForceBoard();
-              break;
-            case 'kilterboard':
-              device = new KilterBoard();
-              break;
-            case 'motherboard':
-              device = new Motherboard();
-              break;
-            case 'smartboard':
-              device = new mySmartBoard();
-              break;
-            case 'progressor':
-              device = new Progressor();
-              break;
-            case 'smartboardpro':
-              device = new SmartBoardPro();
-              break;
-            case 'whc06':
-              device = new WHC06();
-              break;
+            case "climbro":
+              device = new Climbro()
+              break
+            case "entralpi":
+              device = new Entralpi()
+              break
+            case "forceboard":
+              device = new ForceBoard()
+              break
+            case "kilterboard":
+              device = new KilterBoard()
+              break
+            case "motherboard":
+              device = new Motherboard()
+              break
+            case "smartboard":
+              device = new mySmartBoard()
+              break
+            case "progressor":
+              device = new Progressor()
+              break
+            case "smartboardpro":
+              device = new SmartBoardPro()
+              break
+            case "whc06":
+              device = new WHC06()
+              break
             default:
-              return;
+              return
           }
 
           // Display device information and connection controls
-          const deviceElement = document.createElement('div');
-          deviceElement.className = 'device-info';
+          const deviceElement = document.createElement("div")
+          deviceElement.className = "device-info"
           deviceElement.innerHTML = `
             <strong>${device.constructor.name}</strong><br>
             <div class="button-group">
@@ -208,60 +208,59 @@ window.customElements.define(
                 Disconnect
               </button>
             </div>
-          `;
-          deviceContainer.appendChild(deviceElement);
+          `
+          deviceContainer.appendChild(deviceElement)
 
           // Add event listeners for connect/disconnect buttons
-          const connectButton = deviceElement.querySelector('#connect-device');
-          const disconnectButton = deviceElement.querySelector('#disconnect-device');
+          const connectButton = deviceElement.querySelector("#connect-device")
+          const disconnectButton = deviceElement.querySelector("#disconnect-device")
 
-          connectButton.addEventListener('click', async () => {
+          connectButton.addEventListener("click", async () => {
             try {
               await device.connect(
                 async () => {
                   device.notify((data) => {
-                   console.log(data)
+                    console.log(data)
                   })
                   await device.stream()
                 },
                 (error) => {
                   console.log(error)
                 },
-              );
-              connectButton.disabled = true;
-              disconnectButton.disabled = false;
+              )
+              connectButton.disabled = true
+              disconnectButton.disabled = false
             } catch (error) {
-              console.error('Error connecting to device:', error);
-              deviceContainer.innerHTML = `<div class="device-info">Error connecting: ${error.message}</div>`;
+              console.error("Error connecting to device:", error)
+              deviceContainer.innerHTML = `<div class="device-info">Error connecting: ${error.message}</div>`
             }
-          });
+          })
 
-          disconnectButton.addEventListener('click', async () => {
+          disconnectButton.addEventListener("click", async () => {
             try {
-              await device.disconnect();
-              connectButton.disabled = false;
-              disconnectButton.disabled = true;
+              await device.disconnect()
+              connectButton.disabled = false
+              disconnectButton.disabled = true
             } catch (error) {
-              console.error('Error disconnecting from device:', error);
-              deviceContainer.innerHTML = `<div class="device-info">Error disconnecting: ${error.message}</div>`;
+              console.error("Error disconnecting from device:", error)
+              deviceContainer.innerHTML = `<div class="device-info">Error disconnecting: ${error.message}</div>`
             }
-          });
-
+          })
         } catch (error) {
-          console.error('Error selecting device:', error);
-          deviceContainer.innerHTML = `<div class="device-info">Error: ${error.message}</div>`;
+          console.error("Error selecting device:", error)
+          deviceContainer.innerHTML = `<div class="device-info">Error: ${error.message}</div>`
         }
-      });
+      })
     }
   },
-);
+)
 
 window.customElements.define(
-  'capacitor-welcome-titlebar',
+  "capacitor-welcome-titlebar",
   class extends HTMLElement {
     constructor() {
-      super();
-      const root = this.attachShadow({ mode: 'open' });
+      super()
+      const root = this.attachShadow({ mode: "open" })
       root.innerHTML = `
     <style>
       :host {
@@ -280,7 +279,7 @@ window.customElements.define(
       }
     </style>
     <slot></slot>
-    `;
+    `
     }
   },
-);
+)
