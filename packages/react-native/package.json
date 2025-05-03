@@ -1,0 +1,23 @@
+{
+  "name": "@hangtime/grip-connect-react-native",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@hangtime/grip-connect": "file:../core",
+    "react-native-ble-plx": "^3.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
