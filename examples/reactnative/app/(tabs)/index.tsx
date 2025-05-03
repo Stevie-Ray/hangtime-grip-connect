@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TouchableOpacity } from "react-native"
+import { Platform, StyleSheet, TouchableOpacity, PermissionsAndroid } from "react-native"
 import { Picker } from "@react-native-picker/picker"
 import { useState } from "react"
 
@@ -34,6 +34,7 @@ export default function HomeScreen() {
   const [selectedDevice, setSelectedDevice] = useState<string>("")
   const [device, setDevice] = useState<DeviceType | null>(null)
   const [isConnected, setIsConnected] = useState(false)
+  const [hasPermissions, setHasPermissions] = useState<boolean | null>(null)
 
   const devices = [
     { value: "climbro", label: "Climbro", disabled: true },
@@ -72,7 +73,43 @@ export default function HomeScreen() {
     }
   }
 
-  const handleDeviceSelect = (value: string) => {
+  const requestBluetoothPermission = async () => {
+    if (Platform.OS === "ios") {
+      return true
+    }
+    if (Platform.OS === "android" && PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) {
+      const apiLevel = parseInt(Platform.Version.toString(), 10)
+
+      if (apiLevel < 31) {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+        return granted === PermissionsAndroid.RESULTS.GRANTED
+      }
+      if (PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN && PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT) {
+        const result = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ])
+
+        return (
+          result["android.permission.BLUETOOTH_CONNECT"] === PermissionsAndroid.RESULTS.GRANTED &&
+          result["android.permission.BLUETOOTH_SCAN"] === PermissionsAndroid.RESULTS.GRANTED &&
+          result["android.permission.ACCESS_FINE_LOCATION"] === PermissionsAndroid.RESULTS.GRANTED
+        )
+      }
+    }
+    return false
+  }
+
+  const handleDeviceSelect = async (value: string) => {
+    const permissionsGranted = await requestBluetoothPermission()
+    setHasPermissions(permissionsGranted)
+
+    if (!permissionsGranted) {
+      console.error("Bluetooth permissions not granted")
+      return
+    }
+
     setSelectedDevice(value)
     if (value) {
       const newDevice = createDevice(value)
@@ -150,6 +187,10 @@ export default function HomeScreen() {
             <Picker.Item key={device.value} label={device.label} value={device.value} enabled={!device.disabled} />
           ))}
         </Picker>
+
+        {hasPermissions === false && (
+          <ThemedText style={styles.errorText}>Bluetooth permissions are required to connect to devices.</ThemedText>
+        )}
 
         {device && (
           <ThemedView style={styles.deviceContainer}>
@@ -252,6 +293,10 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
+  },
+  errorText: {
+    color: "#ff0000",
+    marginTop: 8,
   },
   headerText: {
     fontSize: 24,

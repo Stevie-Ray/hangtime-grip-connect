@@ -1,6 +1,7 @@
 import { BleManager, Device } from "react-native-ble-plx"
 import { Motherboard as MotherboardBase } from "@hangtime/grip-connect/src/index"
 import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
+import { Buffer } from "buffer"
 
 /**
  * Represents a Griptonite Motherboard device.
@@ -20,8 +21,6 @@ export class Motherboard extends MotherboardBase {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      await this.manager.enable()
-
       const deviceServices = this.getAllServiceUUIDs()
 
       this.manager.startDeviceScan(deviceServices, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
@@ -91,7 +90,7 @@ export class Motherboard extends MotherboardBase {
   }
 
   override read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
-    if (!this.device) {
+    if (this.device === undefined) {
       return undefined
     }
     // Get the characteristic from the service
@@ -102,35 +101,15 @@ export class Motherboard extends MotherboardBase {
       throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
     }
     this.updateTimestamp()
-    // Decode the value based on characteristicId and serviceId
-    let decodedValue: string
     // Read the value from the characteristic
-    const value = await this.device.readCharacteristicForService(service.uuid, characteristic.uuid)
+    const response = await this.device.readCharacteristicForService(service.uuid, characteristic.uuid)
 
-    if (!value.value) {
-      return undefined
-    }
-
-    if (
-      (serviceId === "battery" || serviceId === "humidity" || serviceId === "temperature") &&
-      characteristicId === "level"
-    ) {
-      // This is battery-specific; return the first byte as the level
-      const buffer = new Uint8Array(value.value.length)
-      for (let i = 0; i < value.value.length; i++) {
-        buffer[i] = value.value.charCodeAt(i)
-      }
-      decodedValue = new DataView(buffer.buffer).getUint8(0).toString()
-    } else {
-      // Otherwise use the value directly
-      decodedValue = value.value
-    }
     // Wait for the specified duration before returning the result
     if (duration > 0) {
       await new Promise((resolve) => setTimeout(resolve, duration))
     }
 
-    return decodedValue
+    return response.value ?? undefined
   }
 
   override write = async (
@@ -153,9 +132,10 @@ export class Motherboard extends MotherboardBase {
     }
     this.updateTimestamp()
     // Convert the message to string if it's a Uint8Array
-    const valueToWrite = typeof message === "string" ? message : String.fromCharCode(...message)
+    const valueToWrite = typeof message === "string" ? new TextEncoder().encode(message) : message
+    const base64Value = Buffer.from(valueToWrite).toString("base64")
     // Write the value to the characteristic
-    await this.device.writeCharacteristicWithoutResponseForService(service.uuid, characteristic.uuid, valueToWrite)
+    await this.device.writeCharacteristicWithResponseForService(service.uuid, characteristic.uuid, base64Value)
     // Update the last written message
     this.writeLast = message
     // Assign the provided callback to `writeCallback`
