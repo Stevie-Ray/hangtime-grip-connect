@@ -22,9 +22,9 @@ export class Progressor extends ProgressorBase {
     try {
       await this.manager.enable()
 
-      const filterOptions = Object.assign({}, ...this.filters)
+      const deviceServices = this.getAllServiceUUIDs()
 
-      this.manager.startDeviceScan(filterOptions, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
+      this.manager.startDeviceScan(deviceServices, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
         if (error) {
           onError(error)
           return

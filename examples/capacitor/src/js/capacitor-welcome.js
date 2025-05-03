@@ -230,7 +230,7 @@ window.customElements.define(
 
                   const firmwareRevision = await device.firmware()
                   if (firmwareRevision) {
-                    console.log("Firmware Revision:", firmwareRevision)                  
+                    console.log("Firmware Revision:", firmwareRevision)
                   }
 
                   await device.stream()

@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "reactnative",
-    "slug": "reactnative",
-    "version": "1.0.0",
+    "name": "Grip Connect",
+    "slug": "grip-connect",
+    "version": "0.7.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "reactnative",
+    "scheme": "grip-connect",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.reactnative"
+      "supportsTablet": false,
+      "bundleIdentifier": "nl.stevie-ray.hangtime-grip-connect"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.anonymous.reactnative"
+      "package": "nl.stevie-ray.hangtime-grip-connect"
     },
     "web": {
       "bundler": "metro",
