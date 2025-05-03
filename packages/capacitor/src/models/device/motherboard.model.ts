@@ -57,6 +57,42 @@ export class Motherboard extends MotherboardBase {
     onSuccess()
   }
 
+  read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
+    if (this.device === undefined) {
+      return undefined
+    }
+    // Get the characteristic from the service
+    const service = this.services.find((service) => service.id === serviceId)
+    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
+
+    if (!service || !characteristic) {
+      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
+    }
+    this.updateTimestamp()
+    // Decode the value based on characteristicId and serviceId
+    let decodedValue: string
+    const decoder = new TextDecoder("utf-8")
+    // Read the value from the characteristic
+    const value = await BleClient.read(this.device.deviceId, service.uuid, characteristic.uuid)
+
+    if (
+      (serviceId === "battery" || serviceId === "humidity" || serviceId === "temperature") &&
+      characteristicId === "level"
+    ) {
+      // This is battery-specific; return the first byte as the level
+      decodedValue = value.getUint8(0).toString()
+    } else {
+      // Otherwise use a UTF-8 decoder
+      decodedValue = decoder.decode(value)
+    }
+    // Wait for the specified duration before returning the result
+    if (duration > 0) {
+      await new Promise((resolve) => setTimeout(resolve, duration))
+    }
+
+    return decodedValue
+  }
+
   override write = async (
     serviceId: string,
     characteristicId: string,

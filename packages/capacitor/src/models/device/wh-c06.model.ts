@@ -1,6 +1,6 @@
-import { BleClient, type BleDevice, type RequestBleDeviceOptions } from "@capacitor-community/bluetooth-le"
+import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
 import { WHC06 as WHC06Base } from "@hangtime/grip-connect/src/index"
-import type { IDeviceCapacitor } from "../../interfaces/device.capacitor.interface"
+import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 /**
  * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.
@@ -9,15 +9,7 @@ import type { IDeviceCapacitor } from "../../interfaces/device.capacitor.interfa
  * {@link https://weihengmanufacturer.com}
  */
 export class WHC06 extends WHC06Base {
-  filters: RequestBleDeviceOptions[]
   device?: BleDevice
-
-  constructor(device: Partial<IDeviceCapacitor>) {
-    super()
-
-    this.filters = device.filters || []
-    this.device = device.device
-  }
 
   override connect = async (
     onSuccess: () => void = () => console.log("Connected successfully"),
@@ -65,5 +57,79 @@ export class WHC06 extends WHC06Base {
       }
     }
     onSuccess()
+  }
+
+  read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
+    if (this.device === undefined) {
+      return undefined
+    }
+    // Get the characteristic from the service
+    const service = this.services.find((service) => service.id === serviceId)
+    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
+
+    if (!service || !characteristic) {
+      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
+    }
+    this.updateTimestamp()
+    // Decode the value based on characteristicId and serviceId
+    let decodedValue: string
+    const decoder = new TextDecoder("utf-8")
+    // Read the value from the characteristic
+    const value = await BleClient.read(this.device.deviceId, service.uuid, characteristic.uuid)
+
+    if (
+      (serviceId === "battery" || serviceId === "humidity" || serviceId === "temperature") &&
+      characteristicId === "level"
+    ) {
+      // This is battery-specific; return the first byte as the level
+      decodedValue = value.getUint8(0).toString()
+    } else {
+      // Otherwise use a UTF-8 decoder
+      decodedValue = decoder.decode(value)
+    }
+    // Wait for the specified duration before returning the result
+    if (duration > 0) {
+      await new Promise((resolve) => setTimeout(resolve, duration))
+    }
+
+    return decodedValue
+  }
+
+  override write = async (
+    serviceId: string,
+    characteristicId: string,
+    message: string | Uint8Array | undefined,
+    duration = 0,
+    callback: WriteCallback = this.writeCallback,
+  ): Promise<void> => {
+    // Check if message is provided
+    if (this.device === undefined || message === undefined) {
+      return Promise.resolve()
+    }
+    // Get the characteristic from the service
+    const service = this.services.find((service) => service.id === serviceId)
+    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
+
+    if (!service || !characteristic) {
+      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
+    }
+    this.updateTimestamp()
+    // Convert the message to Uint8Array if it's a string
+    const valueToWrite = typeof message === "string" ? new TextEncoder().encode(message) : message
+    // Write the value to the characteristic
+    await BleClient.writeWithoutResponse(
+      this.device.deviceId,
+      service.uuid,
+      characteristic.uuid,
+      new DataView(valueToWrite.buffer),
+    )
+    // Update the last written message
+    this.writeLast = message
+    // Assign the provided callback to `writeCallback`
+    this.writeCallback = callback
+    // If a duration is specified, resolve the promise after the duration
+    if (duration > 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, duration))
+    }
   }
 }
