@@ -45,7 +45,7 @@ export class WHC06 extends WHC06Base {
           onSuccess()
 
           const manufacturerData = scannedDevice.manufacturerData
-           // Handle recieved data
+          // Handle recieved data
           const weight = this.parseWeightData(manufacturerData)
 
           // Update massMax
