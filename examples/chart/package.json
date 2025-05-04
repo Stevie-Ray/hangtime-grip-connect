@@ -13,7 +13,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@hangtime/grip-connect": "^0.7.0",
+    "@hangtime/grip-connect": "^0.8.0",
     "chart.js": "^4.4.9"
   },
   "devDependencies": {

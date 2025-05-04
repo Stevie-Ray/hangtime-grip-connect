@@ -55,5 +55,5 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish JSR package
-        working-directory: ./packages/core
+        working-directory: ./packages/cli
         run: npx jsr publish

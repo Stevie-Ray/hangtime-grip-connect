@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-capacitor",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Capacitor plugin for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^7.0.0",
-    "@hangtime/grip-connect": "^0.7.0"
+    "@hangtime/grip-connect": "^0.8.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
