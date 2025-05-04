@@ -11,19 +11,30 @@ import { Buffer } from "buffer"
 export class WHC06 extends WHC06Base {
   manager: BleManager
   device?: Device
-  private readonly weightOffset: number = 10
 
   constructor() {
     super()
     this.manager = new BleManager()
   }
 
+  private base64ToHex(base64: string): string {
+    const binary = Buffer.from(base64, "base64").toString("binary")
+    return Array.from(binary)
+      .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
+      .join("")
+  }
+
   private parseWeightData(manufacturerData: string | null): number {
     if (!manufacturerData) return 0
 
-    const buffer = Buffer.from(manufacturerData, "base64")
-    const weight = (buffer[this.weightOffset] << 8) | buffer[this.weightOffset + 1]
-    return weight / 100
+    try {
+      const hexData = this.base64ToHex(manufacturerData)
+      const weightHex = hexData.substring(24, 28)
+      return parseInt(weightHex, 16) / 100
+    } catch (error) {
+      console.error("Error parsing weight data:", error)
+      return 0
+    }
   }
 
   override connect = async (
@@ -45,21 +56,16 @@ export class WHC06 extends WHC06Base {
           onSuccess()
 
           const manufacturerData = scannedDevice.manufacturerData
+
           // Handle recieved data
           const weight = this.parseWeightData(manufacturerData)
 
           // Update massMax
           const receivedTime: number = Date.now()
-          const receivedData = weight / 100
+          const receivedData = weight
 
           // Tare correction
-          // 0.20kg - 0.20kg = 0kg
-          // 0.40kg - 0.20kg = 0.20kg
           const numericData = receivedData - this.applyTare(receivedData) * -1
-
-          // what i want (if tare is available)
-          // 75kg - 75kg = 0
-          // 50kg - 75kg = -25kg * -1 = 25kg
 
           // Add data to downloadable Array
           this.downloadPackets.push({
