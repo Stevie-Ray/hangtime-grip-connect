@@ -18,6 +18,13 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
 [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
 
+The library is available in multiple flavors to support different platforms:
+
+- **Web**: The core package for web applications using the Web Bluetooth API
+- **Capacitor**: For hybrid mobile apps using Capacitor
+- **React Native**: For native mobile apps using React Native
+- **CLI**: Command-line tools for device management and data analysis
+
 Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth)
 
@@ -35,19 +42,23 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 
 ## Install
 
-This package works with Node.js, Bun, Deno, and the web, and is available on both
-[NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and [JSR](https://jsr.io/@hangtime/grip-connect).
+The packages are available on both [NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and
+[JSR](https://jsr.io/@hangtime/grip-connect).
 
 ```sh [npm]
+# For Web applications
 $ npm install @hangtime/grip-connect
-```
 
-```sh [yarn]
-$ yarn add @hangtime/grip-connect
-```
+# For Capacitor hybrid mobile apps
+$ npm install @hangtime/grip-connect-capacitor
 
-```sh [pnpm]
-$ pnpm add @hangtime/grip-connect
+# For React Native mobile apps
+$ npm install @hangtime/grip-connect-react-native
+
+# For Node.js, Bun, Deno CLI tools
+$ npm install @hangtime/grip-connect-cli
+$ bun add @hangtime/grip-connect-cli
+$ deno add @hangtime/grip-connect-cli
 ```
 
 ## Example usage (with a Motherboard)
