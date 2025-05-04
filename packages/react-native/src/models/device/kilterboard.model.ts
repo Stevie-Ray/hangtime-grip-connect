@@ -65,24 +65,17 @@ export class KilterBoard extends KilterBoardBase {
       if (matchingService) {
         for (const characteristic of matchingService.characteristics) {
           if (characteristic.id === "rx") {
-            await this.device.monitorCharacteristicForService(
-              service.uuid,
-              characteristic.uuid,
-              (error, characteristic) => {
-                if (error) {
-                  console.error(error)
-                  return
-                }
-                if (characteristic?.value) {
-                  const value = characteristic.value
-                  const buffer = new Uint8Array(value.length)
-                  for (let i = 0; i < value.length; i++) {
-                    buffer[i] = value.charCodeAt(i)
-                  }
-                  this.handleNotifications(new DataView(buffer.buffer))
-                }
-              },
-            )
+            this.device.monitorCharacteristicForService(service.uuid, characteristic.uuid, (error, characteristic) => {
+              if (error) {
+                console.error(error)
+                return
+              }
+              if (characteristic?.value) {
+                const buffer = Buffer.from(characteristic.value, "base64")
+                const dataView = new DataView(buffer.buffer)
+                this.handleNotifications(dataView)
+              }
+            })
           }
         }
       }

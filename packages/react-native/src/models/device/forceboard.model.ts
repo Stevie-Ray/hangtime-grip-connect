@@ -21,15 +21,14 @@ export class ForceBoard extends ForceBoardBase {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      const deviceServices = this.getAllServiceUUIDs()
-
-      this.manager.startDeviceScan(deviceServices, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
+      // First scan for devices by name without service filtering
+      this.manager.startDeviceScan(null, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
         if (error) {
           onError(error)
           return
         }
 
-        if (scannedDevice) {
+        if (scannedDevice && scannedDevice.name === this.filters[0].name) {
           this.device = scannedDevice
           this.manager.stopDeviceScan()
 
@@ -64,24 +63,17 @@ export class ForceBoard extends ForceBoardBase {
       if (matchingService) {
         for (const characteristic of matchingService.characteristics) {
           if (characteristic.id === "rx") {
-            await this.device.monitorCharacteristicForService(
-              service.uuid,
-              characteristic.uuid,
-              (error, characteristic) => {
-                if (error) {
-                  console.error(error)
-                  return
-                }
-                if (characteristic?.value) {
-                  const value = characteristic.value
-                  const buffer = new Uint8Array(value.length)
-                  for (let i = 0; i < value.length; i++) {
-                    buffer[i] = value.charCodeAt(i)
-                  }
-                  this.handleNotifications(new DataView(buffer.buffer))
-                }
-              },
-            )
+            this.device.monitorCharacteristicForService(service.uuid, characteristic.uuid, (error, characteristic) => {
+              if (error) {
+                console.error(error)
+                return
+              }
+              if (characteristic?.value) {
+                const buffer = Buffer.from(characteristic.value, "base64")
+                const dataView = new DataView(buffer.buffer)
+                this.handleNotifications(dataView)
+              }
+            })
           }
         }
       }

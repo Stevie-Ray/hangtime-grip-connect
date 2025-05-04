@@ -1,6 +1,5 @@
 import { BleManager, Device } from "react-native-ble-plx"
 import { WHC06 as WHC06Base } from "@hangtime/grip-connect/src/index"
-import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 import { Buffer } from "buffer"
 
 /**
@@ -12,10 +11,19 @@ import { Buffer } from "buffer"
 export class WHC06 extends WHC06Base {
   manager: BleManager
   device?: Device
+  private readonly weightOffset: number = 10
 
   constructor() {
     super()
     this.manager = new BleManager()
+  }
+
+  private parseWeightData(manufacturerData: string | null): number {
+    if (!manufacturerData) return 0
+
+    const buffer = Buffer.from(manufacturerData, "base64")
+    const weight = (buffer[this.weightOffset] << 8) | buffer[this.weightOffset + 1]
+    return weight / 100
   }
 
   override connect = async (
@@ -23,128 +31,69 @@ export class WHC06 extends WHC06Base {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      const filterOptions = Object.assign({}, ...this.filters)
-
-      this.manager.startDeviceScan(filterOptions, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
+      this.manager.startDeviceScan(null, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
         if (error) {
           onError(error)
           return
         }
 
-        if (scannedDevice) {
-          this.device = scannedDevice
-          this.manager.stopDeviceScan()
+        if (scannedDevice && (scannedDevice.localName === "IF_B7" || scannedDevice.name === "IF_B7")) {
+          // Update timestamp
+          this.updateTimestamp()
 
-          this.device
-            .connect()
-            .then((device) => {
-              this.device = device
-              console.log(`Connected to device: ${device.id}`)
-              return this.onConnected(onSuccess)
-            })
-            .catch(onError)
+          // Device has no services / characteristics, so we directly call onSuccess
+          onSuccess()
+
+          const manufacturerData = scannedDevice.manufacturerData
+           // Handle recieved data
+          const weight = this.parseWeightData(manufacturerData)
+
+          // Update massMax
+          const receivedTime: number = Date.now()
+          const receivedData = weight / 100
+
+          // Tare correction
+          // 0.20kg - 0.20kg = 0kg
+          // 0.40kg - 0.20kg = 0.20kg
+          const numericData = receivedData - this.applyTare(receivedData) * -1
+
+          // what i want (if tare is available)
+          // 75kg - 75kg = 0
+          // 50kg - 75kg = -25kg * -1 = 25kg
+
+          // Add data to downloadable Array
+          this.downloadPackets.push({
+            received: receivedTime,
+            sampleNum: this.dataPointCount,
+            battRaw: 0,
+            samples: [numericData],
+            masses: [numericData],
+          })
+
+          // Update massMax
+          this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
+
+          // Update running sum and count
+          const currentMassTotal = Math.max(-1000, numericData)
+          this.massTotalSum += currentMassTotal
+          this.dataPointCount++
+
+          // Calculate the average dynamically
+          this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+
+          // Check if device is being used
+          this.activityCheck(numericData)
+
+          // Notify with weight data
+          this.notifyCallback({
+            massMax: this.massMax,
+            massAverage: this.massAverage,
+            massTotal: Math.max(-1000, numericData).toFixed(1),
+          })
         }
       })
     } catch (error) {
       onError(error as Error)
-    }
-  }
-
-  override onConnected = async (onSuccess: () => void): Promise<void> => {
-    this.updateTimestamp()
-
-    if (!this.device) {
-      throw new Error("Device is not available")
-    }
-
-    await this.device.discoverAllServicesAndCharacteristics()
-    const services = await this.device.services()
-
-    for (const service of services) {
-      const matchingService = this.services.find((boardService) => boardService.uuid === service.uuid)
-
-      if (matchingService) {
-        for (const characteristic of matchingService.characteristics) {
-          if (characteristic.id === "rx") {
-            await this.device.monitorCharacteristicForService(
-              service.uuid,
-              characteristic.uuid,
-              (error, characteristic) => {
-                if (error) {
-                  console.error(error)
-                  return
-                }
-                if (characteristic?.value) {
-                  const value = characteristic.value
-                  const buffer = new Uint8Array(value.length)
-                  for (let i = 0; i < value.length; i++) {
-                    buffer[i] = value.charCodeAt(i)
-                  }
-                  this.handleNotifications(new DataView(buffer.buffer))
-                }
-              },
-            )
-          }
-        }
-      }
-    }
-    onSuccess()
-  }
-
-  override read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
-    if (this.device === undefined) {
-      return undefined
-    }
-    // Get the characteristic from the service
-    const service = this.services.find((service) => service.id === serviceId)
-    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
-
-    if (!service || !characteristic) {
-      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
-    }
-    this.updateTimestamp()
-    // Read the value from the characteristic
-    const response = await this.device.readCharacteristicForService(service.uuid, characteristic.uuid)
-
-    // Wait for the specified duration before returning the result
-    if (duration > 0) {
-      await new Promise((resolve) => setTimeout(resolve, duration))
-    }
-
-    return response.value ?? undefined
-  }
-
-  override write = async (
-    serviceId: string,
-    characteristicId: string,
-    message: string | Uint8Array | undefined,
-    duration = 0,
-    callback: WriteCallback = this.writeCallback,
-  ): Promise<void> => {
-    // Check if message is provided
-    if (!this.device || message === undefined) {
-      return Promise.resolve()
-    }
-    // Get the characteristic from the service
-    const service = this.services.find((service) => service.id === serviceId)
-    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
-
-    if (!service || !characteristic) {
-      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
-    }
-    this.updateTimestamp()
-    // Convert the message to string if it's a Uint8Array
-    const valueToWrite = typeof message === "string" ? new TextEncoder().encode(message) : message
-    const base64Value = Buffer.from(valueToWrite).toString("base64")
-    // Write the value to the characteristic
-    await this.device.writeCharacteristicWithResponseForService(service.uuid, characteristic.uuid, base64Value)
-    // Update the last written message
-    this.writeLast = message
-    // Assign the provided callback to `writeCallback`
-    this.writeCallback = callback
-    // If a duration is specified, resolve the promise after the duration
-    if (duration > 0) {
-      await new Promise<void>((resolve) => setTimeout(resolve, duration))
     }
   }
 }

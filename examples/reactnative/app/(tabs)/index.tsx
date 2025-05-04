@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TouchableOpacity, PermissionsAndroid } from "react-native"
+import { PermissionsAndroid, Platform, StyleSheet, TouchableOpacity } from "react-native"
 import { Picker } from "@react-native-picker/picker"
 import { useState } from "react"
 
@@ -125,11 +125,13 @@ export default function HomeScreen() {
     try {
       await device.connect(
         async () => {
+          console.log("Connected to device")
           device.notify((data: massObject) => {
             console.log(data)
           })
 
           if ("battery" in device) {
+            console.log("Fetching battery level")
             const batteryLevel = await device.battery()
             if (batteryLevel) {
               console.log("Battery Level:", batteryLevel)
@@ -137,6 +139,7 @@ export default function HomeScreen() {
           }
 
           if ("firmware" in device) {
+            console.log("Fetching firmware revision")
             const firmwareRevision = await device.firmware()
             if (firmwareRevision) {
               console.log("Firmware Revision:", firmwareRevision)
