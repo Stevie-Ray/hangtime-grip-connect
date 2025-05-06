@@ -223,17 +223,23 @@ window.customElements.define(
                     console.log(data)
                   })
 
-                  const batteryLevel = await device.battery()
-                  if (batteryLevel) {
-                    console.log("Battery Level:", batteryLevel)
+                  if ("battery" in device) {
+                    const batteryLevel = await device.battery()
+                    if (batteryLevel) {
+                      console.log("Battery Level:", batteryLevel)
+                    }
                   }
 
-                  const firmwareRevision = await device.firmware()
-                  if (firmwareRevision) {
-                    console.log("Firmware Revision:", firmwareRevision)
+                  if ("firmware" in device) {
+                    const firmwareRevision = await device.firmware()
+                    if (firmwareRevision) {
+                      console.log("Firmware Revision:", firmwareRevision)
+                    }
                   }
 
-                  await device.stream()
+                  if ("stream" in device) {
+                    await device.stream()
+                  }
                 },
                 (error) => {
                   console.log(error)

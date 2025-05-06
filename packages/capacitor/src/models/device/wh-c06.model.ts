@@ -1,6 +1,5 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
 import { WHC06 as WHC06Base } from "@hangtime/grip-connect/src/index"
-import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 /**
  * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.
@@ -11,125 +10,92 @@ import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callba
 export class WHC06 extends WHC06Base {
   device?: BleDevice
 
+  private parseWeightData(manufacturerData: Record<string, DataView> | undefined): number {
+    if (!manufacturerData) return 0
+
+    try {
+      // Get the first manufacturer data entry
+      const data = Object.values(manufacturerData)[0]
+      if (!data) return 0
+
+      // Convert DataView to hex string
+      const hexData = Array.from(new Uint8Array(data.buffer))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("")
+
+      const weightHex = hexData.substring(24, 28)
+      return parseInt(weightHex, 16) / 100
+    } catch (error) {
+      console.error("Error parsing weight data:", error)
+      return 0
+    }
+  }
+
   override connect = async (
     onSuccess: () => void = () => console.log("Connected successfully"),
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      const deviceServices = this.getAllServiceUUIDs()
       await BleClient.initialize()
 
-      const filterOptions = Object.assign({}, ...this.filters)
+      // Start scanning for manufacturer data
+      await BleClient.requestLEScan(
+        {
+          services: [],
+        },
+        (result) => {
+          if (result && (result.localName === "IF_B7" || result.device.name === "IF_B7")) {
+            // Update timestamp
+            this.updateTimestamp()
 
-      this.device = await BleClient.requestDevice({
-        ...filterOptions,
-        optionalServices: deviceServices,
-      })
+            // Device has no services / characteristics, so we directly call onSuccess
+            onSuccess()
 
-      await BleClient.connect(this.device.deviceId, (deviceId) => console.log(deviceId))
+            const manufacturerData = result.manufacturerData
+            // Handle received data
+            const weight = this.parseWeightData(manufacturerData)
 
-      await this.onConnected(onSuccess)
-    } catch (error) {
-      onError(error as Error)
-    }
-  }
+            // Update massMax
+            const receivedTime: number = Date.now()
+            const receivedData = weight
 
-  override onConnected = async (onSuccess: () => void): Promise<void> => {
-    this.updateTimestamp()
+            // Tare correction
+            const numericData = receivedData - this.applyTare(receivedData) * -1
 
-    if (!this.device) {
-      throw new Error("Device is not available")
-    }
+            // Add data to downloadable Array
+            this.downloadPackets.push({
+              received: receivedTime,
+              sampleNum: this.dataPointCount,
+              battRaw: 0,
+              samples: [numericData],
+              masses: [numericData],
+            })
 
-    const services = await BleClient.getServices(this.device.deviceId)
+            // Update massMax
+            this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
 
-    for (const service of services) {
-      const matchingService = this.services.find((boardService) => boardService.uuid === service.uuid)
+            // Update running sum and count
+            const currentMassTotal = Math.max(-1000, numericData)
+            this.massTotalSum += currentMassTotal
+            this.dataPointCount++
 
-      if (matchingService) {
-        for (const characteristic of matchingService.characteristics) {
-          if (characteristic.id === "rx") {
-            await BleClient.startNotifications(this.device.deviceId, service.uuid, characteristic.uuid, (value) => {
-              this.handleNotifications(value)
+            // Calculate the average dynamically
+            this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+
+            // Check if device is being used
+            this.activityCheck(numericData)
+
+            // Notify with weight data
+            this.notifyCallback({
+              massMax: this.massMax,
+              massAverage: this.massAverage,
+              massTotal: Math.max(-1000, numericData).toFixed(1),
             })
           }
-        }
-      }
-    }
-    onSuccess()
-  }
-
-  override read = async (serviceId: string, characteristicId: string, duration = 0): Promise<string | undefined> => {
-    if (this.device === undefined) {
-      return undefined
-    }
-    // Get the characteristic from the service
-    const service = this.services.find((service) => service.id === serviceId)
-    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
-
-    if (!service || !characteristic) {
-      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
-    }
-    this.updateTimestamp()
-    // Decode the value based on characteristicId and serviceId
-    let decodedValue: string
-    const decoder = new TextDecoder("utf-8")
-    // Read the value from the characteristic
-    const value = await BleClient.read(this.device.deviceId, service.uuid, characteristic.uuid)
-
-    if (
-      (serviceId === "battery" || serviceId === "humidity" || serviceId === "temperature") &&
-      characteristicId === "level"
-    ) {
-      // This is battery-specific; return the first byte as the level
-      decodedValue = value.getUint8(0).toString()
-    } else {
-      // Otherwise use a UTF-8 decoder
-      decodedValue = decoder.decode(value)
-    }
-    // Wait for the specified duration before returning the result
-    if (duration > 0) {
-      await new Promise((resolve) => setTimeout(resolve, duration))
-    }
-
-    return decodedValue
-  }
-
-  override write = async (
-    serviceId: string,
-    characteristicId: string,
-    message: string | Uint8Array | undefined,
-    duration = 0,
-    callback: WriteCallback = this.writeCallback,
-  ): Promise<void> => {
-    // Check if message is provided
-    if (this.device === undefined || message === undefined) {
-      return Promise.resolve()
-    }
-    // Get the characteristic from the service
-    const service = this.services.find((service) => service.id === serviceId)
-    const characteristic = service?.characteristics.find((char) => char.id === characteristicId)
-
-    if (!service || !characteristic) {
-      throw new Error(`Characteristic "${characteristicId}" not found in service "${serviceId}"`)
-    }
-    this.updateTimestamp()
-    // Convert the message to Uint8Array if it's a string
-    const valueToWrite = typeof message === "string" ? new TextEncoder().encode(message) : message
-    // Write the value to the characteristic
-    await BleClient.writeWithoutResponse(
-      this.device.deviceId,
-      service.uuid,
-      characteristic.uuid,
-      new DataView(valueToWrite.buffer),
-    )
-    // Update the last written message
-    this.writeLast = message
-    // Assign the provided callback to `writeCallback`
-    this.writeCallback = callback
-    // If a duration is specified, resolve the promise after the duration
-    if (duration > 0) {
-      await new Promise<void>((resolve) => setTimeout(resolve, duration))
+        },
+      )
+    } catch (error) {
+      onError(error as Error)
     }
   }
 }

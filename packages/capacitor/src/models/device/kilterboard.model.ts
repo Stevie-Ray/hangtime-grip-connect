@@ -33,6 +33,12 @@ export class KilterBoard extends KilterBoardBase {
     }
   }
 
+  override disconnect = async (): Promise<void> => {
+    if (this.device) {
+      await BleClient.disconnect(this.device.deviceId)
+    }
+  }
+
   override onConnected = async (onSuccess: () => void): Promise<void> => {
     this.updateTimestamp()
 

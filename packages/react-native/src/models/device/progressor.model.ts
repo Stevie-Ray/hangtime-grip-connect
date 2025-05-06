@@ -48,6 +48,12 @@ export class Progressor extends ProgressorBase {
     }
   }
 
+  override disconnect = async (): Promise<void> => {
+    if (this.device) {
+      await this.manager.cancelDeviceConnection(this.device.id)
+    }
+  }
+
   override onConnected = async (onSuccess: () => void): Promise<void> => {
     this.updateTimestamp()
 
