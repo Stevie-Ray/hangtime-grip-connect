@@ -211,6 +211,16 @@ window.customElements.define(
           `
           deviceContainer.appendChild(deviceElement)
 
+          const massDataHTML = `
+            <div id="mass-data" style="margin-top: 15px; padding: 10px; border: 1px solid #eee; border-radius: 4px;">
+              <h3>Output</h3>
+              <div id="mass-values">
+                <p>Total: <span id="mass-total">0</span></p>
+                <p>Max: <span id="mass-max">0</span></p>
+                <p>Average: <span id="mass-average">0</span></p>
+              </div>
+            </div>`
+
           // Add event listeners for connect/disconnect buttons
           const connectButton = deviceElement.querySelector("#connect-device")
           const disconnectButton = deviceElement.querySelector("#disconnect-device")
@@ -219,9 +229,24 @@ window.customElements.define(
             try {
               await device.connect(
                 async () => {
+                  if (!deviceElement.querySelector('#mass-data')) {
+                    deviceElement.insertAdjacentHTML('beforeend', massDataHTML);
+                  }
                   device.notify((data) => {
-                    console.log(data)
-                  })
+                    const massData = {
+                      "mass-total": data.massTotal || "0",
+                      "mass-max": data.massMax || "0",
+                      "mass-average": data.massAverage || "0",
+                    };
+                    Object.entries(massData).forEach(([id, value]) => {
+                      const element = deviceElement.querySelector(`#${id}`);
+                      if (element) {
+                        element.textContent = value;
+                      } else {
+                        console.error('Element not found for id:', id);
+                      }
+                    });
+                  });
 
                   if ("battery" in device) {
                     const batteryLevel = await device.battery()
@@ -256,6 +281,8 @@ window.customElements.define(
           disconnectButton.addEventListener("click", async () => {
             try {
               await device.disconnect()
+              const massDataDiv = deviceElement.querySelector('#mass-data');
+              if (massDataDiv) massDataDiv.remove();
               connectButton.disabled = false
               disconnectButton.disabled = true
             } catch (error) {
