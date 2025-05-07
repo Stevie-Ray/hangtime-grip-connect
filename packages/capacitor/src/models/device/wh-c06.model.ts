@@ -46,7 +46,7 @@ export class WHC06 extends WHC06Base {
           allowDuplicates: true,
         },
         (result) => {
-          if (result.manufacturerData?.[filterOptions.manufacturerData.companyIdentifier]) {
+          if (result.manufacturerData) {
             console.log(
               "Manufacturer payload: ",
               result.manufacturerData?.[filterOptions.manufacturerData.companyIdentifier].getUint8(1),

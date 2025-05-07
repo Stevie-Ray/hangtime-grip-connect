@@ -53,7 +53,7 @@ export class WHC06 extends Device implements IWHC06 {
     super({
       filters: [
         {
-          // namePrefix: "IF_B7",
+          // name: "IF_B7",
           manufacturerData: [
             {
               companyIdentifier: 0x0100, // 256

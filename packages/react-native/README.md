@@ -1,6 +1,14 @@
-# Grip Connect | React Native
+# Grip Connect - React Native
 
 A React Native implementation for `@hangtime/grip-connect` using `react-native-ble-plx`
+
+## Install
+
+The packages are available on [NPM](https://www.npmjs.com/package/@hangtime/grip-connect-react-native).
+
+```sh [npm]
+$ npm install @hangtime/grip-connect-react-native
+```
 
 ## Requirements
 
