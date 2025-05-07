@@ -46,7 +46,7 @@ export class WHC06 extends WHC06Base {
           allowDuplicates: true,
         },
         (result) => {
-          if (result.manufacturerData) {
+          if (result && (result.device.name === "IF_B7" || result.localName === "IF_B7")) {
             console.log(
               "Manufacturer payload: ",
               result.manufacturerData?.[filterOptions.manufacturerData.companyIdentifier].getUint8(1),
