@@ -10,35 +10,7 @@ import { WHC06 as WHC06Base } from "@hangtime/grip-connect/src/index"
 export class WHC06 extends WHC06Base {
   device?: BleDevice
 
-  private parseWeightData(manufacturerData: Record<string, DataView> | undefined): number {
-    if (!manufacturerData) return 0
-
-    try {
-      // Get the manufacturer data for company ID 256
-      const data = manufacturerData[256]
-      if (!data || !data.buffer || data.byteLength === 0) {
-        console.warn("No valid manufacturer data found for company ID 256")
-        return 0
-      }
-
-      // Convert DataView to hex string
-      const hexData = Array.from(new Uint8Array(data.buffer))
-        .map((byte) => byte.toString(16).padStart(2, "0"))
-        .join("")
-
-      // The weight data should be at offset 24-28 in the hex string
-      const weightHex = hexData.substring(24, 28)
-      if (!weightHex) {
-        console.warn("Could not find weight data in manufacturer data")
-        return 0
-      }
-
-      return parseInt(weightHex, 16) / 100
-    } catch (error) {
-      console.error("Error parsing weight data:", error)
-      return 0
-    }
-  }
+  private readonly weightOffset: number = 10
 
   override connect = async (
     onSuccess: () => void = () => console.log("Connected successfully"),
@@ -51,17 +23,11 @@ export class WHC06 extends WHC06Base {
       // Start scanning for manufacturer data
       await BleClient.requestLEScan(
         {
-          manufacturerData: [{ companyIdentifier: 256 }],
+          manufacturerData: [{ companyIdentifier: 0x0100 }],
           allowDuplicates: true,
         },
         (result) => {
           if (result && (result.device.name === "IF_B7" || result.localName === "IF_B7")) {
-            console.log("Device found:", {
-              name: result.device.name,
-              localName: result.localName,
-              manufacturerData: result.manufacturerData,
-            })
-
             // Update timestamp
             this.updateTimestamp()
 
@@ -69,19 +35,20 @@ export class WHC06 extends WHC06Base {
             onSuccess()
 
             const manufacturerData = result.manufacturerData
+            if (!manufacturerData) return
+
+            // Handle received data with proper type checking
+            const dataArray = Object.values(manufacturerData)
+            if (!dataArray.length) return
+
+            const data = dataArray[0]
+            if (!data) return
+
             // Handle received data
-            const weight = this.parseWeightData(manufacturerData)
-
-            if (weight === 0) {
-              console.warn("No valid weight data received")
-              return
-            }
-
-            // Update massMax
+            const weight = (data.getUint8(this.weightOffset) << 8) | data.getUint8(this.weightOffset + 1)
             const receivedTime: number = Date.now()
-            const receivedData = weight
+            const receivedData = weight / 100
 
-            // Tare correction
             const numericData = receivedData - this.applyTare(receivedData) * -1
 
             // Add data to downloadable Array
