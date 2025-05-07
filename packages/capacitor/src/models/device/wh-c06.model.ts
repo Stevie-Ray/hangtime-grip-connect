@@ -51,9 +51,7 @@ export class WHC06 extends WHC06Base {
       // Start scanning for manufacturer data
       await BleClient.requestLEScan(
         {
-          manufacturerData: [
-            { companyIdentifier: 256 },
-          ],
+          manufacturerData: [{ companyIdentifier: 256 }],
           allowDuplicates: true,
         },
         (result) => {
