@@ -15,7 +15,7 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@capacitor-community/bluetooth-le": "^7.0.0",
+    "@capacitor-community/bluetooth-le": "^7.1.0",
     "@hangtime/grip-connect": "^0.8.0"
   },
   "devDependencies": {

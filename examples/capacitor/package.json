@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor-community/bluetooth-le": "^7.0.0",
+    "@capacitor-community/bluetooth-le": "^7.1.0",
     "@capacitor/android": "^7.2.0",
     "@capacitor/core": "^7.2.0",
     "@capacitor/ios": "^7.2.0",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.2.0",
-    "vite": "^6.3.4"
+    "vite": "^6.3.5"
   },
   "workspaces": [
     "examples"

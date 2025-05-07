@@ -38,13 +38,19 @@ export class WHC06 extends WHC06Base {
     try {
       await BleClient.initialize()
 
+      const filterOptions = Object.assign({}, ...this.filters)
       // Start scanning for manufacturer data
       await BleClient.requestLEScan(
         {
-          services: [],
+          ...filterOptions,
+          allowDuplicates: true,
         },
         (result) => {
-          if (result && (result.localName === "IF_B7" || result.device.name === "IF_B7")) {
+          if (result.manufacturerData?.[filterOptions.manufacturerData.companyIdentifier]) {
+            console.log(
+              "Manufacturer payload: ",
+              result.manufacturerData?.[filterOptions.manufacturerData.companyIdentifier].getUint8(1),
+            )
             // Update timestamp
             this.updateTimestamp()
 
