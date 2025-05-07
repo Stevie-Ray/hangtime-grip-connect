@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.8.0"
+    "@hangtime/grip-connect": "^0.8.1"
   },
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.8",

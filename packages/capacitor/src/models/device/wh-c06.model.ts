@@ -19,11 +19,10 @@ export class WHC06 extends WHC06Base {
     try {
       await BleClient.initialize()
 
-      // const filterOptions = Object.assign({}, ...this.filters)
-      // Start scanning for manufacturer data
+      const filterOptions = Object.assign({}, ...this.filters)
       await BleClient.requestLEScan(
         {
-          manufacturerData: [{ companyIdentifier: 0x0100 }],
+          ...filterOptions,
           allowDuplicates: true,
         },
         (result) => {
@@ -37,7 +36,7 @@ export class WHC06 extends WHC06Base {
             const manufacturerData = result.manufacturerData
             if (!manufacturerData) return
 
-            // Handle received data with proper type checking
+            // Check if manufacturerData is set
             const dataArray = Object.values(manufacturerData)
             if (!dataArray.length) return
 

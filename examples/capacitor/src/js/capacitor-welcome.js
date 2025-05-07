@@ -126,6 +126,9 @@ window.customElements.define(
         <h2>Bluetooth LE Demo</h2>
         <p>
           This demo shows how to connect to a Bluetooth LE device.
+          <br>
+          <br>
+          <strong>Note:</strong> For WH-C06 on Web, you need to enable <code>chrome://flags/#enable-experimental-web-platform-features</code>.
         </p>
         <p>
           <select id="device-select">
