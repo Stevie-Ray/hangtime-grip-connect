@@ -14,16 +14,25 @@ export class WHC06 extends WHC06Base {
     if (!manufacturerData) return 0
 
     try {
-      // Get the first manufacturer data entry
-      const data = Object.values(manufacturerData)[0]
-      if (!data) return 0
+      // Get the manufacturer data for company ID 256
+      const data = manufacturerData[256]
+      if (!data || !data.buffer || data.byteLength === 0) {
+        console.warn("No valid manufacturer data found for company ID 256")
+        return 0
+      }
 
       // Convert DataView to hex string
       const hexData = Array.from(new Uint8Array(data.buffer))
         .map((byte) => byte.toString(16).padStart(2, "0"))
         .join("")
 
+      // The weight data should be at offset 24-28 in the hex string
       const weightHex = hexData.substring(24, 28)
+      if (!weightHex) {
+        console.warn("Could not find weight data in manufacturer data")
+        return 0
+      }
+
       return parseInt(weightHex, 16) / 100
     } catch (error) {
       console.error("Error parsing weight data:", error)
@@ -38,19 +47,23 @@ export class WHC06 extends WHC06Base {
     try {
       await BleClient.initialize()
 
-      const filterOptions = Object.assign({}, ...this.filters)
+      // const filterOptions = Object.assign({}, ...this.filters)
       // Start scanning for manufacturer data
       await BleClient.requestLEScan(
         {
-          ...filterOptions,
+          manufacturerData: [
+            { companyIdentifier: 256 },
+          ],
           allowDuplicates: true,
         },
         (result) => {
           if (result && (result.device.name === "IF_B7" || result.localName === "IF_B7")) {
-            console.log(
-              "Manufacturer payload: ",
-              result.manufacturerData?.[filterOptions.manufacturerData.companyIdentifier].getUint8(1),
-            )
+            console.log("Device found:", {
+              name: result.device.name,
+              localName: result.localName,
+              manufacturerData: result.manufacturerData,
+            })
+
             // Update timestamp
             this.updateTimestamp()
 
@@ -60,6 +73,11 @@ export class WHC06 extends WHC06Base {
             const manufacturerData = result.manufacturerData
             // Handle received data
             const weight = this.parseWeightData(manufacturerData)
+
+            if (weight === 0) {
+              console.warn("No valid weight data received")
+              return
+            }
 
             // Update massMax
             const receivedTime: number = Date.now()
