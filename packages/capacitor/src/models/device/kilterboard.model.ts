@@ -1,4 +1,5 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
+import { Filesystem, Directory } from "@capacitor/filesystem"
 import { KilterBoard as KilterBoardBase } from "@hangtime/grip-connect/src/index"
 import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
@@ -36,6 +37,39 @@ export class KilterBoard extends KilterBoardBase {
   override disconnect = async (): Promise<void> => {
     if (this.device) {
       await BleClient.disconnect(this.device.deviceId)
+    }
+  }
+
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
+    let content = ""
+
+    if (format === "csv") {
+      content = this.downloadToCSV()
+    } else if (format === "json") {
+      content = this.downloadToJSON()
+    } else if (format === "xml") {
+      content = this.downloadToXML()
+    }
+
+    const now = new Date()
+    // YYYY-MM-DD
+    const date = now.toISOString().split("T")[0]
+    // HH-MM-SS
+    const time = now.toTimeString().split(" ")[0].replace(/:/g, "-")
+
+    const fileName = `data-export-${date}-${time}.${format}`
+
+    try {
+      await Filesystem.writeFile({
+        path: fileName,
+        data: content,
+        directory: Directory.Documents,
+        recursive: true,
+      })
+      console.log(`File saved as ${fileName} in Documents directory`)
+    } catch (error) {
+      console.error("Error saving file:", error)
+      throw error
     }
   }
 
