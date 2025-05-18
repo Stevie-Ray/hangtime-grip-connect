@@ -1,6 +1,6 @@
 import { BleManager, Device } from "react-native-ble-plx"
 import { DocumentDirectoryPath, writeFile } from "@dr.pogodin/react-native-fs"
-import { WHC06 as WHC06Base } from "@hangtime/grip-connect/src/index"
+import { WHC06 as WHC06Base } from "@hangtime/grip-connect"
 import { Buffer } from "buffer"
 
 /**

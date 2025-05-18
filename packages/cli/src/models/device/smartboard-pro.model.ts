@@ -1,4 +1,4 @@
-import { SmartBoardPro as SmartBoardProBase } from "@hangtime/grip-connect/src/index"
+import { SmartBoardPro as SmartBoardProBase } from "@hangtime/grip-connect"
 import { writeFile } from "node:fs/promises"
 import process from "node:process"
 import { bluetooth } from "webbluetooth"

@@ -1,6 +1,6 @@
 import { BleManager, Device } from "react-native-ble-plx"
 import { DocumentDirectoryPath, writeFile } from "@dr.pogodin/react-native-fs"
-import { Progressor as ProgressorBase } from "@hangtime/grip-connect/src/index"
+import { Progressor as ProgressorBase } from "@hangtime/grip-connect"
 import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 import { Buffer } from "buffer"
 

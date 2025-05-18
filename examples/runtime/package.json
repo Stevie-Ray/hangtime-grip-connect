@@ -12,7 +12,7 @@
     "@hangtime/grip-connect-cli": "^0.8.2"
   },
   "trustedDependencies": [
-    "@hangtime/grip-connect",
+    "@hangtime/grip-connect-cli",
     "webbluetooth"
   ]
 }

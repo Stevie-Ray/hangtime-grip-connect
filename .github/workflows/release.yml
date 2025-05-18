@@ -30,30 +30,34 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish Core package
+      - name: Publish Core NPM package
         working-directory: ./packages/core
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish CLI package
+      - name: Publish CLI NPM package
         working-directory: ./packages/cli
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish Capacitor package
+      - name: Publish Capacitor NPM package
         working-directory: ./packages/capacitor
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish React Native package
+      - name: Publish React Native NPM package
         working-directory: ./packages/react-native
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish JSR package
+      - name: Publish Core JSR package
+        working-directory: ./packages/core
+        run: npx jsr publish
+
+      - name: Publish CLI JSR package
         working-directory: ./packages/cli
         run: npx jsr publish

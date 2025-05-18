@@ -1,0 +1,8 @@
+{
+  "name": "@hangtime/grip-connect",
+  "version": "0.8.2",
+  "license": "BSD-2-Clause",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

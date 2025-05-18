@@ -1,4 +1,4 @@
-import { ForceBoard as ForceBoardBase } from "@hangtime/grip-connect/src/index"
+import { ForceBoard as ForceBoardBase } from "@hangtime/grip-connect"
 import { writeFile } from "node:fs/promises"
 import process from "node:process"
 import { bluetooth } from "webbluetooth"

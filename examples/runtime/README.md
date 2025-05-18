@@ -9,7 +9,7 @@ This example demonstrates how to use Grip Connect in a Node.js, Bun, or Deno env
 Install the package using npm:
 
 ```bash
-npm install @hangtime/grip-connect
+npm install @hangtime/grip-connect-cli
 ```
 
 ### Bun
@@ -17,14 +17,14 @@ npm install @hangtime/grip-connect
 Install with Bun using:
 
 ```bash
-bun add @hangtime/grip-connect
+bun add @hangtime/grip-connect-cli
 ```
 
 Also, update your `package.json` file to include:
 
 ```json
 {
-  "trustedDependencies": ["@hangtime/grip-connect", "webbluetooth"]
+  "trustedDependencies": ["@hangtime/grip-connect-cli", "webbluetooth"]
 }
 ```
 
@@ -35,7 +35,7 @@ This configuration ensures the post-install script runs correctly.
 To install for Deno, add the package with permission to run `postinstall` scripts:
 
 ```bash
-deno add jsr:@hangtime/grip-connect --allow-scripts="npm:webbluetooth"
+deno add jsr:@hangtime/grip-connect-cli --allow-scripts="npm:webbluetooth"
 ```
 
 Then, ensure your root `deno.json` file includes the following configuration to automatically manage Node modules:

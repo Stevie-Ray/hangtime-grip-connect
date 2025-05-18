@@ -1,8 +1,8 @@
-import { BaseModel } from "./../models/base.model"
-import type { IDevice, Service } from "../interfaces/device.interface"
-import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface"
-import type { DownloadPacket } from "../interfaces/download.interface"
-import type { Commands } from "../interfaces/command.interface"
+import { BaseModel } from "./../models/base.model.js"
+import type { IDevice, Service } from "../interfaces/device.interface.js"
+import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface.js"
+import type { DownloadPacket } from "../interfaces/download.interface.js"
+import type { Commands } from "../interfaces/command.interface.js"
 
 export abstract class Device extends BaseModel implements IDevice {
   /**

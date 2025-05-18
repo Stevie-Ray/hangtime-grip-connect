@@ -1,6 +1,6 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
 import { Filesystem, Directory } from "@capacitor/filesystem"
-import { WHC06 as WHC06Base } from "@hangtime/grip-connect/src/index"
+import { WHC06 as WHC06Base } from "@hangtime/grip-connect"
 
 /**
  * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.

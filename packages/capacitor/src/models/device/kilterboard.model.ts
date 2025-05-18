@@ -1,7 +1,7 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
 import { Filesystem, Directory } from "@capacitor/filesystem"
-import { KilterBoard as KilterBoardBase } from "@hangtime/grip-connect/src/index"
-import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
+import { KilterBoard as KilterBoardBase } from "@hangtime/grip-connect"
+import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 
 /**
  * Represents a Aurora Climbing device.

@@ -1,4 +1,4 @@
-import { Climbro as ClimbroBase } from "@hangtime/grip-connect/src/index"
+import { Climbro as ClimbroBase } from "@hangtime/grip-connect"
 import { writeFile } from "node:fs/promises"
 import process from "node:process"
 import { bluetooth } from "webbluetooth"

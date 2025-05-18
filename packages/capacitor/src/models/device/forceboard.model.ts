@@ -1,7 +1,7 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
 import { Filesystem, Directory } from "@capacitor/filesystem"
-import { ForceBoard as ForceBoardBase } from "@hangtime/grip-connect/src/index"
-import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
+import { ForceBoard as ForceBoardBase } from "@hangtime/grip-connect"
+import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 
 /**
  * Represents a PitchSix Force Board device.

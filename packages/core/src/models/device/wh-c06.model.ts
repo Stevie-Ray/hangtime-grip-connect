@@ -1,5 +1,5 @@
-import { Device } from "../device.model"
-import type { IWHC06 } from "../../interfaces/device/wh-c06.interface"
+import { Device } from "../device.model.js"
+import type { IWHC06 } from "../../interfaces/device/wh-c06.interface.js"
 
 /**
  * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.

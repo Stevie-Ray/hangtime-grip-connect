@@ -1,5 +1,5 @@
-import { Device } from "../device.model"
-import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface"
+import { Device } from "../device.model.js"
+import type { IKilterBoard } from "../../interfaces/device/kilterboard.interface.js"
 
 /**
  * For API level 2 and API level 3.

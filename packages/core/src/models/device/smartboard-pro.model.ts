@@ -1,5 +1,5 @@
-import { Device } from "../device.model"
-import type { ISmartBoardPro } from "../../interfaces/device/smartboard-pro.interface"
+import { Device } from "../device.model.js"
+import type { ISmartBoardPro } from "../../interfaces/device/smartboard-pro.interface.js"
 
 /**
  * Represents a Smartboard Climbing SmartBoard Pro device.

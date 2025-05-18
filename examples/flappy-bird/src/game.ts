@@ -1,12 +1,4 @@
-import {
-  Climbro,
-  Entralpi,
-  ForceBoard,
-  Motherboard,
-  mySmartBoard,
-  Progressor,
-  WHC06,
-} from "@hangtime/grip-connect/src/index"
+import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
 
 let mass: number

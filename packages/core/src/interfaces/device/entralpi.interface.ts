@@ -1,4 +1,4 @@
-import type { IDevice } from "../device.interface"
+import type { IDevice } from "../device.interface.js"
 
 /**
  * Interface representing the Entralpi device, extending the base Device interface.
