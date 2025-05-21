@@ -53,7 +53,7 @@ $ npm install @hangtime/grip-connect
 $ npm install @hangtime/grip-connect-capacitor
 
 # For React Native mobile apps
-$ npm install @hangtime/grip-connect-react-native
+$ npm install @hangtime/grip-connect-react-native @dr.pogodin/react-native-fs
 
 # For Node.js, Bun, Deno CLI tools
 $ npm install @hangtime/grip-connect-cli

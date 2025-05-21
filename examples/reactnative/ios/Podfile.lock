@@ -1,9 +1,9 @@
 PODS:
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
-  - EXConstants (17.1.5):
+  - EXConstants (17.1.6):
     - ExpoModulesCore
-  - Expo (53.0.6):
+  - Expo (53.0.9):
     - DoubleConversion
     - ExpoModulesCore
     - glog
@@ -30,19 +30,21 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - ExpoAsset (11.1.4):
+  - ExpoAsset (11.1.5):
     - ExpoModulesCore
   - ExpoBlur (14.1.4):
     - ExpoModulesCore
-  - ExpoFileSystem (18.1.8):
+  - ExpoDevice (7.1.4):
+    - ExpoModulesCore
+  - ExpoFileSystem (18.1.10):
     - ExpoModulesCore
   - ExpoFont (13.3.1):
     - ExpoModulesCore
   - ExpoHaptics (14.1.4):
     - ExpoModulesCore
-  - ExpoHead (5.0.5):
+  - ExpoHead (5.0.7):
     - ExpoModulesCore
-  - ExpoImage (2.1.6):
+  - ExpoImage (2.1.7):
     - ExpoModulesCore
     - libavif/libdav1d
     - SDWebImage (~> 5.21.0)
@@ -51,9 +53,9 @@ PODS:
     - SDWebImageWebPCoder (~> 0.14.6)
   - ExpoKeepAwake (14.1.4):
     - ExpoModulesCore
-  - ExpoLinking (7.1.4):
+  - ExpoLinking (7.1.5):
     - ExpoModulesCore
-  - ExpoModulesCore (2.3.12):
+  - ExpoModulesCore (2.3.13):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1881,6 +1883,30 @@ PODS:
     - React-logger (= 0.79.2)
     - React-perflogger (= 0.79.2)
     - React-utils (= 0.79.2)
+  - RNCAsyncStorage (2.1.2):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNCPicker (2.11.0):
     - DoubleConversion
     - glog
@@ -2125,6 +2151,7 @@ DEPENDENCIES:
   - Expo (from `../../../node_modules/expo`)
   - ExpoAsset (from `../../../node_modules/expo-asset/ios`)
   - ExpoBlur (from `../../../node_modules/expo-blur/ios`)
+  - ExpoDevice (from `../../../node_modules/expo-device/ios`)
   - ExpoFileSystem (from `../../../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../../../node_modules/expo-font/ios`)
   - ExpoHaptics (from `../../../node_modules/expo-haptics/ios`)
@@ -2209,6 +2236,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../../../node_modules/react-native/ReactCommon`)
+  - "RNCAsyncStorage (from `../../../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCPicker (from `../../../node_modules/@react-native-picker/picker`)"
   - RNGestureHandler (from `../../../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../../../node_modules/react-native-reanimated`)
@@ -2240,6 +2268,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/expo-asset/ios"
   ExpoBlur:
     :path: "../../../node_modules/expo-blur/ios"
+  ExpoDevice:
+    :path: "../../../node_modules/expo-device/ios"
   ExpoFileSystem:
     :path: "../../../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -2405,6 +2435,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../../../node_modules/react-native/ReactCommon"
+  RNCAsyncStorage:
+    :path: "../../../node_modules/@react-native-async-storage/async-storage"
   RNCPicker:
     :path: "../../../node_modules/@react-native-picker/picker"
   RNGestureHandler:
@@ -2419,18 +2451,19 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
-  EXConstants: a1112af878fddfe6acc0399473ac56a07ced0f47
-  Expo: 7b933ea4fe1ead305fe4d90e54a8de9c0d790d1f
-  ExpoAsset: ecda157f3ef69824d04015fa796dcfbda2304f21
+  EXConstants: 9f310f44bfedba09087042756802040e464323c0
+  Expo: a9fc723f6c8f673f0e7e036c9021772d3a1a0707
+  ExpoAsset: 3bc9adb7dbbf27ae82c18ca97eb988a3ae7e73b1
   ExpoBlur: 7f9379db213e4a56aeceda82e94a7fea1b1d8c48
-  ExpoFileSystem: 47ccd351beaa608f80f82a6f13ac8b0524ef529f
+  ExpoDevice: 7082f03af1c588333ef1417d5aa8287081d94b24
+  ExpoFileSystem: c36eb8155eb2381c83dda7dc210e3eec332368b6
   ExpoFont: abbb91a911eb961652c2b0a22eef801860425ed6
   ExpoHaptics: 0ff6e0d83cd891178a306e548da1450249d54500
-  ExpoHead: 0ebd8ad3ff266be8b77b9993345c90a36d9aec46
-  ExpoImage: ef73e2ed551133a5fab8693a2ea1ea1dc4da2542
+  ExpoHead: af044f3e9c99e7d8d21bf653b4c2f2ef53a7f082
+  ExpoImage: e7738bebc58cee17e93fa161f2444f9c343996f5
   ExpoKeepAwake: bf0811570c8da182bfb879169437d4de298376e7
-  ExpoLinking: b6a0320bf46ae36807d3dc27b4a1d4474505f99c
-  ExpoModulesCore: 3ac17421302df62928fc99c133cf25bdbcf0b004
+  ExpoLinking: b85ff4eafeae6fc638c6cace60007ae521af0ef4
+  ExpoModulesCore: 5d37821c36f3781dcd0ea9a393800c90eaa6259d
   ExpoSplashScreen: f524572afd81522e40850eaa7163e2ae99cce783
   ExpoSymbols: 5324de61341b396965a1cd3d2c738227b13d6a60
   ExpoSystemUI: 82c970cf8495449698e7343b4f78a0d04bcec9ee
@@ -2509,6 +2542,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 04d5eb15eb46be6720e17a4a7fa92940a776e584
   ReactCodegen: 7ea266ccd94436294f516247db7402b57b1214af
   ReactCommon: 76d2dc87136d0a667678668b86f0fca0c16fdeb0
+  RNCAsyncStorage: 39c42c1e478e1f5166d1db52b5055e090e85ad66
   RNCPicker: e51a9eb07c7dfbfba3d6c6cc567e083376c717cc
   RNGestureHandler: 7d0931a61d7ba0259f32db0ba7d0963c3ed15d2b
   RNReanimated: afd6a269a47d6f13ba295c46c6c0e14e3cbd0d8a
@@ -2520,6 +2554,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: b82460ae5236d4d31bd53383189117bebce9164c
+PODFILE CHECKSUM: 38a36e20df237fb88de1430b0e47c7a215de4734
 
 COCOAPODS: 1.16.2

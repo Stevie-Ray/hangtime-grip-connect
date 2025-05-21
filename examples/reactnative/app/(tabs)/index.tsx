@@ -1,311 +1,195 @@
-import { PermissionsAndroid, Platform, StyleSheet, TouchableOpacity } from "react-native"
-import { Picker } from "@react-native-picker/picker"
+import { Pressable, Modal, StyleSheet, Text, View } from "react-native"
 import { useState } from "react"
 
-import { HelloWave } from "@/components/HelloWave"
-import ParallaxScrollView from "@/components/ParallaxScrollView"
-import { ThemedText } from "@/components/ThemedText"
-import { ThemedView } from "@/components/ThemedView"
-import {
-  Climbro,
-  Entralpi,
-  ForceBoard,
-  KilterBoard,
-  Motherboard,
-  mySmartBoard,
-  Progressor,
-  SmartBoardPro,
-  WHC06,
-} from "@hangtime/grip-connect-react-native"
-import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
-
-type DeviceType =
-  | Climbro
-  | Entralpi
-  | ForceBoard
-  | KilterBoard
-  | Motherboard
-  | mySmartBoard
-  | Progressor
-  | SmartBoardPro
-  | WHC06
+import Max from "@/components/Max"
+import { saveWorkout } from "@/components/AsyncStorage"
+import { Colors } from "@/constants/Colors"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { useSettings } from "@/components/SettingContext"
+import { WorkoutResults } from "@/types"
+import Endurance from "@/components/Endurance"
 
 export default function HomeScreen() {
-  const [selectedDevice, setSelectedDevice] = useState<string>("")
-  const [device, setDevice] = useState<DeviceType | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
-  const [hasPermissions, setHasPermissions] = useState<boolean | null>(null)
+  const [modalPeak, setModalPeak] = useState(false)
+  const [modalEndurance, setModalEndurance] = useState(false)
+  const [modalHangTimer, setModalHangTimer] = useState(false)
+  const { settings } = useSettings()
 
-  const devices = [
-    { value: "climbro", label: "Climbro", disabled: true },
-    { value: "entralpi", label: "Entralpi" },
-    { value: "forceboard", label: "Force Board" },
-    { value: "kilterboard", label: "Kilter Board" },
-    { value: "motherboard", label: "Motherboard" },
-    { value: "smartboard", label: "mySmartBoard", disabled: true },
-    { value: "progressor", label: "Progressor" },
-    { value: "smartboardpro", label: "Smart Board Pro" },
-    { value: "whc06", label: "WH-C06" },
-  ]
+  /**
+   * Function to be called when workout is finished, handles modal closing and saving results
+   * @param save Boolean to determine if results should be saved
+   * @param results Results of the workout
+   */
+  const finishWorkout = (save: boolean, results: WorkoutResults) => {
+    if (modalPeak) setModalPeak(false)
+    if (modalEndurance) setModalPeak(false)
 
-  const createDevice = (type: string) => {
-    switch (type) {
-      case "climbro":
-        return new Climbro()
-      case "entralpi":
-        return new Entralpi()
-      case "forceboard":
-        return new ForceBoard()
-      case "kilterboard":
-        return new KilterBoard()
-      case "motherboard":
-        return new Motherboard()
-      case "smartboard":
-        return new mySmartBoard()
-      case "progressor":
-        return new Progressor()
-      case "smartboardpro":
-        return new SmartBoardPro()
-      case "whc06":
-        return new WHC06()
-      default:
-        return null
-    }
-  }
-
-  const requestBluetoothPermission = async () => {
-    if (Platform.OS === "ios") {
-      return true
-    }
-    if (Platform.OS === "android" && PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION) {
-      const apiLevel = parseInt(Platform.Version.toString(), 10)
-
-      if (apiLevel < 31) {
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
-        return granted === PermissionsAndroid.RESULTS.GRANTED
-      }
-      if (PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN && PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT) {
-        const result = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        ])
-
-        return (
-          result["android.permission.BLUETOOTH_CONNECT"] === PermissionsAndroid.RESULTS.GRANTED &&
-          result["android.permission.BLUETOOTH_SCAN"] === PermissionsAndroid.RESULTS.GRANTED &&
-          result["android.permission.ACCESS_FINE_LOCATION"] === PermissionsAndroid.RESULTS.GRANTED
-        )
-      }
-    }
-    return false
-  }
-
-  const handleDeviceSelect = async (value: string) => {
-    const permissionsGranted = await requestBluetoothPermission()
-    setHasPermissions(permissionsGranted)
-
-    if (!permissionsGranted) {
-      console.error("Bluetooth permissions not granted")
+    if (!save) {
       return
     }
-
-    setSelectedDevice(value)
-    if (value) {
-      const newDevice = createDevice(value)
-      setDevice(newDevice)
-    } else {
-      setDevice(null)
+    if (results.left === 0 && results.right === 0 && results.both === 0) {
+      window.alert("No results to save")
     }
-  }
 
-  const handleConnect = async () => {
-    if (!device) return
-
-    try {
-      await device.connect(
-        async () => {
-          console.log("Connected to device")
-          device.notify((data: massObject) => {
-            console.log(data)
-          })
-
-          if ("battery" in device) {
-            console.log("Fetching battery level")
-            const batteryLevel = await device.battery()
-            if (batteryLevel) {
-              console.log("Battery Level:", batteryLevel)
-            }
-          }
-
-          if ("firmware" in device) {
-            console.log("Fetching firmware revision")
-            const firmwareRevision = await device.firmware()
-            if (firmwareRevision) {
-              console.log("Firmware Revision:", firmwareRevision)
-            }
-          }
-
-          if ("stream" in device) {
-            await device.stream()
-          }
-          setIsConnected(true)
-        },
-        (error: Error) => {
-          console.log(error)
-        },
-      )
-    } catch (error) {
-      console.error("Error connecting to device:", error)
+    const time = new Date()
+    results.time = time.toISOString()
+    if (settings.activeHold) {
+      results.hold = settings.activeHold
     }
-  }
-
-  const handleDisconnect = async () => {
-    if (!device) return
-
-    try {
-      await device.disconnect()
-      setIsConnected(false)
-    } catch (error) {
-      console.error("Error disconnecting from device:", error)
-    }
+    saveWorkout(results)
   }
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={<ThemedText style={styles.headerText}>Hangtime Grip Connect</ThemedText>}
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Bluetooth LE Demo</ThemedText>
-        <ThemedText>Select a device to connect:</ThemedText>
-        <Picker selectedValue={selectedDevice} onValueChange={handleDeviceSelect} style={styles.picker}>
-          <Picker.Item label="Select device" value="" />
-          {devices.map((device) => (
-            <Picker.Item key={device.value} label={device.label} value={device.value} enabled={!device.disabled} />
-          ))}
-        </Picker>
-
-        {hasPermissions === false && (
-          <ThemedText style={styles.errorText}>Bluetooth permissions are required to connect to devices.</ThemedText>
+    <>
+      <View style={styles.container}>
+        <View style={styles.container}>
+          <Text style={styles.header}>Choose Your Mode</Text>
+          <View style={styles.iconRow}>
+            <Pressable style={styles.iconButton} onPress={() => setModalPeak(true)}>
+              <MaterialCommunityIcons name="chart-line" size={40} color="white" />
+              <Text style={styles.iconText}>Peak Load</Text>
+            </Pressable>
+            <Pressable style={styles.iconButton} onPress={() => setModalEndurance(true)}>
+              <MaterialCommunityIcons name="weight-lifter" size={40} color="white" />
+              <Text style={styles.iconText}>Endurance</Text>
+            </Pressable>
+            <Pressable style={styles.iconButton} onPress={() => setModalHangTimer(true)}>
+              <MaterialCommunityIcons name="timer-outline" size={40} color="white" />
+              <Text style={styles.iconText}>Hang Timer</Text>
+            </Pressable>
+          </View>
+        </View>
+        {settings.activeHold ? (
+          <>
+            <Text style={styles.header}>Current hold: </Text>
+            <View style={styles.holdCard}>
+              <Text style={styles.cardText}> {settings.activeHold.name} </Text>
+              <Text style={styles.cardText}>
+                <MaterialCommunityIcons name="ruler" size={30} color="white" /> {settings.activeHold.depth} mm
+              </Text>
+            </View>
+          </>
+        ) : (
+          <Text style={styles.header}>No hold selected, configure hold in settings menu</Text>
         )}
+        <Modal
+          visible={modalPeak}
+          animationType="fade"
+          onRequestClose={() => {
+            setModalPeak(!modalPeak)
+          }}
+        >
+          <Max finishWorkout={finishWorkout} />
+        </Modal>
+        <Modal
+          visible={modalEndurance}
+          animationType="fade"
+          onRequestClose={() => {
+            setModalEndurance(!modalEndurance)
+          }}
+        >
+          <Endurance finishWorkout={finishWorkout} />
+        </Modal>
 
-        {device && (
-          <ThemedView style={styles.deviceContainer}>
-            <ThemedText type="defaultSemiBold">{device.constructor.name}</ThemedText>
-            <ThemedView style={styles.buttonGroup}>
-              <TouchableOpacity
-                style={[styles.button, isConnected && styles.buttonDisabled]}
-                onPress={handleConnect}
-                disabled={isConnected}
-              >
-                <ThemedText style={styles.buttonText}>Connect</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, !isConnected && styles.buttonDisabled]}
-                onPress={handleDisconnect}
-                disabled={!isConnected}
-              >
-                <ThemedText style={styles.buttonText}>Disconnect</ThemedText>
-              </TouchableOpacity>
-            </ThemedView>
-          </ThemedView>
-        )}
-      </ThemedView>
-
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>{`Tap the Explore tab to learn more about what's included in this starter app.`}</ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Modal
+          visible={modalHangTimer}
+          animationType="fade"
+          onRequestClose={() => {
+            setModalHangTimer(!modalHangTimer)
+          }}
+        >
+          <Text>Hang Timer</Text>
+        </Modal>
+      </View>
+    </>
   )
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
+  container: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    backgroundColor: Colors.dark.background,
+    padding: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    fontSize: 28,
+    color: "white",
+    fontWeight: "bold",
+    marginBottom: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  holdCard: {
+    width: "90%",
+    padding: 20,
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: Colors.dark.connected,
+    alignItems: "center",
   },
-  picker: {
-    width: "100%",
-    maxWidth: 300,
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  deviceContainer: {
-    marginTop: 16,
-    gap: 8,
-  },
-  buttonGroup: {
+  iconRow: {
     flexDirection: "row",
-    gap: 8,
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  iconButton: {
+    flex: 1,
+    alignItems: "center",
+    marginHorizontal: 5,
+    backgroundColor: Colors.dark.connected,
+    borderRadius: 10,
+    paddingVertical: 20,
+  },
+  iconText: {
+    marginTop: 10,
+    color: "white",
+    fontSize: 14,
+  },
+  cardText: {
+    fontSize: 20,
+    color: "white",
+  },
+  image: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  chosen: {
+    color: Colors.dark.connected,
+    backgroundColor: Colors.dark.card,
+  },
+  buttons: {
+    flexDirection: "column",
+    justifyContent: "center",
   },
   button: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#73B5F6",
-    borderRadius: 3,
+    marginHorizontal: 3,
+    justifyContent: "center",
+    borderRadius: 10,
     alignItems: "center",
+    backgroundColor: "#008000",
+    padding: 20,
   },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
+  resetButton: {
+    flex: 1,
+    marginHorizontal: 3,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: Colors.dark.resetButton,
   },
-  buttonText: {
-    color: "#fff",
+  nextButton: {
+    flex: 1,
+    marginHorizontal: 3,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    backgroundColor: Colors.dark.connected,
+    padding: 20,
   },
-  errorText: {
-    color: "#ff0000",
-    marginTop: 8,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginTop: 20,
+  current: {
+    fontSize: 40,
+    color: Colors.dark.connected,
   },
 })

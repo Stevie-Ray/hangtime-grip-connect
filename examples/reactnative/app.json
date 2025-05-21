@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "nl.stevie-ray.hangtime-grip-connect"
+      "bundleIdentifier": "nl.stevie.ray.hangtime.grip.connect"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "nl.stevie-ray.hangtime-grip-connect"
+      "package": "nl.stevie.ray.hangtime.grip.connect"
     },
     "web": {
       "bundler": "metro",
@@ -31,7 +31,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "react-native-ble-plx",
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to bluetooth devices"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

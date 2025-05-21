@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.reactnative'
+    namespace 'nl.stevie.ray.hangtime.grip.connect'
     defaultConfig {
-        applicationId 'com.anonymous.reactnative'
+        applicationId 'nl.stevie.ray.hangtime.grip.connect'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

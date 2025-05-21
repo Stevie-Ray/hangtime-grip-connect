@@ -7,7 +7,7 @@ A React Native implementation for `@hangtime/grip-connect` using `react-native-b
 The packages are available on [NPM](https://www.npmjs.com/package/@hangtime/grip-connect-react-native).
 
 ```sh [npm]
-$ npm install @hangtime/grip-connect-react-native
+$ npm install @hangtime/grip-connect-react-native @dr.pogodin/react-native-fs
 ```
 
 ## Requirements

@@ -1,5 +1,4 @@
 import { BleManager, Device } from "react-native-ble-plx"
-import { DocumentDirectoryPath, writeFile } from "@dr.pogodin/react-native-fs"
 import { WHC06 as WHC06Base } from "@hangtime/grip-connect"
 import { Buffer } from "buffer"
 
@@ -104,32 +103,7 @@ export class WHC06 extends WHC06Base {
     }
   }
 
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
-    let content = ""
-
-    if (format === "csv") {
-      content = this.downloadToCSV()
-    } else if (format === "json") {
-      content = this.downloadToJSON()
-    } else if (format === "xml") {
-      content = this.downloadToXML()
-    }
-
-    const now = new Date()
-    // YYYY-MM-DD
-    const date = now.toISOString().split("T")[0]
-    // HH-MM-SS
-    const time = now.toTimeString().split(" ")[0].replace(/:/g, "-")
-
-    const fileName = `data-export-${date}-${time}.${format}`
-    const filePath = `${DocumentDirectoryPath}/${fileName}`
-
-    try {
-      await writeFile(filePath, content, "utf8")
-      console.log(`File saved as ${fileName} in Documents directory`)
-    } catch (error) {
-      console.error("Error saving file:", error)
-      throw error
-    }
+  override download = async (): Promise<void> => {
+    throw new Error("Download is not supported on React Native")
   }
 }
