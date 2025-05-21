@@ -53,7 +53,7 @@ $ npm install @hangtime/grip-connect
 $ npm install @hangtime/grip-connect-capacitor
 
 # For React Native mobile apps
-$ npm install @hangtime/grip-connect-react-native @dr.pogodin/react-native-fs
+$ npm install @hangtime/grip-connect-react-native
 
 # For Node.js, Bun, Deno CLI tools
 $ npm install @hangtime/grip-connect-cli
@@ -178,6 +178,8 @@ A special thank you to:
   [simulator](https://github.com/1-max-1/fake_kilter_board) that I coverted to
   [hangtime-arduino-kilterboard](https://github.com/Stevie-Ray/hangtime-arduino-kilterboard).
 - [@sebws](https://github.com/sebws) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
+- [@olrut](https://github.com/olrut) for the React Native / Expo [CraneGrip](https://github.com/olrut/CraneGrip) example
+  App.
 
 ## Disclaimer
 

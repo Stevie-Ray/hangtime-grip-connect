@@ -15,7 +15,6 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@dr.pogodin/react-native-fs": "^2.33.1",
     "@hangtime/grip-connect": "^0.8.2",
     "react-native-ble-plx": "^3.5.0"
   },
