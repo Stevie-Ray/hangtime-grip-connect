@@ -19,7 +19,7 @@
     "@capacitor/core": "^7.2.0",
     "@capacitor/ios": "^7.2.0",
     "@capacitor/splash-screen": "^7.0.1",
-    "@hangtime/grip-connect-capacitor": "^0.8.2"
+    "@hangtime/grip-connect-capacitor": "^0.8.3"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.2.0",

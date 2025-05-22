@@ -222,6 +222,9 @@ window.customElements.define(
                 <p>Max: <span id="mass-max">0</span></p>
                 <p>Average: <span id="mass-average">0</span></p>
               </div>
+              <div class="button-group" style="margin-top: 12px;">
+                <button class="button" id="download">Download</button>
+              </div>
             </div>`
 
           // Add event listeners for connect/disconnect buttons
@@ -250,6 +253,17 @@ window.customElements.define(
                       }
                     });
                   });
+
+                  const downloadButton = deviceElement.querySelector('#download');
+                  if (downloadButton) {
+                    downloadButton.addEventListener('click', async () => {
+                      try {
+                        await device.download();
+                      } catch (error) {
+                        console.error('Error downloading data:', error);
+                      }
+                    });
+                  }
 
                   if ("battery" in device) {
                     const batteryLevel = await device.battery()

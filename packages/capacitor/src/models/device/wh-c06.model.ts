@@ -110,7 +110,7 @@ export class WHC06 extends WHC06Base {
     try {
       await Filesystem.writeFile({
         path: fileName,
-        data: content,
+        data: btoa(content),
         directory: Directory.Documents,
         recursive: true,
       })

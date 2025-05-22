@@ -61,7 +61,7 @@ export class Progressor extends ProgressorBase {
     try {
       await Filesystem.writeFile({
         path: fileName,
-        data: content,
+        data: btoa(content),
         directory: Directory.Documents,
         recursive: true,
       })

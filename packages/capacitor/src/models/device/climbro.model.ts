@@ -62,7 +62,7 @@ export class Climbro extends ClimbroBase {
     try {
       await Filesystem.writeFile({
         path: fileName,
-        data: content,
+        data: btoa(content),
         directory: Directory.Documents,
         recursive: true,
       })
