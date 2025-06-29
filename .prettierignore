@@ -1,3 +1,6 @@
 *.d.ts
 *.js
 build/
+cache/
+android/
+ios/
