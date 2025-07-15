@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-cli",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "CLI tool for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
@@ -15,7 +15,7 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.8.3",
+    "@hangtime/grip-connect": "^0.8.4",
     "webbluetooth": "^3.3.2"
   },
   "devDependencies": {

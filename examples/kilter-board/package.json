@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.8.3"
+    "@hangtime/grip-connect": "^0.8.4"
   },
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.8",
     "typescript": "^5.8.3",
-    "vite": "^7.0.0"
+    "vite": "^7.0.2"
   },
   "workspaces": [
     "examples"

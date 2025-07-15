@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
-    "@hangtime/grip-connect-react-native": "^0.8.3",
+    "@hangtime/grip-connect-react-native": "^0.8.4",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-picker/picker": "^2.11.1",
     "@react-navigation/bottom-tabs": "^7.4.2",
@@ -28,7 +28,7 @@
     "expo-image": "~2.3.0",
     "expo-linking": "~7.1.5",
     "expo-router": "~5.1.1",
-    "expo-splash-screen": "^0.30.9",
+    "expo-splash-screen": "^0.30.10",
     "expo-status-bar": "~2.2.3",
     "expo-symbols": "^0.4.5",
     "expo-system-ui": "~5.0.9",
@@ -47,10 +47,10 @@
     "react-native-webview": "13.13.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.7",
+    "@babel/core": "^7.28.0",
     "@react-native-community/cli": "^18.0.0",
     "@types/react": "~19.0.10",
-    "eslint": "^9.30.0",
+    "eslint": "^9.30.1",
     "eslint-config-expo": "~9.2.0",
     "typescript": "~5.8.3"
   },
