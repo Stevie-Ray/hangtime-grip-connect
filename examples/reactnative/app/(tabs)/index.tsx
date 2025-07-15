@@ -1,4 +1,4 @@
-import { Pressable, Modal, StyleSheet, Text, View } from "react-native"
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native"
 import { useState } from "react"
 
 import Max from "@/components/Max"
@@ -61,9 +61,9 @@ export default function HomeScreen() {
         </View>
         {settings.activeHold ? (
           <>
-            <Text style={styles.header}>Current hold: </Text>
+            <Text style={styles.header}>Current hold:</Text>
             <View style={styles.holdCard}>
-              <Text style={styles.cardText}> {settings.activeHold.name} </Text>
+              <Text style={styles.cardText}>{settings.activeHold.name}</Text>
               <Text style={styles.cardText}>
                 <MaterialCommunityIcons name="ruler" size={30} color="white" /> {settings.activeHold.depth} mm
               </Text>

@@ -1,5 +1,5 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
-import { Filesystem, Directory } from "@capacitor/filesystem"
+import { Directory, Filesystem } from "@capacitor/filesystem"
 import { Motherboard as MotherboardBase } from "@hangtime/grip-connect"
 import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 

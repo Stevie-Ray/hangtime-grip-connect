@@ -1,5 +1,5 @@
 import React from "react"
-import { Modal, View, Text, Button, StyleSheet } from "react-native"
+import { Button, Modal, StyleSheet, Text, View } from "react-native"
 import { Colors } from "@/constants/Colors"
 
 const ConfirmDialog = ({ message, onConfirm, onCancel }) => {

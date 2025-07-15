@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react"
-import { Modal, View, Text, TouchableOpacity, StyleSheet, FlatList, Animated, Easing } from "react-native"
+import React, { useRef, useState } from "react"
+import { Animated, Easing, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Colors } from "../constants/Colors"
 
 interface CustomPickerProps {

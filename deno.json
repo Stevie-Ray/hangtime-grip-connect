@@ -14,7 +14,8 @@
     "lineWidth": 120,
     "indentWidth": 2,
     "semiColons": false,
-    "singleQuote": false
+    "singleQuote": false,
+    "exclude": ["**/android/**", "**/ios/**"]
   },
   "compilerOptions": {
     "lib": ["deno.window", "dom"]

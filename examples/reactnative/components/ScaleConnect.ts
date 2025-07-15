@@ -1,13 +1,13 @@
 import { BleManager } from "react-native-ble-plx"
 import BluetoothPermissions from "@/components/bluetoothPermissions"
 import {
-  WHC06,
   Climbro,
   Entralpi,
   ForceBoard,
   Motherboard,
   mySmartBoard,
   Progressor,
+  WHC06,
 } from "@hangtime/grip-connect-react-native"
 import { Platform } from "react-native"
 import { DeviceType } from "@/components/DevicePicker"

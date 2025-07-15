@@ -42,4 +42,4 @@ const handleUrl = async (url) => {
     window.alert(`Don't know how to open this URL: ${url}`)
   }
 }
-export { base64ToHex, parseWeightData, handleUrl }
+export { base64ToHex, handleUrl, parseWeightData }

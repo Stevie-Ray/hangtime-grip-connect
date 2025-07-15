@@ -235,34 +235,34 @@ window.customElements.define(
             try {
               await device.connect(
                 async () => {
-                  if (!deviceElement.querySelector('#mass-data')) {
-                    deviceElement.insertAdjacentHTML('beforeend', massDataHTML);
+                  if (!deviceElement.querySelector("#mass-data")) {
+                    deviceElement.insertAdjacentHTML("beforeend", massDataHTML)
                   }
                   device.notify((data) => {
                     const massData = {
                       "mass-total": data.massTotal || "0",
                       "mass-max": data.massMax || "0",
                       "mass-average": data.massAverage || "0",
-                    };
+                    }
                     Object.entries(massData).forEach(([id, value]) => {
-                      const element = deviceElement.querySelector(`#${id}`);
+                      const element = deviceElement.querySelector(`#${id}`)
                       if (element) {
-                        element.textContent = value;
+                        element.textContent = value
                       } else {
-                        console.error('Element not found for id:', id);
+                        console.error("Element not found for id:", id)
                       }
-                    });
-                  });
+                    })
+                  })
 
-                  const downloadButton = deviceElement.querySelector('#download');
+                  const downloadButton = deviceElement.querySelector("#download")
                   if (downloadButton) {
-                    downloadButton.addEventListener('click', async () => {
+                    downloadButton.addEventListener("click", async () => {
                       try {
-                        await device.download();
+                        await device.download()
                       } catch (error) {
-                        console.error('Error downloading data:', error);
+                        console.error("Error downloading data:", error)
                       }
-                    });
+                    })
                   }
 
                   if ("battery" in device) {
@@ -298,8 +298,8 @@ window.customElements.define(
           disconnectButton.addEventListener("click", async () => {
             try {
               await device.disconnect()
-              const massDataDiv = deviceElement.querySelector('#mass-data');
-              if (massDataDiv) massDataDiv.remove();
+              const massDataDiv = deviceElement.querySelector("#mass-data")
+              if (massDataDiv) massDataDiv.remove()
               connectButton.disabled = false
               disconnectButton.disabled = true
             } catch (error) {

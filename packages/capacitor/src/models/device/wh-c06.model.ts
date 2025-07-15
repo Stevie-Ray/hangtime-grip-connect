@@ -1,5 +1,5 @@
 import { BleClient, type BleDevice } from "@capacitor-community/bluetooth-le"
-import { Filesystem, Directory } from "@capacitor/filesystem"
+import { Directory, Filesystem } from "@capacitor/filesystem"
 import { WHC06 as WHC06Base } from "@hangtime/grip-connect"
 
 /**
