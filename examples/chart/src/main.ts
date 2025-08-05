@@ -1,6 +1,6 @@
 import "./style.css"
-import { setupFontAwesome } from "./icons"
-import { setupChart, setupDevice } from "./devices"
+import { setupFontAwesome } from "./icons.js"
+import { setupChart, setupDevice } from "./devices.js"
 
 const appElement = document.querySelector<HTMLDivElement>("#app")
 if (appElement) {

@@ -1,5 +1,5 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
-import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
+import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 
 let mass: number
 let weight = 5

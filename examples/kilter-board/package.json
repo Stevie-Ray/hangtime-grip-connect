@@ -13,8 +13,8 @@
   },
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.8",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.4"
+    "typescript": "^5.9.2",
+    "vite": "^7.0.6"
   },
   "workspaces": [
     "examples"

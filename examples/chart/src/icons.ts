@@ -1,9 +1,9 @@
 import { dom, library } from "@fortawesome/fontawesome-svg-core"
 import { faAndroid, faApple, faBluetooth, faGithub } from "@fortawesome/free-brands-svg-icons"
-import { faCopyright } from "@fortawesome/free-regular-svg-icons"
 import {
   faBook,
   faChessBoard,
+  faCopyright,
   faDownload,
   faGamepad,
   faGlobe,

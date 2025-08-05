@@ -32,12 +32,7 @@ export class KilterBoard extends KilterBoardBase {
     console.log(`File saved as ${fileName}`)
   }
 
-  protected async getBluetooth(): Promise<Bluetooth> {
-    // If running in a browser with native Web Bluetooth support:
-    if (typeof navigator !== "undefined" && navigator.bluetooth) {
-      return navigator.bluetooth
-    }
-
+  protected override async getBluetooth(): Promise<Bluetooth> {
     // If running in Node, Bun, or Deno environment
     if (typeof process !== "undefined" && process.versions?.node) {
       return bluetooth

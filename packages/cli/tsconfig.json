@@ -3,6 +3,8 @@
   "include": ["src"],
   "references": [{ "path": "../core" }],
   "compilerOptions": {
+    "lib": ["esnext"],
+    "types": ["node", "web-bluetooth"],
     "rootDir": "src",
     "outDir": "dist",
     "composite": true,

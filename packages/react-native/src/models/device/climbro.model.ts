@@ -1,6 +1,6 @@
 import { BleManager, Device } from "react-native-ble-plx"
 import { Climbro as ClimbroBase } from "@hangtime/grip-connect"
-import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface"
+import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 import { Buffer } from "buffer"
 
 /**

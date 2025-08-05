@@ -1,7 +1,7 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
-import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface"
+import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 import { Chart } from "chart.js/auto"
-import { convertFontAwesome } from "./icons"
+import { convertFontAwesome } from "./icons.js"
 
 const connectedDevices: (Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06)[] = []
 
@@ -491,8 +491,8 @@ function addChartData(
       }
 
       // Optionally update the y-axis max value
-      if (chart.options.scales?.y) {
-        chart.options.scales.y.max = Math.ceil((chartHeight + 10) / 10) * 10
+      if (chart.options.scales?.["y"]) {
+        chart.options.scales["y"].max = Math.ceil((chartHeight + 10) / 10) * 10
       }
 
       chart.update()

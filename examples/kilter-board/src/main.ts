@@ -1,7 +1,6 @@
 import "./style.css"
-import "./device"
 
-import { setupArduino, setupDevice } from "./device"
+import { setupArduino, setupDevice } from "./device.js"
 
 const controllerElement = document.querySelector<HTMLDivElement>("#controller")
 if (controllerElement) {

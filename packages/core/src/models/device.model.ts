@@ -185,7 +185,9 @@ export abstract class Device extends BaseModel implements IDevice {
     this.filters = device.filters || []
     this.services = device.services || []
     this.commands = device.commands || {}
-    this.bluetooth = device.bluetooth
+    if (device.bluetooth !== undefined) {
+      this.bluetooth = device.bluetooth
+    }
 
     this.massMax = "0"
     this.massAverage = "0"
@@ -788,7 +790,8 @@ export abstract class Device extends BaseModel implements IDevice {
     }
     this.updateTimestamp()
     // Convert the message to Uint8Array if it's a string
-    const valueToWrite: Uint8Array = typeof message === "string" ? new TextEncoder().encode(message) : message
+    const valueToWrite =
+      typeof message === "string" ? new Uint8Array(new TextEncoder().encode(message)) : new Uint8Array(message)
     // Write the value to the characteristic
     await characteristic.writeValue(valueToWrite)
     // Update the last written message
