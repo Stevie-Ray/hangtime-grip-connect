@@ -12,6 +12,7 @@
       "import": "./dist/index.js",
       "require": "./dist/cjs/index.js"
     },
+    "./package.json": "./package.json",
     "./src/interfaces/callback.interface.js": {
       "types": "./src/interfaces/callback.interface.ts",
       "import": "./src/interfaces/callback.interface.ts"

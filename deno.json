@@ -5,6 +5,7 @@
   },
   "lint": {
     "include": ["packages/", "examples/"],
+    "exclude": ["**/android/**", "**/ios/**"],
     "rules": {
       "tags": ["recommended"],
       "exclude": ["no-sloppy-imports"]
@@ -21,5 +22,5 @@
     "lib": ["deno.window", "dom"]
   },
   "unstable": ["sloppy-imports"],
-  "nodeModulesDir": "auto"
+  "nodeModulesDir": "manual"
 }
