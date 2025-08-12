@@ -3,10 +3,28 @@
   "version": "0.8.4",
   "description": "Griptonite Motherboard, Tindeq Progressor, PitchSix Force Board, WHC-06, Entralpi, Climbro, mySmartBoard: Bluetooth API Force-Sensing strength analysis for climbers",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./src/interfaces/callback.interface.js": {
+      "types": "./src/interfaces/callback.interface.ts",
+      "import": "./src/interfaces/callback.interface.ts"
+    },
+    "./src/models/device/kilterboard.model.js": {
+      "types": "./src/models/device/kilterboard.model.ts",
+      "import": "./src/models/device/kilterboard.model.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc --build"
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.json",
+    "build": "npm run build:cjs && npm run build:esm"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "license": "BSD-2-Clause",

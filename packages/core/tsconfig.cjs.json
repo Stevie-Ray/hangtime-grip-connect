@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/cjs",
+    "target": "es2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es2019", "dom"],
+    "types": ["node", "web-bluetooth"],
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+    "moduleDetection": "auto"
+  },
+  "include": ["src"]
+}
