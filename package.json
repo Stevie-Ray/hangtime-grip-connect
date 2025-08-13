@@ -26,7 +26,7 @@
     "preview:examples:kilter-board": "npm run preview --workspace ./examples/kilter-board",
     "preview:examples:pong": "npm run preview --workspace ./examples/pong",
     "preview:examples:reactnative": "npm run preview --workspace ./examples/reactnative",
-    "build": "tsc --build --verbose --force",
+    "build": "tsc --build --verbose --force && npm run build:core",
     "build:core": "npm run build --workspace ./packages/core",
     "build:capacitor": "npm run build --workspace ./packages/capacitor",
     "build:react-native": "npm run build --workspace ./packages/react-native",

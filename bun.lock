@@ -27,7 +27,7 @@
         "@capacitor/core": "^7.4.2",
         "@capacitor/ios": "^7.4.2",
         "@capacitor/splash-screen": "^7.0.2",
-        "@hangtime/grip-connect-capacitor": "^0.8.5",
+        "@hangtime/grip-connect-capacitor": "^0.8.6",
       },
       "devDependencies": {
         "@capacitor/cli": "^7.4.2",
@@ -41,7 +41,7 @@
         "@fortawesome/fontawesome-svg-core": "^7.0.0",
         "@fortawesome/free-brands-svg-icons": "^7.0.0",
         "@fortawesome/free-solid-svg-icons": "^7.0.0",
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
         "chart.js": "^4.5.0",
       },
       "devDependencies": {
@@ -53,7 +53,7 @@
       "name": "@grip-connect/flappy-bird",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
       },
       "devDependencies": {
         "typescript": "^5.9.2",
@@ -64,7 +64,7 @@
       "name": "@grip-connect/kilter-board",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
       },
       "devDependencies": {
         "@types/w3c-web-serial": "^1.0.8",
@@ -76,7 +76,7 @@
       "name": "@grip-connect/pong",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
       },
       "devDependencies": {
         "typescript": "^5.9.2",
@@ -88,7 +88,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@expo/vector-icons": "^14.1.0",
-        "@hangtime/grip-connect-react-native": "^0.8.5",
+        "@hangtime/grip-connect-react-native": "^0.8.6",
         "@react-native-async-storage/async-storage": "~2.1.2",
         "@react-native-picker/picker": "^2.11.1",
         "@react-navigation/bottom-tabs": "^7.4.6",
@@ -134,16 +134,16 @@
       "name": "@grip-connect/runtime",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect-cli": "^0.8.5",
+        "@hangtime/grip-connect-cli": "^0.8.6",
       },
     },
     "packages/capacitor": {
       "name": "@hangtime/grip-connect-capacitor",
-      "version": "0.8.5",
+      "version": "0.8.6",
       "dependencies": {
         "@capacitor-community/bluetooth-le": "^7.1.1",
         "@capacitor/filesystem": "^7.1.4",
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
       },
       "devDependencies": {
         "typescript": "^5.9.2",
@@ -151,9 +151,9 @@
     },
     "packages/cli": {
       "name": "@hangtime/grip-connect-cli",
-      "version": "0.8.5",
+      "version": "0.8.6",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
         "webbluetooth": "^3.3.2",
       },
       "devDependencies": {
@@ -162,7 +162,7 @@
     },
     "packages/core": {
       "name": "@hangtime/grip-connect",
-      "version": "0.8.5",
+      "version": "0.8.6",
     },
     "packages/docs": {
       "name": "@hangtime/grip-connect-docs",
@@ -172,9 +172,9 @@
     },
     "packages/react-native": {
       "name": "@hangtime/grip-connect-react-native",
-      "version": "0.8.5",
+      "version": "0.8.6",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.8.5",
+        "@hangtime/grip-connect": "^0.8.6",
         "react-native-ble-plx": "^3.5.0",
       },
       "devDependencies": {
