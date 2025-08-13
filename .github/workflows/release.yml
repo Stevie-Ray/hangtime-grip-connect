@@ -32,7 +32,12 @@ jobs:
 
       - name: Publish Core NPM package
         working-directory: ./packages/core
-        run: npm publish --access public
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Error: dist directory not found in packages/core"
+            exit 1
+          fi
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
