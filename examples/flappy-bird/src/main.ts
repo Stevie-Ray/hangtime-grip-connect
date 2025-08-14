@@ -10,7 +10,7 @@ if (controllerElement) {
         <label for="deviceSelect">&nbsp;</label>
         <select id="deviceSelect">
           <option value="">Select device</option>
-          <option value="climbro" disabled>Climbro</option>
+          <option value="climbro">Climbro</option>
           <option value="entralpi">Entralpi</option>
           <option value="forceboard">Force Board</option>
           <option value="motherboard">Motherboard</option>

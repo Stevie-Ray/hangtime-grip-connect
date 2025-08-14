@@ -5,7 +5,6 @@ import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callba
 
 /**
  * Represents a Climbro device.
- * TODO: Add services, do you own a Climbro? Help us!
  * {@link https://climbro.com/}
  */
 export class Climbro extends ClimbroBase {

@@ -135,8 +135,8 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
+- ⌛️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ➡️ [Forma - DUE](https://stevie-ray.github.io/hangtime-grip-connect/devices/due.html)
-- ➡️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
 - ➡️
   [Smartboard Climbing - SmartBoard Pro](https://stevie-ray.github.io/hangtime-grip-connect/devices/smartboard-pro.html)

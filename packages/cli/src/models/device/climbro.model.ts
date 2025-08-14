@@ -5,7 +5,6 @@ import { bluetooth } from "webbluetooth"
 
 /**
  * Represents a Climbro device.
- * TODO: Add services, do you own a Climbro? Help us!
  * {@link https://climbro.com/}
  */
 export class Climbro extends ClimbroBase {
