@@ -60,7 +60,7 @@ export class Climbro extends Device implements IClimbro {
               name: "Read/Notify",
               id: "rx",
               uuid: "49535343-1e4d-4bd9-ba61-23c647249616",
-            }
+            },
           ],
         },
       ],
