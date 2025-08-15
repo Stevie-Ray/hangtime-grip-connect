@@ -49,7 +49,7 @@ export class Climbro extends Device implements IClimbro {
 
   constructor() {
     super({
-      filters: [{ namePrefix: "CLIMBRO" }],
+      filters: [{ namePrefix: "Climbro" }],
       services: [
         {
           name: "UART Transparent Service",
