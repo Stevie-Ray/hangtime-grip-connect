@@ -116,7 +116,6 @@ export class Climbro extends Device implements IClimbro {
           // Process battery level signal
           if (this.flagSynchro === ClimbroResponses.BAT_DAT) {
             this.batteryLevel = Climbro.batLevelCoef * (signalValue - Climbro.minBatteryDisc)
-            this.flagSynchro = 0
             continue
           }
 
@@ -155,7 +154,6 @@ export class Climbro extends Device implements IClimbro {
               massTotal: Math.max(-1000, numericData).toFixed(1),
             })
 
-            this.flagSynchro = 0
             continue
           }
         }
