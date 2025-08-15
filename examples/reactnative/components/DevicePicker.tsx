@@ -23,7 +23,7 @@ export default function DevicePicker({ selectedDevice, onDeviceChange }: DeviceP
           dropdownIconColor={Colors.dark.connected}
         >
           <Picker.Item label="Select device" value="" />
-          <Picker.Item label="Climbro" value="climbro" enabled={false} />
+          <Picker.Item label="Climbro" value="climbro" />
           <Picker.Item label="Entralpi" value="entralpi" />
           <Picker.Item label="Force Board" value="forceboard" />
           <Picker.Item label="Motherboard" value="motherboard" />

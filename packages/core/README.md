@@ -135,7 +135,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
-- ⌛️ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
+- ✅ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ➡️ [Forma - DUE](https://stevie-ray.github.io/hangtime-grip-connect/devices/due.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
 - ➡️
@@ -165,21 +165,23 @@ npm install
 A special thank you to:
 
 - [@CassimLadha](https://github.com/CassimLadha) for sharing insights on reading the Motherboards data.
-- [@donaldharvey](https://github.com/donaldharvey) for a valuable example on connecting to the Motherboard.
+- [@donaldharvey](https://github.com/donaldharvey) for a valuable example of connecting to the Motherboard.
 - [@ecstrema](https://github.com/ecstrema) for providing [examples](https://github.com/ecstrema/entralpi-games) on how
   to play games with the Entralpi.
 - [Tindeq](https://tindeq.com/) for providing an open [Progressor API](https://tindeq.com/progressor_api/).
 - [PitchSix](https://pitchsix.com/) for the [Force Board Portable Public API](https://pitchsix.com/pages/downloads).
 - [@StuartLittlefair](https://github.com/StuartLittlefair) for his
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
-- [@Phil9l](https://github.com/phil9l) for his research and providing a [blog](https://bazun.me/blog/kiterboard/) on how
-  to connect with the Kilter Board.
+- [@Phil9l](https://github.com/phil9l) for his research and providing a [blog post](https://bazun.me/blog/kiterboard/)
+  on how to connect with the Kilter Board.
 - [@1-max-1](https://github.com/1-max-1) for the docs on his Kilter Board
-  [simulator](https://github.com/1-max-1/fake_kilter_board) that I coverted to
+  [simulator](https://github.com/1-max-1/fake_kilter_board) that I converted to
   [hangtime-arduino-kilterboard](https://github.com/Stevie-Ray/hangtime-arduino-kilterboard).
 - [@sebws](https://github.com/sebws) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.
 - [@olrut](https://github.com/olrut) for the React Native / Expo [CraneGrip](https://github.com/olrut/CraneGrip) example
   App.
+- [@ninopelov](https://github.com/ninopelov) and the Climbro Team for testing and providing insights into their
+  protocol.
 
 ## Disclaimer
 

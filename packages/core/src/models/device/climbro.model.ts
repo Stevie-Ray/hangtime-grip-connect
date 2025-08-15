@@ -128,7 +128,7 @@ export class Climbro extends Device implements IClimbro {
             // Add data to downloadable array
             this.downloadPackets.push({
               received: receivedTime,
-              sampleNum: Math.floor(receivedTime / 1000), // Convert to seconds
+              sampleNum: this.dataPointCount,
               battRaw: this.batteryLevel,
               samples: [forceValue],
               masses: [numericData],
