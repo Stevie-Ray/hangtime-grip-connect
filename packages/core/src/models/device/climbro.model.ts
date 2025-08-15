@@ -49,7 +49,7 @@ export class Climbro extends Device implements IClimbro {
 
   constructor() {
     super({
-      filters: [{ name: "CLIMBRO" }],
+      filters: [{ namePrefix: "CLIMBRO" }],
       services: [
         {
           name: "UART Transparent Service",
@@ -59,12 +59,12 @@ export class Climbro extends Device implements IClimbro {
             {
               name: "Read/Notify",
               id: "rx",
-              uuid: "49535343-8841-43f4-a8d4-ecbe34729bb3",
+              uuid: "49535343-1e4d-4bd9-ba61-23c647249616",
             },
             {
               name: "Write",
               id: "tx",
-              uuid: "49535343-1e4d-4bd9-ba61-23c647249616",
+              uuid: "49535343-8841-43f4-a8d4-scbe34729bb3",
             },
           ],
         },
