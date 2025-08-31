@@ -27,8 +27,9 @@
     "preview:examples:pong": "npm run preview --workspace ./examples/pong",
     "preview:examples:reactnative": "npm run preview --workspace ./examples/reactnative",
     "build": "tsc --build --verbose --force && npm run build:core",
-    "build:core": "npm run build --workspace ./packages/core",
     "build:capacitor": "npm run build --workspace ./packages/capacitor",
+    "build:cli": "npm run build --workspace ./packages/cli",
+    "build:core": "npm run build --workspace ./packages/core",
     "build:react-native": "npm run build --workspace ./packages/react-native",
     "build:docs": "npm run docs:build --workspace ./packages/docs",
     "build:examples:capacitor": "npm run build && npm run build --workspace ./examples/capacitor",
@@ -48,13 +49,13 @@
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.19.11",
     "@types/web-bluetooth": "^0.0.21",
-    "eslint": "^9.33.0",
+    "eslint": "^9.34.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
     "jiti": "^2.5.1",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.39.1"
+    "typescript-eslint": "^8.41.0"
   }
 }
