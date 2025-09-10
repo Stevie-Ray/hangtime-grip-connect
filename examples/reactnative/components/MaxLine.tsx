@@ -57,7 +57,7 @@ const WeightChart = ({ weight, maxWeight }: { weight: number; maxWeight: number 
           strokeWidth: 0,
         },
       }}
-      withHorizontalLabels={true}
+      withHorizontalLabels
       withVerticalLabels={false}
       withInnerLines={false}
       withOuterLines={false}

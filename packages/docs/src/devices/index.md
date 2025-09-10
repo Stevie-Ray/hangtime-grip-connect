@@ -191,6 +191,7 @@ All devices have the following functions:
 
 - [Climbro](/devices/climbro)
 - [DUE](/devices/due)
+- [Dyno](/devices/dyno)
 - [Entralpi](/devices/entralpi)
 - [ForceBoard](/devices/forceboard)
 - [Kilter Board](/devices/kilterboard)

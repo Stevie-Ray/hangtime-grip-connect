@@ -129,7 +129,7 @@ export default function Settings() {
       </ScrollView>
       {confirmClear && (
         <ConfirmDialog
-          message={"Are you sure you want to clear workout history?"}
+          message="Are you sure you want to clear workout history?"
           onConfirm={clearHistory}
           onCancel={cancelClear}
         ></ConfirmDialog>

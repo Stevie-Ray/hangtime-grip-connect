@@ -28,7 +28,7 @@ export default function HomeScreen() {
       return
     }
     if (results.left === 0 && results.right === 0 && results.both === 0) {
-      window.alert("No results to save")
+      globalThis.alert("No results to save")
     }
 
     const time = new Date()

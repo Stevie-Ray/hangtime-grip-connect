@@ -32,7 +32,7 @@ const HoldsModal: React.FC<HoldsModalProps> = ({ onClose, onSave }) => {
         <Text style={styles.title}>Add a New Hold</Text>
         <TextInput
           style={styles.input}
-          autoFocus={true}
+          autoFocus
           placeholder="Enter hold name"
           maxLength={20}
           value={holdName}

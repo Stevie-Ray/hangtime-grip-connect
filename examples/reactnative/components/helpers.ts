@@ -39,7 +39,7 @@ const handleUrl = async (url) => {
   if (supported) {
     await Linking.openURL(url)
   } else {
-    window.alert(`Don't know how to open this URL: ${url}`)
+    globalThis.alert(`Don't know how to open this URL: ${url}`)
   }
 }
 export { base64ToHex, handleUrl, parseWeightData }

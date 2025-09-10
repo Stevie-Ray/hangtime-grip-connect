@@ -11,7 +11,7 @@ import {
   WHC06,
 } from "@hangtime/grip-connect-capacitor"
 
-window.customElements.define(
+globalThis.customElements.define(
   "capacitor-welcome",
   class extends HTMLElement {
     constructor() {
@@ -316,7 +316,7 @@ window.customElements.define(
   },
 )
 
-window.customElements.define(
+globalThis.customElements.define(
   "capacitor-welcome-titlebar",
   class extends HTMLElement {
     constructor() {
