@@ -181,7 +181,7 @@ export class PB700BT extends Device {
         const receivedData = Math.round(rpmFloat)
         const receivedTime = Date.now()
 
-        const numericData = receivedData - this.applyTare(receivedData) * -1
+        const numericData = receivedData - this.applyTare(receivedData)
 
         // Add data to downloadable Array
         this.downloadPackets.push({

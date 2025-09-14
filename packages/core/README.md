@@ -140,7 +140,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
 - ✅ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ✅ [NSD PB-700BT](https://stevie-ray.github.io/hangtime-grip-connect/devices/pb-700bt.html)
-- ➡️ [Frez - Dyno](https://stevie-ray.github.io/hangtime-grip-connect/devices/frez.html)]
+- ➡️ [Frez - Dyno](https://stevie-ray.github.io/hangtime-grip-connect/devices/frez.html)
 - ➡️ [Forma - DUE](https://stevie-ray.github.io/hangtime-grip-connect/devices/dyno.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
 - ➡️

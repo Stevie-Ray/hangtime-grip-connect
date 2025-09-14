@@ -12,8 +12,8 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
       filters: [{ name: "SMARTBOARD" }],
       services: [
         {
-          name: "Basic Audio Announcement",
-          id: "audio",
+          name: "Weight Scale Service",
+          id: "weight",
           uuid: "00001851-0000-1000-8000-00805f9b34fb",
           characteristics: [
             {
@@ -24,13 +24,13 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
           ],
         },
         {
-          name: "Read + Notify",
-          id: "",
+          name: "Smartboard Service",
+          id: "smartboard",
           uuid: "0000403d-0000-1000-8000-00805f9b34fb",
           characteristics: [
             {
-              name: "",
-              id: "",
+              name: "SmartBoard Measurement",
+              id: "rx",
               uuid: "00001583-0000-1000-8000-00805f9b34fb",
             },
           ],
@@ -49,5 +49,73 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
         },
       ],
     })
+  }
+
+  /**
+   * Handles data received from the device, processes weight measurements,
+   * and updates mass data including maximum and average values.
+   * It also handles command responses for retrieving device information.
+   *
+   * @param {DataView} value - The notification event.
+   */
+  override handleNotifications = (value: DataView): void => {
+    if (value) {
+      // Update timestamp
+      this.updateTimestamp()
+      if (value.buffer) {
+        const length = value.byteLength / 2
+        const dataArray: number[] = []
+
+        for (let i = 0; i < length; i++) {
+          const offset = i * 2
+          if (offset + 1 < value.byteLength) {
+            const intValue = value.getInt16(offset, true)
+            dataArray.push(intValue)
+          }
+        }
+
+        if (dataArray.length === 0) return
+
+        const receivedTime = Date.now()
+
+        // Process each data point
+        for (const receivedData of dataArray) {
+          // Skip invalid values
+          if (!Number.isFinite(receivedData)) continue
+
+          const numericData = receivedData - this.applyTare(receivedData)
+
+          // Add data to downloadable Array
+          this.downloadPackets.push({
+            received: receivedTime,
+            sampleNum: this.dataPointCount,
+            battRaw: 0,
+            samples: [numericData],
+            masses: [numericData],
+          })
+
+          // Update massMax
+          this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
+
+          // Update running sum and count
+          const currentMassTotal = Math.max(-1000, numericData)
+          this.massTotalSum += currentMassTotal
+          this.dataPointCount++
+
+          // Calculate the average dynamically
+          this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+
+          // Check if device is being used
+          this.activityCheck(numericData)
+
+          // Notify with weight data
+          this.notifyCallback({
+            massMax: this.massMax,
+            massAverage: this.massAverage,
+            massTotal: Math.max(-1000, numericData).toFixed(1),
+          })
+        }
+      }
+    }
   }
 }
