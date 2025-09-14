@@ -197,6 +197,7 @@ All devices have the following functions:
 - [Kilter Board](/devices/kilterboard)
 - [MotherBoard](/devices/motherboard)
 - [mySmartBoard](/devices/mysmartboard)
+- [PB-700BT](/devices/pb-700bt)
 - [Progressor](/devices/progressor)
 - [SmartBoard Pro](/devices/smartboard-pro)
 - [WH-C06](/devices/wh-c06)

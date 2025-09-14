@@ -44,6 +44,7 @@ export default defineConfig({
           { text: "Kilter Board", link: "/devices/kilterboard" },
           { text: "MotherBoard", link: "/devices/motherboard" },
           { text: "mySmartBoard", link: "/devices/mysmartboard" },
+          { text: "PB-700BT", link: "/devices/pb-700bt" },
           { text: "Progressor", link: "/devices/progressor" },
           { text: "SmartBoard Pro", link: "/devices/smartboard-pro" },
           { text: "WH-C06", link: "/devices/wh-c06" },

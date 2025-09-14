@@ -19,6 +19,8 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
 [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
 
+And gyroscopic hand exercisers, such as the [NSD PB-700BT](https://www.nsd.com.tw/).
+
 The library is available in multiple flavors to support different platforms:
 
 - **Web**: The core package for web applications using the Web Bluetooth API
@@ -137,6 +139,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
 - ✅ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
+- ✅ [NSD PB-700BT](https://stevie-ray.github.io/hangtime-grip-connect/devices/pb-700bt.html)
 - ➡️ [Frez - Dyno](https://stevie-ray.github.io/hangtime-grip-connect/devices/frez.html)]
 - ➡️ [Forma - DUE](https://stevie-ray.github.io/hangtime-grip-connect/devices/dyno.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)

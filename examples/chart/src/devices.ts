@@ -1,9 +1,27 @@
-import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
+import {
+  Climbro,
+  Entralpi,
+  ForceBoard,
+  Motherboard,
+  mySmartBoard,
+  PB700BT,
+  Progressor,
+  WHC06,
+} from "@hangtime/grip-connect"
 import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons.js"
 
-const connectedDevices: (Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06)[] = []
+const connectedDevices: (
+  | Climbro
+  | Entralpi
+  | ForceBoard
+  | Motherboard
+  | mySmartBoard
+  | PB700BT
+  | Progressor
+  | WHC06
+)[] = []
 
 let chartElement: HTMLCanvasElement | null = null
 let chart: Chart | null = null
@@ -37,6 +55,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
       <option value="forceboard">Force Board</option>
       <option value="motherboard">Motherboard</option>
       <option value="smartboard" disabled>mySmartBoard</option>
+      <option value="pb700bt">PB-700BT</option>
       <option value="progressor">Progressor</option>
       <option value="whc06">WH-C06</option>
     `
@@ -52,7 +71,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
   }
 
   function addNewDeviceControl(
-    device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06 | undefined,
+    device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | PB700BT | Progressor | WHC06 | undefined,
   ) {
     // select last input element
     const deviceControlDiv = document.querySelector(".card .input:last-of-type")
@@ -194,7 +213,8 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
    * @param {HTMLSelectElement} selectElement - The device select element.
    */
   function handleDeviceSelection(selectElement: HTMLSelectElement) {
-    let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06 | null = null
+    let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | PB700BT | Progressor | WHC06 | null =
+      null
     const selectedDevice = selectElement.value
 
     if (selectedDevice === "climbro") {
@@ -207,6 +227,8 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
       device = new Motherboard()
     } else if (selectedDevice === "smartboard") {
       device = new mySmartBoard()
+    } else if (selectedDevice === "pb700bt") {
+      device = new PB700BT()
     } else if (selectedDevice === "progressor") {
       device = new Progressor()
     } else if (selectedDevice === "whc06") {
@@ -403,13 +425,13 @@ export function setupChart(element: HTMLCanvasElement) {
 /**
  * Adds new data to the chart for a specific device.
  *
- * @param {Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06} device - The device.
+ * @param {Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | PB700BT | Progressor | WHC06} device - The device.
  * @param {string} mass - The total mass data.
  * @param {string} max - The maximum mass data.
  * @param {string} average - The average mass data.
  */
 function addChartData(
-  device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06,
+  device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | PB700BT | Progressor | WHC06,
   mass: string,
   max: string,
   average: string,
