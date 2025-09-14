@@ -70,6 +70,9 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
           const offset = i * 2
           if (offset + 1 < value.byteLength) {
             const intValue = value.getInt16(offset, true)
+            // For debugging purposes
+            console.log(intValue)
+
             dataArray.push(intValue)
           }
         }
