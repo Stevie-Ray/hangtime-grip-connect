@@ -4,7 +4,15 @@ import { StyleSheet, View } from "react-native"
 import { Colors } from "@/constants/Colors"
 import { Text } from "@/components/Themed"
 
-export type DeviceType = "climbro" | "entralpi" | "forceboard" | "motherboard" | "mysmartboard" | "progressor" | "whc06"
+export type DeviceType =
+  | "climbro"
+  | "entralpi"
+  | "forceboard"
+  | "motherboard"
+  | "mysmartboard"
+  | "pb700bt"
+  | "progressor"
+  | "whc06"
 
 interface DevicePickerProps {
   selectedDevice: DeviceType | ""
@@ -28,6 +36,7 @@ export default function DevicePicker({ selectedDevice, onDeviceChange }: DeviceP
           <Picker.Item label="Force Board" value="forceboard" />
           <Picker.Item label="Motherboard" value="motherboard" />
           <Picker.Item label="mySmartBoard" value="mysmartboard" enabled={false} />
+          <Picker.Item label="PB-700BT" value="pb700bt" />
           <Picker.Item label="Progressor" value="progressor" />
           <Picker.Item label="WH-C06" value="whc06" />
         </Picker>

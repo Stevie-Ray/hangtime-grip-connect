@@ -3,9 +3,8 @@ import {
   Climbro,
   Entralpi,
   ForceBoard,
-  KilterBoard,
   Motherboard,
-  mySmartBoard,
+  PB700BT,
   Progressor,
   SmartBoardPro,
   WHC06,
@@ -136,9 +135,8 @@ globalThis.customElements.define(
             <option value="climbro">Climbro</option>
             <option value="entralpi">Entralpi</option>
             <option value="forceboard">Force Board</option>
-            <option value="kilterboard">Kilter Board</option>
             <option value="motherboard">Motherboard</option>
-            <option value="smartboard" disabled>mySmartBoard</option>
+            <option value="pb700bt">PB-700BT</option>
             <option value="progressor">Progressor</option>
             <option value="smartboardpro">Smart Board Pro</option>
             <option value="whc06">WH-C06</option>
@@ -176,14 +174,11 @@ globalThis.customElements.define(
             case "forceboard":
               device = new ForceBoard()
               break
-            case "kilterboard":
-              device = new KilterBoard()
-              break
             case "motherboard":
               device = new Motherboard()
               break
-            case "smartboard":
-              device = new mySmartBoard()
+            case "pb700bt":
+              device = new PB700BT()
               break
             case "progressor":
               device = new Progressor()

@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
-    "vite": "^7.1.5"
+    "vite": "^7.1.6"
   },
   "workspaces": [
     "examples"

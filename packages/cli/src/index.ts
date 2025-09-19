@@ -5,6 +5,7 @@ export {
   KilterBoard,
   Motherboard,
   mySmartBoard,
+  PB700BT,
   Progressor,
   SmartBoardPro,
   WHC06,
