@@ -13,11 +13,11 @@
     "@fortawesome/free-brands-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@hangtime/grip-connect": "^0.9.1",
-    "chart.js": "^4.5.0"
+    "chart.js": "^4.5.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
-    "vite": "^7.1.9"
+    "vite": "^7.2.0"
   },
   "workspaces": [
     "examples"
