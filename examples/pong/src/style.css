@@ -19,19 +19,14 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  text-align: center;
 }
 
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0rem;
   width: 100%;
-  text-align: center;
-}
-
-#canvas {
-  display: block;
-  margin: auto;
 }
 
 #controller {
@@ -84,8 +79,8 @@ input {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em;
-  margin-bottom: 0.3rem;
-  margin-top: 0.6rem;
+  display: block;
+  margin: 0.6rem 0 0.3rem;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
@@ -93,13 +88,17 @@ input {
   cursor: pointer;
   text-align: center;
   transition: border-color 0.25s;
+  max-width: 100%;
 }
 
+button:hover,
 select:hover,
 input:hover {
   border-color: #646cff;
 }
 
+button:focus,
+button:focus-visible,
 select:focus,
 select:focus-visible,
 input:focus,
@@ -111,5 +110,15 @@ input:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  select,
+  input,
+  button {
+    background-color: #e6e6e6;
   }
 }
