@@ -37,7 +37,6 @@ export default defineConfig({
         link: "/devices/",
         items: [
           { text: "Climbro", link: "/devices/climbro" },
-          { text: "DUE", link: "/devices/due" },
           { text: "Dyno", link: "/devices/dyno" },
           { text: "Entralpi", link: "/devices/entralpi" },
           { text: "Force Board", link: "/devices/forceboard" },

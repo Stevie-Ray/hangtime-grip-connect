@@ -8,8 +8,7 @@ the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
 [Tindeq Progressor](https://tindeq.com/product/progressor/),
 [PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
 [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
-[Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno),
-[Forma DUE](https://forma.training/products/due-pre-sale), [Entralpi](https://entralpi.com/),
+[Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno), [Entralpi](https://entralpi.com/),
 [Climbro](https://climbro.com/), or [mySmartBoard](https://www.smartboard-climbing.com/)
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
@@ -140,8 +139,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
 - ✅ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
 - ✅ [NSD PB-700BT](https://stevie-ray.github.io/hangtime-grip-connect/devices/pb-700bt.html)
-- ➡️ [Frez - Dyno](https://stevie-ray.github.io/hangtime-grip-connect/devices/frez.html)
-- ➡️ [Forma - DUE](https://stevie-ray.github.io/hangtime-grip-connect/devices/dyno.html)
+- ➡️ [Frez - Dyno](https://stevie-ray.github.io/hangtime-grip-connect/devices/dyno.html)
 - ➡️ [Smartboard Climbing - mySmartBoard](https://stevie-ray.github.io/hangtime-grip-connect/devices/mysmartboard.html)
 - ➡️
   [Smartboard Climbing - SmartBoard Pro](https://stevie-ray.github.io/hangtime-grip-connect/devices/smartboard-pro.html)

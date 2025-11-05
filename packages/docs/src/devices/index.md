@@ -190,7 +190,6 @@ All devices have the following functions:
 ### Device specific features
 
 - [Climbro](/devices/climbro)
-- [DUE](/devices/due)
 - [Dyno](/devices/dyno)
 - [Entralpi](/devices/entralpi)
 - [ForceBoard](/devices/forceboard)
