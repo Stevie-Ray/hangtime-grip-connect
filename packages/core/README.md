@@ -28,7 +28,7 @@ The library is available in multiple flavors to support different platforms:
 - **CLI**: Command-line tools for device management and data analysis
 
 Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/) -
-[Browser Support](https://caniuse.com/web-bluetooth)
+[Browser Support](https://caniuse.com/web-bluetooth) - [Discord](https://discord.gg/f7QQnEBQQt) 
 
 > This project is provided "as-is" without any express or implied warranties. By using this software, you assume all
 > risks associated with its use, including but not limited to hardware damage, data loss, or any other issues that may

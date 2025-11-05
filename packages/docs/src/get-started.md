@@ -6,8 +6,8 @@ the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
 [Tindeq Progressor](https://tindeq.com/product/progressor/),
 [PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
 [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
-[Entralpi](https://entralpi.com/), [Climbro](https://climbro.com/), or
-[mySmartBoard](https://www.smartboard-climbing.com/)
+[Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno), [Entralpi](https://entralpi.com/),
+[Climbro](https://climbro.com/), or [mySmartBoard](https://www.smartboard-climbing.com/)
 
 And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
 [Kilter Board](https://settercloset.com/pages/the-kilter-board),
@@ -16,6 +16,8 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
 [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
 
+And gyroscopic hand exercisers, such as the [NSD PB-700BT](https://www.nsd.com.tw/).
+
 The library is available in multiple flavors to support different platforms:
 
 - **Web**: The core package for web applications using the Web Bluetooth API
@@ -23,8 +25,8 @@ The library is available in multiple flavors to support different platforms:
 - **React Native**: For native mobile apps using React Native
 - **CLI**: Command-line tools for device management and data analysis
 
-Learn more: [Docs](https://stevie-ray.github.io/hangtime-grip-connect/) -
-[Browser Support](https://caniuse.com/web-bluetooth)
+Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/) -
+[Browser Support](https://caniuse.com/web-bluetooth) - [Discord](https://discord.gg/f7QQnEBQQt)
 
 ## Installation
 
