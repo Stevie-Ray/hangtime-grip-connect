@@ -48,18 +48,18 @@
     "examples/*"
   ],
   "devDependencies": {
-    "@changesets/cli": "^2.29.7",
+    "@changesets/cli": "^2.29.8",
     "@eslint/js": "^9.39.1",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.19.24",
+    "@types/node": "^20.19.25",
     "@types/web-bluetooth": "^0.0.21",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.3"
+    "typescript-eslint": "^8.48.0"
   }
 }

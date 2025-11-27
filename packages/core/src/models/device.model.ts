@@ -276,6 +276,28 @@ export abstract class Device extends BaseModel implements IDevice {
 
       const bluetooth = await this.getBluetooth()
 
+      // Experiment: Reconnect to known devices, enable these Chrome flags:
+      // - chrome://flags/#enable-experimental-web-platform-features → enables getDevices() API
+      // - chrome://flags/#enable-web-bluetooth-new-permissions-backend → ensures it returns all permitted devices, not just connected ones
+      // let reconnectDevice: BluetoothDevice | undefined
+      // if (typeof bluetooth.getDevices === "function") {
+      //   const devices: BluetoothDevice[] = await bluetooth.getDevices()
+      //   if (devices.length > 0 && this.filters.length > 0) {
+      //     reconnectDevice = devices.find((device) => {
+      //       if (!device.name) return false
+      //       const d = device
+      //       return this.filters.some(
+      //         (f) => (f.name && d.name === f.name) || (f.namePrefix && d.name?.startsWith(f.namePrefix)),
+      //       )
+      //     })
+      //   }
+      //   if (reconnectDevice) {
+      //     this.bluetooth = reconnectDevice
+      //     // It's currently impossible to call this.bluetooth.gatt.connect() here.
+      //     // After restarting the Browser, it will always give: "Bluetooth Device is no longer in range."
+      //   }
+      // }
+
       this.bluetooth = await bluetooth.requestDevice({
         filters: this.filters,
         optionalServices: deviceServices,
