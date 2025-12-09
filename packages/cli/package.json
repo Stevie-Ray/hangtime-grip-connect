@@ -23,6 +23,7 @@
     "webbluetooth": "^3.3.2"
   },
   "devDependencies": {
+    "@types/node": "^22.19.2",
     "typescript": "^5.9.3"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
