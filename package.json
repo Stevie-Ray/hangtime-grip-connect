@@ -7,6 +7,9 @@
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "license": "BSD-2-Clause",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "lint": "npm run lint:check -- --fix",
     "lint:check": "eslint .",
@@ -51,10 +54,12 @@
     "@changesets/cli": "^2.29.8",
     "@eslint/js": "^9.39.2",
     "@types/eslint__js": "^8.42.3",
+    "@types/node": "22.19.2",
     "@types/web-bluetooth": "^0.0.21",
     "eslint": "^9.39.2",
     "globals": "^17.0.0",
     "husky": "^9.1.7",
+    "jiti": "^2.6.1",
     "prettier": "^3.8.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0"
