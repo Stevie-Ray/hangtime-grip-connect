@@ -57,7 +57,7 @@
     "@types/node": "22.19.2",
     "@types/web-bluetooth": "^0.0.21",
     "eslint": "^9.39.2",
-    "globals": "^17.0.0",
+    "globals": "^17.1.0",
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
     "prettier": "^3.8.1",
