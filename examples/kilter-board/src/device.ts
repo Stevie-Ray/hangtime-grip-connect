@@ -4,29 +4,34 @@ import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/models/dev
 
 const device = new KilterBoard()
 
+/** Set up the device connection button */
 export function setupDevice(element: HTMLButtonElement) {
   element.addEventListener("click", async () => {
     await device.connect(async () => {
-      // Map activeHolds array to objects with role_id and position properties
+      // Convert active holds to LED placement format
       const placement = activeHolds
         .map((activeHold) => {
-          // Return the row from the extraced data with a matching placement ID
+          // Find the matching row in our data
           const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
+          // We need the LED position
           if (!filteredRow) {
             throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
           }
           const entry: { position: number; role_id?: number; color?: string } = {
-            position: filteredRow[3], // LED Position
+            position: filteredRow[3], // LED position
           }
 
+          // Add role_id if it was set
           if (activeHold.role_id !== undefined) {
-            entry.role_id = activeHold.role_id // LED Role
+            entry.role_id = activeHold.role_id
           }
 
+          // Add color if it was set
           if (activeHold.color) {
             entry.color = activeHold.color
           }
 
+          // Skip if there's nothing to light up
           if (entry.role_id === undefined && entry.color === undefined) {
             return null
           }
@@ -41,49 +46,36 @@ export function setupDevice(element: HTMLButtonElement) {
     })
   })
 }
-/**
- * Multiplier for converting between database and board coordinates.
- */
+/** Scale factor for converting DB coords to board coords */
 const COORDINATE_MULTIPLIER = 7.5
-/**
- * Delta value for X-coordinate offset.
- */
+/** X offset (not used currently) */
 const DELTA_X = 0
-/**
- * Delta value for Y-coordinate offset.
- */
+/** Y offset for board coordinates */
 const DELTA_Y = 1170
 /**
- * Array to store active holds with their colors and positions.
+ * Currently selected holds - placement_id isn't unique (1147 shows up twice),
+ * so we use holes_id to keep track of which circle is which in the SVG
  */
-let activeHolds: { placement_id: number; role_id?: number; color?: string }[] = []
+let activeHolds: { placement_id: number; holes_id?: number; role_id?: number; color?: string }[] = []
 
 /**
- * Generates all 256 possible Kilterboard colors.
- * Color encoding: 3 bits red (0-7), 3 bits green (0-7), 2 bits blue (0-3)
- * Encoding: R and G divided by 32, B divided by 64 (integer division)
- * @returns {string[]} Array of hex color strings (without # prefix)
+ * Generate all 256 colors the Kilterboard can display.
+ * The board uses 3 bits for red (0-7), 3 bits for green (0-7), and 2 bits for blue (0-3).
+ * So we divide R and G by 32, B by 64 to get the encoded values.
  */
 function generateKilterboardColors(): string[] {
   const colors: string[] = []
 
-  // R: 3 bits (0-7) = 8 levels, mapped from 0-255 by dividing by 32
-  // G: 3 bits (0-7) = 8 levels, mapped from 0-255 by dividing by 32
-  // B: 2 bits (0-3) = 4 levels, mapped from 0-255 by dividing by 64
-
+  // 8 red levels, 8 green levels, 4 blue levels = 256 total colors
   for (let rBits = 0; rBits < 8; rBits++) {
     for (let gBits = 0; gBits < 8; gBits++) {
       for (let bBits = 0; bBits < 4; bBits++) {
-        // Convert encoded bits back to 8-bit RGB values
-        // Use midpoint of each range for better color representation
-        // R: rBits * 32 + 16 (midpoint of range rBits*32 to (rBits+1)*32-1)
-        // G: gBits * 32 + 16
-        // B: bBits * 64 + 32 (midpoint of range bBits*64 to (bBits+1)*64-1)
+        // Convert back to full RGB - use the midpoint of each range so colors look better
         const red = Math.min(255, rBits * 32 + 16)
         const green = Math.min(255, gBits * 32 + 16)
         const blue = Math.min(255, bBits * 64 + 32)
 
-        // Convert to hex string (uppercase, no #)
+        // Convert to hex (uppercase, no # prefix)
         const hex = [
           red.toString(16).toUpperCase().padStart(2, "0"),
           green.toString(16).toUpperCase().padStart(2, "0"),
@@ -98,18 +90,12 @@ function generateKilterboardColors(): string[] {
   return colors
 }
 
-/**
- * Cached array of all possible Kilterboard colors.
- */
+/** Cache all possible colors so we don't regenerate them every time */
 const KILTERBOARD_COLORS = generateKilterboardColors()
 
 /**
- * Finds the closest Kilterboard color to a given RGB color.
- * Uses Euclidean distance in RGB color space.
- * @param r - Red component (0-255)
- * @param g - Green component (0-255)
- * @param b - Blue component (0-255)
- * @returns {string} Hex color string (without # prefix) of the closest match
+ * Find the closest color the board can actually display.
+ * Just brute force it - check all 256 colors and pick the closest one.
  */
 function findClosestKilterboardColor(r: number, g: number, b: number): string {
   let minDistance = Infinity
@@ -120,7 +106,7 @@ function findClosestKilterboardColor(r: number, g: number, b: number): string {
     const colorG = parseInt(colorHex.substring(2, 4), 16)
     const colorB = parseInt(colorHex.substring(4, 6), 16)
 
-    // Calculate Euclidean distance in RGB space
+    // Simple distance calculation in RGB space
     const distance = Math.sqrt(Math.pow(r - colorR, 2) + Math.pow(g - colorG, 2) + Math.pow(b - colorB, 2))
 
     if (distance < minDistance) {
@@ -133,8 +119,7 @@ function findClosestKilterboardColor(r: number, g: number, b: number): string {
 }
 
 /**
- * Processes an uploaded image and maps pixel colors to Kilterboard holds.
- * @param imageFile - The image file to process
+ * Take an uploaded image and figure out which holds should light up based on pixel colors.
  */
 async function processImageToHolds(imageFile: File): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -149,15 +134,14 @@ async function processImageToHolds(imageFile: File): Promise<void> {
 
     img.onload = async () => {
       try {
-        // SVG dimensions
+        // Match the SVG dimensions
         const svgWidth = 1080
         const svgHeight = 1170
 
-        // Set canvas size to match SVG
         canvas.width = svgWidth
         canvas.height = svgHeight
 
-        // Calculate scaling to maintain aspect ratio and center the image
+        // Scale and center the image to fit the board dimensions
         const imgAspect = img.width / img.height
         const svgAspect = svgWidth / svgHeight
 
@@ -167,61 +151,62 @@ async function processImageToHolds(imageFile: File): Promise<void> {
         let drawY = 0
 
         if (imgAspect > svgAspect) {
-          // Image is wider - fit to width
+          // Wider image - fit to width
           drawHeight = svgWidth / imgAspect
           drawY = (svgHeight - drawHeight) / 2
         } else {
-          // Image is taller - fit to height
+          // Taller image - fit to height
           drawWidth = svgHeight * imgAspect
           drawX = (svgWidth - drawWidth) / 2
         }
 
-        // Draw image to canvas (centered, maintaining aspect ratio)
+        // Draw the image centered on a black background
         ctx.fillStyle = "#000000"
         ctx.fillRect(0, 0, svgWidth, svgHeight)
         ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
 
-        // Get image data
+        // Grab the pixel data
         const imageData = ctx.getImageData(0, 0, svgWidth, svgHeight)
 
-        // Clear existing holds
+        // Clear what we had before
         clearSVG()
         activeHolds.length = 0
 
-        // Process each hold position
+        // Check each hold position
         for (const item of data) {
-          const [dbX, dbY, , , placementId] = item
+          const [dbX, dbY, holesId, , placementId] = item
 
-          // Get SVG coordinates for this hold
+          // Convert to board coordinates
           const coord = dbToBoardCoord(dbX, dbY)
 
-          // Sample pixel at hold position (clamp to canvas bounds)
+          // Sample the pixel at this hold's position
           const pixelX = Math.floor(Math.max(0, Math.min(svgWidth - 1, coord.x)))
           const pixelY = Math.floor(Math.max(0, Math.min(svgHeight - 1, coord.y)))
 
-          // Get pixel color from image data
+          // Get the RGBA values
           const pixelIndex = (pixelY * svgWidth + pixelX) * 4
           const r = imageData.data[pixelIndex]
           const g = imageData.data[pixelIndex + 1]
           const b = imageData.data[pixelIndex + 2]
           const a = imageData.data[pixelIndex + 3]
 
-          // Skip transparent or very dark pixels (black background)
+          // Skip transparent or really dark pixels (background)
           if (a < 128 || (r < 10 && g < 10 && b < 10)) {
             continue
           }
 
-          // Find closest Kilterboard color
+          // Find the closest color the board can actually display
           const closestColor = findClosestKilterboardColor(r, g, b)
 
-          // Add to activeHolds
+          // Add this hold to the active list
           activeHolds.push({
             placement_id: placementId,
+            holes_id: holesId,
             color: closestColor,
           })
         }
 
-        // Update display and send to device
+        // Update everything
         updateSVG()
         await updatePayload()
         updateURL()
@@ -239,22 +224,12 @@ async function processImageToHolds(imageFile: File): Promise<void> {
     img.src = URL.createObjectURL(imageFile)
   })
 }
-/**
- * Pads a number with leading zeros up to a specified length.
- * @param input - The number to pad.
- * @param number - The desired length of the padded number.
- * @returns The padded string.
- */
+/** Pad a string with leading zeros (like Python's zfill) */
 function zfill(input: string, number: number) {
   const pad = "0".repeat(number)
   return pad.substring(0, pad.length - input.length) + input
 }
-/**
- * Converts database coordinates to board coordinates.
- * @param x - The x-coordinate in the database coordinate system.
- * @param y - The y-coordinate in the database coordinate system.
- * @returns The converted coordinates in the board coordinate system.
- */
+/** Convert database coordinates to SVG/board coordinates */
 function dbToBoardCoord(x: number, y: number): { x: number; y: number } {
   return {
     x: x * COORDINATE_MULTIPLIER + DELTA_X,
@@ -275,9 +250,8 @@ function dbToBoardCoord(x: number, y: number): { x: number; y: number } {
 // }
 
 /**
- * Data extracted from the sqlite database representing holes, LED position and placement id.
- * Get it using: https://github.com/lemeryfertitta/BoardLib
- * [holes.x, holes.y, holes.id, leds.position, placement.id]
+ * Board data from the database - got this using BoardLib: https://github.com/lemeryfertitta/BoardLib
+ * Format: [holes.x, holes.y, holes.id, leds.position, placement.id]
  */
 const data: number[][] = `140	4	1133	0	1147
 136	8	1134	1	1073
@@ -757,20 +731,15 @@ const data: number[][] = `140	4	1133	0	1147
 136	152	1656	476	1395`
   .split("\n")
   .map((line) => line.split("\t").map((item) => parseInt(item)))
-/**
- * SVG element on the DOM where circles will be drawn.
- */
+/** The SVG where we draw all the hold circles */
 const svg: SVGSVGElement | null = document.querySelector("#svg-kb")
 
-/**
- * Array of SVG circles representing data points.
- */
+/** Create a circle for each hold position */
 const circles: SVGCircleElement[] = data.map((item) => {
-  // Create an SVG circle element using the SVG namespace
   const circle: SVGCircleElement = document.createElementNS("http://www.w3.org/2000/svg", "circle")
-  // Convert x/y point coordinates to SVG specefic coordinates
+  // Convert DB coords to SVG coords
   const coordinate: { x: number; y: number } = dbToBoardCoord(item[0], item[1])
-  // Set the circles parametes
+  // Set up the circle
   circle.setAttribute("cx", coordinate.x.toString())
   circle.setAttribute("cy", coordinate.y.toString())
   circle.setAttribute("r", "30")
@@ -780,83 +749,78 @@ const circles: SVGCircleElement[] = data.map((item) => {
   circle.setAttribute("stroke-width", "6")
   circle.setAttribute("cursor", "pointer")
   circle.setAttribute("fill-opacity", "0")
-  // Set holes.id as cirle id
+  // Store the holes ID for lookups
   circle.setAttribute("data-holes-id", item[2].toString())
   circle.setAttribute("data-led-position", item[3]?.toString())
-  circle.setAttribute("id", item[4]?.toString()) // placement_id
-  // Circle click event listener
+  // Use holes_id for the DOM id since placement_id isn't unique
+  circle.setAttribute("id", `hold-${item[2]}`)
+  // Handle clicks to cycle through hold roles
   circle.addEventListener("click", (event) => {
     const targetElement = event.target as SVGElement | null
 
-    // Get the current stroke color of the clicked circle
+    // What color is it currently?
     const currentStroke = targetElement?.getAttribute("stroke")?.replace("#", "")
 
-    // Find the current role based on the screen_color
+    // Find which role we're on
     const currentRoleIndex = KilterBoardPlacementRoles.findIndex((role) => role.screen_color === currentStroke)
 
-    // Determine the next role by cycling through the placement_roles array
+    // Move to the next role (or wrap around to none)
     const nextRoleIndex = currentRoleIndex + 1
     const nextRole = KilterBoardPlacementRoles[nextRoleIndex] || null
 
     if (nextRole) {
-      // Update the circle's stroke and fill color to the new role's screen color
+      // Update the circle to show the new role
       targetElement?.setAttribute("stroke", "#" + nextRole.screen_color)
       targetElement?.setAttribute("fill", "#" + nextRole.screen_color)
 
-      // Update the activeHolds array with the new hold data
+      // Update our active holds list
       const newHoldData = {
-        role_id: nextRole.id, // Placement Role Id
-        placement_id: item[4], // Placement Id
+        role_id: nextRole.id,
+        placement_id: item[4],
+        holes_id: item[2],
       }
 
-      const holdIndex = activeHolds.findIndex((hold) => hold.placement_id === newHoldData.placement_id)
+      const holdIndex = activeHolds.findIndex((hold) => hold.holes_id === newHoldData.holes_id)
       if (holdIndex === -1) {
-        // Add new hold if it doesn't exist
+        // New hold
         activeHolds.push(newHoldData)
       } else {
-        // Update existing hold
+        // Update existing
         activeHolds[holdIndex] = newHoldData
       }
     } else {
-      // If no next role (after last role), unset the stroke and fill
+      // Clicked past the last role, so deselect it
       targetElement?.setAttribute("stroke", "transparent")
       targetElement?.setAttribute("fill", "transparent")
 
-      // Remove the hold from the activeHolds array
-      activeHolds = activeHolds.filter((hold) => hold.placement_id !== item[4])
+      // Remove from active holds
+      activeHolds = activeHolds.filter((hold) => hold.holes_id !== item[2])
     }
 
-    // Add selected holds as URL param
+    // Update the URL and payload
     updateURL()
-
-    // Update Bluetooth Payload
     updatePayload()
   })
 
   return circle
 })
 
-// Append circles to the SVG element.
+// Add all the circles to the SVG
 if (svg) {
   circles.forEach((circle) => svg.appendChild(circle))
 }
 
-/**
- * Updates the URL based on the activeHolds array.
- */
+/** Update the URL with the current route */
 function updateURL() {
   const routeParam = getFrames()
   const currentUrl = new URL(globalThis.location.href)
 
-  // Set the 'route' parameter
   currentUrl.searchParams.set("route", routeParam)
 
-  // Update the URL without reloading the page
+  // Update URL without reloading
   globalThis.history.pushState({}, "", currentUrl)
 }
-/**
- * Updates  the inner HTML with the payload in hexadecimal format.
- */
+/** Update the payload display with the hex data we're sending */
 async function updatePayload() {
   const activeHoldsHtml = document.querySelector("#active-holds")
 
@@ -867,19 +831,19 @@ async function updatePayload() {
     return
   }
 
+  // Build the LED payload from active holds
   const placement: ({ position: number; color: string } | { position: number; role_id: number })[] = activeHolds
     .map((activeHold) => {
-      // Return the row from the extraced data with a matching placement ID
+      // Find the matching row to get the LED position
       const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
       if (!filteredRow) {
         throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
       }
 
-      // Use color if available, otherwise use role_id
-      // Ensure we only create objects with valid properties - no undefined values
+      // Prefer color if it's set, otherwise use role_id
       if (activeHold.color && typeof activeHold.color === "string" && activeHold.color.trim() !== "") {
         return {
-          position: filteredRow[3], // LED Position
+          position: filteredRow[3],
           color: activeHold.color.trim(),
         }
       } else if (
@@ -888,18 +852,18 @@ async function updatePayload() {
         typeof activeHold.role_id === "number"
       ) {
         return {
-          position: filteredRow[3], // LED Position
+          position: filteredRow[3],
           role_id: activeHold.role_id,
         }
       } else {
-        // Skip holds that have neither color nor role_id
+        // Skip if there's nothing to set
         return null
       }
     })
     .filter((p): p is { position: number; color: string } | { position: number; role_id: number } => p !== null)
 
   let payload
-  // Send the placement data to light up LEDs on the Kilter Board.
+  // Send it to the board
   if (device instanceof KilterBoard) {
     payload = await device.led(placement)
   }
@@ -910,10 +874,12 @@ async function updatePayload() {
   }
 }
 
+/** Clear all the hold circles */
 function clearSVG() {
   activeHolds.forEach((hold) => {
-    // Find the corresponding circle element by its `id` attribute
-    const circle = document.getElementById(`${hold.placement_id}`)
+    // Find the corresponding circle element by its unique holes_id
+    const circleId = hold.holes_id !== undefined ? `hold-${hold.holes_id}` : undefined
+    const circle = circleId ? document.getElementById(circleId) : null
 
     if (circle) {
       // Set the circle's stroke and fill color to transparent
@@ -923,13 +889,12 @@ function clearSVG() {
   })
 }
 
-/**
- * Updates the SVG circles based on the activeHolds array.
- */
+/** Update the SVG to show which holds are active */
 function updateSVG() {
   activeHolds.forEach((hold) => {
-    // Find the corresponding circle element by its `id` attribute
-    const circle = document.getElementById(`${hold.placement_id}`)
+    // Find the corresponding circle element by its unique holes_id
+    const circleId = hold.holes_id !== undefined ? `hold-${hold.holes_id}` : undefined
+    const circle = circleId ? document.getElementById(circleId) : null
 
     if (circle) {
       let color: string | null = null
@@ -958,72 +923,117 @@ function updateSVG() {
   })
 }
 /**
- * Generates a string representing the current active holds and their associated roles.
- * This is how the routes are stored in the `climbs` table.
- * Each frame in the string is formatted as `p<position>r<role_id>` or `p<position>c<color>`,
- * where `<position>` is the position of the hold, and either `<role_id>` or `<color>` is provided.
- *
- * @returns {string} A concatenated string of all active holds formatted as `p<position>r<role_id>` or `p<position>c<color>`.
+ * Build the route string for the URL/database.
+ * Format: h<holes_id>r<role_id> or h<holes_id>c<color>
+ * Uses holes_id instead of placement_id to handle duplicates (placement_id 1147 appears twice)
  */
 function getFrames() {
   const frames = []
   for (const activeHold of activeHolds) {
+    // Skip if we don't have holes_id (shouldn't happen, but be safe)
+    if (!activeHold.holes_id) continue
+
     if (activeHold.color) {
-      frames.push(`p${activeHold.placement_id}c${activeHold.color}`)
+      frames.push(`h${activeHold.holes_id}c${activeHold.color}`)
     } else if (activeHold.role_id !== undefined) {
-      frames.push(`p${activeHold.placement_id}r${activeHold.role_id}`)
+      frames.push(`h${activeHold.holes_id}r${activeHold.role_id}`)
     }
   }
   return frames.join("")
 }
 
 /**
- * Converts a route parameter string into activeHolds array.
- *
- * @param {string} routeParam - The route parameter string.
+ * Parse a route string from the URL and set up activeHolds.
+ * Supports both old format (p<placement_id>) and new format (h<holes_id>) for backward compatibility.
  */
 function setFrames(routeParam: string) {
-  // Match all occurrences of p<placement_id>r<role_id> or p<placement_id>c<color> patterns
-  const roleMatches = routeParam.match(/p(\d+)r(\d+)/g)
-  const colorMatches = routeParam.match(/p(\d+)c([0-9A-Fa-f]{6})/g)
+  // New format: h<holes_id>r<role> or h<holes_id>c<color>
+  const newRoleMatches = routeParam.match(/h(\d+)r(\d+)/g)
+  const newColorMatches = routeParam.match(/h(\d+)c([0-9A-Fa-f]{6})/g)
 
-  // Check if matches is null, and return early if no matches are found
-  if (!roleMatches && !colorMatches) {
+  // Old format: p<placement_id>r<role> or p<placement_id>c<color> (for backward compatibility)
+  const oldRoleMatches = routeParam.match(/p(\d+)r(\d+)/g)
+  const oldColorMatches = routeParam.match(/p(\d+)c([0-9A-Fa-f]{6})/g)
+
+  if (!newRoleMatches && !newColorMatches && !oldRoleMatches && !oldColorMatches) {
     console.error("No valid route patterns found in the routeParam.")
     return
   }
 
-  // Clear existing activeHolds
+  // Start fresh
   activeHolds.length = 0
 
-  // Process role_id matches
-  if (roleMatches) {
-    roleMatches.forEach((match) => {
-      // Extract placement_id and role_id from the match
-      const [, placement_id, role_id] = match.match(/p(\d+)r(\d+)/) || []
+  // Handle new format (holes_id-based) - preferred
+  if (newRoleMatches) {
+    newRoleMatches.forEach((match) => {
+      const [, holes_id, role_id] = match.match(/h(\d+)r(\d+)/) || []
 
-      if (placement_id && role_id) {
-        // Add to activeHolds array
-        activeHolds.push({
-          placement_id: parseInt(placement_id, 10),
-          role_id: parseInt(role_id, 10),
-        })
+      if (holes_id && role_id) {
+        const holesId = parseInt(holes_id, 10)
+        const row = data.find((r) => r[2] === holesId)
+        if (row) {
+          activeHolds.push({
+            placement_id: row[4],
+            holes_id: holesId,
+            role_id: parseInt(role_id, 10),
+          })
+        }
       }
     })
   }
 
-  // Process color matches
-  if (colorMatches) {
-    colorMatches.forEach((match) => {
-      // Extract placement_id and color from the match
+  if (newColorMatches) {
+    newColorMatches.forEach((match) => {
+      const [, holes_id, color] = match.match(/h(\d+)c([0-9A-Fa-f]{6})/) || []
+
+      if (holes_id && color) {
+        const holesId = parseInt(holes_id, 10)
+        const row = data.find((r) => r[2] === holesId)
+        if (row) {
+          activeHolds.push({
+            placement_id: row[4],
+            holes_id: holesId,
+            color: color.toUpperCase(),
+          })
+        }
+      }
+    })
+  }
+
+  // Handle old format (placement_id-based) - backward compatibility
+  // Note: This may pick the wrong hold if placement_id appears multiple times
+  if (oldRoleMatches) {
+    oldRoleMatches.forEach((match) => {
+      const [, placement_id, role_id] = match.match(/p(\d+)r(\d+)/) || []
+
+      if (placement_id && role_id) {
+        const placementId = parseInt(placement_id, 10)
+        const row = data.find((row) => row[4] === placementId)
+        if (row) {
+          activeHolds.push({
+            placement_id: placementId,
+            holes_id: row[2],
+            role_id: parseInt(role_id, 10),
+          })
+        }
+      }
+    })
+  }
+
+  if (oldColorMatches) {
+    oldColorMatches.forEach((match) => {
       const [, placement_id, color] = match.match(/p(\d+)c([0-9A-Fa-f]{6})/) || []
 
       if (placement_id && color) {
-        // Add to activeHolds array
-        activeHolds.push({
-          placement_id: parseInt(placement_id, 10),
-          color: color.toUpperCase(),
-        })
+        const placementId = parseInt(placement_id, 10)
+        const row = data.find((row) => row[4] === placementId)
+        if (row) {
+          activeHolds.push({
+            placement_id: placementId,
+            holes_id: row[2],
+            color: color.toUpperCase(),
+          })
+        }
       }
     })
   }
@@ -1045,21 +1055,30 @@ export function setupArduino(element: HTMLButtonElement) {
   })
 }
 
+/** Board connection states */
 const BoardState = {
   IDLE: "IDLE",
   BOOTING: "BOOTING",
   CONNECTING: "CONNECTING",
   CONNECTED: "CONNECTED",
 }
+/** Current state of the board connection */
 let currentState = BoardState.IDLE
 
+/** Writer for sending data to the serial port */
 let writer: WritableStreamDefaultWriter
+/** Reader for receiving data from the serial port */
 let reader: ReadableStreamDefaultReader
+/** The serial port connection */
 let port: SerialPort | null
+/** Timestamp of the last API level ping */
 let timeOfLastAPILevelPing = 0
-const PING_INTERVAL = 1000 // 1 second
+/** Ping interval in milliseconds */
+const PING_INTERVAL = 1000
+/** Current API level from the board, or -1 if not connected */
 let API_LEVEL = -1
 
+/** Main read loop for serial data */
 async function readLoop() {
   try {
     while (true) {
@@ -1069,7 +1088,7 @@ async function readLoop() {
         break
       }
 
-      // Log the raw Uint8Array data
+      // Uncomment to see raw bytes
       // console.log(value);
 
       for (const byte of value) {
@@ -1086,61 +1105,68 @@ async function readLoop() {
   }
 }
 
+/** Length of the current packet being received */
 let currentPacketLength = -1
+/** Buffer for the current packet */
 let currentPacket: number[] = []
+/** Whether we've received all packets in the sequence */
 let allPacketsReceived = false
 
+/** Process a new byte from the serial port */
 function newByteIn(dataByte: number) {
-  // Handle new byte as per the logic in the Java class
+  // Reset when we get a new set of packets
   if (allPacketsReceived) {
     allPacketsReceived = false
     clearSVG()
     activeHolds = []
   }
 
+  // Wait for the start byte
   if (currentPacket.length === 0 && dataByte !== 1) return
 
   currentPacket.push(dataByte)
 
   if (currentPacket.length === 2) {
-    // The second byte determines the packet length
+    // Second byte tells us how long the packet will be
     currentPacketLength = dataByte + 5
   } else if (currentPacket.length === currentPacketLength) {
-    // Packet is complete, verify and parse it
+    // Got a complete packet, try to parse it
     if (verifyAndParsePacket()) {
-      // If the packet is valid, check if it's the last one
+      // Check if we're done receiving all packets
       allPacketsReceived = isThisTheLastPacket()
     } else {
-      // If verification fails, reset current placements
+      // Something went wrong, clear everything
       clearSVG()
       activeHolds = []
     }
 
-    // Clear the current packet and reset length for the next packet
+    // Reset for the next packet
     currentPacket = []
     currentPacketLength = -1
   }
 }
 
+/** Convert the packed color byte back to full RGB hex */
 function scaledColorToFullColorV3(holdData: number) {
   const fullColor = [0, 0, 0]
 
-  // Adjusting scaling factors to match yellow correctly
-  // Extract and scale the red component (bits 5 to 7)
+  // Extract RGB from the packed byte: RRRGGGBB format
+  // Red is bits 5-7
   fullColor[0] = Math.round((((holdData & 0b11100000) >> 5) / 7) * 255)
 
-  // Extract and scale the green component (bits 2 to 4)
+  // Green is bits 2-4
   fullColor[1] = Math.round((((holdData & 0b00011100) >> 2) / 7) * 255)
 
-  // Extract and scale the blue component (bits 0 to 1)
+  // Blue is bits 0-1
   fullColor[2] = Math.round((((holdData & 0b00000011) >> 0) / 3) * 255)
 
-  // Convert RGB values to uppercase hexadecimal format
+  // Convert to hex string
   const hexColor = fullColor.map((value) => value.toString(16).toUpperCase().padStart(2, "0")).join("")
 
   return hexColor
 }
 
+/** Parse the incoming packet and update active holds */
 function parseCurrentPacketToActiveHolds() {
   // Clear the current active holds
   clearSVG()
@@ -1187,16 +1213,16 @@ function parseCurrentPacketToActiveHolds() {
   updateURL()
 }
 
+/** Verify and parse a complete packet */
 function verifyAndParsePacket() {
-  // Checksum is not calculated with first 4 header bytes.
-  // Checksum byte always the 3rd byte.
+  // Checksum validation (commented out for now)
+  // Checksum is in the 3rd byte, calculated from bytes 4 onwards
   // if (checksum(currentPacket.subList(4, currentPacketLength - 1)) !== currentPacket[2]) {
   //   console.error("ERROR: checksum invalid");
   //   return false;
   // }
 
-  // // If receiving a "first" packet when data exists, or receiving a "non-first" packet when no data exists,
-  // // something is wrong with transmission.
+  // Packet order validation (also commented out)
   // if (
   //   (activeHolds.length === 0 && !isThisTheFirstPacket()) ||
   //   (cactiveHolds.length > 0 && isThisTheFirstPacket())
@@ -1205,12 +1231,12 @@ function verifyAndParsePacket() {
   //   return false;
   // }
 
-  // Parse the packet data
   parseCurrentPacketToActiveHolds()
 
   return true
 }
 
+/** Check if this is the last packet in the sequence */
 function isThisTheLastPacket() {
   // Check the 4th byte of the message to determine if it's the last packet
   if (API_LEVEL < 3) {
@@ -1220,8 +1246,10 @@ function isThisTheLastPacket() {
   }
 }
 
-// Call every draw loop. If the board is currently booting or connecting, this function will detect when that process is complete.
-// If the board has connected, this functoin returns the API level that should be used. Otherwise returns -1.
+/**
+ * Wait for the board to boot up and tell us its API level.
+ * Returns the API level when connected, or -1 if something went wrong.
+ */
 async function checkForAPILevel() {
   if (!port) {
     throw new Error("Port is not opened")
@@ -1237,7 +1265,7 @@ async function checkForAPILevel() {
       }
 
       if (currentState === BoardState.CONNECTING) {
-        // Iterate through the Uint8Array to find byte 4 and the next byte as the API level
+        // Look for a '4' byte followed by the API level
         for (const [index, byte] of value.entries()) {
           if (byte === 4) {
             if (index + 1 < value.length) {
@@ -1250,14 +1278,14 @@ async function checkForAPILevel() {
             }
           }
         }
-        // ESP32 will send a '4' just before it sends us the API level
+        // The board sends a '4' before the API level
       } else if (value[0] === 4) {
         console.log(value)
         currentState = BoardState.CONNECTING
       }
 
-      // If we still haven't received by this point then the board didn't boot so send out a ping every 1s.
-      // It will know to send the API level once it receives a ping.
+      // If the board hasn't responded, ping it every second
+      // The ping will trigger it to send the API level
       const now = Date.now()
       if (now - timeOfLastAPILevelPing > PING_INTERVAL) {
         await sendPing()
@@ -1270,6 +1298,7 @@ async function checkForAPILevel() {
 
   return -1
 }
+/** Send a ping to the board to wake it up */
 async function sendPing() {
   try {
     const data = new Uint8Array([4])
@@ -1280,20 +1309,22 @@ async function sendPing() {
   }
 }
 
+/** Handle the communication flow with the board */
 async function handleCommunication() {
-  // Start the communication loop
-  const apiLevelPromise = checkForAPILevel() // Start the promise for API level
+  // Start waiting for the API level
+  const apiLevelPromise = checkForAPILevel()
 
+  // Send an initial ping to wake up the board
   await sendPing()
 
-  // Handle the result of checkForAPILevel later
+  // Once we get the API level, start reading data
   apiLevelPromise
     .then((apiLevel) => {
       if (apiLevel > -1) {
         API_LEVEL = apiLevel
         console.log("API Level:", apiLevel)
 
-        // Start reading loop
+        // Start the main read loop
         readLoop()
       }
     })
@@ -1302,6 +1333,7 @@ async function handleCommunication() {
     })
 }
 
+/** Open the serial port and start communication */
 async function openPort() {
   try {
     if (!port) {
@@ -1316,7 +1348,7 @@ async function openPort() {
     }
 
     console.log("Port opened.")
-    handleCommunication() // Start communication handling
+    handleCommunication()
   } catch (err) {
     console.error("Failed to open the port: ", err)
   }
