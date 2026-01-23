@@ -39,6 +39,10 @@ input {
   max-width: 120px;
 }
 
+input[type="file"] {
+  max-width: 220px;
+}
+
 button,
 select,
 input {
@@ -55,6 +59,7 @@ input {
   cursor: pointer;
   text-align: center;
   transition: border-color 0.25s;
+  margin-bottom: 2rem;
 }
 
 button:hover,
@@ -95,6 +100,30 @@ code {
   text-align: justify;
 }
 
+footer {
+  width: 100%;
+  margin-top: 2.5rem;
+}
+
+footer small {
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+}
+
+footer,
+footer a {
+  color: #898989;
+}
+
+footer a:hover {
+  border-color: #646cff;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -109,5 +138,13 @@ code {
   input,
   button {
     background-color: #e6e6e6;
+  }
+
+  footer a {
+    color: #213547;
+  }
+
+  footer a:hover {
+    color: #747bff;
   }
 }

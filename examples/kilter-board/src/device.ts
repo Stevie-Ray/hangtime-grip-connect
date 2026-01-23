@@ -8,17 +8,32 @@ export function setupDevice(element: HTMLButtonElement) {
   element.addEventListener("click", async () => {
     await device.connect(async () => {
       // Map activeHolds array to objects with role_id and position properties
-      const placement = activeHolds.map((activeHold) => {
-        // Return the row from the extraced data with a matching placement ID
-        const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
-        if (!filteredRow) {
-          throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
-        }
-        return {
-          role_id: activeHold.role_id, // LED Color
-          position: filteredRow[3], // LED Position
-        }
-      })
+      const placement = activeHolds
+        .map((activeHold) => {
+          // Return the row from the extraced data with a matching placement ID
+          const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
+          if (!filteredRow) {
+            throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
+          }
+          const entry: { position: number; role_id?: number; color?: string } = {
+            position: filteredRow[3], // LED Position
+          }
+
+          if (activeHold.role_id !== undefined) {
+            entry.role_id = activeHold.role_id // LED Role
+          }
+
+          if (activeHold.color) {
+            entry.color = activeHold.color
+          }
+
+          if (entry.role_id === undefined && entry.color === undefined) {
+            return null
+          }
+
+          return entry
+        })
+        .filter((entry): entry is { position: number; role_id?: number; color?: string } => entry !== null)
 
       if (device instanceof KilterBoard) {
         await device.led(placement)
@@ -41,7 +56,189 @@ const DELTA_Y = 1170
 /**
  * Array to store active holds with their colors and positions.
  */
-let activeHolds: { placement_id: number; role_id: number }[] = []
+let activeHolds: { placement_id: number; role_id?: number; color?: string }[] = []
+
+/**
+ * Generates all 256 possible Kilterboard colors.
+ * Color encoding: 3 bits red (0-7), 3 bits green (0-7), 2 bits blue (0-3)
+ * Encoding: R and G divided by 32, B divided by 64 (integer division)
+ * @returns {string[]} Array of hex color strings (without # prefix)
+ */
+function generateKilterboardColors(): string[] {
+  const colors: string[] = []
+
+  // R: 3 bits (0-7) = 8 levels, mapped from 0-255 by dividing by 32
+  // G: 3 bits (0-7) = 8 levels, mapped from 0-255 by dividing by 32
+  // B: 2 bits (0-3) = 4 levels, mapped from 0-255 by dividing by 64
+
+  for (let rBits = 0; rBits < 8; rBits++) {
+    for (let gBits = 0; gBits < 8; gBits++) {
+      for (let bBits = 0; bBits < 4; bBits++) {
+        // Convert encoded bits back to 8-bit RGB values
+        // Use midpoint of each range for better color representation
+        // R: rBits * 32 + 16 (midpoint of range rBits*32 to (rBits+1)*32-1)
+        // G: gBits * 32 + 16
+        // B: bBits * 64 + 32 (midpoint of range bBits*64 to (bBits+1)*64-1)
+        const red = Math.min(255, rBits * 32 + 16)
+        const green = Math.min(255, gBits * 32 + 16)
+        const blue = Math.min(255, bBits * 64 + 32)
+
+        // Convert to hex string (uppercase, no #)
+        const hex = [
+          red.toString(16).toUpperCase().padStart(2, "0"),
+          green.toString(16).toUpperCase().padStart(2, "0"),
+          blue.toString(16).toUpperCase().padStart(2, "0"),
+        ].join("")
+
+        colors.push(hex)
+      }
+    }
+  }
+
+  return colors
+}
+
+/**
+ * Cached array of all possible Kilterboard colors.
+ */
+const KILTERBOARD_COLORS = generateKilterboardColors()
+
+/**
+ * Finds the closest Kilterboard color to a given RGB color.
+ * Uses Euclidean distance in RGB color space.
+ * @param r - Red component (0-255)
+ * @param g - Green component (0-255)
+ * @param b - Blue component (0-255)
+ * @returns {string} Hex color string (without # prefix) of the closest match
+ */
+function findClosestKilterboardColor(r: number, g: number, b: number): string {
+  let minDistance = Infinity
+  let closestColor = "000000"
+
+  for (const colorHex of KILTERBOARD_COLORS) {
+    const colorR = parseInt(colorHex.substring(0, 2), 16)
+    const colorG = parseInt(colorHex.substring(2, 4), 16)
+    const colorB = parseInt(colorHex.substring(4, 6), 16)
+
+    // Calculate Euclidean distance in RGB space
+    const distance = Math.sqrt(Math.pow(r - colorR, 2) + Math.pow(g - colorG, 2) + Math.pow(b - colorB, 2))
+
+    if (distance < minDistance) {
+      minDistance = distance
+      closestColor = colorHex
+    }
+  }
+
+  return closestColor
+}
+
+/**
+ * Processes an uploaded image and maps pixel colors to Kilterboard holds.
+ * @param imageFile - The image file to process
+ */
+async function processImageToHolds(imageFile: File): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+
+    if (!ctx) {
+      reject(new Error("Could not get canvas context"))
+      return
+    }
+
+    img.onload = async () => {
+      try {
+        // SVG dimensions
+        const svgWidth = 1080
+        const svgHeight = 1170
+
+        // Set canvas size to match SVG
+        canvas.width = svgWidth
+        canvas.height = svgHeight
+
+        // Calculate scaling to maintain aspect ratio and center the image
+        const imgAspect = img.width / img.height
+        const svgAspect = svgWidth / svgHeight
+
+        let drawWidth = svgWidth
+        let drawHeight = svgHeight
+        let drawX = 0
+        let drawY = 0
+
+        if (imgAspect > svgAspect) {
+          // Image is wider - fit to width
+          drawHeight = svgWidth / imgAspect
+          drawY = (svgHeight - drawHeight) / 2
+        } else {
+          // Image is taller - fit to height
+          drawWidth = svgHeight * imgAspect
+          drawX = (svgWidth - drawWidth) / 2
+        }
+
+        // Draw image to canvas (centered, maintaining aspect ratio)
+        ctx.fillStyle = "#000000"
+        ctx.fillRect(0, 0, svgWidth, svgHeight)
+        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
+
+        // Get image data
+        const imageData = ctx.getImageData(0, 0, svgWidth, svgHeight)
+
+        // Clear existing holds
+        clearSVG()
+        activeHolds.length = 0
+
+        // Process each hold position
+        for (const item of data) {
+          const [dbX, dbY, , , placementId] = item
+
+          // Get SVG coordinates for this hold
+          const coord = dbToBoardCoord(dbX, dbY)
+
+          // Sample pixel at hold position (clamp to canvas bounds)
+          const pixelX = Math.floor(Math.max(0, Math.min(svgWidth - 1, coord.x)))
+          const pixelY = Math.floor(Math.max(0, Math.min(svgHeight - 1, coord.y)))
+
+          // Get pixel color from image data
+          const pixelIndex = (pixelY * svgWidth + pixelX) * 4
+          const r = imageData.data[pixelIndex]
+          const g = imageData.data[pixelIndex + 1]
+          const b = imageData.data[pixelIndex + 2]
+          const a = imageData.data[pixelIndex + 3]
+
+          // Skip transparent or very dark pixels (black background)
+          if (a < 128 || (r < 10 && g < 10 && b < 10)) {
+            continue
+          }
+
+          // Find closest Kilterboard color
+          const closestColor = findClosestKilterboardColor(r, g, b)
+
+          // Add to activeHolds
+          activeHolds.push({
+            placement_id: placementId,
+            color: closestColor,
+          })
+        }
+
+        // Update display and send to device
+        updateSVG()
+        await updatePayload()
+        updateURL()
+
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    img.onerror = () => {
+      reject(new Error("Failed to load image"))
+    }
+
+    img.src = URL.createObjectURL(imageFile)
+  })
+}
 /**
  * Pads a number with leading zeros up to a specified length.
  * @param input - The number to pad.
@@ -580,9 +777,9 @@ const circles: SVGCircleElement[] = data.map((item) => {
   circle.setAttribute("fill", "transparent")
   // circle.setAttribute("stroke", "#4cf0fd")
   circle.setAttribute("stroke", "transparent")
-  circle.setAttribute("stroke-width", "8")
+  circle.setAttribute("stroke-width", "6")
   circle.setAttribute("cursor", "pointer")
-  circle.setAttribute("fill-opacity", "0.2")
+  circle.setAttribute("fill-opacity", "0")
   // Set holes.id as cirle id
   circle.setAttribute("data-holes-id", item[2].toString())
   circle.setAttribute("data-led-position", item[3]?.toString())
@@ -661,29 +858,55 @@ function updateURL() {
  * Updates  the inner HTML with the payload in hexadecimal format.
  */
 async function updatePayload() {
-  const placement = activeHolds.map((activeHold) => {
-    // Return the row from the extraced data with a matching placement ID
-    const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
-    if (!filteredRow) {
-      throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
+  const activeHoldsHtml = document.querySelector("#active-holds")
+
+  if (activeHolds.length === 0) {
+    if (activeHoldsHtml) {
+      activeHoldsHtml.innerHTML = ""
     }
-    return {
-      role_id: activeHold.role_id, // placement_roles ID
-      position: filteredRow[3], // LED Position
-    }
-  })
+    return
+  }
+
+  const placement: ({ position: number; color: string } | { position: number; role_id: number })[] = activeHolds
+    .map((activeHold) => {
+      // Return the row from the extraced data with a matching placement ID
+      const filteredRow = data.find((row) => row[4] === activeHold.placement_id)
+      if (!filteredRow) {
+        throw new Error(`Row with id ${activeHold.placement_id} not found in placement_roles`)
+      }
+
+      // Use color if available, otherwise use role_id
+      // Ensure we only create objects with valid properties - no undefined values
+      if (activeHold.color && typeof activeHold.color === "string" && activeHold.color.trim() !== "") {
+        return {
+          position: filteredRow[3], // LED Position
+          color: activeHold.color.trim(),
+        }
+      } else if (
+        activeHold.role_id !== undefined &&
+        activeHold.role_id !== null &&
+        typeof activeHold.role_id === "number"
+      ) {
+        return {
+          position: filteredRow[3], // LED Position
+          role_id: activeHold.role_id,
+        }
+      } else {
+        // Skip holds that have neither color nor role_id
+        return null
+      }
+    })
+    .filter((p): p is { position: number; color: string } | { position: number; role_id: number } => p !== null)
+
   let payload
   // Send the placement data to light up LEDs on the Kilter Board.
   if (device instanceof KilterBoard) {
     payload = await device.led(placement)
   }
 
-  const activeHoldsHtml = document.querySelector("#active-holds")
   if (activeHoldsHtml !== null && payload) {
-    activeHoldsHtml.innerHTML = payload
-      // Converts byte array to hexadecimal strings using zfill function.
-      .map((x: number) => zfill(x.toString(16), 2))
-      .join("")
+    const payloadHex = payload.map((x: number) => zfill(x.toString(16), 2)).join("")
+    activeHoldsHtml.innerHTML = payloadHex
   }
 }
 
@@ -709,13 +932,27 @@ function updateSVG() {
     const circle = document.getElementById(`${hold.placement_id}`)
 
     if (circle) {
-      // Find the role by its ID to get the color
-      const role = KilterBoardPlacementRoles.find((role) => role.id === hold.role_id)
+      let color: string | null = null
 
-      if (role) {
-        // Update the circle's stroke and fill color based on the role's screen color
-        circle.setAttribute("stroke", "#" + role.screen_color)
-        circle.setAttribute("fill", "#" + role.screen_color)
+      if (hold.color) {
+        // Use direct color if provided
+        color = hold.color
+      } else if (hold.role_id) {
+        // Fall back to role_id if no color provided
+        const role = KilterBoardPlacementRoles.find((role) => role.id === hold.role_id)
+        if (role) {
+          color = role.screen_color
+        }
+      }
+
+      if (color) {
+        // Update the circle's stroke and fill color
+        circle.setAttribute("stroke", "#" + color)
+        circle.setAttribute("fill", "#" + color)
+      } else {
+        // Clear the circle if no color
+        circle.setAttribute("stroke", "transparent")
+        circle.setAttribute("fill", "transparent")
       }
     }
   })
@@ -723,15 +960,19 @@ function updateSVG() {
 /**
  * Generates a string representing the current active holds and their associated roles.
  * This is how the routes are stored in the `climbs` table.
- * Each frame in the string is formatted as `p<position>r<role_id>` or `p\d{4}r\d{2}`,
- * where `<position>` is the position of the hold, and `<role_id>` is the role's ID.
+ * Each frame in the string is formatted as `p<position>r<role_id>` or `p<position>c<color>`,
+ * where `<position>` is the position of the hold, and either `<role_id>` or `<color>` is provided.
  *
- * @returns {string} A concatenated string of all active holds formatted as `p<position>r<role_id>`.
+ * @returns {string} A concatenated string of all active holds formatted as `p<position>r<role_id>` or `p<position>c<color>`.
  */
 function getFrames() {
   const frames = []
   for (const activeHold of activeHolds) {
-    frames.push(`p${activeHold.placement_id}r${activeHold.role_id}`)
+    if (activeHold.color) {
+      frames.push(`p${activeHold.placement_id}c${activeHold.color}`)
+    } else if (activeHold.role_id !== undefined) {
+      frames.push(`p${activeHold.placement_id}r${activeHold.role_id}`)
+    }
   }
   return frames.join("")
 }
@@ -742,11 +983,12 @@ function getFrames() {
  * @param {string} routeParam - The route parameter string.
  */
 function setFrames(routeParam: string) {
-  // Match all occurrences of p<placement_id>r<role_id> patterns
-  const matches = routeParam.match(/p(\d+)r(\d+)/g)
+  // Match all occurrences of p<placement_id>r<role_id> or p<placement_id>c<color> patterns
+  const roleMatches = routeParam.match(/p(\d+)r(\d+)/g)
+  const colorMatches = routeParam.match(/p(\d+)c([0-9A-Fa-f]{6})/g)
 
   // Check if matches is null, and return early if no matches are found
-  if (!matches) {
+  if (!roleMatches && !colorMatches) {
     console.error("No valid route patterns found in the routeParam.")
     return
   }
@@ -754,19 +996,37 @@ function setFrames(routeParam: string) {
   // Clear existing activeHolds
   activeHolds.length = 0
 
-  // Process each match and update activeHolds
-  matches.forEach((match) => {
-    // Extract placement_id and role_id from the match
-    const [, placement_id, role_id] = match.match(/p(\d+)r(\d+)/) || []
+  // Process role_id matches
+  if (roleMatches) {
+    roleMatches.forEach((match) => {
+      // Extract placement_id and role_id from the match
+      const [, placement_id, role_id] = match.match(/p(\d+)r(\d+)/) || []
 
-    if (placement_id && role_id) {
-      // Add to activeHolds array
-      activeHolds.push({
-        placement_id: parseInt(placement_id, 10),
-        role_id: parseInt(role_id, 10),
-      })
-    }
-  })
+      if (placement_id && role_id) {
+        // Add to activeHolds array
+        activeHolds.push({
+          placement_id: parseInt(placement_id, 10),
+          role_id: parseInt(role_id, 10),
+        })
+      }
+    })
+  }
+
+  // Process color matches
+  if (colorMatches) {
+    colorMatches.forEach((match) => {
+      // Extract placement_id and color from the match
+      const [, placement_id, color] = match.match(/p(\d+)c([0-9A-Fa-f]{6})/) || []
+
+      if (placement_id && color) {
+        // Add to activeHolds array
+        activeHolds.push({
+          placement_id: parseInt(placement_id, 10),
+          color: color.toUpperCase(),
+        })
+      }
+    })
+  }
 }
 
 const currentUrl = new URL(globalThis.location.href)
@@ -1061,3 +1321,5 @@ async function openPort() {
     console.error("Failed to open the port: ", err)
   }
 }
+
+export { processImageToHolds }

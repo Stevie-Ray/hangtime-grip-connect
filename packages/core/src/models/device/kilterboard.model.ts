@@ -185,22 +185,23 @@ export class KilterBoard extends Device implements IKilterBoard {
   /**
    * Encodes a color string into a numeric representation.
    * The rgb color, 3 bits for the R and G components, 2 bits for the B component, with the 3 R bits occupying the high end of the byte and the 2 B bits in the low end (hence 3 G bits in the middle).
+   * Format: 0bRRRGGGBB where RRR is 3 bits for red, GGG is 3 bits for green, BB is 2 bits for blue.
    * @param color - The color string in hexadecimal format (e.g., 'FFFFFF').
    * @returns The encoded /compressed color value.
    */
   private encodeColor(color: string): number {
-    const substring = color.substring(0, 2)
-    const substring2 = color.substring(2, 4)
+    const r = parseInt(color.substring(0, 2), 16)
+    const g = parseInt(color.substring(2, 4), 16)
+    const b = parseInt(color.substring(4, 6), 16)
 
-    const parsedSubstring = parseInt(substring, 16) / 32
-    const parsedSubstring2 = parseInt(substring2, 16) / 32
-    const parsedResult = (parsedSubstring << 5) | (parsedSubstring2 << 2)
+    // Integer division: R and G divided by 32, B divided by 64
+    // Then pack into 0bRRRGGGBB format
+    const rBits = Math.floor(r / 32) // 0-7 (3 bits)
+    const gBits = Math.floor(g / 32) // 0-7 (3 bits)
+    const bBits = Math.floor(b / 64) // 0-3 (2 bits)
 
-    const substring3 = color.substring(4, 6)
-    const parsedSubstring3 = parseInt(substring3, 16) / 64
-    const finalParsedResult = parsedResult | parsedSubstring3
-
-    return finalParsedResult
+    // Pack: RRR in bits 7-5, GGG in bits 4-2, BB in bits 1-0
+    return (rBits << 5) | (gBits << 2) | bBits
   }
 
   /**
@@ -215,23 +216,59 @@ export class KilterBoard extends Device implements IKilterBoard {
 
   /**
    * Prepares byte arrays for transmission based on a list of climb placements.
-   * @param {{ position: number; role_id: number }[]} climbPlacementList - The list of climb placements containing position and role ID.
+   * @param {{ position: number; role_id?: number; color?: string }[]} climbPlacementList - The list of climb placements containing position and either role ID or color.
    * @returns {number[]} The final byte array ready for transmission.
    */
-  private prepBytesV3(climbPlacementList: { position: number; role_id: number }[]): number[] {
+  private prepBytesV3(climbPlacementList: { position: number; role_id?: number; color?: string }[]): number[] {
     const resultArray: number[][] = []
     let tempArray: number[] = [KilterBoardPacket.V3_MIDDLE]
 
-    for (const climbPlacement of climbPlacementList) {
+    // Filter out any invalid placements and clean up objects before processing
+    const validPlacements = climbPlacementList
+      .filter((p) => {
+        // Explicitly check for color
+        const hasColor = p.color != null && typeof p.color === "string" && p.color.trim() !== ""
+        // Explicitly check for role_id - must be a number, not undefined or null
+        const hasRoleId = typeof p.role_id === "number" && !isNaN(p.role_id)
+
+        return hasColor || hasRoleId
+      })
+      .map((p) => {
+        // Create clean objects without undefined properties
+        if (p.color != null && typeof p.color === "string" && p.color.trim() !== "") {
+          return { position: p.position, color: p.color.trim() } as { position: number; color: string }
+        } else if (typeof p.role_id === "number" && !isNaN(p.role_id)) {
+          return { position: p.position, role_id: p.role_id } as { position: number; role_id: number }
+        }
+        // This should never happen due to the filter above, but TypeScript needs this
+        throw new Error("Invalid placement after filter")
+      })
+
+    for (const climbPlacement of validPlacements) {
       if (tempArray.length + 3 > KilterBoard.messageBodyMaxLength) {
         resultArray.push(tempArray)
         tempArray = [KilterBoardPacket.V3_MIDDLE]
       }
-      const role = KilterBoardPlacementRoles.find((placement) => placement.id === climbPlacement.role_id)
-      if (!role) {
-        throw new Error(`Role with id ${climbPlacement.role_id} not found in placement_roles`)
+
+      let colorHex: string
+
+      // Type guard: check if this placement has a color property
+      if ("color" in climbPlacement && climbPlacement.color) {
+        // Use direct color if provided
+        colorHex = climbPlacement.color.replace("#", "").toUpperCase()
+      } else if ("role_id" in climbPlacement && typeof climbPlacement.role_id === "number") {
+        // Fall back to role_id if no color provided
+        const role = KilterBoardPlacementRoles.find((placement) => placement.id === climbPlacement.role_id)
+        if (!role) {
+          throw new Error(`Role with id ${climbPlacement.role_id} not found in placement_roles`)
+        }
+        colorHex = role.led_color
+      } else {
+        // This should never happen due to the filter above, but just in case
+        throw new Error(`Either role_id or color must be provided for position ${climbPlacement.position}`)
       }
-      const encodedPlacement = this.encodePlacement(climbPlacement.position, role.led_color)
+
+      const encodedPlacement = this.encodePlacement(climbPlacement.position, colorHex)
       tempArray.push(...encodedPlacement)
     }
 
@@ -292,10 +329,10 @@ export class KilterBoard extends Device implements IKilterBoard {
 
   /**
    * Configures the LEDs based on an array of climb placements.
-   * @param {{ position: number; role_id: number }[]} config - Array of climb placements for the LEDs.
+   * @param {{ position: number; role_id?: number; color?: string }[]} config - Array of climb placements for the LEDs. Either role_id or color (hex string) must be provided.
    * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
    */
-  led = async (config: { position: number; role_id: number }[]): Promise<number[] | undefined> => {
+  led = async (config: { position: number; role_id?: number; color?: string }[]): Promise<number[] | undefined> => {
     // Handle Kilterboard logic: process placements and send payload if connected
     if (Array.isArray(config)) {
       // Prepares byte arrays for transmission based on a list of climb placements.

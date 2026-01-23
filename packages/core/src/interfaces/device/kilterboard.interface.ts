@@ -5,8 +5,8 @@ import type { IDevice } from "../device.interface.js"
 export interface IKilterBoard extends IDevice {
   /**
    * Configures the LEDs based on an array of climb placements.
-   * @param {{ position: number; role_id: number }[]} config - Array of climb placements for the LEDs.
+   * @param {{ position: number; role_id?: number; color?: string }[]} config - Array of climb placements for the LEDs. Either role_id or color (hex string) must be provided.
    * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
    */
-  led(config: { position: number; role_id: number }[]): Promise<number[] | undefined>
+  led(config: { position: number; role_id?: number; color?: string }[]): Promise<number[] | undefined>
 }

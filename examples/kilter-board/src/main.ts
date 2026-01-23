@@ -1,6 +1,7 @@
 import "./style.css"
 
-import { setupArduino, setupDevice } from "./device.js"
+import { setupArduino, setupDevice, processImageToHolds } from "./device.js"
+import { setupFontAwesome } from "./icons.js"
 
 const controllerElement = document.querySelector<HTMLDivElement>("#controller")
 if (controllerElement) {
@@ -11,6 +12,8 @@ if (controllerElement) {
   `
 }
 
+setupFontAwesome()
+
 const deviceConnectButton = document.querySelector<HTMLButtonElement>("#deviceConnect")
 if (deviceConnectButton) {
   setupDevice(deviceConnectButton)
@@ -19,4 +22,21 @@ if (deviceConnectButton) {
 const arduinoConnectButton = document.querySelector<HTMLButtonElement>("#arduinoConnect")
 if (arduinoConnectButton) {
   setupArduino(arduinoConnectButton)
+}
+
+const imageInput = document.querySelector<HTMLInputElement>("#image-input")
+
+if (imageInput) {
+  imageInput.addEventListener("change", async (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0]
+    if (!file) {
+      return
+    }
+
+    try {
+      await processImageToHolds(file)
+    } catch (error) {
+      console.error("Error processing image:", error)
+    }
+  })
 }

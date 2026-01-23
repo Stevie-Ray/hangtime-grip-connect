@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^7.3.0",
-    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/filesystem": "^8.1.0",
     "@hangtime/grip-connect": "^0.9.1"
   },
   "devDependencies": {
