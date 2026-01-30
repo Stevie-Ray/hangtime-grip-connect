@@ -14,15 +14,15 @@
     "open:ios": "npx cap open ios"
   },
   "dependencies": {
-    "@capacitor-community/bluetooth-le": "^7.3.0",
-    "@capacitor/android": "^8.0.1",
-    "@capacitor/core": "^8.0.1",
-    "@capacitor/ios": "^8.0.1",
+    "@capacitor-community/bluetooth-le": "^8.0.1",
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/ios": "^8.0.2",
     "@capacitor/splash-screen": "^8.0.0",
     "@hangtime/grip-connect-capacitor": "^0.9.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.0.1",
+    "@capacitor/cli": "^8.0.2",
     "vite": "^7.3.1"
   },
   "workspaces": [

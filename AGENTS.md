@@ -20,7 +20,7 @@ analyzing data from hangboards, dynamometers, and LED system boards.
 
 ### Requirements
 
-- Node.js 20+
+- Node.js 22+
 - npm 10+
 
 ### Installation
@@ -28,6 +28,19 @@ analyzing data from hangboards, dynamometers, and LED system boards.
 ```bash
 git clone https://github.com/Stevie-Ray/hangtime-grip-connect
 cd hangtime-grip-connect
+```
+
+With [nvm](https://github.com/nvm-sh/nvm):
+
+```bash
+nvm install   # uses .nvmrc
+nvm use
+npm install
+```
+
+Without nvm:
+
+```bash
 npm install
 ```
 
