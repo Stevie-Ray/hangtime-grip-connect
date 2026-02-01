@@ -1,11 +1,11 @@
 ---
 title: Kilter Board
-description: Display LED routes on a Kilter Board or compatible Aurora Climbing LED board using Grip Connect.
+description: Display LED routes on a Kilter Board or compatible Aurora Climbing LED board.
 ---
 
 # Kilter Board example
 
-Display LED routes on a Kilter Board (or compatible Aurora Climbing LED board) using Grip Connect.
+Display LED routes on a Kilter Board (or compatible Aurora Climbing LED board).
 
 ## Live demo
 
@@ -17,18 +17,26 @@ Display LED routes on a Kilter Board (or compatible Aurora Climbing LED board) u
 
 ## Stack
 
-- Vite + TypeScript
-- `@hangtime/grip-connect`: `KilterBoard` class
-- Device-specific `led(config)` with `{ position, role_id }[]` for hold highlighting
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
 
 ## Pattern
 
 1. Connect to the Kilter Board via `KilterBoard` from `@hangtime/grip-connect`.
 2. Parse route data (e.g. from URL or app state) into an array of `{ position, role_id }`.
 3. Call `device.led(config)` with that array to light the holds.
-4. Optionally stream force data with `notify()` for games or analytics.
 
-See [Devices: Kilter Board](/devices/kilterboard) for the full `led()` API and position/role format.
+See [Devices: Kilter Board](/devices/kilterboard) for the full `led()` API, how to get correct positions, and role_id.
+
+## Board data in this example
+
+This example uses a **pre-built board data file** to resolve holds to LED positions. The data is a tab-separated array
+with one row per hold in the form `[holes.x, holes.y, holes.id, leds.position, placement.id]`, the same structure you
+get from the Kilter Board app database (or from [BoardLib](https://github.com/lemeryfertitta/BoardLib)): hole
+coordinates, hole id, **LED position** (the index used in `led()`), and placement id. When building the `led()` config,
+the example looks up each hold in this data to get `leds.position` and passes that as `position` to
+`device.led([{ position, role_id }, ...])`. Route URLs use the layout format `p<placement_id>r<role_id>...`; the example
+parses that and maps each placement_id to the corresponding LED position via the board data.
 
 ## Resources
 

@@ -31,9 +31,12 @@ await device.connect(
 )
 ```
 
-## Device-specific methods
+## Methods
 
-In addition to the shared [device interface](/api/device-interface), Progressor provides:
+Progressor supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active,
+read, write, tare, download). See [Device interface](/api/device-interface) for details.
+
+### Device-specific
 
 | Method              | Returns                        | Description                                                       |
 | ------------------- | ------------------------------ | ----------------------------------------------------------------- |
@@ -52,7 +55,7 @@ Connect’s `Progressor` class. The project includes firmware (Rust), PCB design
 [book](https://crimpdeq.github.io/book/) for assembly and calibration.
 
 **[Mito](https://github.com/jvasilakes/mito)** is a small, open-source force gauge for isometric finger strength
-training. It advertises as a Progressor and works with the Frez and Tindeq apps, so it is compatible with Grip Connect's
+training. It advertises as a Progressor and works with the Frez and Tindeq apps, so it is compatible with the
 `Progressor` class. Built on a Seeed XIAO nRF52840, HX711 ADC, and custom load cell; firmware and hardware are open.
 
 ## Official API
@@ -62,4 +65,4 @@ Tindeq publishes the Progressor Bluetooth interface for custom applications:
 (TLV commands), data point (notifications), and includes notes on auto-shutdown and data format. Useful for low-level
 integration or verification with tools like nRF Connect.
 
-See [Guide](/guide) and [API Reference](/api/) for more.
+See [Guide](/guide) and [API](/api/) for more.

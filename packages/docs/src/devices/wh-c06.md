@@ -14,7 +14,7 @@ devices like the Tindeq Progressor and PitchSix Force Board for force measuremen
 
 Most devices send force data over a **GATT connection**: you connect, subscribe to a characteristic, and receive
 notifications. The WH-C06 works differently. It does not stream data over GATT; it **broadcasts** weight data inside its
-**Bluetooth advertisement packets** (in the manufacturer data). There is no characteristic to subscribe to—the device
+**Bluetooth advertisement packets** (in the manufacturer data). There is no characteristic to subscribe to; the device
 just keeps advertising, and the browser must listen for those packets.
 
 To receive that data in the browser, we use the Web Bluetooth API **watchAdvertisements()**. This API is experimental in
@@ -44,5 +44,18 @@ await device.connect(
   (err) => console.error(err),
 )
 ```
+
+## Methods
+
+WH-C06 supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active, read,
+write, download). See [Device interface](/api/device-interface) for details. Data is received via advertisement scanning
+(`watchAdvertisements`), not GATT notifications.
+
+### Device-specific
+
+| Method              | Returns         | Description                                                                                            |
+| ------------------- | --------------- | ------------------------------------------------------------------------------------------------------ |
+| `stop()`            | `Promise<void>` | Stop watching advertisements and stream.                                                               |
+| `stream(duration?)` | `Promise<void>` | Start watching advertisements; `notify()` receives data. `duration` in ms; `0` or omit for continuous. |
 
 See [Devices](/devices/) and [Guide](/guide) for more.

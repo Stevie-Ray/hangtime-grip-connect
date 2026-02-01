@@ -39,10 +39,12 @@ export default defineConfig({
   themeConfig: {
     externalLinkIcon: true,
     nav: [
-      { text: "Guide", link: "/guide" },
+      { text: "Home", link: "/" },
+      { text: "Platforms", link: "/platforms/" },
       { text: "API", link: "/api/" },
-      { text: "Devices", link: "/devices/" },
       { text: "Examples", link: "/examples/" },
+      { text: "Devices", link: "/devices/" },
+
       {
         text: `v${pkg.version}`,
         items: [
@@ -62,6 +64,7 @@ export default defineConfig({
       "/": [
         {
           text: "Introduction",
+          link: "/",
           items: [
             { text: "Get started", link: "/get-started" },
             { text: "Quick start guide", link: "/guide" },
@@ -71,6 +74,7 @@ export default defineConfig({
         },
         {
           text: "Platforms",
+          link: "/platforms/",
           items: [
             { text: "Web", link: "/platforms/web" },
             { text: "Capacitor", link: "/platforms/capacitor" },
@@ -79,22 +83,25 @@ export default defineConfig({
           ],
         },
         {
-          text: "API Reference",
+          text: "API",
+          link: "/api/",
           items: [
-            { text: "Overview", link: "/api/" },
+            { text: "Exports", link: "/api/exports" },
             { text: "Device interface", link: "/api/device-interface" },
             { text: "Data types", link: "/api/data-types" },
           ],
         },
         {
           text: "Examples",
+          link: "/examples/",
           items: [
-            { text: "Overview", link: "/examples/" },
-            { text: "Chart (Vite)", link: "/examples/vite" },
+            { text: "Chart", link: "/examples/chart" },
             { text: "Flappy Bird", link: "/examples/flappy-bird" },
             { text: "Kilter Board", link: "/examples/kilter-board" },
             { text: "Pong", link: "/examples/pong" },
             { text: "Runtime (Node)", link: "/examples/runtime" },
+            { text: "Capacitor", link: "/examples/capacitor" },
+            { text: "React Native", link: "/examples/react-native" },
           ],
         },
         {

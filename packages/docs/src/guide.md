@@ -149,6 +149,6 @@ found** (device on, in range, not connected elsewhere). See
 
 ## Next steps
 
-- [API Reference](/api/) - Full device interface and data types.
+- [API](/api/) - Full device interface and data types.
 - [Devices](/devices/) - Per-device methods (battery, LED, stream, tare).
 - [Examples](/examples/) - Chart, Flappy Bird, Kilter Board, Pong, Runtime.

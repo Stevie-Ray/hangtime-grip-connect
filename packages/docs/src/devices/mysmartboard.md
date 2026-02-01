@@ -6,10 +6,9 @@ description: "mySmartBoard: force-sensing hangboard"
 # mySmartBoard
 
 [mySmartBoard](https://www.smartboard-climbing.com/) is a sensor interface from
-[SmartBoard Climbing](https://www.smartboard-climbing.com/) that you mount on your own hangboard. It uses strength
-sensors to stream force data for testing and quantifying training. Compatible with Beastmaker 1000/2000 series and YY
-Verticalboard One/Evo; the official app supports Android and iOS (up to 4 user accounts). Use the shared
-[device interface](/api/device-interface) to connect, stream via `notify()`, and export with `download()`.
+[SmartBoard Climbing](https://www.smartboard-climbing.com/) that you mount on your hangboard. Compatible with Beastmaker
+1000/2000 and YY Verticalboard One/Evo. Use the shared [device interface](/api/device-interface) to connect and stream
+via `notify()`.
 
 ## Basic usage
 
@@ -28,9 +27,16 @@ await device.connect(
 )
 ```
 
-## Official site
+## Methods
 
-[SmartBoard Climbing](https://www.smartboard-climbing.com/) provides installation advice, calibration guidelines, and
-reference scores. See their [useful documents](https://www.smartboard-climbing.com/) section for PDFs.
+mySmartBoard supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active,
+read, write, download). See [Device interface](/api/device-interface) for details.
+
+### Device-specific
+
+| Method              | Returns         | Description                                                       |
+| ------------------- | --------------- | ----------------------------------------------------------------- |
+| `stop()`            | `Promise<void>` | Stop an ongoing stream.                                           |
+| `stream(duration?)` | `Promise<void>` | Start force stream. `duration` in ms; `0` or omit for continuous. |
 
 See [Devices](/devices/) and [Guide](/guide) for more.

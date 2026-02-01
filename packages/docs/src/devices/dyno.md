@@ -7,13 +7,13 @@ testing.
 
 ::: info Pre-order status
 
-The Frez Dyno is not yet sold or available on the market. Support in Grip Connect is in progress and device-specific API
-details will be added when the hardware is released and support is finalized.
+The Frez Dyno is not yet sold or available on the market. Support is in progress and device-specific API details will be
+added when the hardware is released and support is finalized.
 
 :::
 
 Use the shared [device interface](/api/device-interface) and [Quick start guide](/guide) for connection and streaming
 patterns.
 
-For integration questions, see [GitHub Discussions](https://github.com/Stevie-Ray/hangtime-grip-connect/discussions) or
+For integration questions, see [GitHub Issues](https://github.com/Stevie-Ray/hangtime-grip-connect/issues) or
 [Discord](https://discord.gg/f7QQnEBQQt).

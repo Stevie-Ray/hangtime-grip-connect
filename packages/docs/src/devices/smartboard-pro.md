@@ -7,9 +7,8 @@ description: "SmartBoard Pro: force-sensing hangboard"
 
 [SmartBoard Pro](https://www.smartboard-climbing.com/) is the full package from
 [SmartBoard Climbing](https://www.smartboard-climbing.com/): sensors, fingerboard, and app (with optional tablet
-bundle). It uses strength sensors for diagnosis tests, personalized exercises, and progress tracking; developed with
-French climbing teams and designed for climbers of all levels. Use the shared [device interface](/api/device-interface)
-to connect, stream via `notify()`, and export with `download()`.
+bundle). Developed with French climbing teams and designed for climbers of all levels. Use the shared
+[device interface](/api/device-interface) to connect, stream via `notify()`, and export with `download()`.
 
 ## Basic usage
 
@@ -28,9 +27,16 @@ await device.connect(
 )
 ```
 
-## Official site
+## Methods
 
-[SmartBoard Climbing](https://www.smartboard-climbing.com/) provides installation guides, calibration guidelines, and
-reference scores. See their [useful documents](https://www.smartboard-climbing.com/) section for PDFs.
+SmartBoard Pro supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify,
+active, read, write, download). See [Device interface](/api/device-interface) for details.
+
+### Device-specific
+
+| Method              | Returns         | Description                                                       |
+| ------------------- | --------------- | ----------------------------------------------------------------- |
+| `stop()`            | `Promise<void>` | Stop an ongoing stream.                                           |
+| `stream(duration?)` | `Promise<void>` | Start force stream. `duration` in ms; `0` or omit for continuous. |
 
 See [Devices](/devices/) and [Guide](/guide) for more.

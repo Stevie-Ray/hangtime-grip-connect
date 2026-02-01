@@ -1,14 +1,14 @@
 ---
 title: Adding a custom device
-description: Contribute a new device to Grip Connect or use a custom BLE device in your app.
+description: Contribute a new device to the library or use a custom BLE device in your app.
 ---
 
 # Adding a custom device
 
 This guide explains how to add support for a custom Bluetooth Low Energy (BLE) device in two scenarios:
 
-1. **Contributing a device to Grip Connect** - Add a new device to the monorepo so it is shipped with the library (web,
-   Capacitor, React Native, CLI).
+1. **Contributing a device** - Add a new device to the monorepo so it is shipped with the library (web, Capacitor, React
+   Native, CLI).
 2. **Using a custom device in your app** - Extend the base `Device` class in your own project for hardware that is not
    in the library, and is not mass produced / commercial.
 
@@ -17,7 +17,7 @@ scanning, and an understanding of the **protocol** (how the device sends force/m
 
 ---
 
-## Contributing a device to Grip Connect
+## Contributing a device
 
 Adding a device to the library involves the **core** package (required) and optionally the **Capacitor**, **React
 Native**, and **CLI** packages. The core package holds the protocol logic; platform packages wrap it for Web Bluetooth,

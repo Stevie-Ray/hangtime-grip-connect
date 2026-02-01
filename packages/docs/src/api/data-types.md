@@ -5,7 +5,7 @@ description: massObject, Service, Characteristic, DownloadPacket, callbacks, Com
 
 # Data types
 
-Shared types used across Grip Connect devices.
+Shared types used across devices.
 
 ## massObject
 
@@ -96,4 +96,4 @@ device implements every command. Common commands include:
 | `GET_FW_VERSION`    | Get firmware version           | Progressor              |
 
 See device-specific docs under [Devices](/devices/) for which commands each device supports. For the full device API,
-see [Device interface](/api/device-interface) and [API Overview](/api/).
+see [Device interface](/api/device-interface) and [Exports](/api/exports).

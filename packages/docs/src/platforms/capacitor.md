@@ -35,11 +35,6 @@ await device.connect(
 )
 ```
 
-## Supported devices
-
-Same device set as core: Motherboard, Progressor, ForceBoard, KilterBoard, Entralpi, Climbro, mySmartBoard,
-SmartBoardPro, WHC06, PB700BT.
-
 ## Platform notes
 
 - **iOS:** Requires Bluetooth usage description and proper entitlements. Use a physical device; simulators do not
@@ -52,5 +47,5 @@ permissions.
 ## Next steps
 
 - [Get started](/get-started) - Install and minimal example.
-- [Examples](/examples/) - Capacitor demo app in the repo; [Chart](/examples/vite) and
+- [Examples](/examples/) - Capacitor demo app in the repo; [Chart](/examples/chart) and
   [Flappy Bird](/examples/flappy-bird) for web patterns that translate to Capacitor.

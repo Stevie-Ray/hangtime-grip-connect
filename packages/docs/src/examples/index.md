@@ -1,15 +1,17 @@
 # Examples
 
-The monorepo includes several example apps that use Grip Connect. Use them as references for setup, connection flow, and
+The monorepo includes several example apps that use the library. Use them as references for setup, connection flow, and
 UI patterns. Each example uses the same [device interface](/api/device-interface): `connect`, `notify`, `stream`, and
 optional `active` and `download`.
 
-## What you'll learn
+## Available examples
 
-- **Chart (Vite)** - Connect, stream, and plot force data in real time; good first project.
+- **Chart** - Connect, stream, and plot force data in real time; good first project.
 - **Flappy Bird / Pong** - Map `notify()` data to game input (force → flap or paddle).
 - **Kilter Board** - Use `KilterBoard` and `led()` to display routes on an LED board.
 - **Runtime (Node)** - Use the CLI package in Node for scripting and data logging.
+- **Capacitor** - Hybrid app: pick a device, connect over BLE, stream force. Web or native iOS/Android.
+- **React Native** - Expo app with training modes (peak force, endurance, timed hangs). Native iOS/Android.
 
 ## Live demos
 
@@ -19,8 +21,10 @@ optional `active` and `download`.
 | **Flappy Bird**  | Pull on your hangboard to fly the bird; pull strength controls altitude. Game and workout in one.                                | [grip-connect-flappy-bird.vercel.app](https://grip-connect-flappy-bird.vercel.app/)     |
 | **Kilter Board** | Send a route from the browser. Your Kilter or compatible LED board lights up the problem on the wall.                            | [grip-connect-kilter-board.vercel.app](https://grip-connect-kilter-board.vercel.app/)   |
 | **Pong**         | Move the paddle by applying force to your device. Minimal game loop that shows streamed force as input.                          | [hangtime-grip-connect-pong.vercel.app](https://hangtime-grip-connect-pong.vercel.app/) |
+| **Capacitor**    | Hybrid app: pick a device, connect over BLE, stream force. Run in the browser or as a native iOS/Android build.                  | [grip-connect-capacitor.vercel.app](https://grip-connect-capacitor.vercel.app/)         |
+| **React Native** | Expo app with training modes (peak force, endurance, timed hangs). Native iOS/Android only; run from the repo (no web demo).     | N/A                                                                                     |
 
-## Built with Grip Connect
+## Built with it
 
 | App                                                                                   | Description                                                                                                                                                                                                                                                                                  |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,15 +33,15 @@ optional `active` and `download`.
 
 ## Source and docs
 
-| Example            | Repo path               | Doc                                                        |
-| ------------------ | ----------------------- | ---------------------------------------------------------- |
-| **Chart (Vite)**   | `examples/chart`        | [Vite example](/examples/vite): includes StackBlitz embed. |
-| **Flappy Bird**    | `examples/flappy-bird`  | [Flappy Bird](/examples/flappy-bird)                       |
-| **Kilter Board**   | `examples/kilter-board` | [Kilter Board](/examples/kilter-board)                     |
-| **Pong**           | `examples/pong`         | [Pong](/examples/pong)                                     |
-| **Runtime (Node)** | `examples/runtime`      | [Runtime](/examples/runtime): CLI / Node usage.            |
-| **Capacitor**      | `examples/capacitor`    | Capacitor demo app.                                        |
-| **React Native**   | `examples/reactnative`  | Expo app using `@hangtime/grip-connect-react-native`.      |
+| Example            | Repo path               | Doc                                                                   |
+| ------------------ | ----------------------- | --------------------------------------------------------------------- |
+| **Chart**          | `examples/chart`        | [Chart](/examples/chart): includes StackBlitz embed.                  |
+| **Flappy Bird**    | `examples/flappy-bird`  | [Flappy Bird](/examples/flappy-bird)                                  |
+| **Kilter Board**   | `examples/kilter-board` | [Kilter Board](/examples/kilter-board)                                |
+| **Pong**           | `examples/pong`         | [Pong](/examples/pong)                                                |
+| **Runtime (Node)** | `examples/runtime`      | [Runtime](/examples/runtime): CLI / Node usage.                       |
+| **Capacitor**      | `examples/capacitor`    | [Capacitor](/examples/capacitor): hybrid app, device picker, BLE.     |
+| **React Native**   | `examples/reactnative`  | [React Native](/examples/react-native): Expo app with training modes. |
 
 ## Quick run
 
@@ -45,24 +49,8 @@ From the repo root:
 
 ```sh
 npm install
-cd examples/chart && npm run dev
+npm run dev:examples:chart
 ```
 
-Replace `chart` with `flappy-bird`, `kilter-board`, `pong`, or `runtime` as needed. See each example’s README and doc
-page for details.
-
-## External resources
-
-- [Web Bluetooth specification](https://github.com/WebBluetoothCG/web-bluetooth): W3C Community Group spec, use cases,
-  implementation status.
-- [Chrome Bluetooth internals](chrome://bluetooth-internals/#devices): Inspect BLE devices and GATT services (Chrome
-  only).
-- [unpkg CDN](https://unpkg.com/@hangtime/grip-connect@latest?module): Load Grip Connect in the browser without a build
-  step.
-- [PitchSix Force Board API (PDF)](https://cdn.shopify.com/s/files/1/0249/5525/6922/files/Force_Board_Public_API_1.0.pdf):
-  Official Force Board GATT docs.
-- [Tindeq Progressor API](https://tindeq.com/progressor_api/): Progressor Bluetooth interface, control/data point, TLV
-  format.
-- [Crimpdeq](https://github.com/crimpdeq): Open-source Tindeq-compatible hardware; works with the Progressor class.
-- [Mito](https://github.com/jvasilakes/mito): Open-source force gauge that advertises as Progressor; works with the
-  Progressor class.
+Replace `chart` with `flappy-bird`, `kilter-board`, `pong`, or `capacitor` (or `reactnative`) as needed. For Runtime
+(Node), use `npm run start --workspace ./examples/runtime`. See each example’s doc page for run instructions.

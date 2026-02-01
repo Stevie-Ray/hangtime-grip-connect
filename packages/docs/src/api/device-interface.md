@@ -5,8 +5,8 @@ description: "Base IDevice: connect, notify, active, read, write, tare, download
 
 # Device interface
 
-All Grip Connect devices implement the base `IDevice` interface. Device-specific classes (e.g. `Motherboard`,
-`Progressor`) extend this with extra methods like `battery()`, `stream()`, and `led()`.
+All devices implement the base `IDevice` interface. Device-specific classes (e.g. `Motherboard`, `Progressor`) extend
+this with extra methods like `battery()`, `stream()`, and `led()`.
 
 ## Properties
 
@@ -69,5 +69,5 @@ device.active((isActive) => console.log(isActive), { threshold: 3, duration: 150
 device.disconnect()
 ```
 
-See [Data types](/api/data-types) for `massObject` and `Service`, [API Overview](/api/) for all device classes, and
+See [Data types](/api/data-types) for `massObject` and `Service`, [Exports](/api/exports) for all device classes, and
 [Devices](/devices/) for device-specific methods like `battery()` and `led()`.

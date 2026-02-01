@@ -1,12 +1,12 @@
 ---
 title: Runtime (Node)
-description:
-  Use Grip Connect from Node.js, Bun, or Deno via the CLI package for scripts, data logging, or headless testing.
+description: Use the CLI package from Node.js, Bun, or Deno for scripts, data logging, or headless testing.
 ---
 
 # Runtime (Node) example
 
-Use Grip Connect from Node.js (or Bun/Deno) via the CLI package. Useful for scripts, data logging, or headless testing.
+Use the CLI package from [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/) for
+scripts, data logging, or headless testing.
 
 ## Source
 
@@ -14,9 +14,8 @@ Use Grip Connect from Node.js (or Bun/Deno) via the CLI package. Useful for scri
 
 ## Stack
 
-- Node.js (or Bun/Deno)
-- `@hangtime/grip-connect-cli`: same device classes as core, with a Node-compatible BLE stack (e.g.
-  [webbluetooth](https://www.npmjs.com/package/webbluetooth))
+- [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/)
+- [webbluetooth](https://www.npmjs.com/package/webbluetooth)
 
 ## Pattern
 
@@ -33,7 +32,7 @@ From the repo root:
 
 ```sh
 npm install
-cd examples/runtime && node index.js
+npm run start --workspace ./examples/runtime
 ```
 
-Or use the script defined in `examples/runtime/package.json`. Ensure Bluetooth is available and the device is in range.
+Ensure Bluetooth is available and the device is in range.

@@ -1,12 +1,12 @@
 ---
-title: Chart (Vite)
+title: Chart
 description:
   Stream force data and plot it live with Vite and @hangtime/grip-connect. Try the live demo, StackBlitz, or run
   locally.
 aside: false
 ---
 
-# Chart (Vite)
+# Chart
 
 Connect to your device, stream force data, and watch it plotted in real time. Ideal for testing the connection and
 seeing mass/force values.
@@ -21,9 +21,9 @@ seeing mass/force values.
 
 ## Stack
 
-- Vite + TypeScript
-- `@hangtime/grip-connect` (Motherboard or other supported device)
-- [Chart.js](https://www.chartjs.org/) for live force/mass plotting
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Chart.js](https://www.chartjs.org/)
 
 ## Try in StackBlitz
 

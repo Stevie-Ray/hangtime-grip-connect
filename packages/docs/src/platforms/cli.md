@@ -1,9 +1,9 @@
 # CLI
 
-Use `@hangtime/grip-connect-cli` for command-line tools on Node.js, Bun, or Deno. It re-exports the same device classes
-and uses a Node-compatible BLE stack (e.g. [webbluetooth](https://www.npmjs.com/package/webbluetooth)) so you can script
-connections and data from the terminal. Best for: data logging, headless testing, and automation on a machine with
-Bluetooth.
+Use `@hangtime/grip-connect-cli` for command-line tools on [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or
+[Deno](https://deno.com/). It re-exports the same device classes and uses a Node-compatible BLE stack (e.g.
+[webbluetooth](https://www.npmjs.com/package/webbluetooth)) so you can script connections and data from the terminal.
+Best for: data logging, headless testing, and automation on a machine with Bluetooth.
 
 ## Install
 
@@ -54,7 +54,8 @@ bunx jsr add @hangtime/grip-connect-cli
 ## Usage
 
 Import device classes from `@hangtime/grip-connect-cli` and use the same connect/stream/notify API as on web. Scripts
-typically run under Node, Bun, or Deno with appropriate BLE support (physical machine with Bluetooth).
+typically run under [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/) with
+appropriate BLE support (physical machine with Bluetooth).
 
 ```ts
 import { Motherboard } from "@hangtime/grip-connect-cli"
@@ -87,5 +88,5 @@ package in a Node context. See that folder for a runnable script and dependencie
 
 ## Next steps
 
-- [Get started](/get-started) - Install (npm/Bun/Deno) and minimal example.
+- [Get started](/get-started) - Install (npm / [Bun](https://bun.sh/) / [Deno](https://deno.com/)) and minimal example.
 - [Examples: Runtime](/examples/runtime) - Node script using the CLI package.

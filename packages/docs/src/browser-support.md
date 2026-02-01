@@ -5,7 +5,7 @@ description: Web Bluetooth requirements, supported browsers, and troubleshooting
 
 # Browser support
 
-Grip Connect (web) uses the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) to
+The web package uses the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) to
 connect to BLE devices. Support and requirements differ by browser and environment. The underlying standard is
 maintained by the [W3C Web Bluetooth Community Group](https://www.w3.org/community/web-bluetooth/); see the
 [Web Bluetooth specification (GitHub)](https://github.com/WebBluetoothCG/web-bluetooth) for the spec, use cases, and

@@ -28,9 +28,12 @@ await device.connect(
 )
 ```
 
-## Device-specific methods
+## Methods
 
-In addition to the shared [device interface](/api/device-interface), Motherboard provides:
+Motherboard supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active,
+read, write, tare, download). See [Device interface](/api/device-interface) for details.
+
+### Device-specific
 
 | Method              | Returns                          | Description                                                                                                          |
 | ------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -58,4 +61,4 @@ await device.connect(
 )
 ```
 
-See [Guide](/guide) and [API Reference](/api/) for more.
+See [Guide](/guide) and [API](/api/) for more.

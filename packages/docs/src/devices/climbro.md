@@ -28,4 +28,17 @@ await device.connect(
 )
 ```
 
+## Methods
+
+Climbro supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active, read,
+write, download). See [Device interface](/api/device-interface) for details.
+
+### Device-specific
+
+| Method              | Returns                        | Description                                                       |
+| ------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| `battery()`         | `Promise<string \| undefined>` | Battery level (updated via notifications).                        |
+| `stop()`            | `Promise<void>`                | Stop an ongoing stream.                                           |
+| `stream(duration?)` | `Promise<void>`                | Start force stream. `duration` in ms; `0` or omit for continuous. |
+
 See [Devices](/devices/) and [Guide](/guide) for more.

@@ -26,4 +26,10 @@ await device.connect(
 )
 ```
 
+## Methods
+
+PB-700BT supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active,
+read, write, download). See [Device interface](/api/device-interface) for details. No device-specific methods beyond the
+shared interface; use `read()`, `write()`, and `notify()` as needed for the gyroscopic exerciser protocol.
+
 See [Devices](/devices/) and [Guide](/guide) for more.

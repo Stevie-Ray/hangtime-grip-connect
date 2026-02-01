@@ -20,9 +20,9 @@ HTML Canvas remake of the original Flappy Bird.
 
 ## Stack
 
-- Vite + TypeScript
-- `@hangtime/grip-connect` (Motherboard or other supported device)
-- Canvas / game loop for the bird and obstacles
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- Canvas
 
 ## Pattern
 

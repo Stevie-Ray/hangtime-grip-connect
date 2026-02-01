@@ -28,7 +28,12 @@ await device.connect(
 )
 ```
 
-## Device-specific methods
+## Methods
+
+Force Board supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active,
+read, write, tare, download). See [Device interface](/api/device-interface) for details.
+
+### Device-specific
 
 | Method                    | Returns                        | Description                                                           |
 | ------------------------- | ------------------------------ | --------------------------------------------------------------------- |

@@ -1,15 +1,14 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
-title: Grip Connect
+title: Home
 description:
   Web Bluetooth client for force-sensing hangboards, dynamometers, and LED system boards. Connect, stream, and build.
 hero:
   name: "Grip Connect"
   text: "Force-Sensing Climbing Training"
   tagline:
-    "One API for hangboards, dynamometers, and LED boards. Connect over Bluetooth, stream force data, and build web or
-    mobile apps."
+    "Connect over Bluetooth, stream force data, and build web or mobile apps."
   actions:
     - theme: brand
       text: Get started
@@ -22,11 +21,10 @@ hero:
       link: https://github.com/Stevie-Ray/hangtime-grip-connect
 ---
 
-**Grip Connect** is a TypeScript client for the
-[Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) that talks to force-sensing
-climbing hardware: **Griptonite Motherboard**, **Tindeq Progressor**, **PitchSix Force Board**, **Kilter Board**,
-**Entralpi**, **Climbro**, **mySmartBoard**, **WH-C06**, **Frez Dyno**, and more. Use it to stream force data, drive
-games, or build training apps -on web, Capacitor, React Native, or the CLI.
+A TypeScript client for the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) that
+talks to force-sensing climbing hardware: **Griptonite Motherboard**, **Tindeq Progressor**, **PitchSix Force Board**,
+**Kilter Board**, **Entralpi**, **Climbro**, **mySmartBoard**, **WH-C06**, **Frez Dyno**, and more. Use it to stream
+force data, drive games, or build training apps on web, Capacitor, React Native, or the CLI.
 
 ::: tip Browser support
 
@@ -37,10 +35,11 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 
 <div class="vp-doc" style="margin-top: 2rem;">
 
-### Why Grip Connect
+### Why use it
 
 - **One API** - Same `connect`, `notify`, `stream`, `download` across all supported devices.
-- **Multi-platform** - Web, Capacitor, React Native, and Node/Bun/Deno CLI from a single codebase.
+- **Multi-platform** - Web, Capacitor, React Native, and [Node.js](https://nodejs.org/) / [Bun](https://bun.sh/) /
+  [Deno](https://deno.com/) CLI from a single codebase.
 - **TypeScript** - Full types and device interfaces for tree-shaking and IDE support.
 - **Battle-tested** - Used by [HangTime](https://play.google.com/store/apps/details?id=nl.stevie.ray.hangtime) and
   [Heli-Hero](https://play.google.com/store/apps/details?id=nl.stevie.ray.helihero) and open-source examples.
@@ -68,7 +67,8 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
   left/center/right zones.
 - **Activity** - `active()` callback with configurable threshold and duration for “user is pulling” detection.
 - **Export** - Download session data as CSV, JSON, or XML.
-- **Multi-platform** - Same API on web, Capacitor, React Native, and Node/Bun/Deno CLI.
+- **Multi-platform** - Same API on web, Capacitor, React Native, and [Node.js](https://nodejs.org/) /
+  [Bun](https://bun.sh/) / [Deno](https://deno.com/) CLI.
 
 </div>
 
@@ -83,7 +83,7 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 | [Kilter Board](https://grip-connect-kilter-board.vercel.app/) | Send a route from the browser. Your Kilter or compatible LED board lights up the problem on the wall.                            |
 | [Pong](https://hangtime-grip-connect-pong.vercel.app/)        | Move the paddle by applying force to your device. Minimal game loop that shows streamed force as input.                          |
 
-### Built with Grip Connect
+### Built with it
 
 | App                                                                               | Description                                                                                                                                                                                                                                                                        |
 | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

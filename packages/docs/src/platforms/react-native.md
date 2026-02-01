@@ -50,11 +50,6 @@ await device.connect(
 )
 ```
 
-## Supported devices
-
-Same device set as core: Motherboard, Progressor, ForceBoard, KilterBoard, Entralpi, Climbro, mySmartBoard,
-SmartBoardPro, WHC06, PB700BT.
-
 ## Example app
 
 The repo includes an

@@ -21,9 +21,9 @@ Pong game.
 
 ## Stack
 
-- Vite + TypeScript (or minimal HTML/JS)
-- `@hangtime/grip-connect` (Motherboard or other supported device)
-- Canvas or DOM for the game (ball, paddles, score)
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- Canvas
 
 ## Pattern
 

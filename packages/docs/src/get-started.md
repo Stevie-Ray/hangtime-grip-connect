@@ -1,16 +1,16 @@
 ---
 title: Get started
-description: Install Grip Connect for Web, Capacitor, React Native, or CLI and run a minimal example.
+description: Install the library for Web, Capacitor, React Native, or CLI and run a minimal example.
 ---
 
 # Get started
 
-This page walks you through installing Grip Connect and running a minimal connect-and-stream example. For a step-by-step
+This page walks you through installing the library and running a minimal connect-and-stream example. For a step-by-step
 flow, see the [Quick start guide](/guide).
 
-## What is Grip Connect?
+## What is it?
 
-Grip Connect is a TypeScript client for the
+The library is a TypeScript client for the
 [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) that connects to force-sensing
 hangboards, dynamometers, plates, and LED system boards used by climbers. It supports devices such as:
 
@@ -30,12 +30,12 @@ hangboards, dynamometers, plates, and LED system boards used by climbers. It sup
 
 The library is available in multiple flavors:
 
-| Platform         | Package                                                                                                  | Use case                                 |
-| ---------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **Web**          | [@hangtime/grip-connect](https://www.npmjs.com/package/@hangtime/grip-connect)                           | Browsers using the Web Bluetooth API     |
-| **Capacitor**    | [@hangtime/grip-connect-capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor)       | Hybrid mobile apps (iOS/Android)         |
-| **React Native** | [@hangtime/grip-connect-react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) | Native mobile apps (Expo / RN)           |
-| **CLI**          | [@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli)                   | Node.js, Bun, or Deno command-line tools |
+| Platform         | Package                                                                                                  | Use case                                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Web**          | [@hangtime/grip-connect](https://www.npmjs.com/package/@hangtime/grip-connect)                           | Browsers using the Web Bluetooth API                                                                    |
+| **Capacitor**    | [@hangtime/grip-connect-capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor)       | Hybrid mobile apps (iOS/Android)                                                                        |
+| **React Native** | [@hangtime/grip-connect-react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) | Native mobile apps (Expo / RN)                                                                          |
+| **CLI**          | [@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli)                   | [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/) command-line tools |
 
 See [Browser support](/browser-support) for Web Bluetooth requirements and [Platforms](/platforms/web) for
 platform-specific setup.
@@ -44,7 +44,8 @@ platform-specific setup.
 
 - **Web:** Chrome, Edge, or Opera; HTTPS or localhost; connection must start from a user gesture (e.g. button click).
 - **Capacitor / React Native:** Physical device (BLE does not work in simulators); native BLE plugin configured.
-- **CLI:** Node.js, Bun, or Deno; machine with Bluetooth and a supported device in range.
+- **CLI:** [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/); machine with Bluetooth
+  and a supported device in range.
 
 ---
 
