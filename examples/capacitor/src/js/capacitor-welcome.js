@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core"
 import { SplashScreen } from "@capacitor/splash-screen"
 import {
   Climbro,
@@ -15,8 +16,6 @@ globalThis.customElements.define(
   class extends HTMLElement {
     constructor() {
       super()
-
-      SplashScreen.hide()
 
       const root = this.attachShadow({ mode: "open" })
 
@@ -123,6 +122,9 @@ globalThis.customElements.define(
         </p>
         <a href="https://capacitorjs.com" target="_blank" class="button">Read more</a>
         <h2>Bluetooth LE Demo</h2>
+        <p id="ble-platform-note" style="display: none;">
+          For best Bluetooth LE support, run this example as a native app (iOS or Android).
+        </p>
         <p>
           This demo shows how to connect to a Bluetooth LE device.
           <br>
@@ -149,6 +151,13 @@ globalThis.customElements.define(
     }
 
     connectedCallback() {
+      if (Capacitor.isNativePlatform()) {
+        void SplashScreen.hide()
+      } else {
+        const platformNote = this.shadowRoot.querySelector("#ble-platform-note")
+        if (platformNote) platformNote.style.display = "block"
+      }
+
       const deviceSelect = this.shadowRoot.querySelector("#device-select")
       const deviceContainer = this.shadowRoot.querySelector("#ble-device")
 
@@ -286,7 +295,7 @@ globalThis.customElements.define(
               disconnectButton.disabled = false
             } catch (error) {
               console.error("Error connecting to device:", error)
-              deviceContainer.innerHTML = `<div class="device-info">Error connecting: ${error.message}</div>`
+              deviceContainer.innerHTML = `<div class="device-info">Error connecting: ${error?.message ?? String(error)}</div>`
             }
           })
 
@@ -299,12 +308,12 @@ globalThis.customElements.define(
               disconnectButton.disabled = true
             } catch (error) {
               console.error("Error disconnecting from device:", error)
-              deviceContainer.innerHTML = `<div class="device-info">Error disconnecting: ${error.message}</div>`
+              deviceContainer.innerHTML = `<div class="device-info">Error disconnecting: ${error?.message ?? String(error)}</div>`
             }
           })
         } catch (error) {
           console.error("Error selecting device:", error)
-          deviceContainer.innerHTML = `<div class="device-info">Error: ${error.message}</div>`
+          deviceContainer.innerHTML = `<div class="device-info">Error: ${error?.message ?? String(error)}</div>`
         }
       })
     }
