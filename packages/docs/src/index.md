@@ -7,8 +7,7 @@ description:
 hero:
   name: "Grip Connect"
   text: "Force-Sensing Climbing Training"
-  tagline:
-    "Connect over Bluetooth, stream force data, and build web or mobile apps."
+  tagline: "Connect over Bluetooth, stream force data, and build web or mobile apps."
   actions:
     - theme: brand
       text: Get started
