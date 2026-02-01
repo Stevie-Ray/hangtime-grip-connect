@@ -30,6 +30,3 @@ HTML Canvas remake of the original Flappy Bird.
 2. Use `active()` or a threshold on `massTotal` to detect a “flap” (user pull).
 3. On flap, apply upward velocity in the game loop.
 4. Gravity and collision logic run in the same loop.
-
-Run locally from the repo root: `cd examples/flappy-bird && npm install && npm run dev`. Use HTTPS or localhost and a
-user gesture to connect.

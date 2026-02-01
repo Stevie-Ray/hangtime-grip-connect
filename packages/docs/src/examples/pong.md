@@ -31,5 +31,3 @@ Pong game.
    `massRight` for split control).
 2. Map force values to paddle position or velocity (e.g. scale `massTotal` to Y position).
 3. Run the game loop: update ball, collision with paddles and walls, then render.
-
-Run locally: `cd examples/pong && npm install && npm run dev`. Use HTTPS or localhost and a user gesture to connect.

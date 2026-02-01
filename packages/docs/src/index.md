@@ -28,9 +28,12 @@ climbing hardware: **Griptonite Motherboard**, **Tindeq Progressor**, **PitchSix
 **Entralpi**, **Climbro**, **mySmartBoard**, **WH-C06**, **Frez Dyno**, and more. Use it to stream force data, drive
 games, or build training apps -on web, Capacitor, React Native, or the CLI.
 
-::: tip Browser support Web package requires Chrome, Edge, or Opera (Web Bluetooth). See
-[Browser support](/browser-support). For iOS, use [Capacitor](/platforms/capacitor) or
-[React Native](/platforms/react-native). :::
+::: tip Browser support
+
+Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser support](/browser-support). For iOS, use
+[Capacitor](/platforms/capacitor) or [React Native](/platforms/react-native).
+
+:::
 
 <div class="vp-doc" style="margin-top: 2rem;">
 

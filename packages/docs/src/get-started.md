@@ -103,8 +103,11 @@ Or import the URL directly in a module script:
 </script>
 ```
 
-::: tip Pin a version Replace `@latest` with a specific version (e.g. `@1.2.3`) in production to avoid unexpected
-updates. :::
+::: tip Pin a version
+
+Replace `@latest` with a specific version (e.g. `@1.2.3`) in production to avoid unexpected updates.
+
+:::
 
 ---
 
@@ -142,7 +145,11 @@ document.querySelector("#connect").addEventListener("click", async () => {
 <button id="connect" type="button">Connect Motherboard</button>
 ```
 
-::: warning HTTPS and user gesture Web Bluetooth requires a **secure context** (HTTPS or localhost) and a **user
-gesture** (e.g. click) to start the connection. See [Browser support](/browser-support). :::
+::: warning HTTPS and user gesture
+
+Web Bluetooth requires a **secure context** (HTTPS or localhost) and a **user gesture** (e.g. click) to start the
+connection. See [Browser support](/browser-support).
+
+:::
 
 Next: [Quick start guide](/guide) for a step-by-step flow, or [Devices](/devices/) for device-specific APIs.
