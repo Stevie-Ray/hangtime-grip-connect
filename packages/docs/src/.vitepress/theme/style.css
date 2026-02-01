@@ -1,0 +1,41 @@
+/**
+ * Grip Connect: VitePress theme overrides
+ * Uses default theme CSS variables; extends with brand and readability.
+ */
+
+:root {
+  --vp-c-brand-1: #2d6a5a;
+  --vp-c-brand-2: #3c8772;
+  --vp-c-brand-3: #4a9d85;
+}
+
+.dark {
+  --vp-c-brand-1: #4a9d85;
+  --vp-c-brand-2: #5bb89a;
+  --vp-c-brand-3: #6ed4b0;
+}
+
+/* Slightly tighter code blocks for readability */
+.vp-doc div[class*="language-"] {
+  margin: 1rem 0;
+}
+
+.vp-doc div[class*="language-"] pre {
+  padding: 1rem 1.25rem;
+}
+
+/* Hero CTA emphasis */
+.VPHome .VPButton.brand {
+  --vp-button-brand-bg: var(--vp-c-brand-1);
+  --vp-button-brand-hover-bg: var(--vp-c-brand-2);
+  --vp-button-brand-active-bg: var(--vp-c-brand-3);
+}
+
+/* Sidebar active item */
+.VPSidebarItem.is-active .link {
+  color: var(--vp-c-brand-1);
+}
+
+.VPSidebarItem.is-active .link:hover {
+  color: var(--vp-c-brand-2);
+}

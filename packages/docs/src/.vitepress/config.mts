@@ -7,49 +7,134 @@ const pkg = require("@hangtime/grip-connect/package.json")
 export default defineConfig({
   title: "Grip Connect",
   description:
-    "A client that can establish connections with various Force-Sensing Hangboards/Plates used by climbers for strength measurement",
+    "Web Bluetooth client for force-sensing hangboards, dynamometers, and LED system boards. Connect to Griptonite, Tindeq, PitchSix, Kilter Board, and more.",
   base: "/hangtime-grip-connect/",
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
+  lang: "en-US",
+  lastUpdated: false,
+  cleanUrls: true,
+
+  head: [
+    ["meta", { name: "theme-color", content: "#3c8772" }],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:title", content: "Grip Connect: Force-Sensing Climbing Training" }],
+    [
+      "meta",
       {
-        text: pkg.version,
+        property: "og:description",
+        content:
+          "Web Bluetooth client for force-sensing hangboards, dynamometers, and LED system boards. Connect, stream, and build.",
+      },
+    ],
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:title", content: "Grip Connect" }],
+    [
+      "meta",
+      {
+        name: "twitter:description",
+        content: "Web Bluetooth client for force-sensing hangboards, dynamometers, and LED system boards.",
+      },
+    ],
+  ],
+
+  themeConfig: {
+    externalLinkIcon: true,
+    nav: [
+      { text: "Guide", link: "/guide" },
+      { text: "API", link: "/api/" },
+      { text: "Devices", link: "/devices/" },
+      { text: "Examples", link: "/examples/" },
+      {
+        text: `v${pkg.version}`,
         items: [
           {
             text: "Changelog",
+            link: "https://github.com/Stevie-Ray/hangtime-grip-connect/blob/main/packages/core/CHANGELOG.md",
+          },
+          {
+            text: "GitHub",
             link: "https://github.com/Stevie-Ray/hangtime-grip-connect",
           },
         ],
       },
     ],
 
-    sidebar: [
-      {
-        text: "Introduction",
-        items: [{ text: "Get started", link: "/get-started" }],
-      },
-      {
-        text: "Integrations",
-        items: [{ text: "Vite", link: "/examples/vite" }],
-      },
-      {
-        text: "Devices",
-        link: "/devices/",
-        items: [
-          { text: "Climbro", link: "/devices/climbro" },
-          { text: "Dyno", link: "/devices/dyno" },
-          { text: "Entralpi", link: "/devices/entralpi" },
-          { text: "Force Board", link: "/devices/forceboard" },
-          { text: "Kilter Board", link: "/devices/kilterboard" },
-          { text: "MotherBoard", link: "/devices/motherboard" },
-          { text: "mySmartBoard", link: "/devices/mysmartboard" },
-          { text: "PB-700BT", link: "/devices/pb-700bt" },
-          { text: "Progressor", link: "/devices/progressor" },
-          { text: "SmartBoard Pro", link: "/devices/smartboard-pro" },
-          { text: "WH-C06", link: "/devices/wh-c06" },
-        ],
-      },
-    ],
+    sidebar: {
+      "/": [
+        {
+          text: "Introduction",
+          items: [
+            { text: "Get started", link: "/get-started" },
+            { text: "Quick start guide", link: "/guide" },
+            { text: "Adding a custom device", link: "/guide/custom-device" },
+            { text: "Browser support", link: "/browser-support" },
+          ],
+        },
+        {
+          text: "Platforms",
+          items: [
+            { text: "Web", link: "/platforms/web" },
+            { text: "Capacitor", link: "/platforms/capacitor" },
+            { text: "React Native", link: "/platforms/react-native" },
+            { text: "CLI", link: "/platforms/cli" },
+          ],
+        },
+        {
+          text: "API Reference",
+          items: [
+            { text: "Overview", link: "/api/" },
+            { text: "Device interface", link: "/api/device-interface" },
+            { text: "Data types", link: "/api/data-types" },
+          ],
+        },
+        {
+          text: "Examples",
+          items: [
+            { text: "Overview", link: "/examples/" },
+            { text: "Chart (Vite)", link: "/examples/vite" },
+            { text: "Flappy Bird", link: "/examples/flappy-bird" },
+            { text: "Kilter Board", link: "/examples/kilter-board" },
+            { text: "Pong", link: "/examples/pong" },
+            { text: "Runtime (Node)", link: "/examples/runtime" },
+          ],
+        },
+        {
+          text: "Devices",
+          link: "/devices/",
+          items: [
+            { text: "Climbro", link: "/devices/climbro" },
+            { text: "Dyno", link: "/devices/dyno" },
+            { text: "Entralpi", link: "/devices/entralpi" },
+            { text: "Force Board", link: "/devices/forceboard" },
+            { text: "Kilter Board", link: "/devices/kilterboard" },
+            { text: "MotherBoard", link: "/devices/motherboard" },
+            { text: "mySmartBoard", link: "/devices/mysmartboard" },
+            { text: "PB-700BT", link: "/devices/pb-700bt" },
+            { text: "Progressor", link: "/devices/progressor" },
+            { text: "SmartBoard Pro", link: "/devices/smartboard-pro" },
+            { text: "WH-C06", link: "/devices/wh-c06" },
+          ],
+        },
+      ],
+    },
+
+    outline: {
+      level: [2, 3, 4],
+      label: "On this page",
+    },
+    search: {
+      provider: "local",
+    },
+    editLink: {
+      pattern: "https://github.com/Stevie-Ray/hangtime-grip-connect/edit/main/packages/docs/src/:path",
+      text: "Edit this page on GitHub",
+    },
+    sidebarMenuLabel: "Menu",
+    returnToTopLabel: "Back to top",
+    darkModeSwitchLabel: "Appearance",
+    docFooter: {
+      prev: "Previous page",
+      next: "Next page",
+    },
 
     socialLinks: [
       {
@@ -57,5 +142,9 @@ export default defineConfig({
         link: "https://github.com/Stevie-Ray/hangtime-grip-connect",
       },
     ],
+    footer: {
+      message: "Released under the BSD 2-Clause License.",
+      copyright: "Copyright © Stevie-Ray Hartog",
+    },
   },
 })

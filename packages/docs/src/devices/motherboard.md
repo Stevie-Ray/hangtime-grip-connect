@@ -1,69 +1,61 @@
-### Basic Usage
+---
+title: Motherboard
+description: "Griptonite Motherboard: hangboard with LED and force streaming"
+---
+
+# Griptonite Motherboard
+
+The [Griptonite Motherboard](https://griptonite.io/shop/motherboard/) is a force-sensing hangboard with configurable
+LEDs (green, red, orange) and real-time force streaming. It supports battery, firmware/hardware info, calibration, and
+session export.
+
+## Basic usage
 
 ```ts
 import { Motherboard } from "@hangtime/grip-connect"
 
 const device = new Motherboard()
+device.notify((data) => console.log(data.massTotal, data.massMax))
+
+await device.connect(
+  async () => {
+    console.log("Battery:", await device.battery())
+    await device.stream(30000)
+    device.download("json")
+    device.disconnect()
+  },
+  (err) => console.error(err),
+)
 ```
 
-### Device features
+## Device-specific methods
 
-See [Devices](/devices/) for default device features.
+In addition to the shared [device interface](/api/device-interface), Motherboard provides:
+
+| Method              | Returns                          | Description                                                                                                          |
+| ------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `battery()`         | `Promise<string \| undefined>`   | Battery or voltage information.                                                                                      |
+| `calibration()`     | `Promise<void>`                  | Request calibration data from the device.                                                                            |
+| `firmware()`        | `Promise<string \| undefined>`   | Firmware version.                                                                                                    |
+| `hardware()`        | `Promise<string \| undefined>`   | Hardware version.                                                                                                    |
+| `led(config?)`      | `Promise<number[] \| undefined>` | Set LED color. `"green"` \| `"red"` \| `"orange"`; omit to turn off. Returns payload for Kilter Board compatibility. |
+| `manufacturer()`    | `Promise<string \| undefined>`   | Manufacturer info.                                                                                                   |
+| `serial()`          | `Promise<string \| undefined>`   | Serial number.                                                                                                       |
+| `stop()`            | `Promise<void>`                  | Stop an ongoing stream.                                                                                              |
+| `stream(duration?)` | `Promise<void>`                  | Start force stream. `duration` in ms; `0` or omit for continuous.                                                    |
+
+## Example with LED
 
 ```ts
-  /**
-   * Retrieves battery or voltage information from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
-   */
-  battery(): Promise<string | undefined>
-
-  /**
-   * Writes a command to get calibration data from the device.
-   * @returns {Promise<void>} A Promise that resolves when the command is successfully sent.
-   */
-  calibration(): Promise<void>
-
-  /**
-   * Retrieves firmware version from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the firmware version.
-   */
-  firmware(): Promise<string | undefined>
-
-  /**
-   * Retrieves hardware version from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the hardware version.
-   */
-  hardware(): Promise<string | undefined>
-
-  /**
-   * Sets the LED color based on a single color option.
-   * @param {"green" | "red" | "orange"} [config] - Optional color for the LEDs.
-   * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied.
-   */
-  led(config?: "green" | "red" | "orange"): Promise<number[] | undefined>
-
-  /**
-   * Retrieves manufacturer information from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the manufacturer information.
-   */
-  manufacturer(): Promise<string | undefined>
-
-  /**
-   * Retrieves serial number from the device.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the serial number.
-   */
-  serial(): Promise<string | undefined>
-
-  /**
-   * Stops the data stream on the specified device.
-   * @returns {Promise<void>} A promise that resolves when the stream is stopped.
-   */
-  stop(): Promise<void>
-
-  /**
-   * Starts streaming data from the specified device.
-   * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
-   * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
-   */
-  stream(duration?: number): Promise<void>
+await device.connect(
+  async () => {
+    await device.led("green") // optional: set LED color
+    await device.stream(0) // stream until stop()
+    device.notify((data) => console.log(data))
+    // later: device.stop(); device.disconnect()
+  },
+  (err) => console.error(err),
+)
 ```
+
+See [Guide](/guide) and [API Reference](/api/) for more.

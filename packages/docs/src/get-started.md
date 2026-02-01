@@ -1,116 +1,148 @@
-# Get Started
+---
+title: Get started
+description: Install Grip Connect for Web, Capacitor, React Native, or CLI and run a minimal example.
+---
 
-The objective of this project is to create a Web Bluetooth API client that can establish connections with various
-Force-Sensing Hangboards / Dynamometers / Plates / LED system boards used by climbers. Examples of such tools include
-the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
-[Tindeq Progressor](https://tindeq.com/product/progressor/),
-[PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
-[Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
-[Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno), [Entralpi](https://entralpi.com/),
-[Climbro](https://climbro.com/), or [mySmartBoard](https://www.smartboard-climbing.com/)
+# Get started
 
-And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
-[Kilter Board](https://settercloset.com/pages/the-kilter-board),
-[Tension Board](https://tensionclimbing.com/product/tension-board-2/),
-[Grasshopper Board](https://grasshopperclimbing.com/products/),
-[Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
-[So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
+This page walks you through installing Grip Connect and running a minimal connect-and-stream example. For a step-by-step
+flow, see the [Quick start guide](/guide).
 
-And gyroscopic hand exercisers, such as the [NSD PB-700BT](https://www.nsd.com.tw/).
+## What is Grip Connect?
 
-The library is available in multiple flavors to support different platforms:
+Grip Connect is a TypeScript client for the
+[Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) that connects to force-sensing
+hangboards, dynamometers, plates, and LED system boards used by climbers. It supports devices such as:
 
-- **Web**: The core package for web applications using the Web Bluetooth API
-- **Capacitor**: For hybrid mobile apps using Capacitor
-- **React Native**: For native mobile apps using React Native
-- **CLI**: Command-line tools for device management and data analysis
+- **Hangboards:** [Griptonite Motherboard](https://griptonite.io/shop/motherboard/), [Climbro](https://climbro.com/),
+  [mySmartBoard](https://www.smartboard-climbing.com/)
+- **Dynamometers:** [Tindeq Progressor](https://tindeq.com/product/progressor/),
+  [PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
+  [Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno),
+  [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/)
+- **Scales / force plates:** [Entralpi](https://entralpi.com/)
+- **LED system boards:** [Kilter Board](https://settercloset.com/pages/the-kilter-board),
+  [Tension Board](https://tensionclimbing.com/product/tension-board-2/),
+  [Grasshopper Board](https://grasshopperclimbing.com/products/),
+  [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/),
+  [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082)
+- **Other:** [NSD PB-700BT](https://www.nsd.com.tw/) (gyroscopic hand exerciser)
 
-Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/) -
-[Browser Support](https://caniuse.com/web-bluetooth) - [Discord](https://discord.gg/f7QQnEBQQt)
+The library is available in multiple flavors:
+
+| Platform         | Package                                                                                                  | Use case                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| **Web**          | [@hangtime/grip-connect](https://www.npmjs.com/package/@hangtime/grip-connect)                           | Browsers using the Web Bluetooth API     |
+| **Capacitor**    | [@hangtime/grip-connect-capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor)       | Hybrid mobile apps (iOS/Android)         |
+| **React Native** | [@hangtime/grip-connect-react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) | Native mobile apps (Expo / RN)           |
+| **CLI**          | [@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli)                   | Node.js, Bun, or Deno command-line tools |
+
+See [Browser support](/browser-support) for Web Bluetooth requirements and [Platforms](/platforms/web) for
+platform-specific setup.
+
+## Prerequisites
+
+- **Web:** Chrome, Edge, or Opera; HTTPS or localhost; connection must start from a user gesture (e.g. button click).
+- **Capacitor / React Native:** Physical device (BLE does not work in simulators); native BLE plugin configured.
+- **CLI:** Node.js, Bun, or Deno; machine with Bluetooth and a supported device in range.
+
+---
 
 ## Installation
 
-The packages are available on both [NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and
-[JSR](https://jsr.io/@hangtime/grip-connect).
+Install the package for your target platform.
 
 ::: code-group
 
-```sh [npm]
-# For Web applications
-$ npm install @hangtime/grip-connect
-
-# For Capacitor hybrid mobile apps
-$ npm install @hangtime/grip-connect-capacitor
-
-# For React Native mobile apps
-$ npm install @hangtime/grip-connect-react-native
-
-# For Node.js, Bun, Deno CLI tools
-$ npm install @hangtime/grip-connect-cli
-$ bun add @hangtime/grip-connect-cli
-$ deno add @hangtime/grip-connect-cli
+```sh [Web]
+npm install @hangtime/grip-connect
 ```
 
-## Example usage (Motherboard)
+```sh [Capacitor]
+npm install @hangtime/grip-connect-capacitor
+```
 
-Simply importing the device you need from `@hangtime/grip-connect`.
+```sh [React Native]
+npm install @hangtime/grip-connect-react-native
+```
+
+```sh [CLI]
+npm install @hangtime/grip-connect-cli
+```
+
+:::
+
+Packages are also available on [JSR](https://jsr.io/@hangtime/grip-connect).
+
+### Using from CDN
+
+You can load the library via [unpkg](https://unpkg.com/) without a build step. Use the latest ESM bundle:
 
 ```html
-<button id="motherboard" type="button">Connect Motherboard</button>
+<script type="importmap">
+  {
+    "imports": {
+      "@hangtime/grip-connect": "https://unpkg.com/@hangtime/grip-connect@latest?module"
+    }
+  }
+</script>
+<script type="module">
+  import { Motherboard } from "@hangtime/grip-connect"
+  const device = new Motherboard()
+  // ...
+</script>
 ```
 
-```js
+Or import the URL directly in a module script:
+
+```html
+<script type="module">
+  import { Motherboard } from "https://unpkg.com/@hangtime/grip-connect@latest?module"
+  const device = new Motherboard()
+  // ...
+</script>
+```
+
+::: tip Pin a version Replace `@latest` with a specific version (e.g. `@1.2.3`) in production to avoid unexpected
+updates. :::
+
+---
+
+## Minimal example (Web)
+
+After installing `@hangtime/grip-connect`, import the device class you need and connect.
+
+```ts
 import { Motherboard } from "@hangtime/grip-connect"
 
-// Initiate device
-const motherboard = new Motherboard()
+const device = new Motherboard()
 
-// Optional: Custom data handler
-motherboard.notify((data) => {
-  // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
-  console.log(data)
+// Optional: handle real-time data
+device.notify((data) => {
+  console.log(data) // { massTotal, massMax, massAverage, massLeft, massCenter, massRight }
 })
 
-// Optional: Check if the device is active
-motherboard.active(
-  (isActive) => {
-    console.log(isActive)
-  },
-  // Optionally using a weight threshold and duration
-  { threshold: 2.5, duration: 1000 },
-)
+// Optional: detect when user is pulling
+device.active((isActive) => console.log("Active:", isActive), { threshold: 2.5, duration: 1000 })
 
-document.querySelector("#motherboard").addEventListener("click", async () => {
-  // Connect to device
-  await motherboard.connect(
+document.querySelector("#connect").addEventListener("click", async () => {
+  await device.connect(
     async () => {
-      // Example: Read device specific data
-      const batteryLevel = await motherboard.battery()
-      console.log(batteryLevel)
-
-      // LEDs: "green", "red", "orange", or no argument to turn off
-      // await motherboard.led("red")
-      // await motherboard.led()
-
-      // Start weight streaming (for 30s) remove parameter for a continues stream
-      await motherboard.stream(30000)
-
-      // Manualy tare the device when the stream is running
-      // await motherboard.tare(5000)
-
-      // Manually call stop method if stream is continues
-      // await motherboard.stop()
-
-      // Download data as CSV, JSON, or XML (default: CSV) format => timestamp, frame, battery, samples, masses
-      // await motherboard.download('json')
-
-      // Optionally disconnect from device after we are done
-      motherboard.disconnect()
+      const battery = await device.battery()
+      console.log("Battery:", battery)
+      await device.stream(30000) // stream for 30 seconds
+      device.disconnect()
     },
-    (error) => {
-      // Optinal custom error handeling
-      console.error(error.message)
-    },
+    (err) => console.error(err.message),
   )
 })
 ```
+
+```html
+<button id="connect" type="button">Connect Motherboard</button>
+```
+
+::: warning HTTPS and user gesture Web Bluetooth requires a **secure context** (HTTPS or localhost) and a **user
+gesture** (e.g. click) to start the connection. See [Browser support](/browser-support). :::
+
+Next: [Quick start guide](/guide) for a step-by-step flow, or [Devices](/devices/) for device-specific APIs.

@@ -1,17 +1,42 @@
 ---
+title: Chart (Vite)
+description:
+  Stream force data and plot it live with Vite and @hangtime/grip-connect. Try the live demo, StackBlitz, or run
+  locally.
 aside: false
 ---
 
-# Vite
+# Chart (Vite)
 
-::: warning StackBlitz doesn't allow to use Bluetooth in the web editor.
+Connect to your device, stream force data, and watch it plotted in real time. Ideal for testing the connection and
+seeing mass/force values.
 
-- Click on the `Edit on StackBlitz` link.
-- Wait for the container to boot up.
-- In the top right corner, select `Open in New Tab`.
-- Once the new tab is open, click on `Connect to Project`.
+## Live demo
 
-That's it! You're ready to connect to your Force Force-Sensing Hangboard/Plate . 🚀✨ :::
+[Chart](https://grip-connect.vercel.app/) - stream force from your device and see it plotted live.
+
+## Source
+
+[examples/chart](https://github.com/Stevie-Ray/hangtime-grip-connect/tree/main/examples/chart)
+
+## Stack
+
+- Vite + TypeScript
+- `@hangtime/grip-connect` (Motherboard or other supported device)
+- [Chart.js](https://www.chartjs.org/) for live force/mass plotting
+
+## Try in StackBlitz
+
+::: warning StackBlitz doesn't allow Bluetooth in the web editor
+
+- Click the **Edit on StackBlitz** link below.
+- Wait for the container to boot.
+- In the top right, select **Open in New Tab**.
+- In the new tab, click **Connect to Project**.
+
+You can then connect to your force-sensing device.
+
+:::
 
 [Edit on StackBlitz](https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/examples/chart?file=src%2Fdevices.ts)
 
