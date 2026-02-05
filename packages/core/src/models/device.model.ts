@@ -1,6 +1,12 @@
 import { BaseModel } from "./../models/base.model.js"
 import type { IDevice, Service } from "../interfaces/device.interface.js"
-import type { ActiveCallback, massObject, NotifyCallback, WriteCallback } from "../interfaces/callback.interface.js"
+import type {
+  ActiveCallback,
+  ForceMeasurement,
+  ForceUnit,
+  NotifyCallback,
+  WriteCallback,
+} from "../interfaces/callback.interface.js"
 import type { DownloadPacket } from "../interfaces/download.interface.js"
 import type { Commands } from "../interfaces/command.interface.js"
 
@@ -67,26 +73,55 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
-   * Maximum mass recorded from the device, initialized to "0".
-   * @type {string}
-   * @protected
-   */
-  protected massMax: string
-
-  /**
-   * Average mass calculated from the device data, initialized to "0".
-   * @type {string}
-   * @protected
-   */
-  protected massAverage: string
-
-  /**
-   * Total sum of all mass data points recorded from the device.
-   * Used to calculate the average mass.
+   * Highest instantaneous force (peak) recorded in the session; may be negative.
+   * Initialized to Number.NEGATIVE_INFINITY so the first sample sets the peak.
    * @type {number}
    * @protected
    */
-  protected massTotalSum: number
+  protected peak: number
+
+  /**
+   * Mean (average) force over the session, initialized to 0.
+   * @type {number}
+   * @protected
+   */
+  protected mean: number
+
+  /**
+   * Display unit for force measurements.
+   * @type {ForceUnit}
+   * @protected
+   */
+  protected unit: ForceUnit
+
+  /**
+   * Optional sampling rate in Hz when known or calculated from notification timestamps.
+   * @type {number | undefined}
+   * @protected
+   */
+  protected samplingRateHz?: number
+
+  /**
+   * Start time of the current rate measurement interval.
+   * @type {number}
+   * @private
+   */
+  private rateIntervalStart = 0
+
+  /**
+   * Number of samples in the current rate measurement interval.
+   * @type {number}
+   * @private
+   */
+  private rateIntervalSamples = 0
+
+  /**
+   * Running sum of force values for the session.
+   * Used to calculate mean (average) force.
+   * @type {number}
+   * @protected
+   */
+  protected sum: number
 
   /**
    * Number of data points received from the device.
@@ -135,13 +170,13 @@ export abstract class Device extends BaseModel implements IDevice {
   private tareDuration = 5000
 
   /**
-   * Optional callback for handling write operations.
+   * Optional callback for handling mass/force data notifications.
    * @callback NotifyCallback
-   * @param {massObject} data - The data passed to the callback.
+   * @param {ForceMeasurement} data - The force measurement passed to the callback.
    * @type {NotifyCallback | undefined}
    * @protected
    */
-  protected notifyCallback: NotifyCallback = (data: massObject) => console.log(data)
+  protected notifyCallback: NotifyCallback = (data: ForceMeasurement) => console.log(data)
 
   /**
    * Optional callback for handling write operations.
@@ -189,13 +224,119 @@ export abstract class Device extends BaseModel implements IDevice {
       this.bluetooth = device.bluetooth
     }
 
-    this.massMax = "0"
-    this.massAverage = "0"
-    this.massTotalSum = 0
+    this.peak = Number.NEGATIVE_INFINITY
+    this.mean = 0
+    this.sum = 0
     this.dataPointCount = 0
+    this.unit = "kg"
+
+    // Reset sampling rate calculation state
+    this.rateIntervalStart = 0
+    this.rateIntervalSamples = 0
 
     this.createdAt = new Date()
     this.updatedAt = new Date()
+  }
+
+  /**
+   * Builds a ForceMeasurement for a single zone (e.g. left/center/right).
+   * With one argument, current/peak/mean are all set to that value.
+   * With three arguments, uses the given current, peak, and mean for the zone.
+   * @param valueOrCurrent - Force value, or current force for this zone
+   * @param peak - Optional peak for this zone (required if mean is provided)
+   * @param mean - Optional mean for this zone
+   * @returns ForceMeasurement (no nested distribution)
+   * @protected
+   */
+  protected buildZoneMeasurement(valueOrCurrent: number, peak?: number, mean?: number): ForceMeasurement {
+    const useFullStats = peak !== undefined && mean !== undefined
+    const current = valueOrCurrent
+    const zonePeak = useFullStats ? (peak === 0 && current < 0 ? current : peak) : valueOrCurrent
+    const zoneMean = useFullStats ? mean : valueOrCurrent
+    const zone: ForceMeasurement = {
+      unit: this.unit,
+      timestamp: Date.now(),
+      current,
+      peak: zonePeak,
+      mean: zoneMean,
+    }
+    if (this.samplingRateHz !== undefined) {
+      zone.samplingRateHz = this.samplingRateHz
+    }
+    return zone
+  }
+
+  /**
+   * Interval duration (ms) for sampling rate calculation.
+   * @private
+   * @readonly
+   */
+  private static readonly RATE_INTERVAL_MS = 1000
+
+  /**
+   * Calculates sampling rate: samples per second.
+   * Uses fixed intervals to avoid sliding window edge effects.
+   * @private
+   */
+  private updateSamplingRate(): void {
+    const now = Date.now()
+
+    if (this.rateIntervalStart === 0) {
+      this.rateIntervalStart = now
+    }
+
+    this.rateIntervalSamples++
+
+    const elapsed = now - this.rateIntervalStart
+    if (elapsed >= Device.RATE_INTERVAL_MS) {
+      this.samplingRateHz = Math.round((this.rateIntervalSamples / elapsed) * 1000)
+      this.rateIntervalStart = now
+      this.rateIntervalSamples = 0
+    }
+  }
+
+  /**
+   * Builds a ForceMeasurement payload with unit and timestamp for notify callbacks.
+   * @param current - Current force at this sample
+   * @param distribution - Optional zone distribution: numbers (converted via buildZoneMeasurement) or full ForceMeasurement per zone
+   * @returns ForceMeasurement
+   * @protected
+   */
+  protected buildForceMeasurement(
+    current: number,
+    distribution?: {
+      left?: ForceMeasurement
+      center?: ForceMeasurement
+      right?: ForceMeasurement
+    },
+  ): ForceMeasurement {
+    this.updateSamplingRate()
+    const payload: ForceMeasurement = {
+      unit: this.unit,
+      timestamp: Date.now(),
+      current,
+      peak: this.peak,
+      mean: this.mean,
+    }
+    if (this.samplingRateHz !== undefined) {
+      payload.samplingRateHz = this.samplingRateHz
+    }
+    if (
+      distribution !== undefined &&
+      (distribution.left !== undefined || distribution.center !== undefined || distribution.right !== undefined)
+    ) {
+      payload.distribution = {}
+      if (distribution.left !== undefined) {
+        payload.distribution.left = distribution.left
+      }
+      if (distribution.center !== undefined) {
+        payload.distribution.center = distribution.center
+      }
+      if (distribution.right !== undefined) {
+        payload.distribution.right = distribution.right
+      }
+    }
+    return payload
   }
 
   /**

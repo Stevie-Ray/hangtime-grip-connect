@@ -15,7 +15,7 @@ session export.
 import { Motherboard } from "@hangtime/grip-connect"
 
 const device = new Motherboard()
-device.notify((data) => console.log(data.massTotal, data.massMax))
+device.notify((data) => console.log(data.current, data.peak))
 
 await device.connect(
   async () => {

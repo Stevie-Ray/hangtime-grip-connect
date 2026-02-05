@@ -27,6 +27,6 @@ HTML Canvas remake of the original Flappy Bird.
 ## Pattern
 
 1. Connect to the device and start streaming (or use `notify()` for real-time data).
-2. Use `active()` or a threshold on `massTotal` to detect a “flap” (user pull).
+2. Use `active()` or a threshold on `data.current` to detect a “flap” (user pull).
 3. On flap, apply upward velocity in the game loop.
 4. Gravity and collision logic run in the same loop.

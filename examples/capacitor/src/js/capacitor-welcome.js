@@ -222,9 +222,9 @@ globalThis.customElements.define(
             <div id="mass-data" style="margin-top: 15px; padding: 10px; border: 1px solid #eee; border-radius: 4px;">
               <h3>Output</h3>
               <div id="mass-values">
-                <p>Total: <span id="mass-total">0</span></p>
-                <p>Max: <span id="mass-max">0</span></p>
-                <p>Average: <span id="mass-average">0</span></p>
+                <p>Current: <span id="mass-current">0</span></p>
+                <p>Peak: <span id="mass-peak">0</span></p>
+                <p>Mean: <span id="mass-mean">0</span></p>
               </div>
               <div class="button-group" style="margin-top: 12px;">
                 <button class="button" id="download">Download</button>
@@ -244,9 +244,9 @@ globalThis.customElements.define(
                   }
                   device.notify((data) => {
                     const massData = {
-                      "mass-total": data.massTotal || "0",
-                      "mass-max": data.massMax || "0",
-                      "mass-average": data.massAverage || "0",
+                      "mass-current": String(data.current ?? 0),
+                      "mass-peak": String(data.peak ?? 0),
+                      "mass-mean": String(data.mean ?? 0),
                     }
                     Object.entries(massData).forEach(([id, value]) => {
                       const element = deviceElement.querySelector(`#${id}`)

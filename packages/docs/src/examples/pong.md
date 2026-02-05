@@ -27,7 +27,7 @@ Pong game.
 
 ## Pattern
 
-1. Connect to the device and subscribe with `notify()` to get real-time `massTotal` (and optionally `massLeft` /
-   `massRight` for split control).
-2. Map force values to paddle position or velocity (e.g. scale `massTotal` to Y position).
+1. Connect to the device and subscribe with `notify()` to get real-time `data.current` (and optionally
+   `data.distribution?.left` / `data.distribution?.right` for split control).
+2. Map force values to paddle position or velocity (e.g. scale `data.current` to Y position).
 3. Run the game loop: update ball, collision with paddles and walls, then render.

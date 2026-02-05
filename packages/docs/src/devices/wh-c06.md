@@ -34,7 +34,7 @@ receive data from each advertisement packet.
 import { WHC06 } from "@hangtime/grip-connect"
 
 const device = new WHC06()
-device.notify((data) => console.log(data.massTotal))
+device.notify((data) => console.log(data.current))
 
 await device.connect(
   async () => {

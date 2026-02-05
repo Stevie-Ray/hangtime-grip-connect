@@ -80,7 +80,7 @@ const motherboard = new Motherboard()
 
 // Optional: Custom data handler
 motherboard.notify((data) => {
-  // { massTotal: "0", massMax: "0", massAverage: "0", massLeft: "0", massCenter: "0", massRight: "0" }
+  // { unit, timestamp, current, peak, mean, distribution? }
   console.log(data)
 })
 

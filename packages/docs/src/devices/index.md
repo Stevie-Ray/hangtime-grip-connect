@@ -17,10 +17,10 @@ Every device supports these methods. Optional callbacks and device-specific supp
 
 ### Data and notifications
 
-| Method                        | Description                                                                                                                           |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `notify(callback)`            | Sets the callback for real-time mass/force data. The callback receives a `massObject` (see [Data types](/api/data-types#massobject)). |
-| `active(callback?, options?)` | Sets the callback for activity status (e.g. user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).         |
+| Method                        | Description                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `notify(callback)`            | Sets the callback for real-time mass/force data. The callback receives a `ForceMeasurement` (see [Data types](/api/data-types#forcemeasurement)). |
+| `active(callback?, options?)` | Sets the callback for activity status (e.g. user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                     |
 
 ### Read / write
 
@@ -75,4 +75,4 @@ Many devices add methods on top of the shared interface:
 - **LED**: Where supported (e.g. Motherboard, Kilter Board): `await device.led("red")` or `device.led()` to turn off.
 - **Download**: Uses the shared `download(format?)` to export session data.
 
-See the [API](/api/) for the full interface and [Data types](/api/data-types) for `massObject` and callbacks.
+See the [API](/api/) for the full interface and [Data types](/api/data-types) for `ForceMeasurement` and callbacks.

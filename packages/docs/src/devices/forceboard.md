@@ -15,7 +15,7 @@ configuration.
 import { ForceBoard } from "@hangtime/grip-connect"
 
 const device = new ForceBoard()
-device.notify((data) => console.log(data.massTotal))
+device.notify((data) => console.log(data.current))
 
 await device.connect(
   async () => {

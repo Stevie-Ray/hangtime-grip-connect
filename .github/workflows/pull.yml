@@ -22,3 +22,6 @@ jobs:
 
       - name: Lint
         run: npm run lint:check
+
+      - name: Build
+        run: npm run build

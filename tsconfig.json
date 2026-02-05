@@ -4,7 +4,8 @@
     { "path": "packages/capacitor" },
     { "path": "packages/cli" },
     { "path": "packages/core" },
-    { "path": "packages/react-native" }
+    { "path": "packages/react-native" },
+    { "path": "packages/runtime" }
     // { "path": "examples/chart" },
     // { "path": "examples/flappy-bird" },
     // { "path": "examples/kilter-board" },

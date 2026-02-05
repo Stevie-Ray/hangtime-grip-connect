@@ -31,7 +31,7 @@ this with extra methods like `battery()`, `stream()`, and `led()`.
 
 | Method                        | Description                                                                                                              |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `notify(callback)`            | Sets the callback for real-time mass/force data. Callback receives a `massObject`.                                       |
+| `notify(callback)`            | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`.                                 |
 | `active(callback?, options?)` | Sets the callback for activity status (user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms). |
 
 ### Read / write
@@ -62,12 +62,12 @@ await device.connect(
 )
 
 // Notify and active
-device.notify((data) => console.log(data.massTotal))
+device.notify((data) => console.log(data.current))
 device.active((isActive) => console.log(isActive), { threshold: 3, duration: 1500 })
 
 // Disconnect
 device.disconnect()
 ```
 
-See [Data types](/api/data-types) for `massObject` and `Service`, [Exports](/api/exports) for all device classes, and
-[Devices](/devices/) for device-specific methods like `battery()` and `led()`.
+See [Data types](/api/data-types) for `ForceMeasurement` and `Service`, [Exports](/api/exports) for all device classes,
+and [Devices](/devices/) for device-specific methods like `battery()` and `led()`.

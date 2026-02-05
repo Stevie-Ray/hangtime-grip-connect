@@ -182,26 +182,22 @@ export class Entralpi extends Device implements IEntralpi {
           masses: [numericData],
         })
 
-        // Update massMax
-        this.massMax = Math.max(Number(this.massMax), numericData).toFixed(1)
+        // Update peak
+        this.peak = Math.max(this.peak, numericData)
 
         // Update running sum and count
         const currentMassTotal = Math.max(-1000, numericData)
-        this.massTotalSum += currentMassTotal
+        this.sum += currentMassTotal
         this.dataPointCount++
 
         // Calculate the average dynamically
-        this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+        this.mean = this.sum / this.dataPointCount
 
         // Check if device is being used
         this.activityCheck(numericData)
 
         // Notify with weight data
-        this.notifyCallback({
-          massMax: this.massMax,
-          massAverage: this.massAverage,
-          massTotal: Math.max(-1000, numericData).toFixed(1),
-        })
+        this.notifyCallback(this.buildForceMeasurement(Math.max(-1000, numericData)))
       }
     }
   }

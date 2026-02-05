@@ -1,6 +1,6 @@
 ---
 title: Get started
-description: Install the library for Web, Capacitor, React Native, or CLI and run a minimal example.
+description: Install the library for Web, Capacitor, React Native, Runtime, or CLI and run a minimal example.
 ---
 
 # Get started
@@ -30,22 +30,23 @@ hangboards, dynamometers, plates, and LED system boards used by climbers. It sup
 
 The library is available in multiple flavors:
 
-| Platform         | Package                                                                                                  | Use case                                                                                                |
-| ---------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Web**          | [@hangtime/grip-connect](https://www.npmjs.com/package/@hangtime/grip-connect)                           | Browsers using the Web Bluetooth API                                                                    |
-| **Capacitor**    | [@hangtime/grip-connect-capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor)       | Hybrid mobile apps (iOS/Android)                                                                        |
-| **React Native** | [@hangtime/grip-connect-react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) | Native mobile apps (Expo / RN)                                                                          |
-| **CLI**          | [@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli)                   | [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/) command-line tools |
+| Platform         | Package                                                                                                  | Use case                                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Web**          | [@hangtime/grip-connect](https://www.npmjs.com/package/@hangtime/grip-connect)                           | Browsers using the Web Bluetooth API                                                                      |
+| **Capacitor**    | [@hangtime/grip-connect-capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor)       | Hybrid mobile apps (iOS/Android)                                                                          |
+| **React Native** | [@hangtime/grip-connect-react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) | Native mobile apps (Expo / RN)                                                                            |
+| **Runtime**      | [@hangtime/grip-connect-runtime](https://www.npmjs.com/package/@hangtime/grip-connect-runtime)           | [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/) programmatic adapter |
+| **CLI**          | [@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli)                   | Ready-made command-line tool for scanning, streaming, and exporting data                                  |
 
-See [Browser support](/browser-support) for Web Bluetooth requirements and [Platforms](/platforms/web) for
+See [Browser support](/browser-support) for Web Bluetooth requirements and [Platforms](/platforms/) for
 platform-specific setup.
 
 ## Prerequisites
 
 - **Web:** Chrome, Edge, or Opera; HTTPS or localhost; connection must start from a user gesture (e.g. button click).
 - **Capacitor / React Native:** Physical device (BLE does not work in simulators); native BLE plugin configured.
-- **CLI:** [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/); machine with Bluetooth
-  and a supported device in range.
+- **Runtime / CLI:** [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/); machine with
+  Bluetooth and a supported device in range.
 
 ---
 
@@ -67,8 +68,12 @@ npm install @hangtime/grip-connect-capacitor
 npm install @hangtime/grip-connect-react-native
 ```
 
+```sh [Runtime]
+npm install @hangtime/grip-connect-runtime
+```
+
 ```sh [CLI]
-npm install @hangtime/grip-connect-cli
+npm install -g @hangtime/grip-connect-cli
 ```
 
 :::
@@ -123,7 +128,7 @@ const device = new Motherboard()
 
 // Optional: handle real-time data
 device.notify((data) => {
-  console.log(data) // { massTotal, massMax, massAverage, massLeft, massCenter, massRight }
+  console.log(data) // { unit, timestamp, current, peak, mean, distribution? }
 })
 
 // Optional: detect when user is pulling

@@ -1,5 +1,5 @@
 import type { IBase } from "./base.interface.js"
-import type { massObject } from "./callback.interface.js"
+import type { ForceMeasurement } from "./callback.interface.js"
 import type { Commands } from "./command.interface.js"
 
 /**
@@ -160,7 +160,7 @@ export interface IDevice extends IBase {
    *   console.log('Received notification:', data);
    * });
    */
-  notify(callback: (data: massObject) => void): void
+  notify(callback: (data: ForceMeasurement) => void): void
 
   /**
    * Reads the value of the specified characteristic from the device.

@@ -79,6 +79,7 @@ export default defineConfig({
             { text: "Web", link: "/platforms/web" },
             { text: "Capacitor", link: "/platforms/capacitor" },
             { text: "React Native", link: "/platforms/react-native" },
+            { text: "Runtime", link: "/platforms/runtime" },
             { text: "CLI", link: "/platforms/cli" },
           ],
         },

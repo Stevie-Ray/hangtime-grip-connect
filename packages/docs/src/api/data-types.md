@@ -1,32 +1,64 @@
 ---
 title: Data types
-description: massObject, Service, Characteristic, DownloadPacket, callbacks, Commands.
+description: ForceStats, ForceMeasurement, ForceUnit, Service, Characteristic, DownloadPacket, callbacks, Commands.
 ---
 
 # Data types
 
 Shared types used across devices.
 
-## massObject
+## ForceUnit
 
-Real-time mass/force data passed to the `notify()` callback. All numeric values are strings.
-
-| Property      | Type     | Description                     |
-| ------------- | -------- | ------------------------------- |
-| `massTotal`   | `string` | Total mass/force.               |
-| `massMax`     | `string` | Maximum value in the session.   |
-| `massAverage` | `string` | Average value.                  |
-| `massLeft?`   | `string` | Left zone (e.g. Motherboard).   |
-| `massCenter?` | `string` | Center zone (e.g. Motherboard). |
-| `massRight?`  | `string` | Right zone (e.g. Motherboard).  |
+Force-equivalent display unit used for all values in a measurement (`"kg"` or `"lbs"`).
 
 ```ts
-import type { massObject } from "@hangtime/grip-connect"
+export type ForceUnit = "kg" | "lbs"
+```
 
-device.notify((data: massObject) => {
-  console.log(data.massTotal, data.massMax, data.massAverage)
-  if (data.massLeft != null) {
-    console.log("Left:", data.massLeft, "Center:", data.massCenter, "Right:", data.massRight)
+## ForceStats
+
+Core statistical values describing force over a time window or session.
+
+| Property  | Type     | Description                                                    |
+| --------- | -------- | -------------------------------------------------------------- |
+| `current` | `number` | Instantaneous total force at the current sample moment.        |
+| `peak`    | `number` | Highest instantaneous force in the measured window/session.    |
+| `mean`    | `number` | Mean (average) force across all samples in the window/session. |
+
+## ForceMeasurement
+
+Complete force measurement including timing, unit, and optional spatial distribution. Extends `ForceStats`. Passed to
+the `notify()` callback; can represent a single real-time sample or a rolling/session summary.
+
+| Property          | Type        | Description                                                       |
+| ----------------- | ----------- | ----------------------------------------------------------------- |
+| `unit`            | `ForceUnit` | Display unit for all force values (kgf or lbf).                   |
+| `timestamp`       | `number`    | Unix epoch in milliseconds when the measurement was recorded.     |
+| `samplingRateHz?` | `number`    | Optional sampling frequency in Hz. (for RFD, impulse, filtering). |
+| `current`         | `number`    | From ForceStats: force at the current sample.                     |
+| `peak`            | `number`    | From ForceStats: highest force in the session.                    |
+| `mean`            | `number`    | From ForceStats: mean force over the session.                     |
+| `distribution?`   | `object`    | Optional zone distribution (see below).                           |
+
+**distribution** (optional): Each zone is a full `ForceMeasurement` (same structure: unit, timestamp, current, peak,
+mean). One level deep; nested distribution should be avoided. Used by devices like Motherboard for left/center/right
+zones.
+
+```ts
+import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
+
+device.notify((data: ForceMeasurement) => {
+  console.log(data.current, data.peak, data.mean, data.unit)
+  if (data.samplingRateHz != null) console.log("Rate:", data.samplingRateHz, "Hz")
+  if (data.distribution) {
+    console.log(
+      "Left:",
+      data.distribution.left?.current,
+      "Center:",
+      data.distribution.center?.current,
+      "Right:",
+      data.distribution.right?.current,
+    )
   }
 })
 ```
@@ -72,7 +104,7 @@ number, battery raw value, samples, and masses.
 
 | Type             | Description                                               |
 | ---------------- | --------------------------------------------------------- |
-| `NotifyCallback` | `(data: massObject) => void`, used by `notify()`.         |
+| `NotifyCallback` | `(data: ForceMeasurement) => void`, used by `notify()`.   |
 | `WriteCallback`  | `(data: string) => void`, used by `write()` for response. |
 | `ActiveCallback` | `(data: boolean) => void`, used by `active()`.            |
 

@@ -6,12 +6,13 @@
   "linked": [
     [
       "@hangtime/grip-connect",
+      "@hangtime/grip-connect-runtime",
       "@hangtime/grip-connect-capacitor",
       "@hangtime/grip-connect-react-native",
       "@hangtime/grip-connect-cli"
     ]
   ],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [

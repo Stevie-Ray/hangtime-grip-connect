@@ -1,0 +1,60 @@
+{
+  "name": "@hangtime/grip-connect-runtime",
+  "version": "0.9.1",
+  "description": "Runtime adapter for Grip Connect devices",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "build": "npm run clean && tsc --build",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@hangtime/grip-connect": "^0.9.1",
+    "webbluetooth": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.2",
+    "typescript": "^5.9.3"
+  },
+  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
+  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
+  },
+  "keywords": [
+    "climbing",
+    "bluetooth",
+    "griptonite",
+    "hangboard",
+    "hangboarding",
+    "beastmaker",
+    "motherboard",
+    "tindeq",
+    "progressor",
+    "pitchsix",
+    "forceboard",
+    "entralpi",
+    "wh-c06",
+    "kilterboard"
+  ],
+  "bugs": {
+    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
+  },
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
+}

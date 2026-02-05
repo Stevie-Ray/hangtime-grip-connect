@@ -82,7 +82,7 @@ const startScan = async (
     }
 
     device.notify((data) => {
-      setNewWeight(Number(data.massTotal))
+      setNewWeight(data.current)
     })
 
     await device.connect(

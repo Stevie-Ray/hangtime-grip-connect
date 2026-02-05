@@ -4,7 +4,7 @@
   "references": [{ "path": "../core" }],
   "compilerOptions": {
     "lib": ["esnext"],
-    "types": ["node", "web-bluetooth"],
+    "types": ["node"],
     "rootDir": "src",
     "outDir": "dist",
     "composite": true,

@@ -1,51 +1,61 @@
+/** Force-equivalent display unit used for all values in this measurement */
+export type ForceUnit = "kg" | "lbs"
+
 /**
- * Represents the mass data collected from a device.
+ * Core statistical values describing force over a time window or session.
  */
-export interface massObject {
-  /**
-   * The total mass measured from the device.
-   * This is the overall weight or force reading.
-   */
-  massTotal: string
+export interface ForceStats {
+  /** Instantaneous total force at the current sample moment */
+  current: number
+
+  /** Highest instantaneous force recorded within the measured window or session */
+  peak: number
+
+  /** Mean (average) force across all samples in the measured window or session */
+  mean: number
+}
+
+/**
+ * Complete force measurement including timing, unit, and optional spatial distribution.
+ * Can represent either a single real-time sample or a rolling/session summary.
+ */
+export interface ForceMeasurement extends ForceStats {
+  /** Display unit for all force values (force-equivalent kgf or lbf) */
+  unit: ForceUnit
+
+  /** Unix epoch timestamp in milliseconds indicating when the measurement was recorded */
+  timestamp: number
 
   /**
-   * The maximum mass recorded during the session.
-   * This is the highest weight or force value detected.
+   * Sampling frequency of the underlying force signal in Hertz.
+   * Required for time-dependent metrics such as RFD, impulse, or filtering.
    */
-  massMax: string
+  samplingRateHz?: number
 
   /**
-   * The average mass calculated from all the recorded data points.
-   * This represents the mean value of the mass measurements.
+   * Optional force distribution across multiple sensor zones.
+   * Each zone follows the exact same measurement structure as the parent.
+   * Nested distributions should be avoided to keep the model one level deep.
    */
-  massAverage: string
+  distribution?: {
+    /** Force statistics for the left sensor zone */
+    left?: ForceMeasurement
 
-  /**
-   * The mass recorded on the left side of the device (optional for Motherboard devices).
-   * Used for devices that measure force across multiple zones.
-   */
-  massLeft?: string
+    /** Force statistics for the center sensor zone */
+    center?: ForceMeasurement
 
-  /**
-   * The mass recorded at the center of the device (optional for Motherboard devices).
-   * Used for devices that measure force distribution across a center zone.
-   */
-  massCenter?: string
-
-  /**
-   * The mass recorded on the right side of the device (optional for Motherboard devices).
-   * Used for devices that measure force across multiple zones.
-   */
-  massRight?: string
+    /** Force statistics for the right sensor zone */
+    right?: ForceMeasurement
+  }
 }
 
 /**
  * Defines the type for a callback function that handles mass data notifications.
- * The callback receives a `massObject` as the parameter.
+ * The callback receives a `ForceMeasurement` as the parameter.
  * @callback NotifyCallback
- * @param {massObject} data - The mass data passed to the callback.
+ * @param {ForceMeasurement} data - The force measurement data passed to the callback.
  */
-export type NotifyCallback = (data: massObject) => void
+export type NotifyCallback = (data: ForceMeasurement) => void
 
 /**
  * Defines the type for a callback function that handles write operations to the device.

@@ -33,7 +33,7 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
 
     // Handle notifications
     device.notify((data) => {
-      mass = Number(data.massTotal)
+      mass = data.current
     })
 
     await device.connect(

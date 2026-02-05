@@ -16,7 +16,7 @@ testing, training, and rehab. Use the shared [device interface](/api/device-inte
 import { Progressor } from "@hangtime/grip-connect"
 
 const device = new Progressor()
-device.notify((data) => console.log(data.massTotal, data.massMax))
+device.notify((data) => console.log(data.current, data.peak))
 
 await device.connect(
   async () => {

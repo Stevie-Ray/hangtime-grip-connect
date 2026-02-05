@@ -18,9 +18,16 @@ implementation status.
 | **Chrome** (desktop, Android) | Supported                        |
 | **Edge** (Chromium)           | Supported                        |
 | **Opera**                     | Supported                        |
-| **Safari** (macOS, iOS)       | Not supported (no Web Bluetooth) |
+| **Safari** (macOS, iOS\*)     | Not supported (no Web Bluetooth) |
 | **Firefox**                   | Not supported (no Web Bluetooth) |
 
+\* On iOS, Web Bluetooth works in third-party browsers such as
+[Bluefy](https://apps.apple.com/us/app/bluefy-web-ble-browser/id1492822055) and
+[WebBLE](https://apps.apple.com/us/app/webble/id1193531073). For native apps, use [Capacitor](/platforms/capacitor) or
+[React Native](/platforms/react-native).
+
+For per-browser and per-feature details (including Chrome platforms and flags), see the
+[Web Bluetooth implementation status](https://github.com/WebBluetoothCG/web-bluetooth/blob/main/implementation-status.md).
 Check [caniuse.com/web-bluetooth](https://caniuse.com/web-bluetooth) for up-to-date support.
 
 ## Requirements

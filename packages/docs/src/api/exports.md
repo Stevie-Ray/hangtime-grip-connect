@@ -43,33 +43,34 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 
 ### Other Types
 
-| Type         | Description                                                              |
-| ------------ | ------------------------------------------------------------------------ |
-| `IDevice`    | Base device interface (see [Device interface](/api/device-interface))    |
-| `Service`    | Bluetooth service descriptor (see [Data types](/api/data-types))         |
-| `massObject` | Real-time mass/force data (see [Data types](/api/data-types#massobject)) |
+| Type               | Description                                                                |
+| ------------------ | -------------------------------------------------------------------------- |
+| `IDevice`          | Base device interface (see [Device interface](/api/device-interface))      |
+| `Service`          | Bluetooth service descriptor (see [Data types](/api/data-types))           |
+| `ForceUnit`        | Display unit for force (`"kg"` \| `"lbs"`).                                |
+| `ForceMeasurement` | Real-time force data (see [Data types](/api/data-types#forcemeasurement)). |
 
 ### Usage
 
 ```ts
-import { Motherboard, type IMotherboard, type massObject } from "@hangtime/grip-connect"
+import { Motherboard, type IMotherboard, type ForceMeasurement } from "@hangtime/grip-connect"
 
 const device: IMotherboard = new Motherboard()
-device.notify((data: massObject) => console.log(data))
+device.notify((data: ForceMeasurement) => console.log(data))
 ```
 
 ## Subpaths
 
 Additional entry points for tree-shaking or specific types.
 
-| Subpath                                                         | Exports                                                                        |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `@hangtime/grip-connect`                                        | All types and classes above (main entry)                                       |
-| `@hangtime/grip-connect/src/interfaces/callback.interface.js`   | `massObject`, `NotifyCallback`, `WriteCallback`, `ActiveCallback`              |
-| `@hangtime/grip-connect/src/models/device/kilterboard.model.js` | `KilterBoard`, `KilterBoardPacket` (enum), `KilterBoardPlacementRoles` (const) |
+| Subpath                                                         | Exports                                                                              |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `@hangtime/grip-connect`                                        | All types and classes above (main entry)                                             |
+| `@hangtime/grip-connect/src/interfaces/callback.interface.js`   | `ForceUnit`, `ForceMeasurement`, `NotifyCallback`, `WriteCallback`, `ActiveCallback` |
+| `@hangtime/grip-connect/src/models/device/kilterboard.model.js` | `KilterBoard`, `KilterBoardPacket` (enum), `KilterBoardPlacementRoles` (const)       |
 
-- **Callback subpath:** Use when you only need callback types (`NotifyCallback`, `WriteCallback`, `ActiveCallback`)
-  without pulling in device classes. `massObject` is also on the main entry.
+- **Callback subpath:** Use when you only need callback types (`ForceUnit`, `ForceMeasurement`, `NotifyCallback`,
+  `WriteCallback`, `ActiveCallback`) without pulling in device classes.
 - **Kilter Board subpath:** Use for tree-shaking when you only need the Kilter Board class, enum, or placement roles.
 
 See [Device interface](/api/device-interface), [Data types](/api/data-types), and [Devices](/devices/) for details.

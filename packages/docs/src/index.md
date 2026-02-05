@@ -38,7 +38,7 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 
 - **One API** - Same `connect`, `notify`, `stream`, `download` across all supported devices.
 - **Multi-platform** - Web, Capacitor, React Native, and [Node.js](https://nodejs.org/) / [Bun](https://bun.sh/) /
-  [Deno](https://deno.com/) CLI from a single codebase.
+  [Deno](https://deno.com/) via [Runtime](/platforms/runtime) and [CLI](/platforms/cli) from a single codebase.
 - **TypeScript** - Full types and device interfaces for tree-shaking and IDE support.
 - **Battle-tested** - Used by [HangTime](https://play.google.com/store/apps/details?id=nl.stevie.ray.hangtime) and
   [Heli-Hero](https://play.google.com/store/apps/details?id=nl.stevie.ray.helihero) and open-source examples.
@@ -49,11 +49,11 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 
 ### Get started in 3 steps
 
-| Step | Action                                                                                                     |
-| ---- | ---------------------------------------------------------------------------------------------------------- |
-| 1    | [Install](/get-started#installation) the package for your platform (Web, Capacitor, React Native, or CLI). |
-| 2    | Follow the [Quick start guide](/guide): connect, subscribe to data, and stream in a few lines.             |
-| 3    | Pick your [device](/devices/) and use device-specific APIs (battery, LED, stream, download).               |
+| Step | Action                                                                                                              |
+| ---- | ------------------------------------------------------------------------------------------------------------------- |
+| 1    | [Install](/get-started#installation) the package for your platform (Web, Capacitor, React Native, Runtime, or CLI). |
+| 2    | Follow the [Quick start guide](/guide): connect, subscribe to data, and stream in a few lines.                      |
+| 3    | Pick your [device](/devices/) and use device-specific APIs (battery, LED, stream, download).                        |
 
 </div>
 
@@ -62,12 +62,12 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 ### Features
 
 - **Connect** - Pair with force-sensing devices over Bluetooth LE; same flow on all platforms.
-- **Stream** - Real-time mass/force via `notify()`: `massTotal`, `massMax`, `massAverage`, and optional
-  left/center/right zones.
+- **Stream** - Real-time mass/force via `notify()`: `current`, `peak`, `mean`, and optional `distribution`
+  (left/center/right zones).
 - **Activity** - `active()` callback with configurable threshold and duration for “user is pulling” detection.
 - **Export** - Download session data as CSV, JSON, or XML.
 - **Multi-platform** - Same API on web, Capacitor, React Native, and [Node.js](https://nodejs.org/) /
-  [Bun](https://bun.sh/) / [Deno](https://deno.com/) CLI.
+  [Bun](https://bun.sh/) / [Deno](https://deno.com/) via [Runtime](/platforms/runtime) and [CLI](/platforms/cli).
 
 </div>
 
@@ -101,6 +101,7 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 - **Packages** - [npm](https://www.npmjs.com/package/@hangtime/grip-connect) ·
   [npm capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor) ·
   [npm react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) ·
+  [npm runtime](https://www.npmjs.com/package/@hangtime/grip-connect-runtime) ·
   [npm cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli) · [JSR](https://jsr.io/@hangtime/grip-connect) ·
   [unpkg](https://unpkg.com/@hangtime/grip-connect@latest?module) (CDN)
 - [Web Bluetooth spec](https://github.com/WebBluetoothCG/web-bluetooth) · [Discord](https://discord.gg/f7QQnEBQQt)

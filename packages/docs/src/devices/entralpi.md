@@ -15,7 +15,7 @@ methods.
 import { Entralpi } from "@hangtime/grip-connect"
 
 const device = new Entralpi()
-device.notify((data) => console.log(data.massTotal))
+device.notify((data) => console.log(data.current))
 
 await device.connect(
   async () => {

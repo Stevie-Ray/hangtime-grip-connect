@@ -27,12 +27,13 @@ Use `notify()` to receive mass/force data as the device sends it:
 
 ```ts
 device.notify((data) => {
-  console.log(data.massTotal, data.massMax, data.massAverage)
-  // Optional: massLeft, massCenter, massRight (e.g. Motherboard)
+  console.log(data.current, data.peak, data.mean)
+  // Optional: data.distribution?.left, .center, .right (e.g. Motherboard)
 })
 ```
 
-The callback receives a `massObject` with string values. See [Data types](/api/data-types#massobject).
+The callback receives a `ForceMeasurement` with numeric values and a `unit`. See
+[Data types](/api/data-types#forcemeasurement).
 
 ## 3. Optional: detect activity
 
@@ -102,7 +103,7 @@ import { Motherboard } from "@hangtime/grip-connect"
 
 const device = new Motherboard()
 
-device.notify((data) => console.log("Mass:", data.massTotal))
+device.notify((data) => console.log("Force:", data.current, data.unit))
 device.active((isActive) => console.log("Active:", isActive), { threshold: 2.5, duration: 1000 })
 
 document.querySelector("#btn").addEventListener("click", async () => {

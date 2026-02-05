@@ -41,9 +41,25 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish Runtime NPM package
+        working-directory: ./packages/runtime
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Error: dist directory not found in packages/runtime"
+            exit 1
+          fi
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish CLI NPM package
         working-directory: ./packages/cli
-        run: npm publish --access public
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Error: dist directory not found in packages/cli"
+            exit 1
+          fi
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -61,6 +77,10 @@ jobs:
 
       - name: Publish Core JSR package
         working-directory: ./packages/core
+        run: npx jsr publish
+
+      - name: Publish Runtime JSR package
+        working-directory: ./packages/runtime
         run: npx jsr publish
 
       - name: Publish CLI JSR package

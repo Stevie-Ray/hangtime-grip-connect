@@ -58,8 +58,9 @@ Implement the device by extending the abstract `Device` class and implementing y
 - **Commands:** Optional `Commands` object (e.g. `{ START_WEIGHT_MEAS: "e", STOP_WEIGHT_MEAS: "f" }`) if the device uses
   write commands.
 - **handleNotifications:** Override `handleNotifications(value: DataView)` to parse incoming BLE data. Update
-  `downloadPackets`, `massMax`, `massAverage`, `massTotalSum`, `dataPointCount`, call `activityCheck(numericData)` if
-  appropriate, and invoke `this.notifyCallback(massObject)` so app code receives real-time data via `notify()`.
+  `downloadPackets`, `peak`, `mean`, `sum`, `dataPointCount`, call `activityCheck(numericData)` if appropriate, and
+  invoke `this.notifyCallback(this.buildForceMeasurement(current, distribution?))` so app code receives real-time data
+  via `notify()`.
 - **Device-specific methods:** Implement any methods declared in your interface (e.g. `battery()`, `stream()`,
   `stop()`), using `this.read()`, `this.write()`, and `this.commands` as needed.
 
@@ -94,8 +95,8 @@ export class MyBoard extends Device implements IMyBoard {
   override handleNotifications = (value: DataView): void => {
     if (!value?.buffer) return
     this.updateTimestamp()
-    // Parse value and update downloadPackets, massMax, massAverage, etc.
-    // Call this.notifyCallback({ massTotal, massMax, massAverage })
+    // Parse value and update downloadPackets, peak, mean, sum, etc.
+    // Call this.notifyCallback(this.buildForceMeasurement(current, distribution?))
     // Optionally this.activityCheck(numericValue)
   }
 
@@ -181,13 +182,12 @@ class MyCustomBoard extends Device {
   override handleNotifications = (value: DataView): void => {
     if (!value?.buffer) return
     this.updateTimestamp()
-    const mass = value.getFloat32(0, true) // example
-    const massStr = mass.toFixed(1)
-    this.notifyCallback({
-      massTotal: massStr,
-      massMax: this.massMax,
-      massAverage: this.massAverage,
-    })
+    const current = value.getFloat32(0, true) // example
+    this.peak = Math.max(this.peak, current)
+    this.sum += current
+    this.dataPointCount++
+    this.mean = this.sum / this.dataPointCount
+    this.notifyCallback(this.buildForceMeasurement(current))
   }
 }
 ```

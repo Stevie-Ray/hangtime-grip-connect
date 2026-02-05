@@ -8,7 +8,7 @@ import {
   Progressor,
   WHC06,
 } from "@hangtime/grip-connect"
-import type { massObject } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
+import type { ForceMeasurement } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons.js"
 
@@ -162,17 +162,17 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
   }
 
   // Track mass data for each device
-  const deviceMassData: Record<string, massObject> = {}
+  const deviceMassData: Record<string, ForceMeasurement> = {}
 
   /**
    * Adds mass data to the HTML element for each device.
    *
    * @param {string} id - The unique device ID.
-   * @param {massObject} data - The mass data object.
+   * @param {ForceMeasurement} data - The force measurement object.
    */
-  function addMassHTML(id: string | undefined, data: massObject): void {
+  function addMassHTML(id: string | undefined, data: ForceMeasurement): void {
     if (!id || !massesElement) return
-
+    if (data.samplingRateHz != null) console.log("Rate:", data.samplingRateHz, "Hz")
     // Store mass data for this device
     deviceMassData[id] = data
 
@@ -190,20 +190,22 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
       deviceDiv.innerHTML = ""
     }
 
-    // Iterate over the properties in the massObject and append the data
-    for (const property in data) {
-      if (Object.prototype.hasOwnProperty.call(data, property)) {
-        const valueString = data[property as keyof massObject]
-        if (valueString !== undefined) {
-          const value = parseFloat(valueString)
-          if (!isNaN(value)) {
-            const label = property.replace("mass", "") // Adjust label formatting
-            const valueDiv = document.createElement("div")
-            valueDiv.innerHTML = `<label>${label}</label><strong>${value.toFixed(2)}<span> kg</span></strong>`
-            deviceDiv.appendChild(valueDiv)
-          }
-        }
-      }
+    const unitSuffix = ` ${data.unit}`
+    const rows: { label: string; value: number }[] = [
+      { label: "Current", value: data.current },
+      { label: "Max", value: data.peak },
+      { label: "Average", value: data.mean },
+    ]
+    if (data.distribution) {
+      if (data.distribution.left !== undefined) rows.push({ label: "Left", value: data.distribution.left.current })
+      if (data.distribution.center !== undefined)
+        rows.push({ label: "Center", value: data.distribution.center.current })
+      if (data.distribution.right !== undefined) rows.push({ label: "Right", value: data.distribution.right.current })
+    }
+    for (const { label, value } of rows) {
+      const valueDiv = document.createElement("div")
+      valueDiv.innerHTML = `<label>${label}</label><strong>${value.toFixed(2)}<span>${unitSuffix}</span></strong>`
+      deviceDiv.appendChild(valueDiv)
     }
   }
 
@@ -241,10 +243,10 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
 
         connectedDevices.push(device)
 
-        device.notify((data: massObject) => {
+        device.notify((data: ForceMeasurement) => {
           // Chart
-          addChartData(device, data.massTotal, data.massMax, data.massAverage)
-          chartHeight = Number(data.massMax)
+          addChartData(device, data.current, data.peak, data.mean)
+          chartHeight = data.peak
           // HTML
           addMassHTML(device.id, data)
         })
@@ -377,7 +379,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
 }
 
 // Map to store dataset indices by device ID
-const deviceDatasets: Record<string, { totalIndex: number; maxIndex: number; averageIndex: number }> = {}
+const deviceDatasets: Record<string, { currentIndex: number; peakIndex: number; meanIndex: number }> = {}
 
 /**
  * Sets up the chart with the provided HTML canvas element.
@@ -426,22 +428,22 @@ export function setupChart(element: HTMLCanvasElement) {
  * Adds new data to the chart for a specific device.
  *
  * @param {Climbro | Entralpi | ForceBoard | Motherboard | SmartBoardPro | PB700BT | Progressor | WHC06} device - The device.
- * @param {string} mass - The total mass data.
- * @param {string} max - The maximum mass data.
- * @param {string} average - The average mass data.
+ * @param {number} current - The current force value.
+ * @param {number} peak - The peak force value.
+ * @param {number} mean - The mean force value.
  */
 function addChartData(
   device: Climbro | Entralpi | ForceBoard | Motherboard | SmartBoardPro | PB700BT | Progressor | WHC06,
-  mass: string,
-  max: string,
-  average: string,
+  current: number,
+  peak: number,
+  mean: number,
 ) {
   if (chart && device !== undefined) {
-    const numericMass = parseFloat(mass)
-    const numericMax = parseFloat(max)
-    const numericAverage = parseFloat(average)
+    const numericCurrent = current
+    const numericPeak = peak
+    const numericMean = mean
 
-    if (!isNaN(numericMass) && !isNaN(numericMax) && !isNaN(numericAverage)) {
+    if (!isNaN(numericCurrent) && !isNaN(numericPeak) && !isNaN(numericMean)) {
       const label = new Date().toLocaleTimeString() // Example label
 
       // Add label to all datasets
@@ -453,16 +455,16 @@ function addChartData(
       // Check if we have datasets for this device ID
       if (device.id && !deviceDatasets[device.id]) {
         // If not, create the datasets for this device
-        const totalDataset = {
-          label: `${device.constructor.name} Total`,
+        const currentDataset = {
+          label: `${device.constructor.name} Current`,
           data: [],
           borderWidth: 1,
           backgroundColor: "#36a2eb",
           borderColor: "#36a2eb",
         }
 
-        const maxDataset = {
-          label: `${device.constructor.name} Max`,
+        const peakDataset = {
+          label: `${device.constructor.name} Peak`,
           data: [],
           fill: false,
           borderWidth: 1,
@@ -470,8 +472,8 @@ function addChartData(
           borderColor: "#ff6383",
         }
 
-        const averageDataset = {
-          label: `${device.constructor.name} Average`,
+        const meanDataset = {
+          label: `${device.constructor.name} Mean`,
           data: [],
           fill: false,
           borderDash: [5, 5],
@@ -481,34 +483,36 @@ function addChartData(
         }
 
         // Add datasets to the chart
-        chart.data.datasets.push(totalDataset, maxDataset, averageDataset)
+        chart.data.datasets.push(currentDataset, peakDataset, meanDataset)
 
         // Store the indices of the datasets for this device
         deviceDatasets[device.id] = {
-          totalIndex: chart.data.datasets.length - 3,
-          maxIndex: chart.data.datasets.length - 2,
-          averageIndex: chart.data.datasets.length - 1,
+          currentIndex: chart.data.datasets.length - 3,
+          peakIndex: chart.data.datasets.length - 2,
+          meanIndex: chart.data.datasets.length - 1,
         }
       }
 
       if (device.id) {
         // Retrieve the dataset indices for this device
-        const { totalIndex, maxIndex, averageIndex } = deviceDatasets[device.id]
+        const { currentIndex, peakIndex, meanIndex } = deviceDatasets[device.id]
 
         // Update the datasets with new data
-        chart.data.datasets[totalIndex].data.push(numericMass)
-        chart.data.datasets[maxIndex].data.push(numericMax)
-        chart.data.datasets[averageIndex].data.push(numericAverage)
+        chart.data.datasets[currentIndex].data.push(numericCurrent)
+        chart.data.datasets[peakIndex].data.push(numericPeak)
+        chart.data.datasets[meanIndex].data.push(numericMean)
+
+        const maxEntries = 100
 
         // Ensure dataset length doesn't exceed 100 entries
-        if (chart.data.datasets[totalIndex].data.length >= 100) {
-          chart.data.datasets[totalIndex].data.shift()
+        if (chart.data.datasets[currentIndex].data.length >= maxEntries) {
+          chart.data.datasets[currentIndex].data.shift()
         }
-        if (chart.data.datasets[maxIndex].data.length >= 100) {
-          chart.data.datasets[maxIndex].data.shift()
+        if (chart.data.datasets[peakIndex].data.length >= maxEntries) {
+          chart.data.datasets[peakIndex].data.shift()
         }
-        if (chart.data.datasets[averageIndex].data.length >= 100) {
-          chart.data.datasets[averageIndex].data.shift()
+        if (chart.data.datasets[meanIndex].data.length >= maxEntries) {
+          chart.data.datasets[meanIndex].data.shift()
         }
       }
 
@@ -519,7 +523,7 @@ function addChartData(
 
       chart.update()
     } else {
-      console.error("Invalid numeric data:", mass, max, average)
+      console.error("Invalid numeric data:", current, peak, mean)
     }
   }
 }

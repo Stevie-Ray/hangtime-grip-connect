@@ -39,6 +39,14 @@ export class Motherboard extends Device implements IMotherboard {
    */
   private calibrationData: number[][][] = [[], [], [], []]
 
+  /** Per-zone peak and running sum for left/center/right (used for distribution stats). */
+  private leftPeak = Number.NEGATIVE_INFINITY
+  private leftSum = 0
+  private centerPeak = Number.NEGATIVE_INFINITY
+  private centerSum = 0
+  private rightPeak = Number.NEGATIVE_INFINITY
+  private rightSum = 0
+
   constructor() {
     super({
       filters: [{ name: "Motherboard" }],
@@ -281,28 +289,37 @@ export class Motherboard extends Device implements IMotherboard {
             center -= this.applyTare(center)
             right -= this.applyTare(right)
 
-            this.massMax = Math.max(Number(this.massMax), Math.max(-1000, left + center + right)).toFixed(1)
+            const totalCurrent = Math.max(-1000, left + center + right)
+            const leftClamped = Math.max(-1000, left)
+            const centerClamped = Math.max(-1000, center)
+            const rightClamped = Math.max(-1000, right)
 
-            // Update running sum and count
-            const currentMassTotal = Math.max(-1000, left + center + right)
-            this.massTotalSum += currentMassTotal
+            this.peak = Math.max(this.peak, totalCurrent)
+
+            // Update running sum and count (total)
+            this.sum += totalCurrent
             this.dataPointCount++
+            this.mean = this.sum / this.dataPointCount
 
-            // Calculate the average dynamically
-            this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+            // Per-zone peak and sum for distribution
+            this.leftPeak = Math.max(this.leftPeak, leftClamped)
+            this.leftSum += leftClamped
+            this.centerPeak = Math.max(this.centerPeak, centerClamped)
+            this.centerSum += centerClamped
+            this.rightPeak = Math.max(this.rightPeak, rightClamped)
+            this.rightSum += rightClamped
 
             // Check if device is being used
             this.activityCheck(center)
 
-            // Notify with weight data
-            this.notifyCallback({
-              massTotal: Math.max(-1000, left + center + right).toFixed(1),
-              massMax: this.massMax,
-              massAverage: this.massAverage,
-              massLeft: Math.max(-1000, packet.masses[0]).toFixed(1),
-              massCenter: Math.max(-1000, packet.masses[1]).toFixed(1),
-              massRight: Math.max(-1000, packet.masses[2]).toFixed(1),
-            })
+            // Notify with weight data (distribution zones have proper peak/mean per zone)
+            this.notifyCallback(
+              this.buildForceMeasurement(totalCurrent, {
+                left: this.buildZoneMeasurement(leftClamped, this.leftPeak, this.leftSum / this.dataPointCount),
+                center: this.buildZoneMeasurement(centerClamped, this.centerPeak, this.centerSum / this.dataPointCount),
+                right: this.buildZoneMeasurement(rightClamped, this.rightPeak, this.rightSum / this.dataPointCount),
+              }),
+            )
           } else if (this.writeLast === this.commands.GET_CALIBRATION) {
             // check data integrity
             if ((receivedData.match(/,/g) || []).length === 3) {

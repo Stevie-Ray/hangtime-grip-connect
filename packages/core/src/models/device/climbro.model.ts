@@ -135,24 +135,20 @@ export class Climbro extends Device implements IClimbro {
             })
 
             // Check for max weight
-            this.massMax = Math.max(Number(this.massMax), Number(numericData)).toFixed(1)
+            this.peak = Math.max(this.peak, Number(numericData))
 
             // Update running sum and count
             const currentMassTotal = Math.max(-1000, Number(numericData))
-            this.massTotalSum += currentMassTotal
+            this.sum += currentMassTotal
             this.dataPointCount++
 
             // Calculate the average dynamically
-            this.massAverage = (this.massTotalSum / this.dataPointCount).toFixed(1)
+            this.mean = this.sum / this.dataPointCount
 
             // Check if device is being used
             this.activityCheck(numericData)
 
-            this.notifyCallback({
-              massMax: this.massMax,
-              massAverage: this.massAverage,
-              massTotal: Math.max(-1000, numericData).toFixed(1),
-            })
+            this.notifyCallback(this.buildForceMeasurement(Math.max(-1000, numericData)))
 
             continue
           }

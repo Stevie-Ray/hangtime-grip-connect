@@ -16,7 +16,7 @@ bundle). Developed with French climbing teams and designed for climbers of all l
 import { SmartBoardPro } from "@hangtime/grip-connect"
 
 const device = new SmartBoardPro()
-device.notify((data) => console.log(data.massTotal))
+device.notify((data) => console.log(data.current))
 
 await device.connect(
   async () => {

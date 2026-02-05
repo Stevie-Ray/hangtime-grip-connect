@@ -16,7 +16,7 @@ via `notify()`.
 import { mySmartBoard } from "@hangtime/grip-connect"
 
 const device = new mySmartBoard()
-device.notify((data) => console.log(data.massTotal))
+device.notify((data) => console.log(data.current))
 
 await device.connect(
   async () => {

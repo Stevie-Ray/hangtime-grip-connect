@@ -10,6 +10,15 @@ export type {
   IWHC06,
 } from "./interfaces/index.js"
 
+export type {
+  ForceUnit,
+  ForceStats,
+  ForceMeasurement,
+  NotifyCallback,
+  WriteCallback,
+  ActiveCallback,
+} from "./interfaces/callback.interface.js"
+
 export {
   Climbro,
   Entralpi,

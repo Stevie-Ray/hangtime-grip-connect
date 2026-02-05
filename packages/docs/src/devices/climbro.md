@@ -16,7 +16,7 @@ force data via `notify()`, and export with `download()`.
 import { Climbro } from "@hangtime/grip-connect"
 
 const device = new Climbro()
-device.notify((data) => console.log(data.massTotal, data.massMax))
+device.notify((data) => console.log(data.current, data.peak))
 
 await device.connect(
   async () => {
