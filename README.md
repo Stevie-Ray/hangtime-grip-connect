@@ -42,12 +42,12 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 [Pong](https://hangtime-grip-connect-pong.vercel.app/) -
 [Kilter Board](https://grip-connect-kilter-board.vercel.app/?route=p1083r15p1117r15p1164r12p1185r12p1233r13p1282r13p1303r13p1372r13p1392r14p1505r15)
 
-![Force-Sensing Climbing Devices](https://github.com/user-attachments/assets/c1a8ef3b-8d94-47b6-84a6-f73893e948d6)
-
 ```sh [npx]
-# CLI (requires Node 22+)
+# Or run the CLI instantly (Node 22+)
 $ npx @hangtime/grip-connect-cli
 ```
+
+![Force-Sensing Climbing Devices](https://github.com/user-attachments/assets/c1a8ef3b-8d94-47b6-84a6-f73893e948d6)
 
 ## Install
 
