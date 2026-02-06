@@ -8,7 +8,7 @@ import {
   Progressor,
   WHC06,
 } from "@hangtime/grip-connect"
-import type { ForceMeasurement } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
+import type { ForceMeasurement } from "@hangtime/grip-connect"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons.js"
 

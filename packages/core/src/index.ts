@@ -24,6 +24,7 @@ export {
   Entralpi,
   ForceBoard,
   KilterBoard,
+  KilterBoardPlacementRoles,
   Motherboard,
   mySmartBoard,
   PB700BT,

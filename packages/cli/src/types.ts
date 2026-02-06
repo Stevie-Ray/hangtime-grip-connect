@@ -1,11 +1,11 @@
 /**
  * Shared type definitions for the CLI package.
  *
- * Re-exports the canonical {@link ForceMeasurement} from the core library
+ * Re-exports the canonical {@link ForceMeasurement} from the runtime package
  * so every CLI module references the same full-fidelity type.
  */
 
-import type { ForceMeasurement } from "@hangtime/grip-connect"
+import type { ForceMeasurement } from "@hangtime/grip-connect-runtime"
 
 export type { ForceMeasurement }
 

@@ -28,17 +28,16 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.10.0",
     "@hangtime/grip-connect-runtime": "^0.10.0",
-    "@inquirer/input": "^4.3.1",
+    "@inquirer/input": "^5.0.4",
     "@inquirer/select": "^5.0.4",
     "commander": "^14.0.3",
-    "ora": "^8.2.0",
+    "ora": "^9.3.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.19.2",
-    "tsx": "^4.19.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",

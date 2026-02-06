@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src"],
-  "references": [{ "path": "../core" }],
+  "references": [{ "path": "../core" }, { "path": "../runtime" }],
   "compilerOptions": {
     "lib": ["esnext"],
     "types": ["node"],

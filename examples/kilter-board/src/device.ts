@@ -1,6 +1,5 @@
 /// <reference types="w3c-web-serial" />
-import { KilterBoard } from "@hangtime/grip-connect"
-import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/models/device/kilterboard.model.js"
+import { KilterBoard, KilterBoardPlacementRoles } from "@hangtime/grip-connect"
 
 const device = new KilterBoard()
 

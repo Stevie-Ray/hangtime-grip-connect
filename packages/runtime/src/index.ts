@@ -1,3 +1,24 @@
+export type {
+  ForceUnit,
+  ForceStats,
+  ForceMeasurement,
+  NotifyCallback,
+  WriteCallback,
+  ActiveCallback,
+} from "@hangtime/grip-connect"
+
+export type {
+  IClimbro,
+  IEntralpi,
+  IForceBoard,
+  IKilterBoard,
+  IMotherboard,
+  ImySmartBoard,
+  IProgressor,
+  ISmartBoardPro,
+  IWHC06,
+} from "@hangtime/grip-connect"
+
 export {
   Climbro,
   Entralpi,
