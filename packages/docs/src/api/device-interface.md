@@ -29,10 +29,10 @@ this with extra methods like `battery()`, `stream()`, and `led()`.
 
 ### Data and notifications
 
-| Method                        | Description                                                                                                              |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `notify(callback)`            | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`.                                 |
-| `active(callback?, options?)` | Sets the callback for activity status (user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms). |
+| Method                        | Description                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `notify(callback, unit?)`     | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`. Optional second arg: `"kg"` (default) or `"lbs"`. |
+| `active(callback?, options?)` | Sets the callback for activity status (user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                   |
 
 ### Read / write
 
@@ -61,8 +61,9 @@ await device.connect(
   (error) => console.error(error.message),
 )
 
-// Notify and active
+// Notify and active (optionally request lbs in notify payload)
 device.notify((data) => console.log(data.current))
+device.notify((data) => console.log(data.current), "lbs")
 device.active((isActive) => console.log(isActive), { threshold: 3, duration: 1500 })
 
 // Disconnect

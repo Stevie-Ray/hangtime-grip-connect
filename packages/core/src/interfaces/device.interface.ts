@@ -1,5 +1,5 @@
 import type { IBase } from "./base.interface.js"
-import type { ForceMeasurement } from "./callback.interface.js"
+import type { ForceMeasurement, ForceUnit } from "./callback.interface.js"
 import type { Commands } from "./command.interface.js"
 
 /**
@@ -152,6 +152,7 @@ export interface IDevice extends IBase {
   /**
    * Sets the callback function to be called when notifications are received.
    * @param {NotifyCallback} callback - The callback function to be set.
+   * @param {ForceUnit} [unit="kg"] - Display unit for force values in the callback payload.
    * @returns {void}
    * @public
    *
@@ -159,8 +160,9 @@ export interface IDevice extends IBase {
    * device.notify((data) => {
    *   console.log('Received notification:', data);
    * });
+   * device.notify((data) => { ... }, 'lbs');
    */
-  notify(callback: (data: ForceMeasurement) => void): void
+  notify(callback: (data: ForceMeasurement) => void, unit?: ForceUnit): void
 
   /**
    * Reads the value of the specified characteristic from the device.

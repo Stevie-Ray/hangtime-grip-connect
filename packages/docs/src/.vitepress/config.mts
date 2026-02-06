@@ -100,7 +100,7 @@ export default defineConfig({
             { text: "Flappy Bird", link: "/examples/flappy-bird" },
             { text: "Kilter Board", link: "/examples/kilter-board" },
             { text: "Pong", link: "/examples/pong" },
-            { text: "Runtime (Node)", link: "/examples/runtime" },
+            { text: "Runtime", link: "/examples/runtime" },
             { text: "Capacitor", link: "/examples/capacitor" },
             { text: "React Native", link: "/examples/react-native" },
           ],

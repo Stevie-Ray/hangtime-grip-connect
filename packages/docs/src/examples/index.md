@@ -9,7 +9,7 @@ optional `active` and `download`.
 - **Chart** - Connect, stream, and plot force data in real time; good first project.
 - **Flappy Bird / Pong** - Map `notify()` data to game input (force → flap or paddle).
 - **Kilter Board** - Use `KilterBoard` and `led()` to display routes on an LED board.
-- **Runtime (Node)** - Use the CLI package in Node for scripting and data logging.
+- **Runtime** - Use the CLI package in Node for scripting and data logging.
 - **Capacitor** - Hybrid app: pick a device, connect over BLE, stream force. Web or native iOS/Android.
 - **React Native** - Expo app with training modes (peak force, endurance, timed hangs). Native iOS/Android.
 
@@ -33,15 +33,15 @@ optional `active` and `download`.
 
 ## Source and docs
 
-| Example            | Repo path               | Doc                                                                   |
-| ------------------ | ----------------------- | --------------------------------------------------------------------- |
-| **Chart**          | `examples/chart`        | [Chart](/examples/chart): includes StackBlitz embed.                  |
-| **Flappy Bird**    | `examples/flappy-bird`  | [Flappy Bird](/examples/flappy-bird)                                  |
-| **Kilter Board**   | `examples/kilter-board` | [Kilter Board](/examples/kilter-board)                                |
-| **Pong**           | `examples/pong`         | [Pong](/examples/pong)                                                |
-| **Runtime (Node)** | `examples/runtime`      | [Runtime](/examples/runtime): CLI / Node usage.                       |
-| **Capacitor**      | `examples/capacitor`    | [Capacitor](/examples/capacitor): hybrid app, device picker, BLE.     |
-| **React Native**   | `examples/reactnative`  | [React Native](/examples/react-native): Expo app with training modes. |
+| Example          | Repo path               | Doc                                                                   |
+| ---------------- | ----------------------- | --------------------------------------------------------------------- |
+| **Chart**        | `examples/chart`        | [Chart](/examples/chart): includes StackBlitz embed.                  |
+| **Flappy Bird**  | `examples/flappy-bird`  | [Flappy Bird](/examples/flappy-bird)                                  |
+| **Kilter Board** | `examples/kilter-board` | [Kilter Board](/examples/kilter-board)                                |
+| **Pong**         | `examples/pong`         | [Pong](/examples/pong)                                                |
+| **Runtime**      | `examples/runtime`      | [Runtime](/examples/runtime): Node, Deno, Bun usage.                  |
+| **Capacitor**    | `examples/capacitor`    | [Capacitor](/examples/capacitor): hybrid app, device picker, BLE.     |
+| **React Native** | `examples/reactnative`  | [React Native](/examples/react-native): Expo app with training modes. |
 
 ## Quick run
 

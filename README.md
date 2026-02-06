@@ -20,7 +20,7 @@ And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like t
 
 And gyroscopic hand exercisers, such as the [NSD PB-700BT](https://www.nsd.com.tw/).
 
-The library is available in multiple flavors to support different platforms:
+The library is split into platform-specific packages:
 
 - **Web**: The core package for web applications using the Web Bluetooth API
 - **Capacitor**: For hybrid mobile apps using Capacitor
@@ -42,9 +42,10 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 [Pong](https://hangtime-grip-connect-pong.vercel.app/) -
 [Kilter Board](https://grip-connect-kilter-board.vercel.app/?route=p1083r15p1117r15p1164r12p1185r12p1233r13p1282r13p1303r13p1372r13p1392r14p1505r15)
 
-```sh [npx]
-# Or run the CLI instantly (Node 22+)
-$ npx @hangtime/grip-connect-cli
+> Requires Node.js 22 or newer
+
+```bash
+npx @hangtime/grip-connect-cli
 ```
 
 ![Force-Sensing Climbing Devices](https://github.com/user-attachments/assets/c1a8ef3b-8d94-47b6-84a6-f73893e948d6)
@@ -54,20 +55,18 @@ $ npx @hangtime/grip-connect-cli
 The packages are available on both [NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and
 [JSR](https://jsr.io/@hangtime/grip-connect).
 
-```sh [npm]
+```bash
 # For Web applications
-$ npm install @hangtime/grip-connect
+npm install @hangtime/grip-connect
 
 # For Capacitor hybrid mobile apps
-$ npm install @hangtime/grip-connect-capacitor
+npm install @hangtime/grip-connect-capacitor
 
 # For React Native mobile apps
-$ npm install @hangtime/grip-connect-react-native
+npm install @hangtime/grip-connect-react-native
 
 # For Node.js, Bun, Deno
-$ npm install @hangtime/grip-connect-cli
-$ bun add @hangtime/grip-connect-cli
-$ deno add @hangtime/grip-connect-cli
+npm install @hangtime/grip-connect-runtime
 ```
 
 ## Example usage (with a Motherboard)
@@ -84,7 +83,7 @@ import { Motherboard } from "@hangtime/grip-connect"
 // Initiate device
 const motherboard = new Motherboard()
 
-// Optional: Custom data handler
+// Optional: Custom data handler. For pounds: device.notify((data) => {}, "lbs")
 motherboard.notify((data) => {
   // { unit, timestamp, current, peak, mean, distribution? }
   console.log(data)

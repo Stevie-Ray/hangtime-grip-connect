@@ -9,6 +9,9 @@ import type { ForceMeasurement } from "@hangtime/grip-connect-runtime"
 
 export type { ForceMeasurement }
 
+/** Force unit for display (kg or lbs). */
+export type ForceUnit = "kg" | "lbs"
+
 /**
  * Global output context derived from top-level CLI flags.
  *
@@ -18,6 +21,8 @@ export type { ForceMeasurement }
 export interface OutputContext {
   /** When `true`, print newline-delimited JSON instead of human text. */
   json: boolean
+  /** Force unit for stream/watch output. */
+  unit: ForceUnit
 }
 
 /**
@@ -52,8 +57,8 @@ export interface CliDevice {
   connect(callback: () => Promise<void>): Promise<void>
   /** Disconnect the device gracefully. */
   disconnect(): void
-  /** Register a callback for incoming force measurements. */
-  notify(callback: (data: ForceMeasurement) => void): void
+  /** Register a callback for incoming force measurements. Optional unit: "kg" (default) or "lbs". */
+  notify(callback: (data: ForceMeasurement) => void, unit?: ForceUnit): void
   /** Register an activity callback with optional threshold/duration. */
   active?(callback: (data: boolean) => void, options?: { threshold?: number; duration?: number }): void
   /** Read the battery level. */

@@ -9,6 +9,7 @@ import type {
 } from "../interfaces/callback.interface.js"
 import type { DownloadPacket } from "../interfaces/download.interface.js"
 import type { Commands } from "../interfaces/command.interface.js"
+import { convertForce, convertForceMeasurement } from "../utils.js"
 
 export abstract class Device extends BaseModel implements IDevice {
   /**
@@ -88,11 +89,18 @@ export abstract class Device extends BaseModel implements IDevice {
   protected mean: number
 
   /**
-   * Display unit for force measurements.
+   * Display unit for force measurements (output unit for notify callbacks).
    * @type {ForceUnit}
    * @protected
    */
   protected unit: ForceUnit
+
+  /**
+   * Unit of the values streamed by the device (kg for most devices, lbs for ForceBoard).
+   * @type {ForceUnit}
+   * @protected
+   */
+  protected streamUnit: ForceUnit = "kg"
 
   /**
    * Optional sampling rate in Hz when known or calculated from notification timestamps.
@@ -314,9 +322,9 @@ export abstract class Device extends BaseModel implements IDevice {
     const payload: ForceMeasurement = {
       unit: this.unit,
       timestamp: Date.now(),
-      current,
-      peak: this.peak,
-      mean: this.mean,
+      current: convertForce(current, this.streamUnit, this.unit),
+      peak: convertForce(this.peak, this.streamUnit, this.unit),
+      mean: convertForce(this.mean, this.streamUnit, this.unit),
     }
     if (this.samplingRateHz !== undefined) {
       payload.samplingRateHz = this.samplingRateHz
@@ -327,13 +335,13 @@ export abstract class Device extends BaseModel implements IDevice {
     ) {
       payload.distribution = {}
       if (distribution.left !== undefined) {
-        payload.distribution.left = distribution.left
+        payload.distribution.left = convertForceMeasurement(distribution.left, this.streamUnit, this.unit)
       }
       if (distribution.center !== undefined) {
-        payload.distribution.center = distribution.center
+        payload.distribution.center = convertForceMeasurement(distribution.center, this.streamUnit, this.unit)
       }
       if (distribution.right !== undefined) {
-        payload.distribution.right = distribution.right
+        payload.distribution.right = convertForceMeasurement(distribution.right, this.streamUnit, this.unit)
       }
     }
     return payload
@@ -703,6 +711,7 @@ export abstract class Device extends BaseModel implements IDevice {
   /**
    * Sets the callback function to be called when notifications are received.
    * @param {NotifyCallback} callback - The callback function to be set.
+   * @param {ForceUnit} [unit="kg"] - Optional display unit for force values in the callback payload.
    * @returns {void}
    * @public
    *
@@ -710,8 +719,10 @@ export abstract class Device extends BaseModel implements IDevice {
    * device.notify((data) => {
    *   console.log('Received notification:', data);
    * });
+   * device.notify((data) => { ... }, 'lbs');
    */
-  notify = (callback: NotifyCallback): void => {
+  notify = (callback: NotifyCallback, unit?: ForceUnit): void => {
+    this.unit = unit ?? "kg"
     this.notifyCallback = callback
   }
 

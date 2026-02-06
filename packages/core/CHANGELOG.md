@@ -1,5 +1,12 @@
 # @hangtime/grip-connect
 
+## 0.10.1
+
+### Patch Changes
+
+- Document kg/lbs (ForceUnit) in README, get-started, and Chart example. Clarify notify() default unit and optional
+  "lbs" argument; add Units section to Chart example docs; fix README example comment.
+
 ## 0.10.0
 
 ### Minor Changes

@@ -41,6 +41,12 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 | `ISmartBoardPro` | SmartBoard Pro                           |
 | `IWHC06`         | Weiheng WH-C06                           |
 
+### Functions
+
+| Function                        | Description                                                                |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `convertForce(value, from, to)` | Converts a force value between kg and lbs. `from`/`to`: `"kg"` \| `"lbs"`. |
+
 ### Other Types
 
 | Type               | Description                                                                |
@@ -53,10 +59,12 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 ### Usage
 
 ```ts
-import { Motherboard, type IMotherboard, type ForceMeasurement } from "@hangtime/grip-connect"
+import { Motherboard, convertForce, type IMotherboard, type ForceMeasurement } from "@hangtime/grip-connect"
 
 const device: IMotherboard = new Motherboard()
 device.notify((data: ForceMeasurement) => console.log(data))
+device.notify((data) => console.log(data), "lbs")
+convertForce(10, "kg", "lbs") // ~22.05
 ```
 
 ## Subpaths

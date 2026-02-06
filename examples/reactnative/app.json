@@ -2,7 +2,7 @@
   "expo": {
     "name": "Grip Connect",
     "slug": "grip-connect",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "grip-connect",

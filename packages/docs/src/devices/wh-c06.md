@@ -10,6 +10,23 @@ hanging scale sold as hand scales for farm weighing (300 kg capacity). Climbers 
 devices like the Tindeq Progressor and PitchSix Force Board for force measurement and hangboard training. Use the shared
 [device interface](/api/device-interface) to connect and read force data.
 
+## Basic usage
+
+```ts
+import { WHC06 } from "@hangtime/grip-connect"
+
+const device = new WHC06()
+device.notify((data) => console.log(data.current))
+
+await device.connect(
+  async () => {
+    await device.stream(30000)
+    device.disconnect()
+  },
+  (err) => console.error(err),
+)
+```
+
 ## Advertisement scanning (watchAdvertisements)
 
 Most devices send force data over a **GATT connection**: you connect, subscribe to a characteristic, and receive
@@ -27,23 +44,6 @@ connects but no data appears:
 
 After that, `connect()` will call `watchAdvertisements()` on the selected device and your `notify()` callback will
 receive data from each advertisement packet.
-
-## Basic usage
-
-```ts
-import { WHC06 } from "@hangtime/grip-connect"
-
-const device = new WHC06()
-device.notify((data) => console.log(data.current))
-
-await device.connect(
-  async () => {
-    await device.stream(30000)
-    device.disconnect()
-  },
-  (err) => console.error(err),
-)
-```
 
 ## Methods
 

@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-cli",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "CLI tool for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@hangtime/grip-connect-runtime": "^0.10.0",
+    "@hangtime/grip-connect-runtime": "^0.10.1",
     "@inquirer/input": "^5.0.4",
     "@inquirer/select": "^5.0.4",
     "commander": "^14.0.3",

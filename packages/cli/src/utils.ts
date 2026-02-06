@@ -24,7 +24,8 @@ import type { Action, CliDevice, ForceMeasurement, OutputContext, RunOptions } f
  */
 export function resolveContext(program: { opts(): Record<string, unknown> }): OutputContext {
   const opts = program.opts()
-  return { json: Boolean(opts["json"]) }
+  const unit = opts["unit"] === "lbs" ? "lbs" : "kg"
+  return { json: Boolean(opts["json"]), unit }
 }
 
 // ---------------------------------------------------------------------------
@@ -204,7 +205,7 @@ export function setupNotify(device: CliDevice, ctx: OutputContext): void {
     } else {
       console.log(formatMeasurement(data))
     }
-  })
+  }, ctx.unit)
 }
 
 /**
@@ -236,7 +237,7 @@ export async function connectAndRun(
   device: CliDevice,
   name: string,
   callback: (device: CliDevice) => Promise<void>,
-  ctx: OutputContext = { json: false },
+  ctx: OutputContext = { json: false, unit: "kg" },
 ): Promise<void> {
   // Silence the default activeCallback (which logs true/false to stdout)
   if (typeof device.active === "function") {
@@ -304,7 +305,7 @@ export function buildActions(deviceKey: string): Action[] {
         if (!opts.ctx?.json) {
           console.log(pc.cyan(`\nStreaming for ${duration / 1000} seconds...\n`))
         }
-        setupNotify(d, opts.ctx ?? { json: false })
+        setupNotify(d, opts.ctx ?? { json: false, unit: "kg" })
         await d.stream(duration)
         await d.stop?.()
         muteNotify(d)
@@ -321,7 +322,7 @@ export function buildActions(deviceKey: string): Action[] {
           if (!opts.ctx?.json) {
             console.log(pc.cyan(`\nStreaming for ${duration / 1000} seconds, then exporting ${format}...\n`))
           }
-          setupNotify(d, opts.ctx ?? { json: false })
+          setupNotify(d, opts.ctx ?? { json: false, unit: "kg" })
           await d.stream(duration)
           await d.stop?.()
           muteNotify(d)

@@ -19,6 +19,8 @@ export type {
   ActiveCallback,
 } from "./interfaces/callback.interface.js"
 
+export { convertForce } from "./utils.js"
+
 export {
   Climbro,
   Entralpi,

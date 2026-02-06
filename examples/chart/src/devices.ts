@@ -8,7 +8,7 @@ import {
   Progressor,
   WHC06,
 } from "@hangtime/grip-connect"
-import type { ForceMeasurement } from "@hangtime/grip-connect"
+import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons.js"
 
@@ -35,8 +35,20 @@ let chartHeight = 0
  */
 export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDivElement) {
   let isStreaming = true
+  let displayUnit: ForceUnit = "kg"
+  const deviceNotifyCallbacks = new Map<string, (data: ForceMeasurement) => void>()
 
   addNewDeviceSelect()
+
+  /**
+   * Re-registers notify with the current display unit for all connected devices.
+   */
+  function applyUnitToAllDevices(): void {
+    connectedDevices.forEach((d) => {
+      const cb = deviceNotifyCallbacks.get(d.id)
+      if (cb) d.notify(cb, displayUnit)
+    })
+  }
 
   /**
    * Function to add a new device select element for selecting another device.
@@ -73,15 +85,62 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
   function addNewDeviceControl(
     device: Climbro | Entralpi | ForceBoard | Motherboard | SmartBoardPro | PB700BT | Progressor | WHC06 | undefined,
   ) {
-    // select last input element
     const deviceControlDiv = document.querySelector(".card .input:last-of-type")
     if (deviceControlDiv && device) {
       deviceControlDiv.classList.add(`input-${device.id}`)
       deviceControlDiv.innerHTML = ""
 
+      const nameRow = document.createElement("div")
       const deviceName = document.createElement("strong")
-      deviceName.innerHTML = `${device.constructor.name}`
-      deviceControlDiv.appendChild(deviceName)
+      deviceName.textContent = device.constructor.name
+      nameRow.appendChild(deviceName)
+      const settingsBtn = document.createElement("button")
+      settingsBtn.type = "button"
+      settingsBtn.innerHTML = `<i class="fa-solid fa-gear"></i>`
+      settingsBtn.addEventListener("click", () => {
+        const d = document.getElementById(`dialog-${device.id}`) as HTMLDialogElement
+        if (d) {
+          const sel = d.querySelector<HTMLSelectElement>("select[name=unit]")
+          if (sel) sel.value = displayUnit
+          d.showModal()
+        }
+      })
+      nameRow.appendChild(settingsBtn)
+      deviceControlDiv.parentElement?.insertBefore(nameRow, deviceControlDiv)
+
+      const settingsDialog = document.createElement("dialog")
+      settingsDialog.id = `dialog-${device.id}`
+      settingsDialog.innerHTML = `
+        <form method="dialog">
+          <h3>Settings</h3>
+          <p>
+            <label for="unit-select-${device.id}">Unit</label>
+            <select id="unit-select-${device.id}" name="unit">
+              <option value="kg">kg</option>
+              <option value="lbs">lbs</option>
+            </select>
+          </p>
+          <menu>
+            <button type="submit" value="apply">Apply</button>
+            <button type="submit" value="cancel">Cancel</button>
+          </menu>
+        </form>
+      `
+      settingsDialog.querySelector("form")?.addEventListener("submit", (e) => {
+        e.preventDefault()
+        const form = e.target as HTMLFormElement
+        if ((e.submitter as HTMLButtonElement)?.value === "apply") {
+          const sel = form.querySelector<HTMLSelectElement>("select[name=unit]")
+          if (sel) {
+            displayUnit = sel.value as ForceUnit
+            applyUnitToAllDevices()
+          }
+        }
+        settingsDialog.close()
+      })
+      const unitSelectInDialog = settingsDialog.querySelector<HTMLSelectElement>("select[name=unit]")
+      if (unitSelectInDialog) unitSelectInDialog.value = displayUnit
+      deviceControlDiv.appendChild(settingsDialog)
 
       // Create the "Disconnect" button
       const disconnectButton = document.createElement("button")
@@ -172,7 +231,6 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
    */
   function addMassHTML(id: string | undefined, data: ForceMeasurement): void {
     if (!id || !massesElement) return
-    if (data.samplingRateHz != null) console.log("Rate:", data.samplingRateHz, "Hz")
     // Store mass data for this device
     deviceMassData[id] = data
 
@@ -243,13 +301,13 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
 
         connectedDevices.push(device)
 
-        device.notify((data: ForceMeasurement) => {
-          // Chart
+        const notifyCb = (data: ForceMeasurement) => {
           addChartData(device, data.current, data.peak, data.mean)
           chartHeight = data.peak
-          // HTML
           addMassHTML(device.id, data)
-        })
+        }
+        deviceNotifyCallbacks.set(device.id, notifyCb)
+        device.notify(notifyCb, displayUnit)
 
         // Example Reactive check if device is active, optionally using a weight threshold and duration
         device.active(

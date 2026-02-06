@@ -37,7 +37,7 @@ export function registerWatch(program: Command): void {
       let sampleCount = 0
       let peak = 0
       let sum = 0
-      let unit = "kg"
+      let unit: "kg" | "lbs" = ctx.unit
       const startTime = Date.now()
 
       /** Print the session summary to stdout. */
@@ -75,7 +75,7 @@ export function registerWatch(program: Command): void {
         } else {
           console.log(formatMeasurement(data))
         }
-      })
+      }, ctx.unit)
 
       const spinner = ctx.json ? null : ora(`Connecting to ${pc.bold(name)}...`).start()
 

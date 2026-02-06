@@ -29,6 +29,9 @@ npx @hangtime/grip-connect-cli@latest stream progressor
 # Stream indefinitely until Ctrl+C
 npx @hangtime/grip-connect-cli@latest watch progressor
 
+# Use lbs for stream/watch output (default is kg)
+npx @hangtime/grip-connect-cli@latest stream forceboard --unit lbs
+
 # Show device info (battery, firmware, etc.)
 npx @hangtime/grip-connect-cli@latest info entralpi
 

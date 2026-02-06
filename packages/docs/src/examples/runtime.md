@@ -1,9 +1,9 @@
 ---
-title: Runtime (Node)
+title: Runtime
 description: Use the Runtime package from Node.js, Bun, or Deno for scripts, data logging, or headless testing.
 ---
 
-# Runtime (Node) example
+# Runtime example
 
 Use the Runtime package (`@hangtime/grip-connect-runtime`) from [Node.js](https://nodejs.org/), [Bun](https://bun.sh/),
 or [Deno](https://deno.com/) for scripts, data logging, or headless testing.

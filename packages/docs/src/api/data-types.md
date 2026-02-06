@@ -15,6 +15,18 @@ Force-equivalent display unit used for all values in a measurement (`"kg"` or `"
 export type ForceUnit = "kg" | "lbs"
 ```
 
+### convertForce
+
+Converts a force value between kg and lbs. All devices stream in kg except the Force Board (lbs); use
+`notify(callback, "lbs")` to get payloads in your preferred unit, or convert manually with `convertForce`.
+
+```ts
+import { convertForce } from "@hangtime/grip-connect"
+
+convertForce(10, "kg", "lbs") // ~22.05
+convertForce(22.05, "lbs", "kg") // ~10
+```
+
 ## ForceStats
 
 Core statistical values describing force over a time window or session.
@@ -28,7 +40,7 @@ Core statistical values describing force over a time window or session.
 ## ForceMeasurement
 
 Complete force measurement including timing, unit, and optional spatial distribution. Extends `ForceStats`. Passed to
-the `notify()` callback; can represent a single real-time sample or a rolling/session summary.
+the `notify()` callback; represent a single real-time sample.
 
 | Property          | Type        | Description                                                       |
 | ----------------- | ----------- | ----------------------------------------------------------------- |
@@ -47,6 +59,7 @@ zones.
 ```ts
 import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
 
+// Default: payload in kg. Pass "lbs" to receive values in lbs.
 device.notify((data: ForceMeasurement) => {
   console.log(data.current, data.peak, data.mean, data.unit)
   if (data.samplingRateHz != null) console.log("Rate:", data.samplingRateHz, "Hz")
@@ -61,6 +74,7 @@ device.notify((data: ForceMeasurement) => {
     )
   }
 })
+device.notify((data) => { ... }, "lbs")
 ```
 
 ## Service

@@ -13,12 +13,12 @@ Package on [npm](https://www.npmjs.com/package/@hangtime/grip-connect-cli).
 
 ::: code-group
 
-```sh [npm]
-npm install -g @hangtime/grip-connect-cli
-```
-
 ```sh [npx]
 npx @hangtime/grip-connect-cli
+```
+
+```sh [npm]
+npm install -g @hangtime/grip-connect-cli
 ```
 
 :::

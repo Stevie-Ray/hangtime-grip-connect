@@ -24,6 +24,7 @@ program
   .version(version)
   .option("--json", "Output machine-readable newline-delimited JSON")
   .option("--no-color", "Disable colored output")
+  .option("-u, --unit <kg|lbs>", "Force unit for stream/watch output", "kg")
 
 registerCommands(program)
 

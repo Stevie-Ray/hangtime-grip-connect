@@ -7,7 +7,7 @@ import type { Command } from "commander"
 import input from "@inquirer/input"
 import select from "@inquirer/select"
 import pc from "picocolors"
-import type { RunOptions } from "../types.js"
+import type { Action, RunOptions } from "../types.js"
 import { pickDevice, pickAction, createDevice, connectAndRun, buildActions, resolveContext } from "../utils.js"
 
 /**
@@ -28,9 +28,27 @@ export function registerInteractive(program: Command): void {
       device,
       name,
       async (d) => {
+        const unitAction = (): Action => ({
+          name: `Unit (${ctx.unit})`,
+          description: "Set stream output to kg or lbs",
+          run: async (_d, opts) => {
+            const unit = await select({
+              message: "Unit:",
+              choices: [
+                { name: "kg", value: "kg" as const },
+                { name: "lbs", value: "lbs" as const },
+              ],
+            })
+            if (opts.ctx) opts.ctx.unit = unit
+            if (!ctx.json) console.log(pc.dim(`Force output: ${unit}`))
+          },
+        })
         let keepGoing = true
         while (keepGoing) {
-          const actions = buildActions(deviceKey)
+          const built = buildActions(deviceKey)
+          const afterStreamIndex = built.findIndex((a) => a.name !== "Stream" && a.name !== "Stream & download")
+          const insertAt = afterStreamIndex === -1 ? built.length : afterStreamIndex
+          const actions = [...built.slice(0, insertAt), unitAction(), ...built.slice(insertAt)]
           const action = await pickAction(actions)
 
           if (action.name === "Disconnect") {

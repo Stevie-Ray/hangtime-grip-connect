@@ -17,10 +17,10 @@ Every device supports these methods. Optional callbacks and device-specific supp
 
 ### Data and notifications
 
-| Method                        | Description                                                                                                                                       |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `notify(callback)`            | Sets the callback for real-time mass/force data. The callback receives a `ForceMeasurement` (see [Data types](/api/data-types#forcemeasurement)). |
-| `active(callback?, options?)` | Sets the callback for activity status (e.g. user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                     |
+| Method                        | Description                                                                                                                                                                                          |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `notify(callback, unit?)`     | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`. Optional second argument: `"kg"` (default) or `"lbs"` (see [Data types](/api/data-types#forcemeasurement)). |
+| `active(callback?, options?)` | Sets the callback for activity status (e.g. user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                                                                        |
 
 ### Read / write
 

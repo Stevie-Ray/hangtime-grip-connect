@@ -139,6 +139,42 @@ h2 {
   padding: 0.5rem;
 }
 
+.card > div:not(.input) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.card > div:not(.input) > button {
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  margin: 0;
+}
+
+.card > div:not(.input) > button:hover {
+  opacity: 0.8;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+dialog form {
+  padding: 1rem;
+  min-width: 200px;
+}
+
+dialog menu {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;

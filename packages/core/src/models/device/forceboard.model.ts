@@ -6,6 +6,8 @@ import type { IForceBoard } from "../../interfaces/device/forceboard.interface.j
  * {@link https://pitchsix.com}
  */
 export class ForceBoard extends Device implements IForceBoard {
+  protected override streamUnit = "lbs" as const
+
   constructor() {
     super({
       filters: [{ name: "Force Board" }],
@@ -201,19 +203,16 @@ export class ForceBoard extends Device implements IForceBoard {
         for (let i = 0; i < numSamples; i++) {
           const offset = 2 + i * 3 // Skip the first 2 bytes which indicate number of samples
           if (offset + 2 < dataArray.length) {
-            // Sample = byte1*32768 + byte2*256 + byte3
+            // Sample = byte1*32768 + byte2*256 + byte3 (device streams in LBS)
             const receivedData = dataArray[offset] * 32768 + dataArray[offset + 1] * 256 + dataArray[offset + 2]
-
-            // Convert from LBS to KG
-            const convertedReceivedData = receivedData * 0.453592
             // Tare correction
-            const numericData = convertedReceivedData - this.applyTare(convertedReceivedData)
-            // Add data to downloadable Array
+            const numericData = receivedData - this.applyTare(receivedData)
+            // Add data to downloadable Array (raw and tare-adjusted, both in LBS)
             this.downloadPackets.push({
               received: receivedTime,
               sampleNum: this.dataPointCount,
               battRaw: 0,
-              samples: [convertedReceivedData],
+              samples: [receivedData],
               masses: [numericData],
             })
 
