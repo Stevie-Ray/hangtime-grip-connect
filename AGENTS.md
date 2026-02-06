@@ -13,6 +13,7 @@ analyzing data from hangboards, dynamometers, and LED system boards.
 - **Mobile Support**: Capacitor and React Native wrappers
 - **CLI**: Node.js, Deno and Bun execution
 - **Documentation**: VitePress
+- **Versioning**: Changesets (monorepo releases)
 - **Linting**: ESLint with TypeScript ESLint
 - **Formatting**: Prettier
 
@@ -107,6 +108,13 @@ examples/                      # Sample applications and demos
 
 - Run ESLint before committing (`npm run lint`)
 - Build packages with the TypeScript compiler (`npm run build`)
+
+### Versioning & Releases
+
+- Versioning and changelogs are managed with [Changesets](https://github.com/changesets/changesets).
+- Add a changeset for user-facing changes: `npm run changeset` (creates a file in `.changeset/`).
+- To apply version bumps and update changelogs: `npm run changeset:version`.
+- To publish packages to npm: `npm run changeset:publish`.
 
 ### Multi-Platform Considerations
 
