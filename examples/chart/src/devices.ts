@@ -44,9 +44,10 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
    * Re-registers notify with the current display unit for all connected devices.
    */
   function applyUnitToAllDevices(): void {
+    const unit: ForceUnit = displayUnit ?? "kg"
     connectedDevices.forEach((d) => {
-      const cb = deviceNotifyCallbacks.get(d.id)
-      if (cb) d.notify(cb, displayUnit)
+      const cb = d.id != null ? deviceNotifyCallbacks.get(d.id) : undefined
+      if (cb) d.notify(cb, unit)
     })
   }
 
@@ -306,8 +307,8 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
           chartHeight = data.peak
           addMassHTML(device.id, data)
         }
-        deviceNotifyCallbacks.set(device.id, notifyCb)
-        device.notify(notifyCb, displayUnit)
+        if (device.id != null) deviceNotifyCallbacks.set(device.id, notifyCb)
+        device.notify(notifyCb, displayUnit ?? "kg")
 
         // Example Reactive check if device is active, optionally using a weight threshold and duration
         device.active(
