@@ -25,7 +25,8 @@ The library is available in multiple flavors to support different platforms:
 - **Web**: The core package for web applications using the Web Bluetooth API
 - **Capacitor**: For hybrid mobile apps using Capacitor
 - **React Native**: For native mobile apps using React Native
-- **CLI**: Command-line tools for device management and data analysis
+- **Runtime**: Adapter for Node.js, Bun, and Deno—script connections
+- **CLI**: Ready to use Command-line tool to connect to devices
 
 Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/) -
 [Browser Support](https://caniuse.com/web-bluetooth) - [Discord](https://discord.gg/f7QQnEBQQt)
@@ -43,6 +44,11 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 
 ![Force-Sensing Climbing Devices](https://github.com/user-attachments/assets/c1a8ef3b-8d94-47b6-84a6-f73893e948d6)
 
+```sh [npx]
+# CLI (requires Node 22+)
+$ npx @hangtime/grip-connect-cli
+```
+
 ## Install
 
 The packages are available on both [NPM](https://www.npmjs.com/package/@hangtime/grip-connect) and
@@ -58,7 +64,7 @@ $ npm install @hangtime/grip-connect-capacitor
 # For React Native mobile apps
 $ npm install @hangtime/grip-connect-react-native
 
-# For Node.js, Bun, Deno CLI tools
+# For Node.js, Bun, Deno
 $ npm install @hangtime/grip-connect-cli
 $ bun add @hangtime/grip-connect-cli
 $ deno add @hangtime/grip-connect-cli

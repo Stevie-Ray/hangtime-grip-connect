@@ -8,11 +8,12 @@ The packages are available on [NPM](https://www.npmjs.com/package/@hangtime/grip
 
 ```sh [npm]
 $ npm install @hangtime/grip-connect-react-native
+```
 
 ## Requirements
 
+- [Node.js](https://nodejs.org/)
 - Physical Android and/or iOS device required (no simulators)
 - Expo Go is not supported (react-native-ble-plx is not included in Expo Go)
 - Must use an Expo Development Build
 - Bluetooth hardware access is required (simulators cannot access Bluetooth)
-```
