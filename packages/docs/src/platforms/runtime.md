@@ -109,21 +109,32 @@ await device.connect(
 
 The runtime package re-exports all device classes from the core library with Node-compatible overrides:
 
-| Class           | Device                 |
-| --------------- | ---------------------- |
-| `Climbro`       | Climbro                |
-| `Entralpi`      | Entralpi               |
-| `ForceBoard`    | PitchSix Force Board   |
-| `KilterBoard`   | Kilter Board           |
-| `Motherboard`   | Griptonite Motherboard |
-| `mySmartBoard`  | mySmartBoard           |
-| `PB700BT`       | NSD PB-700BT           |
-| `Progressor`    | Tindeq Progressor      |
-| `SmartBoardPro` | SmartBoard Pro         |
-| `WHC06`         | Weiheng WH-C06         |
+| Class           | Device                                                                                                                                       |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Climbro`       | Climbro                                                                                                                                      |
+| `Entralpi`      | Entralpi                                                                                                                                     |
+| `ForceBoard`    | PitchSix Force Board                                                                                                                         |
+| `KilterBoard`   | Kilter Board                                                                                                                                 |
+| `Motherboard`   | Griptonite Motherboard                                                                                                                       |
+| `mySmartBoard`  | mySmartBoard                                                                                                                                 |
+| `PB700BT`       | NSD PB-700BT                                                                                                                                 |
+| `Progressor`    | Tindeq Progressor                                                                                                                            |
+| `SmartBoardPro` | SmartBoard Pro                                                                                                                               |
+| `WHC06`         | Weiheng WH-C06 — **unsupported** (requires `watchAdvertisements`, not available in [webbluetooth](https://github.com/thegecko/webbluetooth)) |
 
 All classes share the same [device interface](/api/device-interface) and support the same methods as their web
 counterparts. See [Devices](/devices/) for device-specific methods.
+
+## Supported platforms
+
+The runtime uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node-compatible BLE. Prebuilt binaries
+support:
+
+| OS            | x86 | x64 | arm64 |
+| ------------- | --- | --- | ----- |
+| Windows       | ✓   | ✓   | —     |
+| macOS         | —   | ✓   | ✓     |
+| Linux (glibc) | —   | ✓   | ✓     |
 
 ## Supported runtimes
 

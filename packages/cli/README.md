@@ -88,17 +88,27 @@ grip-connect active progressor --threshold 2.5
 
 ## Supported Devices
 
-| Key            | Name           | Capabilities                            |
-| -------------- | -------------- | --------------------------------------- |
-| climbro        | Climbro        | battery, tare, download, active         |
-| entralpi       | Entralpi       | battery, tare, download, active         |
-| forceboard     | ForceBoard     | stream, battery, tare, download, active |
-| motherboard    | Motherboard    | stream, battery, tare, download, active |
-| mysmartboard   | mySmartBoard   | tare, download, active                  |
-| pb-700bt       | PB-700BT       | battery, tare, download, active         |
-| progressor     | Progressor     | stream, battery, tare, download, active |
-| smartboard-pro | SmartBoard Pro | tare, download, active                  |
-| wh-c06         | WH-C06         | tare, download, active                  |
+| Key            | Name           | Capabilities                                                                                                             |
+| -------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| climbro        | Climbro        | battery, tare, download, active                                                                                          |
+| entralpi       | Entralpi       | battery, tare, download, active                                                                                          |
+| forceboard     | ForceBoard     | stream, battery, tare, download, active                                                                                  |
+| motherboard    | Motherboard    | stream, battery, tare, download, active                                                                                  |
+| mysmartboard   | mySmartBoard   | tare, download, active                                                                                                   |
+| pb-700bt       | PB-700BT       | battery, tare, download, active                                                                                          |
+| progressor     | Progressor     | stream, battery, tare, download, active                                                                                  |
+| smartboard-pro | SmartBoard Pro | tare, download, active                                                                                                   |
+| wh-c06         | WH-C06         | **Unsupported** — `watchAdvertisements` not available in Node ([webbluetooth](https://github.com/thegecko/webbluetooth)) |
+
+## Supported Platforms
+
+The CLI uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node.js BLE. Prebuilt binaries support:
+
+| OS            | x86 | x64 | arm64 |
+| ------------- | --- | --- | ----- |
+| Windows       | ✓   | ✓   | —     |
+| macOS         | —   | ✓   | ✓     |
+| Linux (glibc) | —   | ✓   | ✓     |
 
 ## Options
 

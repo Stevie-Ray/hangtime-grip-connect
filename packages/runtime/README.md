@@ -42,6 +42,22 @@ await device.connect(
 )
 ```
 
+## Supported Platforms
+
+The runtime uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node-compatible BLE. Prebuilt binaries
+support:
+
+| OS            | x86 | x64 | arm64 |
+| ------------- | --- | --- | ----- |
+| Windows       | ✓   | ✓   | —     |
+| macOS         | —   | ✓   | ✓     |
+| Linux (glibc) | —   | ✓   | ✓     |
+
+## Unsupported devices
+
+**WH-C06** — Not supported in the runtime. The device relies on `watchAdvertisements()`, which is
+[unsupported in the webbluetooth adapter](https://github.com/thegecko/webbluetooth#implementation-status).
+
 ## Documentation
 
 - [Runtime platform docs](https://stevie-ray.github.io/hangtime-grip-connect/platforms/runtime)

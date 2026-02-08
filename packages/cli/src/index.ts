@@ -29,6 +29,9 @@ program
 registerCommands(program)
 
 program.parseAsync().catch((error: unknown) => {
+  // @inquirer throws ExitPromptError on Ctrl+C; exit 0 so npm doesn't report lifecycle failure
+  if (error instanceof Error && error.name === "ExitPromptError") process.exit(0)
+  // if (error instanceof Error && error.name === "CancelPromptError") process.exit(0)
   const message = error instanceof Error ? error.message : String(error)
   console.error(`\n${message}`)
   process.exit(1)

@@ -168,6 +168,19 @@ grip-connect stream progressor --json | jq '.current'
 grip-connect list --json
 ```
 
+## Supported platforms
+
+The CLI uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node.js BLE. Prebuilt binaries support:
+
+| OS            | x86 | x64 | arm64 |
+| ------------- | --- | --- | ----- |
+| Windows       | ✓   | ✓   | —     |
+| macOS         | —   | ✓   | ✓     |
+| Linux (glibc) | —   | ✓   | ✓     |
+
+**WH-C06** is not supported in the CLI or Runtime: the device requires `watchAdvertisements()`, which is
+[unsupported in the webbluetooth adapter](https://github.com/thegecko/webbluetooth#implementation-status).
+
 ## Programmatic usage
 
 Looking for a programmatic library to import device classes in your own scripts? See the [Runtime](/platforms/runtime)
