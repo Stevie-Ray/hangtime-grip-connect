@@ -1,6 +1,6 @@
 /**
  * `grip-connect watch [device]` -- streams force data indefinitely until
- * the user presses Ctrl+C.
+ * the user presses Esc.
  *
  * On exit, prints a summary of peak, mean, sample count, and elapsed time.
  */
@@ -16,6 +16,7 @@ import {
   formatMeasurement,
   printHeader,
   setupSignalHandlers,
+  waitForKeyToStop,
   fail,
 } from "../utils.js"
 import ora from "ora"
@@ -28,7 +29,7 @@ import ora from "ora"
 export function registerWatch(program: Command): void {
   program
     .command("watch [device]")
-    .description("Stream force data indefinitely (Ctrl+C to stop)")
+    .description("Stream force data indefinitely (Esc to stop, then show summary)")
     .action(async (deviceKey: string | undefined) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
@@ -92,12 +93,13 @@ export function registerWatch(program: Command): void {
           }
 
           if (!ctx.json) {
-            printHeader(`Watching ${name} (Ctrl+C to stop)`)
+            printHeader(`Watching ${name}`)
           }
 
-          // Duration 0 = indefinite; the process stays alive via the
-          // Bluetooth event loop until SIGINT/SIGTERM.
           await streamFn(0)
+          await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop and see summary")
+          await device.stop?.()
+          printSummary()
         })
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error)

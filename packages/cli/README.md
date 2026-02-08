@@ -9,40 +9,44 @@ A Command Line Interface for connecting to grip strength training devices via Bl
 npx @hangtime/grip-connect-cli
 ```
 
-This launches interactive mode where you can pick a device, connect, and choose actions.
+This launches interactive mode: pick a device, connect, choose actions, then disconnect to return to the device picker
+(or run another action).
 
-If you see “could not determine executable to run”, your environment may be using an older cached or local version—use
-`@latest` (or a specific version) explicitly as above.
+If you see “could not determine executable to run”, your environment may be using an older cached or local version—try
+`npx @hangtime/grip-connect-cli@latest` or pin a specific version.
 
 ### Commands (with npx)
 
 ```sh
 # Interactive mode (pick device and actions)
-npx @hangtime/grip-connect-cli@latest
+npx @hangtime/grip-connect-cli
 
 # List all supported devices
-npx @hangtime/grip-connect-cli@latest list
+npx @hangtime/grip-connect-cli list
 
-# Stream force data for 10 seconds
-npx @hangtime/grip-connect-cli@latest stream progressor
+# Stream force data (Esc to stop; or use -d for a fixed duration)
+npx @hangtime/grip-connect-cli stream progressor
 
-# Stream indefinitely until Ctrl+C
-npx @hangtime/grip-connect-cli@latest watch progressor
+# Stream for a fixed duration (e.g. 10 seconds)
+npx @hangtime/grip-connect-cli stream progressor --duration 10
+
+# Watch mode: indefinite stream + session summary (Esc to stop)
+npx @hangtime/grip-connect-cli watch progressor
 
 # Use lbs for stream/watch output (default is kg)
-npx @hangtime/grip-connect-cli@latest stream forceboard --unit lbs
+npx @hangtime/grip-connect-cli stream forceboard --unit lbs
 
 # Show device info (battery, firmware, etc.)
-npx @hangtime/grip-connect-cli@latest info entralpi
+npx @hangtime/grip-connect-cli info entralpi
 
 # Export session data
-npx @hangtime/grip-connect-cli@latest download forceboard --format csv
+npx @hangtime/grip-connect-cli download forceboard --format csv
 
 # Run tare (zero) calibration
-npx @hangtime/grip-connect-cli@latest tare motherboard --duration 5000
+npx @hangtime/grip-connect-cli tare motherboard --duration 5000
 
 # Monitor activity status
-npx @hangtime/grip-connect-cli@latest active progressor --threshold 2.5
+npx @hangtime/grip-connect-cli active progressor --threshold 2.5
 ```
 
 ## Optional: Global install
@@ -60,10 +64,13 @@ grip-connect
 # List all supported devices
 grip-connect list
 
-# Stream force data for 10 seconds
+# Stream force data (Esc to stop; or use -d for a fixed duration)
 grip-connect stream progressor
 
-# Stream indefinitely until Ctrl+C
+# Stream for a fixed duration (e.g. 10 seconds)
+grip-connect stream progressor --duration 10
+
+# Watch mode: indefinite stream + session summary (Esc to stop)
 grip-connect watch progressor
 
 # Show device info (battery, firmware, etc.)
@@ -96,10 +103,11 @@ grip-connect active progressor --threshold 2.5
 ## Options
 
 ```sh
-grip-connect --json          # Output newline-delimited JSON
-grip-connect --no-color      # Disable colored output
-grip-connect --version       # Show version
-grip-connect --help          # Show help
+npx @hangtime/grip-connect-cli --json          # Output newline-delimited JSON
+npx @hangtime/grip-connect-cli --no-color      # Disable colored output
+npx @hangtime/grip-connect-cli --unit lbs      # Force unit for stream/watch (default: kg; -u shorthand)
+npx @hangtime/grip-connect-cli --version       # Show version
+npx @hangtime/grip-connect-cli --help          # Show help
 ```
 
 ## JSON Mode
@@ -107,9 +115,9 @@ grip-connect --help          # Show help
 Use `--json` for machine-readable output, useful for piping into other tools:
 
 ```sh
-grip-connect --json list
-grip-connect --json stream progressor
-grip-connect --json watch forceboard | jq '.current'
+npx @hangtime/grip-connect-cli --json list
+npx @hangtime/grip-connect-cli --json stream progressor
+npx @hangtime/grip-connect-cli --json watch forceboard | jq '.current'
 ```
 
 ## Requirements

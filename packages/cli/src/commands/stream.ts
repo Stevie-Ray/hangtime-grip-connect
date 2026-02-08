@@ -1,10 +1,18 @@
 /**
- * `grip-connect stream [device]` -- streams force data for a set duration.
+ * `grip-connect stream [device]` -- streams force data until Esc (or for a set duration if -d is given).
  */
 
 import type { Command } from "commander"
 import pc from "picocolors"
-import { resolveDeviceKey, createDevice, connectAndRun, resolveContext, setupNotify, printHeader } from "../utils.js"
+import {
+  resolveDeviceKey,
+  createDevice,
+  connectAndRun,
+  resolveContext,
+  setupNotify,
+  printHeader,
+  waitForKeyToStop,
+} from "../utils.js"
 
 /**
  * Registers the `stream` command on the Commander program.
@@ -14,20 +22,22 @@ import { resolveDeviceKey, createDevice, connectAndRun, resolveContext, setupNot
 export function registerStream(program: Command): void {
   program
     .command("stream [device]")
-    .description("Connect to a device and stream force data")
-    .option("-d, --duration <ms>", "Stream duration in milliseconds", "10000")
-    .option("-w, --watch", "Stream indefinitely until Ctrl+C")
-    .action(async (deviceKey: string | undefined, options: { duration: string; watch?: boolean }) => {
+    .description("Connect to a device and stream force data (Esc to stop, or use -d for a fixed duration)")
+    .option("-d, --duration <seconds>", "Stream for this many seconds (omit to stream until Esc)")
+    .action(async (deviceKey: string | undefined, options: { duration?: string }) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
-      const duration = options.watch ? 0 : parseInt(options.duration, 10)
+      const durationSec = options.duration != null ? parseFloat(options.duration) : undefined
+      const durationMs = durationSec != null && !Number.isNaN(durationSec) ? Math.round(durationSec * 1000) : undefined
+      const indefinite = durationMs == null || durationMs === 0
 
       if (!ctx.json) {
-        if (options.watch) {
-          printHeader(`Streaming ${name} (Ctrl+C to stop)`)
+        if (indefinite) {
+          printHeader(`Streaming ${name}`)
         } else {
-          printHeader(`Streaming ${name} for ${duration / 1000}s`)
+          const ms = durationMs ?? 0
+          printHeader(`Streaming ${name} for ${ms / 1000}s`)
         }
       }
 
@@ -39,10 +49,16 @@ export function registerStream(program: Command): void {
             throw new Error("Stream not supported on this device.")
           }
           setupNotify(d, ctx)
-          await d.stream(duration)
-          await d.stop?.()
+          if (indefinite) {
+            await d.stream()
+            await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop streaming")
+            await d.stop?.()
+          } else {
+            await d.stream(durationMs)
+            await d.stop?.()
+          }
 
-          if (!ctx.json && !options.watch) {
+          if (!ctx.json && !indefinite) {
             console.log(pc.dim("\nStream complete."))
           }
         },

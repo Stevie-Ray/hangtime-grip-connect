@@ -80,15 +80,6 @@ const motherboard: DeviceDefinition = {
       },
     },
     {
-      name: "Stop",
-      description: "Stop current stream",
-      run: async (device) => {
-        const d = device as unknown as Motherboard
-        await d.stop()
-        printSuccess("Stream stopped.")
-      },
-    },
-    {
       name: "Text",
       description: "Read device text memory",
       run: async (device) => {

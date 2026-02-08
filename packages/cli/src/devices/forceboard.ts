@@ -82,15 +82,6 @@ const forceboard: DeviceDefinition = {
         printSuccess("Tare complete.")
       },
     },
-    {
-      name: "Stop",
-      description: "Stop current stream",
-      run: async (device) => {
-        const d = device as unknown as ForceBoard
-        await d.stop()
-        printSuccess("Stream stopped.")
-      },
-    },
   ],
 }
 

@@ -33,9 +33,13 @@ export function registerDownload(program: Command): void {
           if (typeof d.download !== "function") {
             fail("Download not supported on this device.")
           }
-          await d.download(format)
+          const filePath = await d.download(format)
           if (!ctx.json) {
-            printSuccess(`Session data exported as ${format.toUpperCase()}.`)
+            printSuccess(
+              typeof filePath === "string"
+                ? `Session data exported to ${filePath}`
+                : `Session data exported as ${format.toUpperCase()}.`,
+            )
           }
         },
         ctx,

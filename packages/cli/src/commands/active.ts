@@ -14,6 +14,7 @@ import {
   outputJson,
   printHeader,
   setupSignalHandlers,
+  waitForKeyToStop,
   fail,
 } from "../utils.js"
 import ora from "ora"
@@ -26,7 +27,7 @@ import ora from "ora"
 export function registerActive(program: Command): void {
   program
     .command("active [device]")
-    .description("Monitor device activity (Ctrl+C to stop)")
+    .description("Monitor device activity (Esc to stop)")
     .option("-t, --threshold <kg>", "Force threshold in kg", "2.5")
     .option("-d, --duration <ms>", "Duration in ms to confirm activity", "1000")
     .action(async (deviceKey: string | undefined, options: { threshold: string; duration: string }) => {
@@ -63,15 +64,12 @@ export function registerActive(program: Command): void {
           )
 
           if (!ctx.json) {
-            printHeader(`Activity monitor for ${name} (Ctrl+C to stop)`)
+            printHeader(`Activity monitor for ${name}`)
             console.log(pc.dim(`  Threshold: ${threshold} kg  Duration: ${duration} ms\n`))
           }
 
-          // Keep the process alive; the BLE event loop drives callbacks.
-          // SIGINT handler (from setupSignalHandlers) will disconnect & exit.
-          await new Promise(() => {
-            /* never resolves -- wait for signal */
-          })
+          await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop")
+          device.disconnect()
         })
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error)

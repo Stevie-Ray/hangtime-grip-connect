@@ -4,7 +4,7 @@
 
 import { Progressor } from "@hangtime/grip-connect-runtime"
 import type { DeviceDefinition, CliDevice } from "../types.js"
-import { printResult, printSuccess } from "../utils.js"
+import { printResult } from "../utils.js"
 
 const progressor: DeviceDefinition = {
   name: "Progressor",
@@ -24,15 +24,6 @@ const progressor: DeviceDefinition = {
       run: async (device) => {
         const d = device as unknown as Progressor
         printResult("Firmware:", await d.firmware())
-      },
-    },
-    {
-      name: "Stop",
-      description: "Stop current stream",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        await d.stop()
-        printSuccess("Stream stopped.")
       },
     },
   ],

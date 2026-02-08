@@ -34,15 +34,33 @@ export function resolveContext(program: { opts(): Record<string, unknown> }): Ou
 
 /**
  * Formats a single force measurement as a human-readable string with color.
+ * When distribution (left/center/right) is present, appends e.g. "Left: 0.00 kg Center: 0.00 kg Right: 0.00 kg".
  *
  * @param data - The force measurement to format.
- * @returns A formatted string such as `"12.34 kg  Peak: 15.00 kg  Mean: 11.20 kg"`.
+ * @returns A formatted string such as `"12.34 kg  Peak: 15.00 kg  Mean: 11.20 kg  Left: 0.00 kg Center: 0.00 kg Right: 0.00 kg"`.
  */
 export function formatMeasurement(data: ForceMeasurement): string {
   const current = pc.bold(`${data.current.toFixed(2)} ${data.unit}`)
   const peak = pc.dim(`Peak: ${data.peak.toFixed(2)} ${data.unit}`)
   const mean = pc.dim(`Mean: ${data.mean.toFixed(2)} ${data.unit}`)
-  return `${current}  ${peak}  ${mean}`
+  const main = `${current}  ${peak}  ${mean}`
+
+  const dist = data.distribution
+  const hasDistribution = dist && (dist.left !== undefined || dist.center !== undefined || dist.right !== undefined)
+  if (!hasDistribution) return main
+
+  const unit = data.unit
+  const parts: string[] = []
+  if (dist.left !== undefined) {
+    parts.push(pc.dim(`Left: ${dist.left.current.toFixed(2)} ${dist.left.unit ?? unit}`))
+  }
+  if (dist.center !== undefined) {
+    parts.push(pc.dim(`Center: ${dist.center.current.toFixed(2)} ${dist.center.unit ?? unit}`))
+  }
+  if (dist.right !== undefined) {
+    parts.push(pc.dim(`Right: ${dist.right.current.toFixed(2)} ${dist.right.unit ?? unit}`))
+  }
+  return parts.length > 0 ? `${main}  ${parts.join(" ")}` : main
 }
 
 /**
@@ -106,10 +124,14 @@ export function fail(message: string): never {
 export async function pickDevice(): Promise<string> {
   return select({
     message: "Select a device:",
-    choices: Object.entries(devices).map(([key, def]) => ({
-      name: def.name,
-      value: key,
-    })),
+    choices: Object.entries(devices).map(([key, def]) => {
+      const disabled = key === "wh-c06"
+      return {
+        name: disabled ? `${def.name}` : def.name,
+        value: key,
+        ...(disabled && { disabled: true }),
+      }
+    }),
   })
 }
 
@@ -222,11 +244,48 @@ export function muteNotify(device: CliDevice): void {
 }
 
 /**
+ * Returns a promise that resolves when the user presses Escape (stdin TTY only).
+ * Use this to let the user exit an indefinite stream.
+ * When stdin is not a TTY (e.g. piped), the promise never resolves; stop the process as needed.
+ *
+ * @param message - Optional message to print (e.g. "Press Esc to stop streaming").
+ * @returns A promise that resolves when Escape is pressed, or never when not a TTY.
+ */
+export function waitForKeyToStop(message?: string): Promise<void> {
+  if (!process.stdin.isTTY) {
+    return new Promise<void>((_resolve) => {
+      void _resolve
+      /* never resolve when not a TTY */
+    })
+  }
+  return new Promise((resolve) => {
+    let done = false
+    const onKey = (chunk: Buffer | string) => {
+      const first = typeof chunk === "string" ? chunk.charCodeAt(0) : chunk[0]
+      // Escape (\x1b)
+      if (first === 0x1b) {
+        if (done) return
+        done = true
+        process.stdin.removeListener("data", onKey)
+        process.stdin.setRawMode?.(false)
+        resolve()
+      }
+    }
+    if (message) {
+      console.log(pc.dim(message))
+    }
+    process.stdin.setRawMode?.(true)
+    process.stdin.resume()
+    process.stdin.on("data", onKey)
+  })
+}
+
+/**
  * Connects to a device with a spinner, runs a callback, then disconnects.
  *
- * Notify is **not** set up automatically -- call {@link setupNotify} inside
- * the callback when you need force-measurement output.  This avoids stale
- * output bleeding into interactive prompts.
+ * Sets up formatted stream output (via {@link setupNotify}) as soon as we're
+ * connected so every device shows human-readable force lines (or NDJSON when
+ * `--json`). Actions that stream may call setupNotify again to refresh unit.
  *
  * @param device - The device to connect to.
  * @param name - The human-readable device name (for spinner text).
@@ -255,6 +314,8 @@ export async function connectAndRun(
       .connect(async () => {
         spinner?.succeed(`Connected to ${pc.bold(name)}`)
         setupSignalHandlers(device)
+        // Override core default (raw console.log) so all devices get formatted stream output
+        setupNotify(device, ctx)
         try {
           await callback(device)
         } finally {
@@ -298,16 +359,25 @@ export function buildActions(deviceKey: string): Action[] {
   if (typeof device.stream === "function") {
     shared.push({
       name: "Stream",
-      description: "Live force data for a duration",
+      description: "Live force data (until cancelled or for a set duration)",
       run: async (d: CliDevice, opts: RunOptions) => {
-        const duration = opts.duration ?? 10000
+        const duration = opts.duration
+        const indefinite = duration == null || duration === 0
         if (typeof d.stream !== "function") return
         if (!opts.ctx?.json) {
-          console.log(pc.cyan(`\nStreaming for ${duration / 1000} seconds...\n`))
+          console.log(
+            pc.cyan(indefinite ? "\nStreaming...\n" : `\nStreaming for ${(duration ?? 0) / 1000} seconds...\n`),
+          )
         }
         setupNotify(d, opts.ctx ?? { json: false, unit: "kg" })
-        await d.stream(duration)
-        await d.stop?.()
+        if (indefinite) {
+          await d.stream()
+          await waitForKeyToStop(opts.ctx?.json ? undefined : "Press Esc to stop streaming")
+          await d.stop?.()
+        } else {
+          await d.stream(duration)
+          await d.stop?.()
+        }
         muteNotify(d)
       },
     })
@@ -316,19 +386,36 @@ export function buildActions(deviceKey: string): Action[] {
         name: "Stream & download",
         description: "Stream then export session data (CSV/JSON/XML)",
         run: async (d: CliDevice, opts: RunOptions) => {
-          const duration = opts.duration ?? 10000
+          const duration = opts.duration
+          const indefinite = duration == null || duration === 0
           const format = opts.format ?? "csv"
           if (typeof d.stream !== "function" || typeof d.download !== "function") return
           if (!opts.ctx?.json) {
-            console.log(pc.cyan(`\nStreaming for ${duration / 1000} seconds, then exporting ${format}...\n`))
+            console.log(
+              pc.cyan(
+                indefinite
+                  ? `\nStreaming... then exporting ${format}...\n`
+                  : `\nStreaming for ${(duration ?? 0) / 1000} seconds, then exporting ${format}...\n`,
+              ),
+            )
           }
           setupNotify(d, opts.ctx ?? { json: false, unit: "kg" })
-          await d.stream(duration)
-          await d.stop?.()
+          if (indefinite) {
+            await d.stream()
+            await waitForKeyToStop(opts.ctx?.json ? undefined : "Press Esc to stop streaming")
+            await d.stop?.()
+          } else {
+            await d.stream(duration)
+            await d.stop?.()
+          }
           muteNotify(d)
-          await d.download(format)
+          const filePath = await d.download(format)
           if (!opts.ctx?.json) {
-            printSuccess(`Data exported as ${format.toUpperCase()}.`)
+            printSuccess(
+              typeof filePath === "string"
+                ? `Data exported to ${filePath}`
+                : `Data exported as ${format.toUpperCase()}.`,
+            )
           }
         },
       })
@@ -393,32 +480,16 @@ export function buildActions(deviceKey: string): Action[] {
     })
   }
 
-  if (typeof device.download === "function") {
-    shared.push({
-      name: "Download",
-      description: "Export session data",
-      run: async (d: CliDevice, opts: RunOptions) => {
-        const format = opts.format ?? "csv"
-        const downloadFn = d.download
-        if (typeof downloadFn !== "function") return
-        await downloadFn(format)
-        if (!opts.ctx?.json) {
-          printSuccess(`Data exported as ${format.toUpperCase()}.`)
-        }
-      },
-    })
-  }
-
   // Device-specific actions
   const specific = def.actions
 
-  // Always-available disconnect
+  // Always-available disconnect (returns to device picker in interactive mode)
   const disconnect: Action = {
     name: "Disconnect",
-    description: "Connect then disconnect (smoke test)",
+    description: "Disconnect from current device and pick another",
     run: async (_d: CliDevice, opts: RunOptions) => {
       if (!opts.ctx?.json) {
-        printSuccess("Connected successfully. Disconnecting.")
+        printSuccess("Disconnected. You can pick another device.")
       }
     },
   }
