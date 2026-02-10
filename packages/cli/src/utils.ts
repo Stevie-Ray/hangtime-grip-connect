@@ -8,6 +8,7 @@ import select from "@inquirer/select"
 import ora from "ora"
 import pc from "picocolors"
 import { devices } from "./devices/index.js"
+import { INFO_METHODS } from "./info-methods.js"
 import type { Action, CliDevice, ForceMeasurement, OutputContext, RunOptions } from "./types.js"
 
 // ---------------------------------------------------------------------------
@@ -422,35 +423,34 @@ export function buildActions(deviceKey: string): Action[] {
     }
   }
 
-  if (typeof device.battery === "function" || typeof device.firmware === "function") {
+  const hasAnyInfo = INFO_METHODS.some(
+    (m) => typeof (device as unknown as Record<string, unknown>)[m.key] === "function",
+  )
+  if (hasAnyInfo) {
     shared.push({
       name: "Info",
-      description: "Battery and firmware",
+      description: "Battery, firmware, device ID, calibration, etc.",
       run: async (d: CliDevice, opts: RunOptions) => {
+        const dev = d as unknown as Record<string, unknown>
+        const info: Record<string, string | undefined> = {}
+        for (const entry of INFO_METHODS) {
+          const fn = dev[entry.key]
+          if (typeof fn === "function") {
+            try {
+              info[entry.key] = (await (fn as () => Promise<string | undefined>)()) ?? undefined
+            } catch {
+              info[entry.key] = undefined
+            }
+          }
+        }
         if (opts.ctx?.json) {
-          const info: Record<string, string | undefined> = {}
-          try {
-            info["battery"] = await d.battery?.()
-          } catch {
-            /* skip */
-          }
-          try {
-            info["firmware"] = await d.firmware?.()
-          } catch {
-            /* skip */
-          }
           outputJson(info)
         } else {
           printHeader(`${def.name} Info`)
-          try {
-            printResult("Battery:", await d.battery?.())
-          } catch {
-            printResult("Battery:", undefined)
-          }
-          try {
-            printResult("Firmware:", await d.firmware?.())
-          } catch {
-            printResult("Firmware:", undefined)
+          for (const entry of INFO_METHODS) {
+            if (entry.key in info) {
+              printResult(entry.label, info[entry.key])
+            }
           }
           console.log(pc.dim("─".repeat(40)))
         }

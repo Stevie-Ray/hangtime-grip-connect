@@ -235,6 +235,8 @@ export class Motherboard extends Device implements IMotherboard {
 
           // Handle streaming packet
           if (isAllHex && receivedData.length === Motherboard.packetLength) {
+            this.currentSamplesPerPacket = Motherboard.samplesNumber
+            this.recordPacketReceived()
             // Base-16 decode the string: convert hex pairs to byte values
             const bytes: number[] = Array.from({ length: receivedData.length / 2 }, (_, i) =>
               Number(`0x${receivedData.substring(i * 2, i * 2 + 2)}`),
@@ -295,6 +297,7 @@ export class Motherboard extends Device implements IMotherboard {
             const rightClamped = Math.max(-1000, right)
 
             this.peak = Math.max(this.peak, totalCurrent)
+            this.min = Math.min(this.min, totalCurrent)
 
             // Update running sum and count (total)
             this.sum += totalCurrent
@@ -400,7 +403,7 @@ export class Motherboard extends Device implements IMotherboard {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream = async (duration = 0): Promise<void> => {
-    // Reset download packets
+    this.resetPacketTracking()
     this.downloadPackets.length = 0
     // Read calibration data if not already available
     if (!this.calibrationData[0].length) {

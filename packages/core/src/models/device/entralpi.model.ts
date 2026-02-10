@@ -161,9 +161,10 @@ export class Entralpi extends Device implements IEntralpi {
    */
   override handleNotifications = (value: DataView): void => {
     if (value) {
-      // Update timestamp
       this.updateTimestamp()
       if (value.buffer) {
+        this.currentSamplesPerPacket = 1
+        this.recordPacketReceived()
         const receivedTime: number = Date.now()
         const receivedData: string = (value.getUint16(0) / 100).toFixed(1)
 
@@ -182,8 +183,9 @@ export class Entralpi extends Device implements IEntralpi {
           masses: [numericData],
         })
 
-        // Update peak
+        // Update peak and min
         this.peak = Math.max(this.peak, numericData)
+        this.min = Math.min(this.min, Math.max(-1000, numericData))
 
         // Update running sum and count
         const currentMassTotal = Math.max(-1000, numericData)

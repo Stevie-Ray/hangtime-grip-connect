@@ -84,12 +84,11 @@ export class Climbro extends Device implements IClimbro {
    */
   override handleNotifications = (value: DataView): void => {
     if (value) {
-      // Update timestamp
       this.updateTimestamp()
       if (value.buffer) {
+        this.recordPacketReceived()
         const receivedTime: number = Date.now()
 
-        // Convert DataView to Uint8Array for easier processing
         const buffer = new Uint8Array(value.buffer)
         const byteCount = buffer.length
 
@@ -136,6 +135,7 @@ export class Climbro extends Device implements IClimbro {
 
             // Check for max weight
             this.peak = Math.max(this.peak, Number(numericData))
+            this.min = Math.min(this.min, Math.max(-1000, Number(numericData)))
 
             // Update running sum and count
             const currentMassTotal = Math.max(-1000, Number(numericData))

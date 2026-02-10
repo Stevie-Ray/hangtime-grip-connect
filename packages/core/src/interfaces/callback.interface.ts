@@ -13,6 +13,9 @@ export interface ForceStats {
 
   /** Mean (average) force across all samples in the measured window or session */
   mean: number
+
+  /** Lowest instantaneous force recorded within the measured window or session (e.g. for charts and Min/Max UI) */
+  min: number
 }
 
 /**
@@ -27,10 +30,19 @@ export interface ForceMeasurement extends ForceStats {
   timestamp: number
 
   /**
-   * Sampling frequency of the underlying force signal in Hertz.
-   * Required for time-dependent metrics such as RFD, impulse, or filtering.
+   * Performance metadata (notify interval, packet count, samples/packet, Hz).
+   * All devices that stream force data set this; use data.performance?.samplingRateHz for data rate.
    */
-  samplingRateHz?: number
+  performance?: {
+    /** Time in ms since the previous BLE notification (packet). */
+    notifyIntervalMs?: number
+    /** Cumulative count of data packets received this session (one BLE notification = one packet). */
+    packetIndex?: number
+    /** Number of samples in the current packet (e.g. Progressor: payload length / 8). */
+    samplesPerPacket?: number
+    /** Data rate in Hz: samples per second from device timestamps (samples in last 1s of device time). */
+    samplingRateHz?: number
+  }
 
   /**
    * Optional force distribution across multiple sensor zones.

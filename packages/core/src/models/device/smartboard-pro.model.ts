@@ -60,7 +60,6 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
    */
   override handleNotifications = (value: DataView): void => {
     if (value) {
-      // Update timestamp
       this.updateTimestamp()
       if (value.buffer) {
         const length = value.byteLength / 2
@@ -70,18 +69,17 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
           const offset = i * 2
           if (offset + 1 < value.byteLength) {
             const intValue = value.getInt16(offset, true)
-            // For debugging purposes
             console.log(intValue)
-
             dataArray.push(intValue)
           }
         }
 
         if (dataArray.length === 0) return
 
+        this.currentSamplesPerPacket = dataArray.length
+        this.recordPacketReceived()
         const receivedTime = Date.now()
 
-        // Process each data point
         for (const receivedData of dataArray) {
           // Skip invalid values
           if (!Number.isFinite(receivedData)) continue
@@ -97,8 +95,9 @@ export class SmartBoardPro extends Device implements ISmartBoardPro {
             masses: [numericData],
           })
 
-          // Update peak
+          // Update peak and min
           this.peak = Math.max(this.peak, numericData)
+          this.min = Math.min(this.min, Math.max(-1000, numericData))
 
           // Update running sum and count
           const currentMassTotal = Math.max(-1000, numericData)

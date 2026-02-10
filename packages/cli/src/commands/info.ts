@@ -4,6 +4,7 @@
 
 import type { Command } from "commander"
 import pc from "picocolors"
+import { INFO_METHODS } from "../info-methods.js"
 import {
   resolveDeviceKey,
   createDevice,
@@ -14,22 +15,6 @@ import {
   outputJson,
 } from "../utils.js"
 
-/** Info methods to probe on each device, in display order. */
-const INFO_METHODS = [
-  { key: "battery", label: "Battery:" },
-  { key: "firmware", label: "Firmware:" },
-  { key: "hardware", label: "Hardware:" },
-  { key: "manufacturer", label: "Manufacturer:" },
-  { key: "serial", label: "Serial:" },
-  { key: "model", label: "Model:" },
-  { key: "certification", label: "Certification:" },
-  { key: "pnp", label: "PnP ID:" },
-  { key: "software", label: "Software:" },
-  { key: "system", label: "System ID:" },
-  { key: "humidity", label: "Humidity:" },
-  { key: "temperature", label: "Temperature:" },
-] as const
-
 /**
  * Registers the `info` command on the Commander program.
  *
@@ -38,7 +23,7 @@ const INFO_METHODS = [
 export function registerInfo(program: Command): void {
   program
     .command("info [device]")
-    .description("Connect and show all available device information")
+    .description("Connect and show device information (battery, firmware, device ID, calibration, etc.)")
     .action(async (deviceKey: string | undefined) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)

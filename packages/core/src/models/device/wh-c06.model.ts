@@ -99,7 +99,8 @@ export class WHC06 extends Device implements IWHC06 {
       this.bluetooth.addEventListener("advertisementreceived", (event) => {
         const data = event.manufacturerData.get(WHC06.manufacturerId)
         if (data) {
-          // Handle recieved data
+          this.currentSamplesPerPacket = 1
+          this.recordPacketReceived()
           const weight = (data.getUint8(WHC06.weightOffset) << 8) | data.getUint8(WHC06.weightOffset + 1)
           // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
           // const unit = data.getUint8(STABLE_OFFSET) & 0x0f
@@ -117,8 +118,9 @@ export class WHC06 extends Device implements IWHC06 {
             masses: [numericData],
           })
 
-          // Update peak
+          // Update peak and min
           this.peak = Math.max(this.peak, numericData)
+          this.min = Math.min(this.min, Math.max(-1000, numericData))
 
           // Update running sum and count
           const currentMassTotal = Math.max(-1000, numericData)

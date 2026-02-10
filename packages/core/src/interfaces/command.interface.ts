@@ -81,35 +81,40 @@ export interface Commands {
    * Adds a calibration point to the device.
    * Used to improve the accuracy of future measurements.
    */
-  ADD_CALIB_POINT?: string
+  ADD_CALIBRATION_POINT?: string
 
   /**
    * Saves the current calibration settings to the device.
    * Ensures the device remembers the calibration for future sessions.
    */
-  SAVE_CALIB?: string
+  SAVE_CALIBRATION?: string
 
   /**
    * Retrieves the firmware version of the device.
    * Useful for ensuring compatibility and tracking updates.
    */
-  GET_FW_VERSION?: string
+  GET_FIRMWARE_VERSION?: string
 
   /**
    * Retrieves error information from the device.
    * Provides details on any faults or issues that occurred during operation.
    */
-  GET_ERR_INFO?: string
+  GET_ERROR_INFORMATION?: string
 
   /**
    * Clears the error information on the device.
    * Used to reset error logs after troubleshooting or repair.
    */
-  CLR_ERR_INFO?: string
+  CLR_ERROR_INFORMATION?: string
 
   /**
    * Retrieves the battery voltage level of the device.
    * Provides insight into the device's remaining battery power.
    */
-  GET_BATT_VLTG?: string
+  GET_BATTERY_VOLTAGE?: string
+
+  /**
+   * Get the Progressor ID.
+   */
+  GET_PROGRESSOR_ID?: string
 }

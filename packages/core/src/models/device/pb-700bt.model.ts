@@ -164,13 +164,14 @@ export class PB700BT extends Device {
    */
   override handleNotifications = (value: DataView): void => {
     if (value) {
-      // Update timestamp
       this.updateTimestamp()
       if (value.buffer) {
         const period = value.getUint32(0, false)
 
         if (!Number.isFinite(period) || period === 0) return
 
+        this.currentSamplesPerPacket = 1
+        this.recordPacketReceived()
         const ts = value.getUint32(4, false)
 
         const rpmFloat = 60 * (666666 / period)
@@ -192,8 +193,9 @@ export class PB700BT extends Device {
           masses: [numericData],
         })
 
-        // Update peak
+        // Update peak and min
         this.peak = Math.max(this.peak, numericData)
+        this.min = Math.min(this.min, Math.max(-1000, numericData))
 
         // Update running sum and count
         const currentMassTotal = Math.max(-1000, numericData)

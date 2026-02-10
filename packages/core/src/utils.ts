@@ -32,9 +32,10 @@ export function convertForceMeasurement(
     current: convertForce(measurement.current, from, to),
     peak: convertForce(measurement.peak, from, to),
     mean: convertForce(measurement.mean, from, to),
+    min: convertForce(measurement.min, from, to),
   }
-  if (measurement.samplingRateHz !== undefined) {
-    out.samplingRateHz = measurement.samplingRateHz
+  if (measurement.performance !== undefined) {
+    out.performance = { ...measurement.performance }
   }
   if (
     measurement.distribution &&

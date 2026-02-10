@@ -89,6 +89,14 @@ export abstract class Device extends BaseModel implements IDevice {
   protected mean: number
 
   /**
+   * Lowest instantaneous force recorded in the session; may be negative.
+   * Initialized to Number.POSITIVE_INFINITY so the first sample sets the min.
+   * @type {number}
+   * @protected
+   */
+  protected min: number
+
+  /**
    * Display unit for force measurements (output unit for notify callbacks).
    * @type {ForceUnit}
    * @protected
@@ -108,6 +116,52 @@ export abstract class Device extends BaseModel implements IDevice {
    * @protected
    */
   protected samplingRateHz?: number
+
+  /**
+   * Timestamp (ms) of the previous BLE notification for notify-interval calculation.
+   * @protected
+   */
+  protected lastPacketTimestamp = 0
+
+  /**
+   * Count of data packets received this session (one BLE notification = one packet).
+   * @protected
+   */
+  protected packetCount = 0
+
+  /**
+   * Notify interval in ms for the current packet (set by recordPacketReceived).
+   * @protected
+   */
+  protected currentNotifyIntervalMs: number | undefined = undefined
+
+  /**
+   * Samples in the current packet (set by device before buildForceMeasurement).
+   * @protected
+   */
+  protected currentSamplesPerPacket: number | undefined = undefined
+
+  /**
+   * Call at the start of each BLE notification (packet). Updates notify interval and packet count.
+   * @protected
+   */
+  protected recordPacketReceived(): void {
+    const now = Date.now()
+    this.currentNotifyIntervalMs = this.lastPacketTimestamp > 0 ? now - this.lastPacketTimestamp : undefined
+    this.lastPacketTimestamp = now
+    this.packetCount += 1
+  }
+
+  /**
+   * Reset packet tracking (call when starting a new stream).
+   * @protected
+   */
+  protected resetPacketTracking(): void {
+    this.lastPacketTimestamp = 0
+    this.packetCount = 0
+    this.currentNotifyIntervalMs = undefined
+    this.currentSamplesPerPacket = undefined
+  }
 
   /**
    * Start time of the current rate measurement interval.
@@ -234,6 +288,7 @@ export abstract class Device extends BaseModel implements IDevice {
 
     this.peak = Number.NEGATIVE_INFINITY
     this.mean = 0
+    this.min = Number.POSITIVE_INFINITY
     this.sum = 0
     this.dataPointCount = 0
     this.unit = "kg"
@@ -261,15 +316,17 @@ export abstract class Device extends BaseModel implements IDevice {
     const current = valueOrCurrent
     const zonePeak = useFullStats ? (peak === 0 && current < 0 ? current : peak) : valueOrCurrent
     const zoneMean = useFullStats ? mean : valueOrCurrent
+    const zoneMin = useFullStats ? Math.min(zonePeak, current) : current
     const zone: ForceMeasurement = {
       unit: this.unit,
       timestamp: Date.now(),
       current,
       peak: zonePeak,
       mean: zoneMean,
+      min: zoneMin,
     }
     if (this.samplingRateHz !== undefined) {
-      zone.samplingRateHz = this.samplingRateHz
+      zone.performance = { samplingRateHz: this.samplingRateHz }
     }
     return zone
   }
@@ -325,10 +382,16 @@ export abstract class Device extends BaseModel implements IDevice {
       current: convertForce(current, this.streamUnit, this.unit),
       peak: convertForce(this.peak, this.streamUnit, this.unit),
       mean: convertForce(this.mean, this.streamUnit, this.unit),
+      min: Number.isFinite(this.min)
+        ? convertForce(this.min, this.streamUnit, this.unit)
+        : convertForce(0, this.streamUnit, this.unit),
     }
-    if (this.samplingRateHz !== undefined) {
-      payload.samplingRateHz = this.samplingRateHz
-    }
+    const perf: ForceMeasurement["performance"] = {}
+    if (this.currentNotifyIntervalMs !== undefined) perf.notifyIntervalMs = this.currentNotifyIntervalMs
+    perf.packetIndex = this.packetCount
+    if (this.currentSamplesPerPacket !== undefined) perf.samplesPerPacket = this.currentSamplesPerPacket
+    if (this.samplingRateHz !== undefined) perf.samplingRateHz = this.samplingRateHz
+    payload.performance = perf
     if (
       distribution !== undefined &&
       (distribution.left !== undefined || distribution.center !== undefined || distribution.right !== undefined)
@@ -939,7 +1002,7 @@ export abstract class Device extends BaseModel implements IDevice {
    *
    * @example
    * // Example usage of the write function with a custom callback
-   * await Progressor.write("progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
+   * await Progressor.write("progressor", "tx", ProgressorCommands.GET_BATTERY_VOLTAGE, 250, (data) => {
    *   console.log(`Battery voltage: ${data}`);
    * });
    */

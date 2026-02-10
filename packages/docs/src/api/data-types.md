@@ -31,30 +31,42 @@ convertForce(22.05, "lbs", "kg") // ~10
 
 Core statistical values describing force over a time window or session.
 
-| Property  | Type     | Description                                                    |
-| --------- | -------- | -------------------------------------------------------------- |
-| `current` | `number` | Instantaneous total force at the current sample moment.        |
-| `peak`    | `number` | Highest instantaneous force in the measured window/session.    |
-| `mean`    | `number` | Mean (average) force across all samples in the window/session. |
+| Property  | Type     | Description                                                                  |
+| --------- | -------- | ---------------------------------------------------------------------------- |
+| `current` | `number` | Instantaneous total force at the current sample moment.                      |
+| `peak`    | `number` | Highest instantaneous force in the measured window/session.                  |
+| `mean`    | `number` | Mean (average) force across all samples in the window/session.               |
+| `min`     | `number` | Lowest instantaneous force in the measured window/session (e.g. for charts). |
 
 ## ForceMeasurement
 
 Complete force measurement including timing, unit, and optional spatial distribution. Extends `ForceStats`. Passed to
 the `notify()` callback; represent a single real-time sample.
 
-| Property          | Type        | Description                                                       |
-| ----------------- | ----------- | ----------------------------------------------------------------- |
-| `unit`            | `ForceUnit` | Display unit for all force values (kgf or lbf).                   |
-| `timestamp`       | `number`    | Unix epoch in milliseconds when the measurement was recorded.     |
-| `samplingRateHz?` | `number`    | Optional sampling frequency in Hz. (for RFD, impulse, filtering). |
-| `current`         | `number`    | From ForceStats: force at the current sample.                     |
-| `peak`            | `number`    | From ForceStats: highest force in the session.                    |
-| `mean`            | `number`    | From ForceStats: mean force over the session.                     |
-| `distribution?`   | `object`    | Optional zone distribution (see below).                           |
+| Property        | Type        | Description                                                       |
+| --------------- | ----------- | ----------------------------------------------------------------- |
+| `unit`          | `ForceUnit` | Display unit for all force values (kgf or lbf).                   |
+| `timestamp`     | `number`    | Unix epoch in milliseconds when the measurement was recorded.     |
+| `current`       | `number`    | From ForceStats: force at the current sample.                     |
+| `peak`          | `number`    | From ForceStats: highest force in the session.                    |
+| `mean`          | `number`    | From ForceStats: mean force over the session.                     |
+| `min`           | `number`    | From ForceStats: lowest force in the session.                     |
+| `performance?`  | `object`    | Optional performance metadata (all streaming devices); see below. |
+| `distribution?` | `object`    | Optional zone distribution (see below).                           |
+
+**performance** (optional): Each `notify()` payload from devices that stream force data includes `performance` when
+available. Use `data.performance?.samplingRateHz` for data rate.
+
+| Field                          | Description                                                     |
+| ------------------------------ | --------------------------------------------------------------- |
+| `performance.notifyIntervalMs` | Time in ms since the previous BLE notification (packet).        |
+| `performance.packetIndex`      | Cumulative count of data packets received this session.         |
+| `performance.samplesPerPacket` | Number of samples in the current packet.                        |
+| `performance.samplingRateHz`   | Data rate in Hz (device- or session-specific; see device docs). |
 
 **distribution** (optional): Each zone is a full `ForceMeasurement` (same structure: unit, timestamp, current, peak,
-mean). One level deep; nested distribution should be avoided. Used by devices like Motherboard for left/center/right
-zones.
+mean, min). One level deep; nested distribution should be avoided. Used by devices like Motherboard for
+left/center/right zones.
 
 ```ts
 import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
@@ -62,7 +74,7 @@ import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
 // Default: payload in kg. Pass "lbs" to receive values in lbs.
 device.notify((data: ForceMeasurement) => {
   console.log(data.current, data.peak, data.mean, data.unit)
-  if (data.samplingRateHz != null) console.log("Rate:", data.samplingRateHz, "Hz")
+  if (data.performance?.samplingRateHz != null) console.log("Rate:", data.performance.samplingRateHz, "Hz")
   if (data.distribution) {
     console.log(
       "Left:",
@@ -130,16 +142,18 @@ needed for tree-shaking.
 The `commands` property on each device holds device-specific command strings (or numbers) used with `write()`. Not every
 device implements every command. Common commands include:
 
-| Command             | Description                    | Typical devices         |
-| ------------------- | ------------------------------ | ----------------------- |
-| `START_WEIGHT_MEAS` | Start weight/force measurement | Motherboard, Progressor |
-| `STOP_WEIGHT_MEAS`  | Stop measurement               | Motherboard, Progressor |
-| `SLEEP`             | Put device to sleep            | Motherboard, Progressor |
-| `GET_SERIAL`        | Get serial number              | Motherboard, Progressor |
-| `GET_CALIBRATION`   | Get calibration data           | Motherboard             |
-| `TARE_SCALE`        | Tare (zero) the scale          | Progressor              |
-| `GET_BATT_VLTG`     | Get battery voltage            | Progressor              |
-| `GET_FW_VERSION`    | Get firmware version           | Progressor              |
+| Command                 | Description                    | Typical devices         |
+| ----------------------- | ------------------------------ | ----------------------- |
+| `START_WEIGHT_MEAS`     | Start weight/force measurement | Motherboard, Progressor |
+| `STOP_WEIGHT_MEAS`      | Stop measurement               | Motherboard, Progressor |
+| `SLEEP`                 | Put device to sleep            | Motherboard, Progressor |
+| `GET_SERIAL`            | Get serial number              | Motherboard, Progressor |
+| `GET_CALIBRATION`       | Get calibration data           | Motherboard             |
+| `TARE_SCALE`            | Tare (zero) the scale          | Progressor              |
+| `GET_BATTERY_VOLTAGE`   | Get battery voltage            | Progressor              |
+| `GET_FIRMWARE_VERSION`  | Get firmware version           | Progressor              |
+| `ADD_CALIBRATION_POINT` | Add calibration point (kg)     | Progressor              |
+| `SAVE_CALIBRATION`      | Save calibration to device     | Progressor              |
 
 See device-specific docs under [Devices](/devices/) for which commands each device supports. For the full device API,
 see [Device interface](/api/device-interface) and [Exports](/api/exports).

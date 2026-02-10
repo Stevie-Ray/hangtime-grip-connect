@@ -36,7 +36,7 @@ npx @hangtime/grip-connect-cli watch progressor
 # Use lbs for stream/watch output (default is kg)
 npx @hangtime/grip-connect-cli stream forceboard --unit lbs
 
-# Show device info (battery, firmware, etc.)
+# Show device info (battery, firmware, device ID, calibration, etc.)
 npx @hangtime/grip-connect-cli info entralpi
 
 # Export session data
@@ -73,7 +73,7 @@ grip-connect stream progressor --duration 10
 # Watch mode: indefinite stream + session summary (Esc to stop)
 grip-connect watch progressor
 
-# Show device info (battery, firmware, etc.)
+# Show device info (battery, firmware, device ID, calibration, etc.)
 grip-connect info entralpi
 
 # Export session data

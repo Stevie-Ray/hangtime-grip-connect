@@ -190,16 +190,15 @@ export class ForceBoard extends Device implements IForceBoard {
    */
   override handleNotifications = (value: DataView): void => {
     if (value) {
-      // Update timestamp
       this.updateTimestamp()
       if (value.buffer) {
         const receivedTime: number = Date.now()
         const dataArray = new Uint8Array(value.buffer)
 
-        // First two bytes contain the number of samples in the packet
         const numSamples = (dataArray[0] << 8) | dataArray[1]
+        this.currentSamplesPerPacket = numSamples
+        this.recordPacketReceived()
 
-        // Process each sample (3 bytes per sample)
         for (let i = 0; i < numSamples; i++) {
           const offset = 2 + i * 3 // Skip the first 2 bytes which indicate number of samples
           if (offset + 2 < dataArray.length) {
@@ -216,8 +215,9 @@ export class ForceBoard extends Device implements IForceBoard {
               masses: [numericData],
             })
 
-            // Update peak
+            // Update peak and min
             this.peak = Math.max(this.peak, numericData)
+            this.min = Math.min(this.min, Math.max(-1000, numericData))
 
             // Update running sum and count
             const currentMassTotal = Math.max(-1000, numericData)
@@ -268,7 +268,7 @@ export class ForceBoard extends Device implements IForceBoard {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream = async (duration = 0): Promise<void> => {
-    // Start streaming data - Streaming Data Mode
+    this.resetPacketTracking()
     await this.write("weight", "tx", this.commands.START_WEIGHT_MEAS, duration)
   }
 

@@ -207,7 +207,7 @@ export interface IDevice extends IBase {
    *
    * @example
    * // Example usage of the write function with a custom callback
-   * await Progressor.write("progressor", "tx", ProgressorCommands.GET_BATT_VLTG, 250, (data) => {
+   * await Progressor.write("progressor", "tx", ProgressorCommands.GET_BATTERY_VOLTAGE, 250, (data) => {
    *   console.log(`Battery voltage: ${data}`);
    * });
    */
