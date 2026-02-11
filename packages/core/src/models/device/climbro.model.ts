@@ -86,11 +86,33 @@ export class Climbro extends Device implements IClimbro {
     if (value) {
       this.updateTimestamp()
       if (value.buffer) {
-        this.recordPacketReceived()
-        const receivedTime: number = Date.now()
-
         const buffer = new Uint8Array(value.buffer)
         const byteCount = buffer.length
+
+        let flagSynchro = this.flagSynchro
+        let forceCount = 0
+        for (let i = 0; i < byteCount; i++) {
+          let b = buffer[i]
+          if (b === ClimbroResponses.BAT_DAT) {
+            flagSynchro = ClimbroResponses.BAT_DAT
+            continue
+          }
+          if (b === ClimbroResponses.SENS_DAT) {
+            flagSynchro = ClimbroResponses.SENS_DAT
+            continue
+          }
+          if (b === ClimbroResponses.DAT_36KG) {
+            b = 36
+          }
+          if (flagSynchro === ClimbroResponses.BAT_DAT) continue
+          if (flagSynchro === ClimbroResponses.SENS_DAT) {
+            forceCount++
+          }
+        }
+
+        this.currentSamplesPerPacket = forceCount
+        this.recordPacketReceived()
+        const receivedTime: number = Date.now()
 
         for (let i = 0; i < byteCount; i++) {
           let signalValue = buffer[i]

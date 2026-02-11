@@ -19,7 +19,6 @@
     "dev:docs": "npm run docs:dev --workspace ./packages/docs",
     "dev:examples:capacitor": "npm run start --workspace ./examples/capacitor",
     "dev:examples:chart": "npm run dev --workspace ./examples/chart",
-    "dev:examples:cli": "npm run dev --workspace ./examples/cli",
     "dev:examples:flappy-bird": "npm run dev --workspace ./examples/flappy-bird",
     "dev:examples:kilter-board": "npm run dev --workspace ./examples/kilter-board",
     "dev:examples:pong": "npm run dev --workspace ./examples/pong",

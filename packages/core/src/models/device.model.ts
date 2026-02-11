@@ -317,7 +317,7 @@ export abstract class Device extends BaseModel implements IDevice {
     const zonePeak = useFullStats ? (peak === 0 && current < 0 ? current : peak) : valueOrCurrent
     const zoneMean = useFullStats ? mean : valueOrCurrent
     const zoneMin = useFullStats ? Math.min(zonePeak, current) : current
-    const zone: ForceMeasurement = {
+    return {
       unit: this.unit,
       timestamp: Date.now(),
       current,
@@ -325,10 +325,6 @@ export abstract class Device extends BaseModel implements IDevice {
       mean: zoneMean,
       min: zoneMin,
     }
-    if (this.samplingRateHz !== undefined) {
-      zone.performance = { samplingRateHz: this.samplingRateHz }
-    }
-    return zone
   }
 
   /**
@@ -361,9 +357,9 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
-   * Builds a ForceMeasurement payload with unit and timestamp for notify callbacks.
+   * Builds a ForceMeasurement payload for notify callbacks.
    * @param current - Current force at this sample
-   * @param distribution - Optional zone distribution: numbers (converted via buildZoneMeasurement) or full ForceMeasurement per zone
+   * @param distribution - Optional per-zone measurements (e.g. from buildZoneMeasurement)
    * @returns ForceMeasurement
    * @protected
    */
@@ -376,6 +372,7 @@ export abstract class Device extends BaseModel implements IDevice {
     },
   ): ForceMeasurement {
     this.updateSamplingRate()
+
     const payload: ForceMeasurement = {
       unit: this.unit,
       timestamp: Date.now(),
@@ -385,28 +382,27 @@ export abstract class Device extends BaseModel implements IDevice {
       min: Number.isFinite(this.min)
         ? convertForce(this.min, this.streamUnit, this.unit)
         : convertForce(0, this.streamUnit, this.unit),
+      performance: {
+        packetIndex: this.packetCount,
+        ...(this.currentNotifyIntervalMs != null && { notifyIntervalMs: this.currentNotifyIntervalMs }),
+        ...(this.currentSamplesPerPacket != null && { samplesPerPacket: this.currentSamplesPerPacket }),
+        ...(this.samplingRateHz != null && { samplingRateHz: this.samplingRateHz }),
+      },
     }
-    const perf: ForceMeasurement["performance"] = {}
-    if (this.currentNotifyIntervalMs !== undefined) perf.notifyIntervalMs = this.currentNotifyIntervalMs
-    perf.packetIndex = this.packetCount
-    if (this.currentSamplesPerPacket !== undefined) perf.samplesPerPacket = this.currentSamplesPerPacket
-    if (this.samplingRateHz !== undefined) perf.samplingRateHz = this.samplingRateHz
-    payload.performance = perf
-    if (
-      distribution !== undefined &&
-      (distribution.left !== undefined || distribution.center !== undefined || distribution.right !== undefined)
-    ) {
+
+    if (distribution && (distribution.left != null || distribution.center != null || distribution.right != null)) {
       payload.distribution = {}
-      if (distribution.left !== undefined) {
+      if (distribution.left != null) {
         payload.distribution.left = convertForceMeasurement(distribution.left, this.streamUnit, this.unit)
       }
-      if (distribution.center !== undefined) {
+      if (distribution.center != null) {
         payload.distribution.center = convertForceMeasurement(distribution.center, this.streamUnit, this.unit)
       }
-      if (distribution.right !== undefined) {
+      if (distribution.right != null) {
         payload.distribution.right = convertForceMeasurement(distribution.right, this.streamUnit, this.unit)
       }
     }
+
     return payload
   }
 

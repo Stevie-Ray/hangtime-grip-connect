@@ -18,6 +18,17 @@ export interface ForceStats {
   min: number
 }
 
+export interface ForcePerformance {
+  /** Time in ms since the previous BLE notification (packet). */
+  notifyIntervalMs?: number
+  /** Cumulative count of data packets received this session (one BLE notification = one packet). */
+  packetIndex?: number
+  /** Number of samples in the current packet (e.g. Progressor: payload length / 8). */
+  samplesPerPacket?: number
+  /** Data rate in Hz: samples per second from device timestamps (samples in last 1s of device time). */
+  samplingRateHz?: number
+}
+
 /**
  * Complete force measurement including timing, unit, and optional spatial distribution.
  * Can represent either a single real-time sample or a rolling/session summary.
@@ -29,26 +40,10 @@ export interface ForceMeasurement extends ForceStats {
   /** Unix epoch timestamp in milliseconds indicating when the measurement was recorded */
   timestamp: number
 
-  /**
-   * Performance metadata (notify interval, packet count, samples/packet, Hz).
-   * All devices that stream force data set this; use data.performance?.samplingRateHz for data rate.
-   */
-  performance?: {
-    /** Time in ms since the previous BLE notification (packet). */
-    notifyIntervalMs?: number
-    /** Cumulative count of data packets received this session (one BLE notification = one packet). */
-    packetIndex?: number
-    /** Number of samples in the current packet (e.g. Progressor: payload length / 8). */
-    samplesPerPacket?: number
-    /** Data rate in Hz: samples per second from device timestamps (samples in last 1s of device time). */
-    samplingRateHz?: number
-  }
+  /** Performance metadata (notify interval, packet count, samples/packet, Hz). */
+  performance?: ForcePerformance
 
-  /**
-   * Optional force distribution across multiple sensor zones.
-   * Each zone follows the exact same measurement structure as the parent.
-   * Nested distributions should be avoided to keep the model one level deep.
-   */
+  /** Motherboard only: Force distribution across multiple sensor zones. */
   distribution?: {
     /** Force statistics for the left sensor zone */
     left?: ForceMeasurement
