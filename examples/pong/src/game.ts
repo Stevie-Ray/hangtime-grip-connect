@@ -1,4 +1,5 @@
 import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
+import { requestWakeLock } from "./wake-lock.js"
 
 let mass: number
 let weight = 5
@@ -38,6 +39,7 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
 
     await device.connect(
       async () => {
+        await requestWakeLock()
         if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
           // Request notifications
           await device.stream()
@@ -464,6 +466,7 @@ const Game: GameType = {
             globalThis.requestAnimationFrame(Pong.loop)
           } else {
             await device.connect(async () => {
+              await requestWakeLock()
               if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
                 // Request notifications
                 await device.stream()
@@ -489,6 +492,7 @@ const Game: GameType = {
             globalThis.requestAnimationFrame(Pong.loop)
           } else {
             await device.connect(async () => {
+              await requestWakeLock()
               if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
                 // Request notifications
                 await device.stream()

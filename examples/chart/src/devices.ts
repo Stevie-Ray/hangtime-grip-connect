@@ -11,6 +11,7 @@ import {
 import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
 import { Chart } from "chart.js/auto"
 import { convertFontAwesome } from "./icons.js"
+import { releaseWakeLock, requestWakeLock } from "./wake-lock.js"
 
 const connectedDevices: (
   | Climbro
@@ -153,6 +154,9 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
   `
       disconnectButton.addEventListener("click", async () => {
         await device.disconnect()
+        const idx = connectedDevices.indexOf(device)
+        if (idx >= 0) connectedDevices.splice(idx, 1)
+        if (connectedDevices.length === 0) await releaseWakeLock()
       })
       deviceControlDiv.appendChild(disconnectButton)
 
@@ -301,6 +305,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
         addNewDeviceControl(device)
 
         connectedDevices.push(device)
+        await requestWakeLock()
 
         const notifyCb = (data: ForceMeasurement) => {
           addChartData(device, data.current, data.peak, data.mean)
