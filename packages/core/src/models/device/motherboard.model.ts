@@ -1,6 +1,5 @@
 import { Device } from "../device.model.js"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface.js"
-import type { DownloadPacket } from "../../interfaces/download.interface.js"
 
 /**
  * Represents a Griptonite Motherboard device.
@@ -243,12 +242,14 @@ export class Motherboard extends Device implements IMotherboard {
             )
 
             // Translate header into packet, number of samples from the packet length
-            const packet: DownloadPacket = {
-              received: receivedTime,
-              sampleNum: new DataView(new Uint8Array(bytes).buffer).getUint16(0, true),
-              battRaw: new DataView(new Uint8Array(bytes).buffer).getUint16(2, true),
-              samples: [],
-              masses: [],
+            const sampleIndex = new DataView(new Uint8Array(bytes).buffer).getUint16(0, true)
+            const battRaw = new DataView(new Uint8Array(bytes).buffer).getUint16(2, true)
+            const packet = {
+              timestamp: receivedTime,
+              sampleIndex,
+              battRaw,
+              samples: [] as number[],
+              forces: [] as number[],
             }
 
             const dataView = new DataView(new Uint8Array(bytes).buffer)
@@ -267,24 +268,15 @@ export class Motherboard extends Device implements IMotherboard {
               if (packet.samples[i] >= 0x7fffff) {
                 packet.samples[i] -= 0x1000000
               }
-              packet.masses[i] = this.applyCalibration(packet.samples[i], this.calibrationData[i])
+              packet.forces[i] = this.applyCalibration(packet.samples[i], this.calibrationData[i])
             }
             // invert center and right values
-            packet.masses[1] *= -1
-            packet.masses[2] *= -1
+            packet.forces[1] *= -1
+            packet.forces[2] *= -1
 
-            // Add data to downloadable Array
-            this.downloadPackets.push({
-              received: packet.received,
-              sampleNum: packet.battRaw,
-              battRaw: packet.received,
-              samples: [...packet.samples],
-              masses: [...packet.masses],
-            })
-
-            let left: number = packet.masses[0]
-            let center: number = packet.masses[1]
-            let right: number = packet.masses[2]
+            let left: number = packet.forces[0]
+            let center: number = packet.forces[1]
+            let right: number = packet.forces[2]
 
             // Tare correction
             left -= this.applyTare(left)
@@ -296,10 +288,9 @@ export class Motherboard extends Device implements IMotherboard {
             const centerClamped = Math.max(-1000, center)
             const rightClamped = Math.max(-1000, right)
 
+            // Update session stats before building packet
             this.peak = Math.max(this.peak, totalCurrent)
             this.min = Math.min(this.min, totalCurrent)
-
-            // Update running sum and count (total)
             this.sum += totalCurrent
             this.dataPointCount++
             this.mean = this.sum / this.dataPointCount
@@ -311,6 +302,24 @@ export class Motherboard extends Device implements IMotherboard {
             this.centerSum += centerClamped
             this.rightPeak = Math.max(this.rightPeak, rightClamped)
             this.rightSum += rightClamped
+
+            // Add data to downloadable Array (distribution = per-zone measurements)
+            this.downloadPackets.push(
+              this.buildDownloadPacket(totalCurrent, [...packet.samples], {
+                timestamp: packet.timestamp,
+                battRaw: packet.battRaw,
+                sampleIndex: packet.sampleIndex,
+                distribution: {
+                  left: this.buildZoneMeasurement(leftClamped, this.leftPeak, this.leftSum / this.dataPointCount),
+                  center: this.buildZoneMeasurement(
+                    centerClamped,
+                    this.centerPeak,
+                    this.centerSum / this.dataPointCount,
+                  ),
+                  right: this.buildZoneMeasurement(rightClamped, this.rightPeak, this.rightSum / this.dataPointCount),
+                },
+              }),
+            )
 
             // Check if device is being used
             this.activityCheck(center)

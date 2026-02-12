@@ -145,32 +145,28 @@ export class Climbro extends Device implements IClimbro {
             // Process force data inline
             const forceValue = signalValue
             const numericData = forceValue - this.applyTare(forceValue)
+            const currentMassTotal = Math.max(-1000, Number(numericData))
 
-            // Add data to downloadable array
-            this.downloadPackets.push({
-              received: receivedTime,
-              sampleNum: this.dataPointCount,
-              battRaw: this.batteryLevel,
-              samples: [forceValue],
-              masses: [numericData],
-            })
-
-            // Check for max weight
+            // Update session stats before building packet (so packet reflects this sample)
             this.peak = Math.max(this.peak, Number(numericData))
             this.min = Math.min(this.min, Math.max(-1000, Number(numericData)))
-
-            // Update running sum and count
-            const currentMassTotal = Math.max(-1000, Number(numericData))
             this.sum += currentMassTotal
             this.dataPointCount++
-
-            // Calculate the average dynamically
             this.mean = this.sum / this.dataPointCount
+
+            // Add data to downloadable array
+            this.downloadPackets.push(
+              this.buildDownloadPacket(currentMassTotal, [forceValue], {
+                timestamp: receivedTime,
+                battRaw: this.batteryLevel,
+                sampleIndex: this.dataPointCount,
+              }),
+            )
 
             // Check if device is being used
             this.activityCheck(numericData)
 
-            this.notifyCallback(this.buildForceMeasurement(Math.max(-1000, numericData)))
+            this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
 
             continue
           }

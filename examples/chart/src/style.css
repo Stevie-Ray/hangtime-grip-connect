@@ -175,6 +175,22 @@ dialog menu {
   margin-top: 1rem;
 }
 
+.performance-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.performance-metrics {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.performance-row {
+  display: flex;
+  justify-content: space-between;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;

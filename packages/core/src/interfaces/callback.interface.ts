@@ -23,6 +23,8 @@ export interface ForcePerformance {
   notifyIntervalMs?: number
   /** Cumulative count of data packets received this session (one BLE notification = one packet). */
   packetIndex?: number
+  /** Device-specific sample identifier (e.g. data point count or device timestamp µs). */
+  sampleIndex?: number
   /** Number of samples in the current packet (e.g. Progressor: payload length / 8). */
   samplesPerPacket?: number
   /** Data rate in Hz: samples per second from device timestamps (samples in last 1s of device time). */

@@ -206,32 +206,28 @@ export class ForceBoard extends Device implements IForceBoard {
             const receivedData = dataArray[offset] * 32768 + dataArray[offset + 1] * 256 + dataArray[offset + 2]
             // Tare correction
             const numericData = receivedData - this.applyTare(receivedData)
-            // Add data to downloadable Array (raw and tare-adjusted, both in LBS)
-            this.downloadPackets.push({
-              received: receivedTime,
-              sampleNum: this.dataPointCount,
-              battRaw: 0,
-              samples: [receivedData],
-              masses: [numericData],
-            })
+            const currentMassTotal = Math.max(-1000, numericData)
 
-            // Update peak and min
+            // Update session stats before building packet
             this.peak = Math.max(this.peak, numericData)
             this.min = Math.min(this.min, Math.max(-1000, numericData))
-
-            // Update running sum and count
-            const currentMassTotal = Math.max(-1000, numericData)
             this.sum += currentMassTotal
             this.dataPointCount++
-
-            // Calculate the average dynamically
             this.mean = this.sum / this.dataPointCount
+
+            // Add data to downloadable Array (raw and tare-adjusted, both in LBS)
+            this.downloadPackets.push(
+              this.buildDownloadPacket(currentMassTotal, [receivedData], {
+                timestamp: receivedTime,
+                sampleIndex: this.dataPointCount,
+              }),
+            )
 
             // Check if device is being used
             this.activityCheck(numericData)
 
             // Notify with weight data
-            this.notifyCallback(this.buildForceMeasurement(Math.max(-1000, numericData)))
+            this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
           }
         }
       }

@@ -113,16 +113,16 @@ Each characteristic in `characteristics` has:
 
 ## DownloadPacket
 
-Internal structure for a single exported data packet (used by `download()`). Exported files contain timestamp, sample
-number, battery raw value, samples, and masses.
+Extends `ForceMeasurement` with export-specific fields. Used by `download()` for CSV, JSON, and XML export.
 
-| Property    | Type       | Description                             |
-| ----------- | ---------- | --------------------------------------- |
-| `received`  | `number`   | Timestamp when the packet was received. |
-| `sampleNum` | `number`   | Sample number.                          |
-| `battRaw`   | `number`   | Battery raw value.                      |
-| `samples`   | `number[]` | Sample values.                          |
-| `masses`    | `number[]` | Mass values.                            |
+Inherits from ForceMeasurement: `timestamp`, `unit`, `current`, `peak`, `mean`, `min`, `performance`, `distribution?`.
+
+| Property  | Type       | Description                        |
+| --------- | ---------- | ---------------------------------- |
+| `battRaw` | `number`?  | Battery raw value (0 when N/A).    |
+| `samples` | `number[]` | Raw sensor/ADC values from device. |
+
+Force values come from `current` (single-sample) or `distribution` (multi-zone, e.g. Motherboard).
 
 `DownloadPacket` is used internally; the public API is `device.download(format)`.
 

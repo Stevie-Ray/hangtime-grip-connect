@@ -357,6 +357,54 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
+   * Shared base for ForceMeasurement/DownloadPacket payload construction.
+   * @private
+   */
+  private buildForcePayload(
+    current: number,
+    overrides?: {
+      timestamp?: number
+      sampleIndex?: number
+      distribution?: { left?: ForceMeasurement; center?: ForceMeasurement; right?: ForceMeasurement }
+    },
+  ): ForceMeasurement {
+    const timestamp = overrides?.timestamp ?? Date.now()
+    const payload: ForceMeasurement = {
+      unit: this.unit,
+      timestamp,
+      current: convertForce(current, this.streamUnit, this.unit),
+      peak: convertForce(this.peak, this.streamUnit, this.unit),
+      mean: convertForce(this.mean, this.streamUnit, this.unit),
+      min: Number.isFinite(this.min)
+        ? convertForce(this.min, this.streamUnit, this.unit)
+        : convertForce(0, this.streamUnit, this.unit),
+      performance: {
+        packetIndex: this.packetCount,
+        ...(overrides?.sampleIndex != null && { sampleIndex: overrides.sampleIndex }),
+        ...(this.currentNotifyIntervalMs != null && { notifyIntervalMs: this.currentNotifyIntervalMs }),
+        ...(this.currentSamplesPerPacket != null && { samplesPerPacket: this.currentSamplesPerPacket }),
+        ...(this.samplingRateHz != null && { samplingRateHz: this.samplingRateHz }),
+      },
+    }
+
+    const distribution = overrides?.distribution
+    if (distribution && (distribution.left != null || distribution.center != null || distribution.right != null)) {
+      payload.distribution = {}
+      if (distribution.left != null) {
+        payload.distribution.left = convertForceMeasurement(distribution.left, this.streamUnit, this.unit)
+      }
+      if (distribution.center != null) {
+        payload.distribution.center = convertForceMeasurement(distribution.center, this.streamUnit, this.unit)
+      }
+      if (distribution.right != null) {
+        payload.distribution.right = convertForceMeasurement(distribution.right, this.streamUnit, this.unit)
+      }
+    }
+
+    return payload
+  }
+
+  /**
    * Builds a ForceMeasurement payload for notify callbacks.
    * @param current - Current force at this sample
    * @param distribution - Optional per-zone measurements (e.g. from buildZoneMeasurement)
@@ -372,38 +420,45 @@ export abstract class Device extends BaseModel implements IDevice {
     },
   ): ForceMeasurement {
     this.updateSamplingRate()
+    return this.buildForcePayload(
+      current,
+      distribution != null
+        ? { sampleIndex: this.dataPointCount, distribution }
+        : { sampleIndex: this.dataPointCount },
+    )
+  }
 
-    const payload: ForceMeasurement = {
-      unit: this.unit,
-      timestamp: Date.now(),
-      current: convertForce(current, this.streamUnit, this.unit),
-      peak: convertForce(this.peak, this.streamUnit, this.unit),
-      mean: convertForce(this.mean, this.streamUnit, this.unit),
-      min: Number.isFinite(this.min)
-        ? convertForce(this.min, this.streamUnit, this.unit)
-        : convertForce(0, this.streamUnit, this.unit),
-      performance: {
-        packetIndex: this.packetCount,
-        ...(this.currentNotifyIntervalMs != null && { notifyIntervalMs: this.currentNotifyIntervalMs }),
-        ...(this.currentSamplesPerPacket != null && { samplesPerPacket: this.currentSamplesPerPacket }),
-        ...(this.samplingRateHz != null && { samplingRateHz: this.samplingRateHz }),
-      },
-    }
-
-    if (distribution && (distribution.left != null || distribution.center != null || distribution.right != null)) {
-      payload.distribution = {}
-      if (distribution.left != null) {
-        payload.distribution.left = convertForceMeasurement(distribution.left, this.streamUnit, this.unit)
-      }
-      if (distribution.center != null) {
-        payload.distribution.center = convertForceMeasurement(distribution.center, this.streamUnit, this.unit)
-      }
-      if (distribution.right != null) {
-        payload.distribution.right = convertForceMeasurement(distribution.right, this.streamUnit, this.unit)
-      }
-    }
-
-    return payload
+  /**
+   * Builds a DownloadPacket for export (CSV, JSON, XML).
+   * Converts force values from streamUnit to display unit.
+   * @param current - Current force at this sample (stream unit)
+   * @param samples - Raw sensor/ADC values from device
+   * @param options - Optional timestamp, battRaw, sampleIndex, distribution (for multi-zone)
+   * @returns DownloadPacket
+   * @protected
+   */
+  protected buildDownloadPacket(
+    current: number,
+    samples: number[],
+    options?: {
+      timestamp?: number
+      battRaw?: number
+      sampleIndex?: number
+      distribution?: { left?: ForceMeasurement; center?: ForceMeasurement; right?: ForceMeasurement }
+    },
+  ): DownloadPacket {
+    const overrides: {
+      timestamp?: number
+      sampleIndex?: number
+      distribution?: { left?: ForceMeasurement; center?: ForceMeasurement; right?: ForceMeasurement }
+    } = {}
+    if (options?.timestamp != null) overrides.timestamp = options.timestamp
+    if (options?.sampleIndex != null) overrides.sampleIndex = options.sampleIndex
+    if (options?.distribution != null) overrides.distribution = options.distribution
+    const packet = this.buildForcePayload(current, Object.keys(overrides).length > 0 ? overrides : undefined) as DownloadPacket
+    packet.samples = samples
+    if (options?.battRaw != null) packet.battRaw = options.battRaw
+    return packet
   }
 
   /**
@@ -582,18 +637,30 @@ export abstract class Device extends BaseModel implements IDevice {
       return ""
     }
     return packets
-      .map((packet) =>
-        [
-          packet.received.toString(),
-          packet.sampleNum.toString(),
-          packet.battRaw.toString(),
+      .map((packet) => {
+        const forceValues =
+          packet.distribution != null
+            ? [
+                packet.distribution.left?.current ?? "",
+                packet.distribution.center?.current ?? "",
+                packet.distribution.right?.current ?? "",
+              ].map((v) => (v !== "" ? String(v) : ""))
+            : [packet.current.toString()]
+        return [
+          packet.timestamp.toString(),
+          packet.current.toString(),
+          packet.peak.toString(),
+          packet.mean.toString(),
+          packet.min.toString(),
+          (packet.performance?.sampleIndex ?? "").toString(),
+          (packet.battRaw ?? "").toString(),
           ...packet.samples.map(String),
-          ...packet.masses.map(String),
+          ...forceValues,
         ]
           .map((v) => v.replace(/"/g, '""'))
           .map((v) => `"${v}"`)
-          .join(","),
-      )
+          .join(",")
+      })
       .join("\r\n")
   }
 
@@ -624,14 +691,27 @@ export abstract class Device extends BaseModel implements IDevice {
     const xmlPackets = this.downloadPackets
       .map((packet) => {
         const samples = packet.samples.map((sample) => `<sample>${sample}</sample>`).join("")
-        const masses = packet.masses.map((mass) => `<mass>${mass}</mass>`).join("")
+        const distributionElements =
+          packet.distribution != null
+            ? [
+                packet.distribution.left?.current != null ? `<left>${packet.distribution.left.current}</left>` : "",
+                packet.distribution.center?.current != null
+                  ? `<center>${packet.distribution.center.current}</center>`
+                  : "",
+                packet.distribution.right?.current != null ? `<right>${packet.distribution.right.current}</right>` : "",
+              ].join("")
+            : ""
         return `
           <packet>
-            <received>${packet.received}</received>
-            <sampleNum>${packet.sampleNum}</sampleNum>
-            <battRaw>${packet.battRaw}</battRaw>
+            <timestamp>${packet.timestamp}</timestamp>
+            <current>${packet.current}</current>
+            <peak>${packet.peak}</peak>
+            <mean>${packet.mean}</mean>
+            <min>${packet.min}</min>
+            ${packet.performance?.sampleIndex != null ? `<sampleIndex>${packet.performance.sampleIndex}</sampleIndex>` : ""}
+            ${packet.battRaw != null ? `<battRaw>${packet.battRaw}</battRaw>` : ""}
             <samples>${samples}</samples>
-            <masses>${masses}</masses>
+            ${distributionElements}
           </packet>
         `
       })

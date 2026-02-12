@@ -45,37 +45,35 @@ export class WHC06 extends WHC06Base {
             if (!data) return
 
             // Handle received data
+            this.currentSamplesPerPacket = 1
+            this.recordPacketReceived()
             const weight = (data.getUint8(this.weightOffset) << 8) | data.getUint8(this.weightOffset + 1)
             const receivedTime: number = Date.now()
             const receivedData = weight / 100
 
             const numericData = receivedData - this.applyTare(receivedData) * -1
-
-            // Add data to downloadable Array
-            this.downloadPackets.push({
-              received: receivedTime,
-              sampleNum: this.dataPointCount,
-              battRaw: 0,
-              samples: [numericData],
-              masses: [numericData],
-            })
-
-            // Update peak
-            this.peak = Math.max(this.peak, numericData)
-
-            // Update running sum and count
             const currentMassTotal = Math.max(-1000, numericData)
+
+            // Update session stats before building packet
+            this.peak = Math.max(this.peak, numericData)
+            this.min = Math.min(this.min, Math.max(-1000, numericData))
             this.sum += currentMassTotal
             this.dataPointCount++
-
-            // Calculate the average dynamically
             this.mean = this.sum / this.dataPointCount
+
+            // Add data to downloadable Array
+            this.downloadPackets.push(
+              this.buildDownloadPacket(currentMassTotal, [numericData], {
+                timestamp: receivedTime,
+                sampleIndex: this.dataPointCount,
+              }),
+            )
 
             // Check if device is being used
             this.activityCheck(numericData)
 
             // Notify with weight data
-            this.notifyCallback(this.buildForceMeasurement(Math.max(-1000, numericData)))
+            this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
           }
         },
       )

@@ -104,6 +104,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
         if (d) {
           const sel = d.querySelector<HTMLSelectElement>("select[name=unit]")
           if (sel) sel.value = displayUnit
+          updatePerformanceDisplay(device.id ?? undefined, deviceMassData[device.id ?? ""]?.performance)
           d.showModal()
         }
       })
@@ -115,6 +116,37 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
       settingsDialog.innerHTML = `
         <form method="dialog">
           <h3>Settings</h3>
+          <div id="performance-${device.id}" data-device-id="${device.id}">
+            <h4>Performance</h4>
+            <div class="performance-metrics">
+              <div class="performance-row">
+                <div class="performance-metric">
+                  <span class="performance-value" data-metric="hz"></span>
+                  <strong class="performance-label">Data rate</strong>
+                </div>
+                <div class="performance-metric">
+                  <span class="performance-value" data-metric="interval"></span>
+                  <strong class="performance-label">Notify interval</strong>
+                </div>
+              </div>
+              <div class="performance-row">
+                <div class="performance-metric">
+                  <span class="performance-value" data-metric="packets"></span>
+                  <strong class="performance-label">Packets</strong>
+                </div>
+                <div class="performance-metric">
+                  <span class="performance-value" data-metric="samples"></span>
+                  <strong class="performance-label">Samples/packet</strong>
+                </div>
+              </div>
+              <div class="performance-row">
+                <div class="performance-metric">
+                  <span class="performance-value" data-metric="sampleIndex"></span>
+                  <strong class="performance-label">Sample index</strong>
+                </div>
+              </div>
+            </div>
+          </div>
           <p>
             <label for="unit-select-${device.id}">Unit</label>
             <select id="unit-select-${device.id}" name="unit">
@@ -122,6 +154,7 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
               <option value="lbs">lbs</option>
             </select>
           </p>
+
           <menu>
             <button type="submit" value="apply">Apply</button>
             <button type="submit" value="cancel">Cancel</button>
@@ -229,6 +262,48 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
   const deviceMassData: Record<string, ForceMeasurement> = {}
 
   /**
+   * Updates the performance metrics display in the settings dialog for a device.
+   *
+   * @param deviceId - The unique device ID.
+   * @param performance - Optional performance metadata from ForceMeasurement.
+   */
+  function updatePerformanceDisplay(deviceId: string | undefined, performance?: ForceMeasurement["performance"]): void {
+    if (!deviceId) return
+    const card = document.getElementById(`performance-${deviceId}`)
+    if (!card) return
+
+    const hzEl = card.querySelector("[data-metric=hz]")
+    const intervalEl = card.querySelector("[data-metric=interval]")
+    const packetsEl = card.querySelector("[data-metric=packets]")
+    const samplesEl = card.querySelector("[data-metric=samples]")
+    const sampleIndexEl = card.querySelector("[data-metric=sampleIndex]")
+
+    if (performance) {
+      if (hzEl && performance.samplingRateHz != null) {
+        hzEl.textContent = performance.samplingRateHz.toFixed(1) + " Hz"
+      }
+      if (intervalEl && performance.notifyIntervalMs != null) {
+        intervalEl.textContent = performance.notifyIntervalMs.toFixed(2) + " ms"
+      }
+      if (packetsEl && performance.packetIndex != null) {
+        packetsEl.textContent = String(performance.packetIndex)
+      }
+      if (samplesEl && performance.samplesPerPacket != null) {
+        samplesEl.textContent = String(performance.samplesPerPacket)
+      }
+      if (sampleIndexEl && performance.sampleIndex != null) {
+        sampleIndexEl.textContent = String(performance.sampleIndex)
+      }
+    } else {
+      if (hzEl) hzEl.textContent = "--"
+      if (intervalEl) intervalEl.textContent = "--"
+      if (packetsEl) packetsEl.textContent = "--"
+      if (samplesEl) samplesEl.textContent = "--"
+      if (sampleIndexEl) sampleIndexEl.textContent = "--"
+    }
+  }
+
+  /**
    * Adds mass data to the HTML element for each device.
    *
    * @param {string} id - The unique device ID.
@@ -311,6 +386,10 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
           addChartData(device, data.current, data.peak, data.mean)
           chartHeight = data.peak
           addMassHTML(device.id, data)
+          const dialog = document.getElementById(`dialog-${device.id}`) as HTMLDialogElement | null
+          if (dialog?.open) {
+            updatePerformanceDisplay(device.id ?? undefined, data.performance)
+          }
         }
         if (device.id != null) deviceNotifyCallbacks.set(device.id, notifyCb)
         device.notify(notifyCb, displayUnit ?? "kg")

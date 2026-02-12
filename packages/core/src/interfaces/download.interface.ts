@@ -1,15 +1,13 @@
+import type { ForceMeasurement } from "./callback.interface.js"
+
 /**
- * Represents a single data packet.
+ * Represents a single data packet for export (CSV, JSON, XML).
+ * Extends ForceMeasurement with export-specific fields. Force values come from
+ * `current` (single-sample) or `distribution` (multi-zone, e.g. Motherboard).
  */
-export interface DownloadPacket {
-  /** Timestamp of when the packet was received */
-  received: number
-  /** Sample number */
-  sampleNum: number
-  /** Battery raw value */
-  battRaw: number
-  /** Array of sample values */
+export interface DownloadPacket extends ForceMeasurement {
+  /** Battery raw value (device-specific, 0 when N/A) */
+  battRaw?: number
+  /** Raw sensor/ADC values from device */
   samples: number[]
-  /** Array of mass values */
-  masses: number[]
 }

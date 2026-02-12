@@ -174,32 +174,28 @@ export class Entralpi extends Device implements IEntralpi {
         // This will display the removed or 'no-hanging' weight.
         const tare = this.applyTare(convertedData)
         const numericData = tare === 0 ? convertedData : (convertedData - tare) * -1
-        // Add data to downloadable Array
-        this.downloadPackets.push({
-          received: receivedTime,
-          sampleNum: this.dataPointCount,
-          battRaw: 0,
-          samples: [convertedData],
-          masses: [numericData],
-        })
+        const currentMassTotal = Math.max(-1000, numericData)
 
-        // Update peak and min
+        // Update session stats before building packet
         this.peak = Math.max(this.peak, numericData)
         this.min = Math.min(this.min, Math.max(-1000, numericData))
-
-        // Update running sum and count
-        const currentMassTotal = Math.max(-1000, numericData)
         this.sum += currentMassTotal
         this.dataPointCount++
-
-        // Calculate the average dynamically
         this.mean = this.sum / this.dataPointCount
+
+        // Add data to downloadable Array
+        this.downloadPackets.push(
+          this.buildDownloadPacket(currentMassTotal, [convertedData], {
+            timestamp: receivedTime,
+            sampleIndex: this.dataPointCount,
+          }),
+        )
 
         // Check if device is being used
         this.activityCheck(numericData)
 
         // Notify with weight data
-        this.notifyCallback(this.buildForceMeasurement(Math.max(-1000, numericData)))
+        this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
       }
     }
   }

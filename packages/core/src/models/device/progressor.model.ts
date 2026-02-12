@@ -278,19 +278,21 @@ export class Progressor extends Device implements IProgressor {
             const timestampUs = value.getUint32(offset + 4, true)
             if (!isNaN(weight)) {
               const numericData = weight - this.applyTare(weight)
-              this.downloadPackets.push({
-                received: receivedTime,
-                sampleNum: timestampUs,
-                battRaw: 0,
-                samples: [weight],
-                masses: [numericData],
-              })
+              const currentMassTotal = Math.max(-1000, Number(numericData))
+
+              // Update session stats before building packet
               this.peak = Math.max(this.peak, Number(numericData))
               this.min = Math.min(this.min, Math.max(-1000, Number(numericData)))
-              const currentMassTotal = Math.max(-1000, Number(numericData))
               this.sum += currentMassTotal
               this.dataPointCount++
               this.mean = this.sum / this.dataPointCount
+
+              this.downloadPackets.push(
+                this.buildDownloadPacket(currentMassTotal, [weight], {
+                  timestamp: receivedTime,
+                  sampleIndex: timestampUs,
+                }),
+              )
               this.activityCheck(numericData)
 
               // Hz from device timestamps: keep only samples in last 1s
@@ -299,7 +301,7 @@ export class Progressor extends Device implements IProgressor {
               this.recentSampleTimestamps = this.recentSampleTimestamps.filter((ts) => latestUs - ts <= ONE_SECOND_US)
               const samplingRateHz = this.recentSampleTimestamps.length
 
-              const payload = this.buildForceMeasurement(Math.max(-1000, numericData))
+              const payload = this.buildForceMeasurement(currentMassTotal)
               if (payload.performance) payload.performance.samplingRateHz = samplingRateHz
               this.notifyCallback(payload)
             }
