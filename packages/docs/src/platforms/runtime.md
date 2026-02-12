@@ -120,7 +120,7 @@ The runtime package re-exports all device classes from the core library with Nod
 | `PB700BT`       | NSD PB-700BT                                                                                                                                 |
 | `Progressor`    | Tindeq Progressor                                                                                                                            |
 | `SmartBoardPro` | SmartBoard Pro                                                                                                                               |
-| `WHC06`         | Weiheng WH-C06 — **unsupported** (requires `watchAdvertisements`, not available in [webbluetooth](https://github.com/thegecko/webbluetooth)) |
+| `WHC06`         | Weiheng WH-C06 - **unsupported** (requires `watchAdvertisements`, not available in [webbluetooth](https://github.com/thegecko/webbluetooth)) |
 
 All classes share the same [device interface](/api/device-interface) and support the same methods as their web
 counterparts. See [Devices](/devices/) for device-specific methods.
@@ -132,9 +132,9 @@ support:
 
 | OS            | x86 | x64 | arm64 |
 | ------------- | --- | --- | ----- |
-| Windows       | ✓   | ✓   | —     |
-| macOS         | —   | ✓   | ✓     |
-| Linux (glibc) | —   | ✓   | ✓     |
+| Windows       | ✓   | ✓   | -     |
+| macOS         | -   | ✓   | ✓     |
+| Linux (glibc) | -   | ✓   | ✓     |
 
 ## Supported runtimes
 

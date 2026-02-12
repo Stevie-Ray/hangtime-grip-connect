@@ -174,9 +174,9 @@ The CLI uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node.j
 
 | OS            | x86 | x64 | arm64 |
 | ------------- | --- | --- | ----- |
-| Windows       | ✓   | ✓   | —     |
-| macOS         | —   | ✓   | ✓     |
-| Linux (glibc) | —   | ✓   | ✓     |
+| Windows       | ✓   | ✓   | -     |
+| macOS         | -   | ✓   | ✓     |
+| Linux (glibc) | -   | ✓   | ✓     |
 
 **WH-C06** is not supported in the CLI or Runtime: the device requires `watchAdvertisements()`, which is
 [unsupported in the webbluetooth adapter](https://github.com/thegecko/webbluetooth#implementation-status).

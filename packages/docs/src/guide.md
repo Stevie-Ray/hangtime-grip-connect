@@ -33,7 +33,7 @@ device.notify((data) => {
 ```
 
 The callback receives a `ForceMeasurement` with numeric values and a `unit`. See
-[Data types](/api/data-types#forcemeasurement).
+[notify](/api/methods/notify#callback-payload-forcemeasurement).
 
 ## 3. Optional: detect activity
 

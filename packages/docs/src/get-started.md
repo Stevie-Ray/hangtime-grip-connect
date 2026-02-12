@@ -126,7 +126,7 @@ import { Motherboard } from "@hangtime/grip-connect"
 
 const device = new Motherboard()
 
-// Optional: handle real-time data, for pounds: device.notify((data) => {}, "lbs")
+// Optional: handle real-time data. For pounds ("lbs") or newton ("n"): device.notify((data) => {}, "lbs")
 motherboard.notify((data) => {
   // { unit, timestamp, current, peak, mean, distribution? }
   console.log(data)

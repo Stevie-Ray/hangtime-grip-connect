@@ -83,7 +83,7 @@ import { Motherboard } from "@hangtime/grip-connect"
 // Initiate device
 const motherboard = new Motherboard()
 
-// Optional: Custom data handler. For pounds: device.notify((data) => {}, "lbs")
+// Optional: Custom data handler. For pounds ("lbs") or newton ("n"): device.notify((data) => {}, "lbs")
 motherboard.notify((data) => {
   // { unit, timestamp, current, peak, mean, distribution? }
   console.log(data)

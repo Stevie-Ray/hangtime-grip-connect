@@ -422,9 +422,7 @@ export abstract class Device extends BaseModel implements IDevice {
     this.updateSamplingRate()
     return this.buildForcePayload(
       current,
-      distribution != null
-        ? { sampleIndex: this.dataPointCount, distribution }
-        : { sampleIndex: this.dataPointCount },
+      distribution != null ? { sampleIndex: this.dataPointCount, distribution } : { sampleIndex: this.dataPointCount },
     )
   }
 
@@ -455,7 +453,10 @@ export abstract class Device extends BaseModel implements IDevice {
     if (options?.timestamp != null) overrides.timestamp = options.timestamp
     if (options?.sampleIndex != null) overrides.sampleIndex = options.sampleIndex
     if (options?.distribution != null) overrides.distribution = options.distribution
-    const packet = this.buildForcePayload(current, Object.keys(overrides).length > 0 ? overrides : undefined) as DownloadPacket
+    const packet = this.buildForcePayload(
+      current,
+      Object.keys(overrides).length > 0 ? overrides : undefined,
+    ) as DownloadPacket
     packet.samples = samples
     if (options?.battRaw != null) packet.battRaw = options.battRaw
     return packet

@@ -7,7 +7,7 @@
 
 import type { Command } from "commander"
 import pc from "picocolors"
-import type { ForceMeasurement } from "../types.js"
+import type { ForceMeasurement, ForceUnit } from "../types.js"
 import {
   resolveDeviceKey,
   createDevice,
@@ -38,7 +38,7 @@ export function registerWatch(program: Command): void {
       let sampleCount = 0
       let peak = 0
       let sum = 0
-      let unit: "kg" | "lbs" = ctx.unit
+      let unit: ForceUnit = ctx.unit
       const startTime = Date.now()
 
       /** Print the session summary to stdout. */

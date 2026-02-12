@@ -14,6 +14,8 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 
 ### Classes
 
+Use to instantiate and connect to a device. Example: `new Motherboard()` or `new Progressor()`.
+
 | Class           | Device                                   |
 | --------------- | ---------------------------------------- |
 | `Motherboard`   | Griptonite Motherboard                   |
@@ -29,6 +31,9 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 
 ### Device interfaces
 
+Use for TypeScript types when typing variables, parameters, or return values. Example:
+`const device: IMotherboard = new Motherboard()`.
+
 | Type             | Device                                   |
 | ---------------- | ---------------------------------------- |
 | `IClimbro`       | Climbro                                  |
@@ -41,44 +46,15 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 | `ISmartBoardPro` | SmartBoard Pro                           |
 | `IWHC06`         | Weiheng WH-C06                           |
 
-### Functions
-
-| Function                        | Description                                                                |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| `convertForce(value, from, to)` | Converts a force value between kg and lbs. `from`/`to`: `"kg"` \| `"lbs"`. |
-
-### Other Types
-
-| Type               | Description                                                                |
-| ------------------ | -------------------------------------------------------------------------- |
-| `IDevice`          | Base device interface (see [Device interface](/api/device-interface))      |
-| `Service`          | Bluetooth service descriptor (see [Data types](/api/data-types))           |
-| `ForceUnit`        | Display unit for force (`"kg"` \| `"lbs"`).                                |
-| `ForceMeasurement` | Real-time force data (see [Data types](/api/data-types#forcemeasurement)). |
-
 ### Usage
 
 ```ts
-import { Motherboard, convertForce, type IMotherboard, type ForceMeasurement } from "@hangtime/grip-connect"
+import { Motherboard, type IMotherboard, type ForceMeasurement } from "@hangtime/grip-connect"
 
 const device: IMotherboard = new Motherboard()
 device.notify((data: ForceMeasurement) => console.log(data))
 device.notify((data) => console.log(data), "lbs")
-convertForce(10, "kg", "lbs") // ~22.05
+device.notify((data) => console.log(data), "n")
 ```
 
-## Subpaths
-
-Additional entry points for tree-shaking or specific types.
-
-| Subpath                                                         | Exports                                                                              |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `@hangtime/grip-connect`                                        | All types and classes above (main entry)                                             |
-| `@hangtime/grip-connect/src/interfaces/callback.interface.js`   | `ForceUnit`, `ForceMeasurement`, `NotifyCallback`, `WriteCallback`, `ActiveCallback` |
-| `@hangtime/grip-connect/src/models/device/kilterboard.model.js` | `KilterBoard`, `KilterBoardPacket` (enum), `KilterBoardPlacementRoles` (const)       |
-
-- **Callback subpath:** Use when you only need callback types (`ForceUnit`, `ForceMeasurement`, `NotifyCallback`,
-  `WriteCallback`, `ActiveCallback`) without pulling in device classes.
-- **Kilter Board subpath:** Use for tree-shaking when you only need the Kilter Board class, enum, or placement roles.
-
-See [Device interface](/api/device-interface), [Data types](/api/data-types), and [Devices](/devices/) for details.
+See [Device interface](/api/device-interface), [Methods](/api/methods/), and [Devices](/devices/) for details.

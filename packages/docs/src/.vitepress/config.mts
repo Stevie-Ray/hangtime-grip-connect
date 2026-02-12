@@ -89,7 +89,26 @@ export default defineConfig({
           items: [
             { text: "Exports", link: "/api/exports" },
             { text: "Device interface", link: "/api/device-interface" },
-            { text: "Data types", link: "/api/data-types" },
+            {
+              text: "Methods",
+              link: "/api/methods/",
+              collapsed: true,
+              items: [
+                { text: "connect", link: "/api/methods/connect" },
+                { text: "disconnect", link: "/api/methods/disconnect" },
+                { text: "isConnected", link: "/api/methods/is-connected" },
+                { text: "notify", link: "/api/methods/notify" },
+                { text: "active", link: "/api/methods/active" },
+                { text: "read", link: "/api/methods/read" },
+                { text: "write", link: "/api/methods/write" },
+                { text: "tare", link: "/api/methods/tare" },
+                { text: "download", link: "/api/methods/download" },
+                { text: "battery", link: "/api/methods/battery" },
+                { text: "stream", link: "/api/methods/stream" },
+                { text: "led", link: "/api/methods/led" },
+                { text: "stop", link: "/api/methods/stop" },
+              ],
+            },
           ],
         },
         {

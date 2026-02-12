@@ -23,8 +23,7 @@ light holds.
    off.
 
 ```ts
-import { KilterBoard } from "@hangtime/grip-connect"
-import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/models/device/kilterboard.model.js"
+import { KilterBoard, KilterBoardPlacementRoles } from "@hangtime/grip-connect"
 
 const device = new KilterBoard()
 
@@ -87,13 +86,9 @@ Use it to resolve `role_id` to LED color when building your `led()` config, or t
 When you pass `role_id` to `led()`, the board uses the corresponding `led_color`. You can also pass `color` (hex string)
 for custom colors; the board supports 256 colors (3-bit R, 3-bit G, 2-bit B).
 
-Import placement roles from the subpath for tree-shaking or to avoid pulling the full package:
-
 ```ts
-import { KilterBoardPlacementRoles } from "@hangtime/grip-connect/src/models/device/kilterboard.model.js"
+import { KilterBoardPlacementRoles } from "@hangtime/grip-connect"
 ```
-
-See [Exports](/api/exports#subpaths) for the Kilter Board subpath.
 
 ## Methods
 

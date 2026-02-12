@@ -52,9 +52,9 @@ Progressor also supports `tare(duration?)` from the base interface for software 
 
 ### Performance metadata
 
-Progressor includes [performance metadata](/api/data-types#forcemeasurement) on every `notify()` payload like all
-streaming devices. For Progressor, `performance.samplingRateHz` is computed from **device timestamps**: number of
-samples in the last 1 second of device time (same as Crimpdeq `currentHz`). Payload length / 8 gives
+Progressor includes [performance metadata](/api/methods/notify#callback-payload-forcemeasurement) on every `notify()`
+payload like all streaming devices. For Progressor, `performance.samplingRateHz` is computed from **device timestamps**:
+number of samples in the last 1 second of device time (same as Crimpdeq `currentHz`). Payload length / 8 gives
 `performance.samplesPerPacket`. Notify interval and packet index match Crimpdeq's `_handleWeightMeasurement` logic.
 
 ## Compatible hardware

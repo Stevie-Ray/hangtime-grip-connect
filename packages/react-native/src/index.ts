@@ -1,11 +1,4 @@
-export type {
-  ForceUnit,
-  ForceStats,
-  ForceMeasurement,
-  NotifyCallback,
-  WriteCallback,
-  ActiveCallback,
-} from "@hangtime/grip-connect"
+export type { ForceUnit, ForceMeasurement, NotifyCallback, WriteCallback, ActiveCallback } from "@hangtime/grip-connect"
 
 export type {
   IClimbro,

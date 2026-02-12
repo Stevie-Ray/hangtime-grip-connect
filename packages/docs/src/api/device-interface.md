@@ -6,69 +6,117 @@ description: "Base IDevice: connect, notify, active, read, write, tare, download
 # Device interface
 
 All devices implement the base `IDevice` interface. Device-specific classes (e.g. `Motherboard`, `Progressor`) extend
-this with extra methods like `battery()`, `stream()`, and `led()`.
+this with extra methods like `battery()`, `stream()`, and `led()`. For custom hardware, extend `Device` and define
+`filters`, `services`, and optionally `commands` in the constructor.
 
 ## Properties
 
-| Property    | Type                           | Description                                                                          |
-| ----------- | ------------------------------ | ------------------------------------------------------------------------------------ |
-| `filters`   | `BluetoothLEScanFilter[]`      | Filters used to identify the device during scanning.                                 |
-| `services`  | `Service[]`                    | Bluetooth services exposed by the device. See [Data types](/api/data-types#service). |
-| `bluetooth` | `BluetoothDevice \| undefined` | Reference to the Web Bluetooth `BluetoothDevice` after connection.                   |
-| `commands`  | `Commands`                     | Device-specific command set for read/write operations.                               |
+### filters
 
-## Methods
-
-### Connection
-
-| Method                          | Description                                                                                 |
-| ------------------------------- | ------------------------------------------------------------------------------------------- |
-| `connect(onSuccess?, onError?)` | Connects to the device. Requires a user gesture and secure context. Callbacks are optional. |
-| `disconnect()`                  | Disconnects and cleans up listeners and GATT.                                               |
-| `isConnected()`                 | Returns whether the device is currently connected.                                          |
-
-### Data and notifications
-
-| Method                        | Description                                                                                                                                |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `notify(callback, unit?)`     | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`. Optional second arg: `"kg"` (default) or `"lbs"`. |
-| `active(callback?, options?)` | Sets the callback for activity status (user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                   |
-
-### Read / write
-
-| Method                                                              | Description                                                     |
-| ------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `read(serviceId, characteristicId, duration?)`                      | Reads a characteristic. Returns `Promise<string \| undefined>`. |
-| `write(serviceId, characteristicId, message, duration?, callback?)` | Writes to a characteristic. Optional callback for response.     |
-
-### Calibration and export
-
-| Method              | Description                                                                                                                                                                 |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tare(duration?)`   | Starts tare calibration. Returns `boolean`. Not all devices support this. Default duration: `5000` ms.                                                                      |
-| `download(format?)` | Exports session data as a file. Returns `Promise<void>`. `format`: `"csv"` \| `"json"` \| `"xml"` (default: `"csv"`). Filename: `data-export-YYYY-MM-DD-HH-MM-SS.{format}`. |
-
-## Examples
+`BluetoothLEScanFilter[]` - Filters used to identify the device during scanning. Pass at least one of `name`,
+`namePrefix`, or `services` so Web Bluetooth can find the device.
 
 ```ts
-// Connect with callbacks
-await device.connect(
-  async () => {
-    console.log("Connected")
-    const value = await device.read("battery", "level", 1000)
-    console.log("Battery:", value)
-  },
-  (error) => console.error(error.message),
-)
-
-// Notify and active (optionally request lbs in notify payload)
-device.notify((data) => console.log(data.current))
-device.notify((data) => console.log(data.current), "lbs")
-device.active((isActive) => console.log(isActive), { threshold: 3, duration: 1500 })
-
-// Disconnect
-device.disconnect()
+class MyBoard extends Device {
+  constructor() {
+    super({
+      filters: [{ namePrefix: "MY-BOARD" }], // or { name: "Exact Name" } or { services: [uuid] }
+      services: [
+        /* ... */
+      ],
+    })
+  }
+}
 ```
 
-See [Data types](/api/data-types) for `ForceMeasurement` and `Service`, [Exports](/api/exports) for all device classes,
-and [Devices](/devices/) for device-specific methods like `battery()` and `led()`.
+### services
+
+`Service[]` - Bluetooth services exposed by the device. Each service has `name`, `id`, `uuid`, and `characteristics`;
+each characteristic has `name`, `id`, `uuid`. Use `service.id` and `characteristic.id` with [read](/api/methods/read)
+and [write](/api/methods/write).
+
+```ts
+class MyBoard extends Device {
+  constructor() {
+    super({
+      filters: [{ namePrefix: "MY-BOARD" }],
+      services: [
+        {
+          name: "UART Transparent Service",
+          id: "uart",
+          uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          characteristics: [
+            {
+              name: "Read/Notify",
+              id: "rx",
+              uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            },
+          ],
+        },
+      ],
+    })
+  }
+}
+```
+
+### bluetooth
+
+`BluetoothDevice | undefined` - Reference to the Web Bluetooth `BluetoothDevice` after a successful `connect()`.
+`undefined` when disconnected.
+
+```ts
+class MyBoard extends Device {
+  constructor() {
+    super({
+      filters: [{ namePrefix: "MY-BOARD" }],
+      services: [
+        /* ... */
+      ],
+    })
+  }
+}
+
+await myBoard.connect(
+  async () => {
+    if (myBoard.bluetooth) {
+      console.log("Connected to:", myBoard.bluetooth.name)
+    }
+  },
+  (err) => console.error(err),
+)
+```
+
+### commands
+
+`Commands` - Used by devices that support write-based protocols, such as [Motherboard](/devices/motherboard) and
+[Tindeq Progressor](/devices/progressor). It provides a standardized way of talking to devices: semantic command names
+(e.g. `START_WEIGHT_MEAS`, `GET_BATTERY_VOLTAGE`) are mapped to device-specific payloads. Each device defines its own
+values; pass `device.commands.COMMAND_NAME` as the message to [write](/api/methods/write).
+
+```ts
+class MyBoard extends Device {
+  constructor() {
+    super({
+      filters: [{ namePrefix: "MY-BOARD" }],
+      services: [
+        {
+          name: "Control Service",
+          id: "control",
+          uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+          characteristics: [{ name: "Write", id: "tx", uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" }],
+        },
+      ],
+      commands: {
+        START_MEASURE: "e",
+        STOP_MEASURE: "f",
+      },
+    })
+  }
+}
+
+// Use with write
+await myBoard.write("control", "tx", myBoard.commands.START_MEASURE, 250, (data) => console.log(data))
+```
+
+See [Methods](/api/methods/) for connect, notify, read, write, tare, download and more; [Exports](/api/exports) for
+built-in device classes; and [Adding a custom device](/guide/custom-device) for a complete example.

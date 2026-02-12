@@ -150,8 +150,9 @@ export function setupDevice(massesElement: HTMLDivElement, outputElement: HTMLDi
           <p>
             <label for="unit-select-${device.id}">Unit</label>
             <select id="unit-select-${device.id}" name="unit">
-              <option value="kg">kg</option>
-              <option value="lbs">lbs</option>
+              <option value="kg">Kilogram</option>
+              <option value="lbs">Pound</option>
+              <option value="n">Newton</option>
             </select>
           </p>
 

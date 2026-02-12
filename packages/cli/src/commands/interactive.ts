@@ -32,13 +32,14 @@ export function registerInteractive(program: Command): void {
         async (d) => {
           const unitAction = (): Action => ({
             name: `Unit (${ctx.unit})`,
-            description: "Set stream output to kg or lbs",
+            description: "Set stream output to kilogram, pound, or newton",
             run: async (_d, opts) => {
               const unit = await select({
                 message: "Unit:",
                 choices: [
-                  { name: "kg", value: "kg" as const },
-                  { name: "lbs", value: "lbs" as const },
+                  { name: "Kilogram", value: "kg" as const },
+                  { name: "Pound", value: "lbs" as const },
+                  { name: "Newton", value: "n" as const },
                 ],
               })
               if (opts.ctx) opts.ctx.unit = unit

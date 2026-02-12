@@ -1,5 +1,5 @@
 /** Force-equivalent display unit used for all values in this measurement */
-export type ForceUnit = "kg" | "lbs"
+export type ForceUnit = "kg" | "lbs" | "n"
 
 /**
  * Core statistical values describing force over a time window or session.
@@ -36,7 +36,7 @@ export interface ForcePerformance {
  * Can represent either a single real-time sample or a rolling/session summary.
  */
 export interface ForceMeasurement extends ForceStats {
-  /** Display unit for all force values (force-equivalent kgf or lbf) */
+  /** Display unit for all force values (kgf, lbf, or N) */
   unit: ForceUnit
 
   /** Unix epoch timestamp in milliseconds indicating when the measurement was recorded */

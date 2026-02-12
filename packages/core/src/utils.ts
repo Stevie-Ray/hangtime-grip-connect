@@ -1,10 +1,34 @@
 import type { ForceMeasurement, ForceUnit } from "./interfaces/callback.interface.js"
 
-/** 1 kg = this many lbs (force-equivalent) */
-const KG_TO_LBS = 2.20462262185
+/** 1 kgf = this many N (standard gravity) */
+const KG_TO_N = 9.80665
+/** 1 lbf = this many N */
+const LBS_TO_N = 4.4482216152605
+
+function toNewtons(value: number, from: ForceUnit): number {
+  switch (from) {
+    case "kg":
+      return value * KG_TO_N
+    case "lbs":
+      return value * LBS_TO_N
+    case "n":
+      return value
+  }
+}
+
+function fromNewtons(value: number, to: ForceUnit): number {
+  switch (to) {
+    case "kg":
+      return value / KG_TO_N
+    case "lbs":
+      return value / LBS_TO_N
+    case "n":
+      return value
+  }
+}
 
 /**
- * Converts a force value between kg and lbs.
+ * Converts a force value between kg, lbs, and newtons.
  * @param value - The numeric force value in the source unit.
  * @param from - The unit of the input value.
  * @param to - The unit for the output value.
@@ -12,7 +36,7 @@ const KG_TO_LBS = 2.20462262185
  */
 export function convertForce(value: number, from: ForceUnit, to: ForceUnit): number {
   if (from === to) return value
-  return from === "kg" ? value * KG_TO_LBS : value / KG_TO_LBS
+  return fromNewtons(toNewtons(value, from), to)
 }
 
 /**

@@ -5,7 +5,8 @@ All devices implement the shared [device interface](/api/device-interface). Each
 
 ## Shared methods
 
-Every device supports these methods. Optional callbacks and device-specific support are noted below.
+Every device supports these methods. See [Methods](/api/methods/) for full documentation with parameters, options, and
+examples. Optional callbacks and device-specific support are noted below.
 
 ### Connection
 
@@ -17,10 +18,10 @@ Every device supports these methods. Optional callbacks and device-specific supp
 
 ### Data and notifications
 
-| Method                        | Description                                                                                                                                                                                          |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `notify(callback, unit?)`     | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`. Optional second argument: `"kg"` (default) or `"lbs"` (see [Data types](/api/data-types#forcemeasurement)). |
-| `active(callback?, options?)` | Sets the callback for activity status (e.g. user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                                                                        |
+| Method                        | Description                                                                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `notify(callback, unit?)`     | Sets the callback for real-time mass/force data. Callback receives a `ForceMeasurement`. Optional second argument: `"kg"` (default), `"lbs"`, or `"n"`. See [notify](/api/methods/notify). |
+| `active(callback?, options?)` | Sets the callback for activity status (e.g. user pulling). Options: `{ threshold?, duration? }` (defaults: `2.5`, `1000` ms).                                                              |
 
 ### Read / write
 
@@ -75,4 +76,4 @@ Many devices add methods on top of the shared interface:
 - **LED**: Where supported (e.g. Motherboard, Kilter Board): `await device.led("red")` or `device.led()` to turn off.
 - **Download**: Uses the shared `download(format?)` to export session data.
 
-See the [API](/api/) for the full interface and [Data types](/api/data-types) for `ForceMeasurement` and callbacks.
+See the [API](/api/) for the full interface and [Methods](/api/methods/) for payloads and callbacks.

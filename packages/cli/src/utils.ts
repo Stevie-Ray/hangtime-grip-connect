@@ -25,7 +25,7 @@ import type { Action, CliDevice, ForceMeasurement, OutputContext, RunOptions } f
  */
 export function resolveContext(program: { opts(): Record<string, unknown> }): OutputContext {
   const opts = program.opts()
-  const unit = opts["unit"] === "lbs" ? "lbs" : "kg"
+  const unit = opts["unit"] === "lbs" ? "lbs" : opts["unit"] === "n" ? "n" : "kg"
   return { json: Boolean(opts["json"]), unit }
 }
 

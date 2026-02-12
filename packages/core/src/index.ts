@@ -12,14 +12,11 @@ export type {
 
 export type {
   ForceUnit,
-  ForceStats,
   ForceMeasurement,
   NotifyCallback,
   WriteCallback,
   ActiveCallback,
 } from "./interfaces/callback.interface.js"
-
-export { convertForce } from "./utils.js"
 
 export {
   Climbro,
