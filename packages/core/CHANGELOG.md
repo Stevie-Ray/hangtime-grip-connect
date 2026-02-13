@@ -1,5 +1,17 @@
 # @hangtime/grip-connect
 
+## 0.10.2
+
+### Patch Changes
+
+- Add ForceUnit `"n"` (newton) to `notify()`, `active()`, and CLI `--unit` option.
+- Add missing Progressor commands: `START_PEAK_RFD_MEAS`, `START_PEAK_RFD_MEAS_SERIES`, `ADD_CALIBRATION_POINT`,
+  `GET_CALIBRATION`; expose via `commands` and `write()`.
+- Update device docs (Climbro, WH-C06, Kilter Board): clarify auto-streaming, remove incorrect `stream()`/`stop()` from
+  examples and method tables.
+- Add per-method API docs (connect, disconnect, notify, stream, stop, battery, led, tare, etc.).
+- Bump Capacitor to 8.1 (@capacitor/filesystem ^8.1.1, example splash-screen ^8.0.1).
+
 ## 0.10.1
 
 ### Patch Changes

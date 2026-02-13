@@ -1,5 +1,17 @@
 # @hangtime/grip-connect-cli
 
+## 0.10.2
+
+### Patch Changes
+
+- Add `--unit n` (newton) option for stream/watch output.
+- Fix Ctrl+C handling in interactive mode and stream/watch.
+- Add CLI support/capabilities sheet to README.
+- Improve interactive mode, stream, and watch commands.
+- Add Progressor info methods (tare, calibration, RFD) to `grip-connect info`.
+- Updated dependencies
+  - @hangtime/grip-connect-runtime@0.10.2
+
 ## 0.10.1
 
 ### Patch Changes

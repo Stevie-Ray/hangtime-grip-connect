@@ -7,8 +7,7 @@ description: "Kilter Board and compatible LED boards: route display"
 
 The [Kilter Board](https://kilterboardapp.com/) (Aurora Climbing) and compatible LED system boards (Tension,
 Grasshopper, Decoy, Touchstone, So iLL) display climb routes via LEDs. The board is **LED-only**: you connect and send
-LED config via `led()`. There is **no `notify()`**: the device does not stream force data; it only receives commands to
-light holds.
+LED config via `led()`.
 
 ## Basic usage
 

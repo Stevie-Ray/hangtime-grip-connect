@@ -12,6 +12,9 @@ devices like the Tindeq Progressor and PitchSix Force Board for force measuremen
 
 ## Basic usage
 
+Force data streams automatically from advertisement packets once connected. Set `notify()` before connecting;
+`connect()` starts `watchAdvertisements()`, and your callback receives data.
+
 ```ts
 import { WHC06 } from "@hangtime/grip-connect"
 
@@ -20,7 +23,7 @@ device.notify((data) => console.log(data.current))
 
 await device.connect(
   async () => {
-    await device.stream(30000)
+    await new Promise((r) => setTimeout(r, 30000)) // session duration
     device.disconnect()
   },
   (err) => console.error(err),
@@ -47,15 +50,8 @@ receive data from each advertisement packet.
 
 ## Methods
 
-WH-C06 supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active, read,
-write, download). See [Device interface](/api/device-interface) for details. Data is received via advertisement scanning
+WH-C06 supports all [shared methods](/devices/#shared-methods) (connect, disconnect, isConnected, notify, active and
+download). See [Device interface](/api/device-interface) for details. Data is received via advertisement scanning
 (`watchAdvertisements`), not GATT notifications.
-
-### Device-specific
-
-| Method              | Returns         | Description                                                                                            |
-| ------------------- | --------------- | ------------------------------------------------------------------------------------------------------ |
-| `stop()`            | `Promise<void>` | Stop watching advertisements and stream.                                                               |
-| `stream(duration?)` | `Promise<void>` | Start watching advertisements; `notify()` receives data. `duration` in ms; `0` or omit for continuous. |
 
 See [Devices](/devices/) and [Guide](/guide) for more.

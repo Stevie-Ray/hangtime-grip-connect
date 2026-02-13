@@ -18,8 +18,8 @@
     "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8.1.0",
     "@capacitor/ios": "^8.1.0",
-    "@capacitor/splash-screen": "^8.0.0",
-    "@hangtime/grip-connect-capacitor": "^0.10.1"
+    "@capacitor/splash-screen": "^8.0.1",
+    "@hangtime/grip-connect-capacitor": "^0.10.2"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.1.0",

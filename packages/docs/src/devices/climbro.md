@@ -12,6 +12,9 @@ force data via `notify()`, and export with `download()`.
 
 ## Basic usage
 
+Force data streams automatically via BLE notifications once connected. Set `notify()` before connecting to receive data;
+no explicit `stream()` call is needed.
+
 ```ts
 import { Climbro } from "@hangtime/grip-connect"
 
@@ -20,7 +23,7 @@ device.notify((data) => console.log(data.current, data.peak))
 
 await device.connect(
   async () => {
-    await device.stream(30000)
+    await new Promise((r) => setTimeout(r, 30000)) // session duration
     device.download("json")
     device.disconnect()
   },
@@ -35,10 +38,8 @@ write, download). See [Device interface](/api/device-interface) for details.
 
 ### Device-specific
 
-| Method              | Returns                        | Description                                                       |
-| ------------------- | ------------------------------ | ----------------------------------------------------------------- |
-| `battery()`         | `Promise<string \| undefined>` | Battery level (updated via notifications).                        |
-| `stop()`            | `Promise<void>`                | Stop an ongoing stream.                                           |
-| `stream(duration?)` | `Promise<void>`                | Start force stream. `duration` in ms; `0` or omit for continuous. |
+| Method      | Returns                        | Description                                |
+| ----------- | ------------------------------ | ------------------------------------------ |
+| `battery()` | `Promise<string \| undefined>` | Battery level (updated via notifications). |
 
 See [Devices](/devices/) and [Guide](/guide) for more.

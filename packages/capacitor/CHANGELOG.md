@@ -1,5 +1,15 @@
 # @hangtime/grip-connect-capacitor
 
+## 0.10.2
+
+### Patch Changes
+
+- Update device docs (Climbro, Kilter Board, WH-C06): clarify auto-streaming, remove deprecated stream()/stop() from
+  examples, simplify method tables. Bump Capacitor dependencies (@capacitor/filesystem ^8.1.1, example splash-screen
+  ^8.0.1).
+- Updated dependencies
+  - @hangtime/grip-connect@0.10.2
+
 ## 0.10.1
 
 ### Patch Changes

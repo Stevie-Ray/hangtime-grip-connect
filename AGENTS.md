@@ -115,6 +115,8 @@ examples/                      # Sample applications and demos
 - Add a changeset for user-facing changes: `npm run changeset` (creates a file in `.changeset/`).
 - To apply version bumps and update changelogs: `npm run changeset:version`.
 - To publish packages to npm: `npm run changeset:publish`.
+- **Manually update after `changeset:version`**: expo, `examples/reactnative/app.json`,
+  `examples/reactnative/android/build.gradle`, deno.json(s).
 
 ### Multi-Platform Considerations
 

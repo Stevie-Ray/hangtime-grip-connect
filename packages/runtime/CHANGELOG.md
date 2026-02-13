@@ -1,5 +1,12 @@
 # @hangtime/grip-connect-runtime
 
+## 0.10.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @hangtime/grip-connect@0.10.2
+
 ## 0.10.1
 
 ### Patch Changes
