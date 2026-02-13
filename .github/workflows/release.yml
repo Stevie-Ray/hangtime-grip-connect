@@ -63,11 +63,10 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        working-directory: ./release
         run: npm ci
 
       - name: Publish Core NPM package
-        working-directory: ./release/packages/core
+        working-directory: ./packages/core
         run: |
           if [ ! -d "dist" ]; then
             echo "Error: dist directory not found in packages/core"
@@ -78,7 +77,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Runtime NPM package
-        working-directory: ./release/packages/runtime
+        working-directory: ./packages/runtime
         run: |
           if [ ! -d "dist" ]; then
             echo "Error: dist directory not found in packages/runtime"
@@ -89,7 +88,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish CLI NPM package
-        working-directory: ./release/packages/cli
+        working-directory: ./packages/cli
         run: |
           if [ ! -d "dist" ]; then
             echo "Error: dist directory not found in packages/cli"
@@ -100,13 +99,13 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Capacitor NPM package
-        working-directory: ./release/packages/capacitor
+        working-directory: ./packages/capacitor
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish React Native NPM package
-        working-directory: ./release/packages/react-native
+        working-directory: ./packages/react-native
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -130,13 +129,13 @@ jobs:
           node-version: 22
 
       - name: Publish Core JSR package
-        working-directory: ./release/packages/core
+        working-directory: ./packages/core
         run: npx jsr publish
 
       - name: Publish Runtime JSR package
-        working-directory: ./release/packages/runtime
+        working-directory: ./packages/runtime
         run: npx jsr publish
 
       - name: Publish CLI JSR package
-        working-directory: ./release/packages/cli
+        working-directory: ./packages/cli
         run: npx jsr publish
