@@ -9,31 +9,31 @@ enum ProgressorResponses {
    * Response received after sending a command to the device.
    * This could include acknowledgment or specific data related to the command sent.
    */
-  COMMAND_RESPONSE,
+  RESPONSE_COMMAND,
 
   /**
    * Data representing a weight measurement from the device.
    * Typically used for tracking load or force applied.
    */
-  WEIGHT_MEASURE,
+  RESPONSE_WEIGHT_MEASUREMENT,
 
   /**
    * Peak rate of force development (RFD) measurement.
    * This measures how quickly the force is applied over time.
    */
-  PEAK_RFD_MEAS,
+  RESPONSE_RFD_PEAK,
 
   /**
    * Series of peak rate of force development (RFD) measurements.
    * This could be used for analyzing force trends over multiple data points.
    */
-  PEAK_RFD_MEAS_SERIES,
+  RESPONSE_RFD_PEAK_SERIES,
 
   /**
    * Low battery warning from the device.
    * Indicates that the battery level is below a critical threshold.
    */
-  LOW_BATTERY_WARNING,
+  RESPONSE_LOW_PWR_WARNING,
 }
 
 /**
@@ -134,6 +134,7 @@ export class Progressor extends Device implements IProgressor {
         SLEEP: "n", // 110 (0x6e)
         GET_BATTERY_VOLTAGE: "o", // 111 (0x6f)
         GET_PROGRESSOR_ID: "p", // 112 (0x70)
+        RESET_CALIBRATION: "q", // 113 (0x71)
         GET_CALIBRATION: "r", // 114 (0x72)
       },
     })
@@ -193,6 +194,14 @@ export class Progressor extends Device implements IProgressor {
    */
   saveCalibration = async (): Promise<void> => {
     await this.write("progressor", "tx", this.commands.SAVE_CALIBRATION, 0)
+  }
+
+  /**
+   * Resets the calibration to default values of the device.
+   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   */
+  resetCalibration = async (): Promise<void> => {
+    await this.write("progressor", "tx", this.commands.RESET_CALIBRATION, 0)
   }
 
   /**
@@ -263,7 +272,7 @@ export class Progressor extends Device implements IProgressor {
         // Read the first byte of the buffer to determine the kind of message
         const kind = value.getInt8(0)
         // Check if the message is a weight measurement
-        if (kind === ProgressorResponses.WEIGHT_MEASURE) {
+        if (kind === ProgressorResponses.RESPONSE_WEIGHT_MEASUREMENT) {
           // Payload = bytes from index 2 (skip byte 0 = message type, byte 1 = reserved/length)
           const payloadLength = value.byteLength - 2
           if (payloadLength % 8 !== 0) return
@@ -306,7 +315,9 @@ export class Progressor extends Device implements IProgressor {
               this.notifyCallback(payload)
             }
           }
-        } else if (kind === ProgressorResponses.COMMAND_RESPONSE) {
+        }
+        // Command response
+        else if (kind === ProgressorResponses.RESPONSE_COMMAND) {
           if (!this.writeLast) return
 
           let output = ""
@@ -327,7 +338,17 @@ export class Progressor extends Device implements IProgressor {
             output = toHex(payload)
           }
           this.writeCallback(output)
-        } else if (kind === ProgressorResponses.LOW_BATTERY_WARNING) {
+        }
+        // RFD peak response
+        else if (kind === ProgressorResponses.RESPONSE_RFD_PEAK) {
+          console.warn("⚠️ RFD peak is currently unsupported.")
+        }
+        // RFD peak series response
+        else if (kind === ProgressorResponses.RESPONSE_RFD_PEAK_SERIES) {
+          console.warn("⚠️ RFD peak series is currently unsupported.")
+        }
+        // Low power warning response
+        else if (kind === ProgressorResponses.RESPONSE_LOW_PWR_WARNING) {
           console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
         } else {
           throw new Error(`Unknown message kind detected: ${kind}`)

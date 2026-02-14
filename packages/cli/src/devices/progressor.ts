@@ -2,9 +2,10 @@
  * Device definition for the Tindeq Progressor.
  */
 
+import input from "@inquirer/input"
 import { Progressor } from "@hangtime/grip-connect-runtime"
 import type { DeviceDefinition, CliDevice } from "../types.js"
-import { printResult } from "../utils.js"
+import { fail, printResult } from "../utils.js"
 
 const progressor: DeviceDefinition = {
   name: "Progressor",
@@ -36,7 +37,7 @@ const progressor: DeviceDefinition = {
     },
     {
       name: "Calibration",
-      description: "Get calibration curve (0x72) — 3× float32",
+      description: "Get calibration curve — 3× float32",
       run: async (device) => {
         const d = device as unknown as Progressor
         printResult("Calibration:", await d.calibration())
@@ -60,6 +61,15 @@ const progressor: DeviceDefinition = {
       },
     },
     {
+      name: "Reset calibration",
+      description: "Reset calibration to default values (Dangerous!)",
+      run: async (device) => {
+        const d = device as unknown as Progressor
+        await d.resetCalibration()
+        printResult("Reset calibration:", "sent")
+      },
+    },
+    {
       name: "Sleep",
       description: "Shutdown / sleep device",
       run: async (device) => {
@@ -75,6 +85,50 @@ const progressor: DeviceDefinition = {
         const d = device as unknown as Progressor
         await d.tareScale()
         printResult("Tare scale:", "sent")
+      },
+    },
+    {
+      name: "Re-calibrate",
+      description: "Two-point calibration (Dangerous!)",
+      run: async (device, opts) => {
+        const d = device as unknown as Progressor
+        let refWeightKg = opts.refWeightKg
+
+        if (opts.ctx?.json && refWeightKg == null) {
+          fail("Re-calibrate requires --ref-weight-kg in JSON mode")
+        }
+
+        if (typeof d.stop === "function") {
+          await d.stop()
+          await new Promise((r) => setTimeout(r, 500))
+        }
+
+        if (refWeightKg == null) {
+          await input({
+            message: "Ensure NO load on the Progressor. Press Enter to add zero point.",
+            default: "",
+          })
+        }
+
+        await d.addCalibrationPoint(0)
+        await new Promise((r) => setTimeout(r, 1500))
+
+        if (refWeightKg == null) {
+          const raw = await input({
+            message: "Place known weight on device. Enter weight in kg (e.g. 5 or 10):",
+            default: "5",
+          })
+          refWeightKg = parseFloat(raw.trim() || "5")
+        }
+
+        if (refWeightKg <= 0 || !Number.isFinite(refWeightKg)) {
+          fail("Weight must be a positive number (e.g. 5 for 5 kg)")
+        }
+
+        await d.addCalibrationPoint(refWeightKg)
+        await new Promise((r) => setTimeout(r, 1500))
+        await d.saveCalibration()
+        printResult("Re-calibration:", `complete. Try streaming to verify.`)
       },
     },
   ],

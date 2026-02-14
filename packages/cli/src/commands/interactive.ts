@@ -90,6 +90,10 @@ export function registerInteractive(program: Command): void {
             }
 
             await action.run(d, opts)
+            if (action.name === "Sleep") {
+              keepGoing = false
+              break
+            }
             console.log()
           }
         },

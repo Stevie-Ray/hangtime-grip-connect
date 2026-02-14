@@ -41,6 +41,8 @@ export interface RunOptions {
   output?: string
   /** When `true`, stream indefinitely until interrupted. */
   watch?: boolean
+  /** Calibration reference weight in kg (for Progressor re-calibration). */
+  refWeightKg?: number
   /** Global output context for JSON mode. */
   ctx?: OutputContext
 }

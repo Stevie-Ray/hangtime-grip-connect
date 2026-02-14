@@ -117,4 +117,9 @@ export interface Commands {
    * Get the Progressor ID.
    */
   GET_PROGRESSOR_ID?: string
+
+  /**
+   * Reset calibration to default values of the device.
+   */
+  RESET_CALIBRATION?: string
 }

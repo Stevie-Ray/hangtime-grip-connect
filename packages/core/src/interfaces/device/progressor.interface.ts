@@ -42,6 +42,12 @@ export interface IProgressor extends IDevice {
   sleep(): Promise<void>
 
   /**
+   * Resets the calibration to default values of the device.
+   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   */
+  resetCalibration(): Promise<void>
+
+  /**
    * Retrieves error information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the error info text.
    */

@@ -1,5 +1,11 @@
 # @hangtime/grip-connect
 
+## 0.10.3
+
+### Patch Changes
+
+- Progressor updates and CLI improvements
+
 ## 0.10.2
 
 ### Patch Changes

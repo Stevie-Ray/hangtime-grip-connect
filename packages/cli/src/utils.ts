@@ -464,9 +464,8 @@ export function buildActions(deviceKey: string): Action[] {
       description: "Zero calibration",
       run: async (d: CliDevice, opts: RunOptions) => {
         const duration = opts.duration ?? 5000
-        const tareFn = d.tare
-        if (typeof tareFn !== "function") return
-        const started = tareFn(duration)
+        if (typeof d.tare !== "function") return
+        const started = d.tare(duration)
         if (started) {
           const spinner = opts.ctx?.json
             ? null
