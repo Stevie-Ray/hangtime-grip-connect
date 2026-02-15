@@ -3,6 +3,7 @@
  * signal handling, and colored terminal output.
  */
 
+import input from "@inquirer/input"
 import process from "node:process"
 import select from "@inquirer/select"
 import ora from "ora"
@@ -145,10 +146,13 @@ export async function pickDevice(): Promise<string> {
 export async function pickAction(actions: Action[]): Promise<Action> {
   return select({
     message: "What do you want to do?",
-    choices: actions.map((action) => ({
-      name: `${action.name} ${pc.dim("–")} ${pc.dim(action.description)}`,
-      value: action,
-    })),
+    choices: actions.map((action) => {
+      const color = action.nameColor ? pc[action.nameColor] : (s: string) => s
+      return {
+        name: `${color(action.name)} ${pc.dim("–")} ${pc.dim(action.description)}`,
+        value: action,
+      }
+    }),
   })
 }
 
@@ -380,47 +384,33 @@ export function buildActions(deviceKey: string): Action[] {
           await d.stop?.()
         }
         muteNotify(d)
-      },
-    })
-    if (typeof device.download === "function") {
-      shared.push({
-        name: "Stream & download",
-        description: "Stream then export session data (CSV/JSON/XML)",
-        run: async (d: CliDevice, opts: RunOptions) => {
-          const duration = opts.duration
-          const indefinite = duration == null || duration === 0
-          const format = opts.format ?? "csv"
-          if (typeof d.stream !== "function" || typeof d.download !== "function") return
-          if (!opts.ctx?.json) {
-            console.log(
-              pc.cyan(
-                indefinite
-                  ? `\nStreaming... then exporting ${format}...\n`
-                  : `\nStreaming for ${(duration ?? 0) / 1000} seconds, then exporting ${format}...\n`,
-              ),
-            )
-          }
-          setupNotify(d, opts.ctx ?? { json: false, unit: "kg" })
-          if (indefinite) {
-            await d.stream()
-            await waitForKeyToStop(opts.ctx?.json ? undefined : "Press Esc to stop streaming")
-            await d.stop?.()
-          } else {
-            await d.stream(duration)
-            await d.stop?.()
-          }
-          muteNotify(d)
-          const filePath = await d.download(format)
-          if (!opts.ctx?.json) {
+        if (typeof d.download === "function" && !opts.ctx?.json) {
+          const raw = await input({
+            message: "Download session data? [y/N]:",
+            default: "n",
+          })
+          if (/^y(es)?$/i.test(raw?.trim() ?? "")) {
+            const format =
+              opts.format ??
+              (await select({
+                message: "Export format:",
+                choices: [
+                  { name: "CSV", value: "csv" as const },
+                  { name: "JSON", value: "json" as const },
+                  { name: "XML", value: "xml" as const },
+                ],
+              }))
+            console.log(pc.cyan(`\nExporting ${format}...\n`))
+            const filePath = await d.download(format)
             printSuccess(
               typeof filePath === "string"
                 ? `Data exported to ${filePath}`
                 : `Data exported as ${format.toUpperCase()}.`,
             )
           }
-        },
-      })
-    }
+        }
+      },
+    })
   }
 
   const hasAnyInfo = INFO_METHODS.some(
@@ -461,7 +451,7 @@ export function buildActions(deviceKey: string): Action[] {
   if (typeof device.tare === "function") {
     shared.push({
       name: "Tare",
-      description: "Zero calibration",
+      description: "Software zero offset reset",
       run: async (d: CliDevice, opts: RunOptions) => {
         const duration = opts.duration ?? 5000
         if (typeof d.tare !== "function") return

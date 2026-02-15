@@ -43,7 +43,7 @@ read, write, tare, download). See [Device interface](/api/device-interface) for 
 | `stop()`                  | `Promise<void>`                | Stop stream (Idle mode).                                              |
 | `stream(duration?)`       | `Promise<void>`                | Start stream. `duration` in ms; `0` or omit for continuous.           |
 | `tareByCharacteristic()`  | `Promise<void>`                | Tare via characteristic.                                              |
-| `tareByMode()`            | `Promise<void>`                | Tare via Device Mode (0x05).                                          |
+| `tareByMode()`            | `Promise<void>`                | Tare via Device Mode.                                                 |
 | `threshold(thresholdLbs)` | `Promise<void>`                | Set Quick Start threshold (lbs).                                      |
 | `temperature()`           | `Promise<string \| undefined>` | Temperature.                                                          |
 | `quick(duration?)`        | `Promise<void>`                | Start Quick Start mode. `duration` in ms; `0` or omit for indefinite. |

@@ -33,7 +33,7 @@ enum ProgressorResponses {
    * Low battery warning from the device.
    * Indicates that the battery level is below a critical threshold.
    */
-  RESPONSE_LOW_PWR_WARNING,
+  RESPONSE_LOW_POWER_WARNING,
 }
 
 /**
@@ -78,7 +78,7 @@ function parseCalibrationCurvePayload(payload: Uint8Array): string {
   const view = new DataView(payload.buffer, payload.byteOffset, payload.byteLength)
   const [v0, v1, v2] = [0, 4, 8].map((o) => view.getUint32(o, true))
 
-  return `${hex} — zero-point: ${v1.toLocaleString()} | ref-point: ${v0.toLocaleString()} | version: ${v2} (0x${v2.toString(16)})`
+  return `${hex} — 1: ${v1.toLocaleString()} | 2: ${v0.toLocaleString()} | 3: ${v2}`
 }
 
 export class Progressor extends Device implements IProgressor {
@@ -134,7 +134,7 @@ export class Progressor extends Device implements IProgressor {
         SLEEP: "n", // 110 (0x6e)
         GET_BATTERY_VOLTAGE: "o", // 111 (0x6f)
         GET_PROGRESSOR_ID: "p", // 112 (0x70)
-        RESET_CALIBRATION: "q", // 113 (0x71)
+        SET_CALIBRATION: "q", // 113 (0x71)
         GET_CALIBRATION: "r", // 114 (0x72)
       },
     })
@@ -189,7 +189,8 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Saves the current calibration to the device. Call after adding both calibration points.
+   * Computes calibration curve from stored points and saves to flash (opcode 0x6A).
+   * Requires addCalibrationPoint() for zero and reference. Normal flow: i → i → j.
    * @returns {Promise<void>} A Promise that resolves when the command is sent.
    */
   saveCalibration = async (): Promise<void> => {
@@ -197,24 +198,55 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Resets the calibration to default values of the device.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   * Opcode 0x71 ('q'): write calibration curve directly (raw overwrite).
+   *
+   * Payload layout (14 bytes):
+   * - [0]   opcode ('q' = 0x71)
+   * - [1]   reserved (ignored by firmware)
+   * - [2..13] 12-byte calibration curve (3× u32 LE read at offsets +2, +6, +10)
+   *
+   * Notes:
+   * - This command does not compute anything; it overwrites stored calibration data.
+   * - Sending only the opcode (no 12-byte curve) is not a supported "reset" mode.
+   *
+   * @param curve - Raw 12-byte calibration curve (required).
+   * @returns Promise that resolves when the command is sent.
    */
-  resetCalibration = async (): Promise<void> => {
-    await this.write("progressor", "tx", this.commands.RESET_CALIBRATION, 0)
+  setCalibration = async (curve: Uint8Array): Promise<void> => {
+    if (curve.length !== 12) throw new Error("Curve must be 12 bytes")
+
+    const opcode = (this.commands.SET_CALIBRATION as string).charCodeAt(0) // 0x71
+    const payload = new Uint8Array(14)
+
+    payload[0] = opcode
+    payload[1] = 0 // reserved/ignored
+    payload.set(curve, 2)
+
+    await this.write("progressor", "tx", payload, 0)
   }
 
   /**
-   * Adds a calibration point: 0x69 + 32-bit float (weight in kg), 5 bytes to the control characteristic.
-   * Use for two-point calibration: (1) zero weight — addCalibrationPoint(0); (2) known weight — addCalibrationPoint(knownKg).
-   * Order can be either way; writing zero first is recommended (hysteresis). Then call saveCalibration().
-   * @param {number} weightKg - Weight in kg (use 0 for zero point, or known reference weight &lt; 150 kg).
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   * Captures a calibration point from the *current live measurement*.
+   *
+   * Command: 0x69 ('i') written to the control characteristic.
+   *
+   * The firmware does **not** parse a float payload for this command. It simply snapshots the
+   * current raw ADC/force reading and stores it as the next calibration point (typically
+   * used as the zero point and the reference point for two-point calibration).
+   *
+   * Typical two-point calibration flow:
+   * 1) Ensure the device is stable with **no load** attached → send addCalibrationPoint() (zero point)
+   * 2) Attach a **known weight** and wait until stable      → send addCalibrationPoint() (reference point)
+   * 3) Call saveCalibration() ('j') to compute + persist the curve
+   *
+   * Notes:
+   * - Order usually doesn’t matter, but capturing the zero point first is common practice.
+   * - Any extra payload bytes are ignored by the firmware for this command.
+   *
+   * @returns {Promise<void>} Resolves when the command is sent.
    */
-  addCalibrationPoint = async (weightKg: number): Promise<void> => {
-    const payload = new Uint8Array(5)
-    payload[0] = (this.commands.ADD_CALIBRATION_POINT as string).charCodeAt(0) // 0x69
-    new DataView(payload.buffer).setFloat32(1, weightKg, true)
+  addCalibrationPoint = async (): Promise<void> => {
+    const payload = new Uint8Array([(this.commands.ADD_CALIBRATION_POINT as string).charCodeAt(0)]) // 0x69
     await this.write("progressor", "tx", payload, 0)
   }
 
@@ -264,96 +296,92 @@ export class Progressor extends Device implements IProgressor {
    * @param {DataView} value - The notification event.
    */
   override handleNotifications = (value: DataView): void => {
-    if (value) {
-      // Update timestamp
-      this.updateTimestamp()
-      if (value.buffer) {
-        const receivedTime: number = Date.now()
-        // Read the first byte of the buffer to determine the kind of message
-        const kind = value.getInt8(0)
-        // Check if the message is a weight measurement
-        if (kind === ProgressorResponses.RESPONSE_WEIGHT_MEASUREMENT) {
-          // Payload = bytes from index 2 (skip byte 0 = message type, byte 1 = reserved/length)
-          const payloadLength = value.byteLength - 2
-          if (payloadLength % 8 !== 0) return
-          const samplesPerPacket = payloadLength / 8
-          this.currentSamplesPerPacket = samplesPerPacket
-          this.recordPacketReceived()
+    if (!value?.buffer) return
+    // Update timestamp
+    this.updateTimestamp()
 
-          //  for (i = 0; i < samplesPerPacket; i++) { offset = i*8; weight = getFloat32(offset); timestampUs = getUint32(offset+4); }
-          for (let i = 0; i < samplesPerPacket; i++) {
-            const offset = 2 + i * 8
-            const weight = value.getFloat32(offset, true)
-            const timestampUs = value.getUint32(offset + 4, true)
-            if (!isNaN(weight)) {
-              const numericData = weight - this.applyTare(weight)
-              const currentMassTotal = Math.max(-1000, Number(numericData))
+    const receivedTime: number = Date.now()
+    // Read the first byte of the buffer to determine the kind of message
+    const kind = value.getUint8(0)
+    const payloadLength = value.getUint8(1)
 
-              // Update session stats before building packet
-              this.peak = Math.max(this.peak, Number(numericData))
-              this.min = Math.min(this.min, Math.max(-1000, Number(numericData)))
-              this.sum += currentMassTotal
-              this.dataPointCount++
-              this.mean = this.sum / this.dataPointCount
+    const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+    const payload = bytes.slice(2, 2 + payloadLength)
+    // Check if the message is a weight measurement
+    if (kind === ProgressorResponses.RESPONSE_WEIGHT_MEASUREMENT) {
+      if (payloadLength % 8 !== 0) return
+      const samplesPerPacket = payloadLength / 8
+      this.currentSamplesPerPacket = samplesPerPacket
+      this.recordPacketReceived()
 
-              this.downloadPackets.push(
-                this.buildDownloadPacket(currentMassTotal, [weight], {
-                  timestamp: receivedTime,
-                  sampleIndex: timestampUs,
-                }),
-              )
-              this.activityCheck(numericData)
+      for (let i = 0; i < samplesPerPacket; i++) {
+        const offset = 2 + i * 8
+        const weight = value.getFloat32(offset, true)
+        const timestampUs = value.getUint32(offset + 4, true)
+        if (Number.isNaN(weight)) continue
+        const numericData = weight - this.applyTare(weight)
+        const currentMassTotal = Math.max(-1000, Number(numericData))
 
-              // Hz from device timestamps: keep only samples in last 1s
-              this.recentSampleTimestamps.push(timestampUs)
-              const latestUs = this.recentSampleTimestamps[this.recentSampleTimestamps.length - 1] ?? 0
-              this.recentSampleTimestamps = this.recentSampleTimestamps.filter((ts) => latestUs - ts <= ONE_SECOND_US)
-              const samplingRateHz = this.recentSampleTimestamps.length
+        // Update session stats before building packet
+        this.peak = Math.max(this.peak, Number(numericData))
+        this.min = Math.min(this.min, Math.max(-1000, Number(numericData)))
+        this.sum += currentMassTotal
+        this.dataPointCount++
+        this.mean = this.sum / this.dataPointCount
 
-              const payload = this.buildForceMeasurement(currentMassTotal)
-              if (payload.performance) payload.performance.samplingRateHz = samplingRateHz
-              this.notifyCallback(payload)
-            }
-          }
-        }
-        // Command response
-        else if (kind === ProgressorResponses.RESPONSE_COMMAND) {
-          if (!this.writeLast) return
+        this.downloadPackets.push(
+          this.buildDownloadPacket(currentMassTotal, [weight], {
+            timestamp: receivedTime,
+            sampleIndex: timestampUs,
+          }),
+        )
+        this.activityCheck(numericData)
 
-          let output = ""
-          const payload = new Uint8Array(value.buffer).slice(2)
+        // Hz from device timestamps: keep only samples in last 1s
+        this.recentSampleTimestamps.push(timestampUs)
+        const latestUs = this.recentSampleTimestamps[this.recentSampleTimestamps.length - 1] ?? 0
+        this.recentSampleTimestamps = this.recentSampleTimestamps.filter((ts) => latestUs - ts <= ONE_SECOND_US)
+        const samplingRateHz = this.recentSampleTimestamps.length
 
-          if (this.writeLast === this.commands.GET_BATTERY_VOLTAGE) {
-            output = new DataView(value.buffer, 2).getUint32(0, true).toString()
-          } else if (this.writeLast === this.commands.GET_FIRMWARE_VERSION) {
-            output = new TextDecoder().decode(payload)
-          } else if (this.writeLast === this.commands.GET_ERROR_INFORMATION) {
-            output = new TextDecoder().decode(payload)
-          } else if (this.writeLast === this.commands.GET_PROGRESSOR_ID) {
-            output = parseProgressorIdPayload(payload)
-          } else if (this.writeLast === this.commands.GET_CALIBRATION) {
-            output = parseCalibrationCurvePayload(payload)
-          } else {
-            // Unknown command response: return raw hex
-            output = toHex(payload)
-          }
-          this.writeCallback(output)
-        }
-        // RFD peak response
-        else if (kind === ProgressorResponses.RESPONSE_RFD_PEAK) {
-          console.warn("⚠️ RFD peak is currently unsupported.")
-        }
-        // RFD peak series response
-        else if (kind === ProgressorResponses.RESPONSE_RFD_PEAK_SERIES) {
-          console.warn("⚠️ RFD peak series is currently unsupported.")
-        }
-        // Low power warning response
-        else if (kind === ProgressorResponses.RESPONSE_LOW_PWR_WARNING) {
-          console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
-        } else {
-          throw new Error(`Unknown message kind detected: ${kind}`)
-        }
+        const payload = this.buildForceMeasurement(currentMassTotal)
+        if (payload.performance) payload.performance.samplingRateHz = samplingRateHz
+        this.notifyCallback(payload)
       }
+    }
+    // Command response
+    else if (kind === ProgressorResponses.RESPONSE_COMMAND) {
+      if (!this.writeLast) return
+
+      let output = ""
+      if (this.writeLast === this.commands.GET_BATTERY_VOLTAGE) {
+        output = new DataView(payload.buffer, payload.byteOffset, payload.byteLength).getUint32(0, true).toString()
+      } else if (this.writeLast === this.commands.GET_FIRMWARE_VERSION) {
+        output = new TextDecoder().decode(payload)
+      } else if (this.writeLast === this.commands.GET_ERROR_INFORMATION) {
+        output = new TextDecoder().decode(payload)
+      } else if (this.writeLast === this.commands.GET_PROGRESSOR_ID) {
+        output = parseProgressorIdPayload(payload)
+      } else if (this.writeLast === this.commands.GET_CALIBRATION) {
+        output = parseCalibrationCurvePayload(payload)
+      } else {
+        // Unknown command response: return raw hex
+        output = toHex(payload)
+      }
+      this.writeCallback(output)
+    }
+    // RFD peak response
+    else if (kind === ProgressorResponses.RESPONSE_RFD_PEAK) {
+      console.warn("⚠️ RFD peak is currently unsupported.")
+    }
+    // RFD peak series response
+    else if (kind === ProgressorResponses.RESPONSE_RFD_PEAK_SERIES) {
+      console.warn("⚠️ RFD peak series is currently unsupported.")
+    }
+    // Low power warning response
+    else if (kind === ProgressorResponses.RESPONSE_LOW_POWER_WARNING) {
+      console.warn("⚠️ Low power detected. Please consider connecting to a power source.")
+    } else {
+      throw new Error(`Unknown message kind detected: ${kind}`)
     }
   }
 

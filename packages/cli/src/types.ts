@@ -41,8 +41,12 @@ export interface RunOptions {
   output?: string
   /** When `true`, stream indefinitely until interrupted. */
   watch?: boolean
-  /** Calibration reference weight in kg (for Progressor re-calibration). */
+  /** Calibration reference weight in kg (legacy). */
   refWeightKg?: number
+  /** Calibration curve for Progressor setCalibration (opcode 0x71). 12-byte hex string. */
+  setCalibrationCurve?: string
+  /** When true, run saveCalibration after Add Calibration point (Progressor). */
+  saveCalibration?: boolean
   /** Global output context for JSON mode. */
   ctx?: OutputContext
 }
@@ -83,15 +87,19 @@ export interface CliDevice {
  * A single action that can be performed on a connected device.
  *
  * Actions are declared statically per device so the CLI never needs
- * runtime prototype-walking.
+ * runtime prototype-walking. Actions with subactions show a nested menu.
  */
 export interface Action {
   /** Short display name shown in the interactive picker. */
   name: string
   /** One-line description shown next to the name. */
   description: string
+  /** Optional color for the action name in the picker (e.g. "yellow" for orange). */
+  nameColor?: "yellow" | "green" | "cyan" | "magenta"
   /** Execute the action on a connected device. */
   run(device: CliDevice, options: RunOptions): Promise<void>
+  /** Optional sub-actions: when present, run() shows a nested picker before delegating. */
+  subactions?: Action[]
 }
 
 /**

@@ -49,7 +49,7 @@ export function registerInteractive(program: Command): void {
           let keepGoing = true
           while (keepGoing) {
             const built = buildActions(deviceKey)
-            const afterStreamIndex = built.findIndex((a) => a.name !== "Stream" && a.name !== "Stream & download")
+            const afterStreamIndex = built.findIndex((a) => a.name !== "Stream")
             const insertAt = afterStreamIndex === -1 ? built.length : afterStreamIndex
             const actions = [...built.slice(0, insertAt), unitAction(), ...built.slice(insertAt)]
             const action = await pickAction(actions)
@@ -63,7 +63,7 @@ export function registerInteractive(program: Command): void {
             // Prompt for relevant options based on the action
             const opts: RunOptions = { ctx }
 
-            if (["Stream", "Stream & download", "Tare"].includes(action.name)) {
+            if (["Stream", "Tare"].includes(action.name)) {
               const needsDuration = action.name === "Tare"
               const raw = await input({
                 message: needsDuration ? "Duration in seconds:" : "Duration in seconds (none for indefinite):",
@@ -76,17 +76,6 @@ export function registerInteractive(program: Command): void {
                 const sec = parseFloat(trimmed || (action.name === "Tare" ? "5" : "10"))
                 opts.duration = (Number.isNaN(sec) ? 0 : sec) * 1000
               }
-            }
-
-            if (action.name === "Stream & download") {
-              opts.format = await select({
-                message: "Export format:",
-                choices: [
-                  { name: "CSV", value: "csv" as const },
-                  { name: "JSON", value: "json" as const },
-                  { name: "XML", value: "xml" as const },
-                ],
-              })
             }
 
             await action.run(d, opts)

@@ -24,14 +24,14 @@ export interface IProgressor extends IDevice {
 
   /**
    * Retrieves calibration curve from the device (opcode 0x72). Payload is 12 opaque bytes;
-   * parsed for display as zero-point, ref-point, and version (3× uint32 LE) plus hex.
-   * @returns {Promise<string | undefined>} A Promise that resolves with a display string (e.g. "hex — zero-point: X | ref-point: Y | version: Z").
+   * parsed for display as hex plus 3× uint32 LE.
+   * @returns {Promise<string | undefined>} A Promise that resolves with a display string (e.g. "hex — 1: X | 2: Y | 3: Z").
    */
   calibration(): Promise<string | undefined>
 
   /**
-   * Saves the current calibration settings to the device.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   * Computes calibration curve from stored points and saves to flash.
+   * Call after addCalibrationPoint() for zero and reference. Normal flow: i → i → j.
    */
   saveCalibration(): Promise<void>
 
@@ -42,10 +42,11 @@ export interface IProgressor extends IDevice {
   sleep(): Promise<void>
 
   /**
-   * Resets the calibration to default values of the device.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   * Set a new calibration curve.
+   * @warning Expert only. This will overwrite the current calibration curve.
+   * @param curve - The 12-byte calibration curve to set.
    */
-  resetCalibration(): Promise<void>
+  setCalibration(curve: Uint8Array): Promise<void>
 
   /**
    * Retrieves error information from the device.
@@ -73,10 +74,10 @@ export interface IProgressor extends IDevice {
   stream(duration?: number): Promise<void>
 
   /**
-   * Adds a calibration point. Use 0 for zero point, then known weight; then saveCalibration().
-   * @param weightKg - Weight in kg (0 or known reference &lt; 150 kg).
+   * Adds a calibration point by capturing the current live ADC reading.
+   * Call with no load for zero point, then with known weight; then saveCalibration().
    */
-  addCalibrationPoint(weightKg: number): Promise<void>
+  addCalibrationPoint(): Promise<void>
 
   /**
    * Sends the device tare command to zero the scale (hardware tare).

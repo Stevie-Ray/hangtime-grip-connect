@@ -119,7 +119,7 @@ export interface Commands {
   GET_PROGRESSOR_ID?: string
 
   /**
-   * Reset calibration to default values of the device.
+   * Set calibration curve (3× u32 LE). Payload at offsets +2,+6,+10.
    */
-  RESET_CALIBRATION?: string
+  SET_CALIBRATION?: string
 }

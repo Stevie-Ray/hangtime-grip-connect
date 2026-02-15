@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-cli",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "CLI tool for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
