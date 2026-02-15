@@ -250,13 +250,14 @@ export class Progressor extends Device implements IProgressor {
     await this.write("progressor", "tx", payload, 0)
   }
 
-  /**
-   * Sends the device tare command to zero the scale (hardware tare).
-   * For software tare over a duration, use the base tare(duration) method.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
-   */
-  tareScale = async (): Promise<void> => {
-    await this.write("progressor", "tx", this.commands.TARE_SCALE, 0)
+  /** True if tare() uses device hardware tare rather than software averaging. */
+  readonly usesHardwareTare = true
+
+  override tare(duration = 5000): boolean {
+    void duration // Accepted for API compatibility; hardware tare ignores it
+    this.clearTareOffset()
+    void this.write("progressor", "tx", this.commands.TARE_SCALE, 0)
+    return true
   }
 
   /**

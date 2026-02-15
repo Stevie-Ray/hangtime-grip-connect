@@ -16,6 +16,17 @@ import { registerCommands } from "./commands/index.js"
 const require = createRequire(import.meta.url)
 const { version } = require("../package.json") as { version: string }
 
+function isPromptExitError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false
+  return error.name === "ExitPromptError" || error.name === "CancelPromptError"
+}
+
+process.on("unhandledRejection", (reason: unknown) => {
+  if (isPromptExitError(reason)) {
+    process.exit(0)
+  }
+})
+
 const program = new Command()
 
 program
@@ -29,9 +40,7 @@ program
 registerCommands(program)
 
 program.parseAsync().catch((error: unknown) => {
-  // @inquirer throws ExitPromptError on Ctrl+C; exit 0 so npm doesn't report lifecycle failure
-  if (error instanceof Error && error.name === "ExitPromptError") process.exit(0)
-  // if (error instanceof Error && error.name === "CancelPromptError") process.exit(0)
+  if (isPromptExitError(error)) process.exit(0)
   const message = error instanceof Error ? error.message : String(error)
   console.error(`\n${message}`)
   process.exit(1)

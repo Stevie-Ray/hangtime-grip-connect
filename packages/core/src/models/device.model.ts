@@ -1023,6 +1023,18 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
+   * Clears the software tare offset and related state.
+   * Used by devices that implement hardware tare so applyTare does not double-adjust.
+   * @protected
+   */
+  protected clearTareOffset(): void {
+    this.tareCurrent = 0
+    this.tareActive = false
+    this.tareStartTime = null
+    this.tareSamples = []
+  }
+
+  /**
    * Apply tare calibration to the provided sample.
    * @param {number} sample - The sample to calibrate.
    * @returns {number} The calibrated tare value.

@@ -4,7 +4,7 @@
 
 import type { Command } from "commander"
 import ora from "ora"
-import { resolveDeviceKey, createDevice, connectAndRun, resolveContext, fail } from "../utils.js"
+import { resolveDeviceKey, createDevice, connectAndRun, resolveContext, fail, isStreamDevice } from "../utils.js"
 
 /**
  * Registers the `tare` command on the Commander program.
@@ -29,14 +29,53 @@ export function registerTare(program: Command): void {
           if (typeof d.tare !== "function") {
             fail("Tare not supported on this device.")
           }
-          const started = d.tare(duration)
-          if (!started) {
-            fail("Tare could not be started (already active?).")
-          }
 
-          const spinner = ctx.json ? null : ora(`Tare calibration (${duration / 1000}s). Keep device still...`).start()
-          await new Promise((r) => setTimeout(r, duration))
-          spinner?.succeed("Tare calibration complete.")
+          if (isStreamDevice(d)) {
+            // Stream devices need an active stream for tare (data to tare against)
+            const streamSpinner = ctx.json ? null : ora("Starting stream for tare...").start()
+            const streamFn = d.stream
+            if (typeof streamFn === "function") await streamFn(0)
+            await new Promise((r) => setTimeout(r, 1500)) // Wait for data to flow
+            streamSpinner?.succeed("Stream running.")
+
+            const started = d.tare(duration)
+            if (!started) {
+              const stopFn = d.stop
+              if (typeof stopFn === "function") await stopFn()
+              fail("Tare could not be started (already active?).")
+            }
+
+            const usesHardwareTare = "usesHardwareTare" in d && (d as { usesHardwareTare?: boolean }).usesHardwareTare
+            if (usesHardwareTare) {
+              if (!ctx.json) ora().succeed("Tare complete (hardware).")
+            } else {
+              const tareSpinner = ctx.json
+                ? null
+                : ora(`Tare calibration (${duration / 1000}s). Keep device still...`).start()
+              await new Promise((r) => setTimeout(r, duration))
+              tareSpinner?.succeed("Tare calibration complete.")
+            }
+
+            const stopFn = d.stop
+            if (typeof stopFn === "function") await stopFn()
+          } else {
+            // Non-stream devices: tare immediately
+            const started = d.tare(duration)
+            if (!started) {
+              fail("Tare could not be started (already active?).")
+            }
+
+            const usesHardwareTare = "usesHardwareTare" in d && (d as { usesHardwareTare?: boolean }).usesHardwareTare
+            if (usesHardwareTare) {
+              if (!ctx.json) ora().succeed("Tare complete (hardware).")
+            } else {
+              const spinner = ctx.json
+                ? null
+                : ora(`Tare calibration (${duration / 1000}s). Keep device still...`).start()
+              await new Promise((r) => setTimeout(r, duration))
+              spinner?.succeed("Tare calibration complete.")
+            }
+          }
         },
         ctx,
       )

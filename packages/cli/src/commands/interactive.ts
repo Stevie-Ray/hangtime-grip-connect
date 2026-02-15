@@ -5,9 +5,7 @@
 
 import type { Command } from "commander"
 import input from "@inquirer/input"
-import select from "@inquirer/select"
-import pc from "picocolors"
-import type { Action, RunOptions } from "../types.js"
+import type { RunOptions } from "../types.js"
 import { pickDevice, pickAction, createDevice, connectAndRun, buildActions, resolveContext } from "../utils.js"
 
 /**
@@ -30,28 +28,9 @@ export function registerInteractive(program: Command): void {
         device,
         name,
         async (d) => {
-          const unitAction = (): Action => ({
-            name: `Unit (${ctx.unit})`,
-            description: "Set stream output to kilogram, pound, or newton",
-            run: async (_d, opts) => {
-              const unit = await select({
-                message: "Unit:",
-                choices: [
-                  { name: "Kilogram", value: "kg" as const },
-                  { name: "Pound", value: "lbs" as const },
-                  { name: "Newton", value: "n" as const },
-                ],
-              })
-              if (opts.ctx) opts.ctx.unit = unit
-              if (!ctx.json) console.log(pc.dim(`Force output: ${unit}`))
-            },
-          })
           let keepGoing = true
           while (keepGoing) {
-            const built = buildActions(deviceKey)
-            const afterStreamIndex = built.findIndex((a) => a.name !== "Stream")
-            const insertAt = afterStreamIndex === -1 ? built.length : afterStreamIndex
-            const actions = [...built.slice(0, insertAt), unitAction(), ...built.slice(insertAt)]
+            const actions = buildActions(deviceKey, ctx)
             const action = await pickAction(actions)
 
             if (action.name === "Disconnect") {
@@ -63,11 +42,11 @@ export function registerInteractive(program: Command): void {
             // Prompt for relevant options based on the action
             const opts: RunOptions = { ctx }
 
-            if (["Stream", "Tare"].includes(action.name)) {
+            if (["Live Data", "Tare"].includes(action.name)) {
               const needsDuration = action.name === "Tare"
               const raw = await input({
-                message: needsDuration ? "Duration in seconds:" : "Duration in seconds (none for indefinite):",
-                default: action.name === "Tare" ? "5" : "10",
+                message: needsDuration ? "Duration in seconds:" : "Duration in seconds (Optional):",
+                default: action.name === "Tare" ? "5" : "",
               })
               const trimmed = raw.trim()
               if (!needsDuration && trimmed === "") {

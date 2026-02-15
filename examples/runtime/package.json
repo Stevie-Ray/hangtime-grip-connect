@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@hangtime/grip-connect-cli": "^0.10.4"
+    "@hangtime/grip-connect-cli": "^0.10.5"
   },
   "trustedDependencies": [
     "@hangtime/grip-connect-cli",

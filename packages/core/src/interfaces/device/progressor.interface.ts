@@ -79,10 +79,6 @@ export interface IProgressor extends IDevice {
    */
   addCalibrationPoint(): Promise<void>
 
-  /**
-   * Sends the device tare command to zero the scale (hardware tare).
-   * For software tare over a duration, use the base tare(duration) method.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
-   */
-  tareScale(): Promise<void>
+  /** True if tare() uses device hardware tare rather than software averaging. */
+  readonly usesHardwareTare: true
 }

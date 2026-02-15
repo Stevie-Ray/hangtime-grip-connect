@@ -1,5 +1,12 @@
 # @hangtime/grip-connect-capacitor
 
+## 0.10.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @hangtime/grip-connect@0.10.5
+
 ## 0.10.2
 
 ### Patch Changes

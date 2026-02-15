@@ -22,8 +22,9 @@ await device.connect(
   async () => {
     console.log("Battery:", await device.battery())
     console.log("Firmware:", await device.firmware())
-    device.tare(5000) // optional: tare before stream
-    await device.stream(30000)
+    await device.stream() // Start stream first (tare requires active stream)
+    device.tare() // Tare while streaming
+    await device.stop()
     device.download("json")
     device.disconnect()
   },
@@ -48,9 +49,10 @@ read, write, tare, download). See [Device interface](/api/device-interface) for 
 | `setCalibration(curve)` | `Promise<void>`                | Raw overwrite: write 12-byte curve directly. Expert only.         |
 | `stop()`                | `Promise<void>`                | Stop an ongoing stream.                                           |
 | `stream(duration?)`     | `Promise<void>`                | Start force stream. `duration` in ms; `0` or omit for continuous. |
-| `tareScale()`           | `Promise<void>`                | Send device tare command to zero the scale (hardware tare).       |
 
-Progressor also supports `tare(duration?)` from the base interface for software tare (average over duration).
+`tare(duration?)` from the shared interface uses **hardware tare**: it sends the device command to zero the scale. The
+device must be **streaming** when you call tare—the hardware captures the current weight reading during the stream. The
+`duration` parameter is accepted for API compatibility but ignored (hardware tare is instant).
 
 ### Calibration
 

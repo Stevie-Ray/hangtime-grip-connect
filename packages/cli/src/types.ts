@@ -112,4 +112,8 @@ export interface DeviceDefinition {
   class: new () => CliDevice
   /** Device-specific actions (on top of the shared ones). */
   actions: Action[]
+  /** Calibration subactions surfaced under Settings. */
+  calibrationSubactions?: Action[]
+  /** Error subactions (Get Error Info, Clear Error Info) surfaced under Settings. */
+  errorSubactions?: Action[]
 }

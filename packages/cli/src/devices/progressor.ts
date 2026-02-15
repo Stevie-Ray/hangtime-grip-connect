@@ -5,7 +5,7 @@
 import input from "@inquirer/input"
 import { Progressor } from "@hangtime/grip-connect-runtime"
 import type { Action, DeviceDefinition, CliDevice } from "../types.js"
-import { fail, pickAction, printResult } from "../utils.js"
+import { fail, printResult } from "../utils.js"
 
 /** Helper to parse 12 hex bytes into Uint8Array for setCalibration. */
 function parseCurveHex(s: string): Uint8Array {
@@ -101,60 +101,30 @@ const calibrationSubactions: Action[] = [
   },
 ]
 
+const errorSubactions: Action[] = [
+  {
+    name: "Get Error Info",
+    description: "Retrieve error information from device",
+    run: async (device) => {
+      const d = device as unknown as Progressor
+      printResult("Error info:", await d.errorInfo())
+    },
+  },
+  {
+    name: "Clear Error Info",
+    description: "Clear error information on device",
+    run: async (device) => {
+      const d = device as unknown as Progressor
+      await d.clearErrorInfo()
+      printResult("Clear error info:", "sent")
+    },
+  },
+]
+
 const progressor: DeviceDefinition = {
   name: "Progressor",
   class: Progressor as unknown as new () => CliDevice,
   actions: [
-    {
-      name: "Battery",
-      description: "Read battery level",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        printResult("Battery:", await d.battery())
-      },
-    },
-    {
-      name: "Firmware",
-      description: "Read firmware version",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        printResult("Firmware:", await d.firmware())
-      },
-    },
-    {
-      name: "Progressor ID",
-      description: "Get Progressor ID",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        printResult("Progressor ID:", await d.progressorId())
-      },
-    },
-    {
-      name: "Calibration",
-      description: "Get curve, set curve, or add calibration points",
-      subactions: calibrationSubactions,
-      run: async (device, opts) => {
-        const sub = await pickAction(calibrationSubactions)
-        await sub.run(device, opts)
-      },
-    },
-    {
-      name: "Error info",
-      description: "Get error information",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        printResult("Error info:", await d.errorInfo())
-      },
-    },
-    {
-      name: "Clear error info",
-      description: "Clear error information",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        await d.clearErrorInfo()
-        printResult("Clear error info:", "sent")
-      },
-    },
     {
       name: "Sleep",
       description: "Shutdown / sleep device",
@@ -164,16 +134,9 @@ const progressor: DeviceDefinition = {
         printResult("Sleep:", "sent")
       },
     },
-    {
-      name: "Tare",
-      description: "Hardware zero offset reset",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        await d.tareScale()
-        printResult("Tare scale:", "sent")
-      },
-    },
   ],
+  calibrationSubactions,
+  errorSubactions,
 }
 
 export default progressor

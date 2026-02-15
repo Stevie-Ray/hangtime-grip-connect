@@ -5,9 +5,11 @@
 
 import input from "@inquirer/input"
 import process from "node:process"
+import readline from "node:readline"
 import select from "@inquirer/select"
 import ora from "ora"
 import pc from "picocolors"
+import { createChartRenderer } from "./chart.js"
 import { devices } from "./devices/index.js"
 import { INFO_METHODS } from "./info-methods.js"
 import type { Action, CliDevice, ForceMeasurement, OutputContext, RunOptions } from "./types.js"
@@ -217,6 +219,15 @@ export function setupSignalHandlers(device: CliDevice, onCleanup?: () => void): 
 // ---------------------------------------------------------------------------
 
 /**
+ * Returns true if the device requires an active stream for tare to work.
+ * Stream devices expose both stream and tare; tare collects samples or
+ * captures current weight during streaming.
+ */
+export function isStreamDevice(d: CliDevice): boolean {
+  return typeof d.stream === "function" && typeof d.tare === "function"
+}
+
+/**
  * Registers the standard force-measurement notify callback on a device.
  *
  * In JSON mode it emits newline-delimited JSON; otherwise it prints a
@@ -249,39 +260,65 @@ export function muteNotify(device: CliDevice): void {
 }
 
 /**
+ * Options for {@link waitForKeyToStop}.
+ */
+export interface WaitForKeyOptions {
+  /** Message to print (e.g. "Press Esc to stop"). */
+  message?: string
+  /** Extra key handlers: key char code -> callback. Deferred with setImmediate. */
+  extraKeys?: Record<number, () => void>
+}
+
+/**
  * Returns a promise that resolves when the user presses Escape (stdin TTY only).
- * Use this to let the user exit an indefinite stream.
- * When stdin is not a TTY (e.g. piped), the promise never resolves; stop the process as needed.
+ * Uses readline keypress events to avoid conflicts with chart rendering.
  *
- * @param message - Optional message to print (e.g. "Press Esc to stop streaming").
+ * @param messageOrOptions - Message string, or options with message and extra key handlers.
  * @returns A promise that resolves when Escape is pressed, or never when not a TTY.
  */
-export function waitForKeyToStop(message?: string): Promise<void> {
+export function waitForKeyToStop(messageOrOptions?: string | WaitForKeyOptions): Promise<void> {
   if (!process.stdin.isTTY) {
     return new Promise<void>((_resolve) => {
       void _resolve
       /* never resolve when not a TTY */
     })
   }
+  const message = typeof messageOrOptions === "string" ? messageOrOptions : messageOrOptions?.message
+  const extraKeys =
+    typeof messageOrOptions === "object" && messageOrOptions?.extraKeys ? messageOrOptions.extraKeys : undefined
+
   return new Promise((resolve) => {
     let done = false
-    const onKey = (chunk: Buffer | string) => {
-      const first = typeof chunk === "string" ? chunk.charCodeAt(0) : chunk[0]
-      // Escape (\x1b)
-      if (first === 0x1b) {
-        if (done) return
-        done = true
-        process.stdin.removeListener("data", onKey)
-        process.stdin.setRawMode?.(false)
-        resolve()
+    const cleanup = () => {
+      if (done) return
+      done = true
+      process.stdin.removeListener("keypress", onKeypress)
+      process.stdin.setRawMode?.(false)
+      process.stdin.pause()
+      resolve()
+    }
+
+    const onKeypress = (_str: string, key: readline.Key) => {
+      if (key.name === "escape") {
+        cleanup()
+        return
+      }
+      if (extraKeys && key.sequence) {
+        const code = key.sequence.charCodeAt(0)
+        if (code in extraKeys) {
+          const cb = extraKeys[code as keyof typeof extraKeys]
+          if (cb) setImmediate(cb)
+        }
       }
     }
+
     if (message) {
       console.log(pc.dim(message))
     }
+    readline.emitKeypressEvents(process.stdin)
     process.stdin.setRawMode?.(true)
     process.stdin.resume()
-    process.stdin.on("data", onKey)
+    process.stdin.on("keypress", onKeypress)
   })
 }
 
@@ -351,9 +388,10 @@ export async function connectAndRun(
  * (e.g. `stream`, `battery`, `tare`, `download`).
  *
  * @param deviceKey - The device registry key.
+ * @param ctx - Optional output context for dynamic labels (e.g. Unit (kg)).
  * @returns An ordered array of {@link Action} objects.
  */
-export function buildActions(deviceKey: string): Action[] {
+export function buildActions(deviceKey: string, ctx?: OutputContext): Action[] {
   const key = deviceKey.toLowerCase()
   const def = devices[key]
   if (!def) return []
@@ -363,26 +401,43 @@ export function buildActions(deviceKey: string): Action[] {
 
   if (typeof device.stream === "function") {
     shared.push({
-      name: "Stream",
-      description: "Live force data (until cancelled or for a set duration)",
+      name: "Live Data",
+      description: "Just the raw data visualised in real-time",
       run: async (d: CliDevice, opts: RunOptions) => {
         const duration = opts.duration
         const indefinite = duration == null || duration === 0
+        const ctx = opts.ctx ?? { json: false, unit: "kg" }
         if (typeof d.stream !== "function") return
-        if (!opts.ctx?.json) {
+        const chartEnabled = !ctx.json && process.stdout.isTTY
+        const chart = createChartRenderer({
+          disabled: !chartEnabled,
+          color: "cyan",
+        })
+        if (!ctx.json) {
           console.log(
-            pc.cyan(indefinite ? "\nStreaming...\n" : `\nStreaming for ${(duration ?? 0) / 1000} seconds...\n`),
+            pc.cyan(indefinite ? "\nLive Data...\n" : `\nLive Data for ${(duration ?? 0) / 1000} seconds...\n`),
           )
         }
-        setupNotify(d, opts.ctx ?? { json: false, unit: "kg" })
+        d.notify((data: ForceMeasurement) => {
+          if (ctx.json) {
+            outputJson(data)
+          } else if (chartEnabled) {
+            chart.push(data.current)
+          } else {
+            console.log(formatMeasurement(data))
+          }
+        }, ctx.unit)
+        if (chartEnabled) chart.start()
         if (indefinite) {
           await d.stream()
-          await waitForKeyToStop(opts.ctx?.json ? undefined : "Press Esc to stop streaming")
-          await d.stop?.()
+          await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop")
+          const stopFn = d.stop
+          if (typeof stopFn === "function") await stopFn()
         } else {
           await d.stream(duration)
           await d.stop?.()
         }
+        if (chartEnabled) chart.stop()
         muteNotify(d)
         if (typeof d.download === "function" && !opts.ctx?.json) {
           const raw = await input({
@@ -413,12 +468,52 @@ export function buildActions(deviceKey: string): Action[] {
     })
   }
 
+  // Build Settings subactions: Unit, Language, System Info, Calibration, Errors
+  const settingsSubactions: Action[] = []
+
+  // Unit – CLI-level preference (always available)
+  const currentUnit = ctx?.unit ?? "kg"
+  settingsSubactions.push({
+    name: `Unit (${currentUnit})`,
+    description: "Set stream output to kilogram, pound, or newton",
+    run: async (_d: CliDevice, opts: RunOptions) => {
+      const unit = await select({
+        message: "Unit:",
+        choices: [
+          { name: "Kilogram", value: "kg" as const },
+          { name: "Pound", value: "lbs" as const },
+          { name: "Newton", value: "n" as const },
+        ],
+      })
+      if (opts.ctx) opts.ctx.unit = unit
+      if (!opts.ctx?.json) console.log(pc.dim(`Force output: ${unit}`))
+    },
+  })
+
+  // Language – English as the only option for now
+  settingsSubactions.push({
+    name: "Language (English)",
+    description: "CLI display language",
+    run: async (_d: CliDevice, opts: RunOptions) => {
+      const lang = await select({
+        message: "Language:",
+        choices: [{ name: "English", value: "en" as const }],
+      })
+      if (opts.ctx?.json) {
+        outputJson({ language: lang })
+      } else {
+        console.log(pc.dim(`Language: ${lang === "en" ? "English" : lang}`))
+      }
+    },
+  })
+
+  // System Info – battery, firmware, device ID, etc.
   const hasAnyInfo = INFO_METHODS.some(
     (m) => typeof (device as unknown as Record<string, unknown>)[m.key] === "function",
   )
   if (hasAnyInfo) {
-    shared.push({
-      name: "Info",
+    settingsSubactions.push({
+      name: "System Info",
       description: "Battery, firmware, device ID, calibration, etc.",
       run: async (d: CliDevice, opts: RunOptions) => {
         const dev = d as unknown as Record<string, unknown>
@@ -436,7 +531,7 @@ export function buildActions(deviceKey: string): Action[] {
         if (opts.ctx?.json) {
           outputJson(info)
         } else {
-          printHeader(`${def.name} Info`)
+          printHeader(`${def.name} System Info`)
           for (const entry of INFO_METHODS) {
             if (entry.key in info) {
               printResult(entry.label, info[entry.key])
@@ -448,22 +543,94 @@ export function buildActions(deviceKey: string): Action[] {
     })
   }
 
+  // Calibration – from device's calibrationSubactions
+  const calibrationSubs = def.calibrationSubactions
+  if (calibrationSubs?.length) {
+    settingsSubactions.push({
+      name: "Calibration",
+      description: "Get curve, set curve, or add calibration points",
+      subactions: calibrationSubs,
+      run: async (d: CliDevice, opts: RunOptions) => {
+        const sub = await pickAction(calibrationSubs)
+        await sub.run(d, opts)
+      },
+    })
+  }
+
+  // Errors – from device's errorSubactions
+  const errorSubs = def.errorSubactions
+  if (errorSubs?.length) {
+    settingsSubactions.push({
+      name: "Errors",
+      description: "Get or clear error information",
+      subactions: errorSubs,
+      run: async (d: CliDevice, opts: RunOptions) => {
+        const sub = await pickAction(errorSubs)
+        await sub.run(d, opts)
+      },
+    })
+  }
+
+  if (settingsSubactions.length > 0) {
+    shared.push({
+      name: "Settings",
+      description: "Unit, language, system info, calibration, errors",
+      run: async (d: CliDevice, opts: RunOptions) => {
+        const sub = await pickAction(settingsSubactions)
+        await sub.run(d, opts)
+      },
+    })
+  }
+
   if (typeof device.tare === "function") {
     shared.push({
       name: "Tare",
-      description: "Software zero offset reset",
+      description: "Zero offset reset (hardware or software)",
       run: async (d: CliDevice, opts: RunOptions) => {
         const duration = opts.duration ?? 5000
         if (typeof d.tare !== "function") return
-        const started = d.tare(duration)
-        if (started) {
-          const spinner = opts.ctx?.json
-            ? null
-            : ora(`Tare calibration (${duration / 1000} s). Keep device still...`).start()
-          await new Promise((r) => setTimeout(r, duration))
-          spinner?.succeed("Tare calibration complete.")
+
+        if (isStreamDevice(d)) {
+          // Stream devices need an active stream for tare (data to tare against)
+          const streamSpinner = opts.ctx?.json ? null : ora("Starting stream for tare...").start()
+          const streamFn = d.stream
+          if (typeof streamFn === "function") await streamFn(0)
+          await new Promise((r) => setTimeout(r, 1500)) // Wait for data to flow
+          streamSpinner?.succeed("Stream running.")
+
+          const started = d.tare(duration)
+          if (!started) {
+            const stopFn = d.stop
+            if (typeof stopFn === "function") await stopFn()
+            fail("Tare could not be started (already active?).")
+          }
+
+          const usesHardwareTare = "usesHardwareTare" in d && (d as { usesHardwareTare?: boolean }).usesHardwareTare
+          if (usesHardwareTare) {
+            if (!opts.ctx?.json) ora().succeed("Tare complete (hardware).")
+          } else {
+            const tareSpinner = opts.ctx?.json
+              ? null
+              : ora(`Tare calibration (${duration / 1000} s). Keep device still...`).start()
+            await new Promise((r) => setTimeout(r, duration))
+            tareSpinner?.succeed("Tare calibration complete.")
+          }
+
+          const stopFn = d.stop
+          if (typeof stopFn === "function") await stopFn()
         } else {
-          fail("Tare could not be started (already active?).")
+          const started = d.tare(duration)
+          if (!started) fail("Tare could not be started (already active?).")
+          const usesHardwareTare = "usesHardwareTare" in d && (d as { usesHardwareTare?: boolean }).usesHardwareTare
+          if (usesHardwareTare) {
+            if (!opts.ctx?.json) ora().succeed("Tare complete (hardware).")
+          } else {
+            const spinner = opts.ctx?.json
+              ? null
+              : ora(`Tare calibration (${duration / 1000} s). Keep device still...`).start()
+            await new Promise((r) => setTimeout(r, duration))
+            spinner?.succeed("Tare calibration complete.")
+          }
         }
       },
     })

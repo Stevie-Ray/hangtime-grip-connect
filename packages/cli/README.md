@@ -24,17 +24,17 @@ npx @hangtime/grip-connect-cli
 # List all supported devices
 npx @hangtime/grip-connect-cli list
 
-# Stream force data (Esc to stop; or use -d for a fixed duration)
-npx @hangtime/grip-connect-cli stream progressor
+# Live Data: raw force visualised in real-time with chart (Esc to stop; use `tare` before live to zero)
+npx @hangtime/grip-connect-cli live progressor  # or: stream progressor
 
-# Stream for a fixed duration (e.g. 10 seconds)
-npx @hangtime/grip-connect-cli stream progressor --duration 10
+# Live Data for a fixed duration (e.g. 10 seconds)
+npx @hangtime/grip-connect-cli live progressor --duration 10
 
 # Watch mode: indefinite stream + session summary (Esc to stop)
 npx @hangtime/grip-connect-cli watch progressor
 
-# Use lbs for stream/watch output (default is kg)
-npx @hangtime/grip-connect-cli stream forceboard --unit lbs
+# Use lbs for live/watch output (default is kg)
+npx @hangtime/grip-connect-cli live forceboard --unit lbs
 
 # Show device info (battery, firmware, device ID, calibration, etc.)
 npx @hangtime/grip-connect-cli info entralpi
@@ -42,7 +42,8 @@ npx @hangtime/grip-connect-cli info entralpi
 # Export session data
 npx @hangtime/grip-connect-cli download forceboard --format csv
 
-# Run tare (zero) calibration
+# Run tare (zero) calibration. For stream devices (Progressor, ForceBoard, Motherboard),
+# tare automatically starts a stream first since tare requires live data.
 npx @hangtime/grip-connect-cli tare motherboard --duration 5000
 
 # Monitor activity status
@@ -64,11 +65,11 @@ grip-connect
 # List all supported devices
 grip-connect list
 
-# Stream force data (Esc to stop; or use -d for a fixed duration)
-grip-connect stream progressor
+# Live Data: raw force visualised in real-time (Esc to stop; use tare before live to zero)
+grip-connect live progressor
 
-# Stream for a fixed duration (e.g. 10 seconds)
-grip-connect stream progressor --duration 10
+# Live Data for a fixed duration (e.g. 10 seconds)
+grip-connect live progressor --duration 10
 
 # Watch mode: indefinite stream + session summary (Esc to stop)
 grip-connect watch progressor
@@ -79,7 +80,7 @@ grip-connect info entralpi
 # Export session data
 grip-connect download forceboard --format csv
 
-# Run tare (zero) calibration
+# Run tare (zero) calibration (stream devices: auto-starts stream first)
 grip-connect tare motherboard --duration 5000
 
 # Monitor activity status
@@ -126,7 +127,7 @@ Use `--json` for machine-readable output, useful for piping into other tools:
 
 ```sh
 npx @hangtime/grip-connect-cli --json list
-npx @hangtime/grip-connect-cli --json stream progressor
+npx @hangtime/grip-connect-cli --json live progressor
 npx @hangtime/grip-connect-cli --json watch forceboard | jq '.current'
 ```
 

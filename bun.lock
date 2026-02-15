@@ -28,7 +28,7 @@
         "@capacitor/core": "^8.1.0",
         "@capacitor/ios": "^8.1.0",
         "@capacitor/splash-screen": "^8.0.1",
-        "@hangtime/grip-connect-capacitor": "^0.10.4",
+        "@hangtime/grip-connect-capacitor": "^0.10.5",
       },
       "devDependencies": {
         "@capacitor/cli": "^8.1.0",
@@ -42,7 +42,7 @@
         "@fortawesome/fontawesome-svg-core": "^7.2.0",
         "@fortawesome/free-brands-svg-icons": "^7.2.0",
         "@fortawesome/free-solid-svg-icons": "^7.2.0",
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
         "chart.js": "^4.5.1",
       },
       "devDependencies": {
@@ -55,7 +55,7 @@
       "name": "@grip-connect/flappy-bird",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
       },
       "devDependencies": {
         "typescript": "^5.9.3",
@@ -71,7 +71,7 @@
         "@fortawesome/free-brands-svg-icons": "^7.2.0",
         "@fortawesome/free-regular-svg-icons": "^7.2.0",
         "@fortawesome/free-solid-svg-icons": "^7.2.0",
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
       },
       "devDependencies": {
         "@types/w3c-web-serial": "^1.0.8",
@@ -83,7 +83,7 @@
       "name": "@grip-connect/pong",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
       },
       "devDependencies": {
         "typescript": "^5.9.3",
@@ -96,7 +96,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@expo/vector-icons": "^15.0.3",
-        "@hangtime/grip-connect-react-native": "^0.10.4",
+        "@hangtime/grip-connect-react-native": "^0.10.5",
         "@react-native-async-storage/async-storage": "2.2.0",
         "@react-native-picker/picker": "2.11.1",
         "@react-navigation/bottom-tabs": "^7.13.0",
@@ -142,16 +142,16 @@
       "name": "@grip-connect/runtime",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect-cli": "^0.10.4",
+        "@hangtime/grip-connect-cli": "^0.10.5",
       },
     },
     "packages/capacitor": {
       "name": "@hangtime/grip-connect-capacitor",
-      "version": "0.10.4",
+      "version": "0.10.5",
       "dependencies": {
         "@capacitor-community/bluetooth-le": "^8.1.0",
         "@capacitor/filesystem": "^8.1.2",
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
       },
       "devDependencies": {
         "typescript": "^5.9.3",
@@ -159,19 +159,21 @@
     },
     "packages/cli": {
       "name": "@hangtime/grip-connect-cli",
-      "version": "0.10.4",
+      "version": "0.10.5",
       "bin": {
         "grip-connect": "./dist/index.js",
       },
       "dependencies": {
-        "@hangtime/grip-connect-runtime": "^0.10.4",
+        "@hangtime/grip-connect-runtime": "^0.10.5",
         "@inquirer/input": "^5.0.6",
         "@inquirer/select": "^5.0.6",
+        "babar": "^0.2.3",
         "commander": "^14.0.3",
         "ora": "^9.3.0",
         "picocolors": "^1.1.1",
       },
       "devDependencies": {
+        "@types/babar": "^0.2.4",
         "@types/node": "^22.19.2",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
@@ -179,7 +181,7 @@
     },
     "packages/core": {
       "name": "@hangtime/grip-connect",
-      "version": "0.10.4",
+      "version": "0.10.5",
       "devDependencies": {
         "typescript": "^5.9.3",
       },
@@ -192,9 +194,9 @@
     },
     "packages/react-native": {
       "name": "@hangtime/grip-connect-react-native",
-      "version": "0.10.4",
+      "version": "0.10.5",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
         "react-native-ble-plx": "^3.5.0",
       },
       "devDependencies": {
@@ -203,9 +205,9 @@
     },
     "packages/runtime": {
       "name": "@hangtime/grip-connect-runtime",
-      "version": "0.10.4",
+      "version": "0.10.5",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.10.4",
+        "@hangtime/grip-connect": "^0.10.5",
         "webbluetooth": "^3.6.0",
       },
       "devDependencies": {
@@ -1025,6 +1027,8 @@
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.9.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw=="],
 
+    "@types/babar": ["@types/babar@0.2.4", "", {}, "sha512-CWeZW8TovD8dq3jB6/WA8zWsCkyV1cuV1EBGeUBcl45kyCSheF2IOzo+bF8mjVJvMKWwO8tYjAH0/y/HuHcOSw=="],
+
     "@types/babel__core": ["@types/babel__core@7.20.5", "", { "dependencies": { "@babel/parser": "^7.20.7", "@babel/types": "^7.20.7", "@types/babel__generator": "*", "@types/babel__template": "*", "@types/babel__traverse": "*" } }, "sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA=="],
 
     "@types/babel__generator": ["@types/babel__generator@7.27.0", "", { "dependencies": { "@babel/types": "^7.0.0" } }, "sha512-ufFd2Xi92OAVPYsy+P4n7/U7e68fex0+Ee8gSG9KX7eo084CWiQ4sdxktvdl0bOPupXtVJPY19zk6EwWqUQ8lg=="],
@@ -1259,6 +1263,8 @@
 
     "axios": ["axios@1.7.9", "", { "dependencies": { "follow-redirects": "^1.15.6", "form-data": "^4.0.0", "proxy-from-env": "^1.1.0" } }, "sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw=="],
 
+    "babar": ["babar@0.2.3", "", { "dependencies": { "colors": "~1.4.0" } }, "sha512-1hmYKLj+7m5qHsJ3hosOlO7Z5BYe3E8u9u/W2BEqB4kytysuHYuGe5OIrEr7q4Zyg3y3EytFb4YrPZokYSix8g=="],
+
     "babel-jest": ["babel-jest@29.7.0", "", { "dependencies": { "@jest/transform": "^29.7.0", "@types/babel__core": "^7.1.14", "babel-plugin-istanbul": "^6.1.1", "babel-preset-jest": "^29.6.3", "chalk": "^4.0.0", "graceful-fs": "^4.2.9", "slash": "^3.0.0" }, "peerDependencies": { "@babel/core": "^7.8.0" } }, "sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg=="],
 
     "babel-plugin-istanbul": ["babel-plugin-istanbul@6.1.1", "", { "dependencies": { "@babel/helper-plugin-utils": "^7.0.0", "@istanbuljs/load-nyc-config": "^1.0.0", "@istanbuljs/schema": "^0.1.2", "istanbul-lib-instrument": "^5.0.4", "test-exclude": "^6.0.0" } }, "sha512-Y1IQok9821cC9onCx5otgFfRm7Lm+I+wwxOx738M/WLPZ9Q42m4IG5W0FNX8WLL2gYMZo3JkuXIH2DOpWM+qwA=="],
@@ -1384,6 +1390,8 @@
     "color-string": ["color-string@1.9.1", "", { "dependencies": { "color-name": "^1.0.0", "simple-swizzle": "^0.2.2" } }, "sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg=="],
 
     "colorette": ["colorette@1.4.0", "", {}, "sha512-Y2oEozpomLn7Q3HFP7dpww7AtMJplbM9lGZP6RDfHqmbeRjiwRg4n6VM6j4KLmRke85uWEI7JqF17f3pqdRA0g=="],
+
+    "colors": ["colors@1.4.0", "", {}, "sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA=="],
 
     "combined-stream": ["combined-stream@1.0.8", "", { "dependencies": { "delayed-stream": "~1.0.0" } }, "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg=="],
 
