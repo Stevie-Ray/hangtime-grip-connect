@@ -1,5 +1,5 @@
 import process from "node:process"
-import { plot, blue, red, yellow } from "asciichart"
+import { plot, blue, red, yellow, reset } from "asciichart"
 
 /** Number of samples to keep in the rolling buffer. */
 const DEFAULT_BUFFER_SIZE = 80
@@ -141,9 +141,15 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
     })
 
     const statsLine =
+      blue +
       `Current: ${lastCurrent.toFixed(2)} ${unit}` +
-      `  Max: ${lastPeak.toFixed(2)} ${unit}` +
-      `  Avg: ${lastMean.toFixed(2)} ${unit}`
+      `  ` +
+      red +
+      `Max: ${lastPeak.toFixed(2)} ${unit}` +
+      `  ` +
+      yellow +
+      `Avg: ${lastMean.toFixed(2)} ${unit}` +
+      reset
 
     // Track line count so we can overwrite the previous frame cleanly
     const nl = countNewlines(chartStr)
