@@ -43,7 +43,7 @@ Learn more: [Documentation](https://stevie-ray.github.io/hangtime-grip-connect/)
 [Kilter Board](https://grip-connect-kilter-board.vercel.app/?route=p1083r15p1117r15p1164r12p1185r12p1233r13p1282r13p1303r13p1372r13p1392r14p1505r15)
 
 ```bash
-npx @hangtime/grip-connect-cli
+npx @hangtime/cli
 ```
 
 > The CLI requires Node.js 22 or newer

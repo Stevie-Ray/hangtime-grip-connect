@@ -9,10 +9,10 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@hangtime/grip-connect-cli": "^0.10.5"
+    "@hangtime/cli": "^0.10.6"
   },
   "trustedDependencies": [
-    "@hangtime/grip-connect-cli",
+    "@hangtime/cli",
     "webbluetooth"
   ]
 }

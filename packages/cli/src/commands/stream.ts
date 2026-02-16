@@ -33,7 +33,7 @@ export function registerStream(program: Command): void {
       const durationMs = durationSec != null && !Number.isNaN(durationSec) ? Math.round(durationSec * 1000) : undefined
       const indefinite = durationMs == null || durationMs === 0
       const chartEnabled = !ctx.json && process.stdout.isTTY
-      const chart = createChartRenderer({ disabled: !chartEnabled, color: "cyan" })
+      const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit })
 
       if (!ctx.json) {
         if (indefinite) {
@@ -55,7 +55,7 @@ export function registerStream(program: Command): void {
             if (ctx.json) {
               outputJson(data)
             } else if (chartEnabled) {
-              chart.push(data.current)
+              chart.push({ current: data.current, mean: data.mean, peak: data.peak })
             } else {
               console.log(formatMeasurement(data))
             }

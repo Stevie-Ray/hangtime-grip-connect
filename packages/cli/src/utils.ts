@@ -409,10 +409,7 @@ export function buildActions(deviceKey: string, ctx?: OutputContext): Action[] {
         const ctx = opts.ctx ?? { json: false, unit: "kg" }
         if (typeof d.stream !== "function") return
         const chartEnabled = !ctx.json && process.stdout.isTTY
-        const chart = createChartRenderer({
-          disabled: !chartEnabled,
-          color: "cyan",
-        })
+        const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit })
         if (!ctx.json) {
           console.log(
             pc.cyan(indefinite ? "\nLive Data...\n" : `\nLive Data for ${(duration ?? 0) / 1000} seconds...\n`),
@@ -422,7 +419,7 @@ export function buildActions(deviceKey: string, ctx?: OutputContext): Action[] {
           if (ctx.json) {
             outputJson(data)
           } else if (chartEnabled) {
-            chart.push(data.current)
+            chart.push({ current: data.current, mean: data.mean, peak: data.peak })
           } else {
             console.log(formatMeasurement(data))
           }

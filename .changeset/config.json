@@ -6,7 +6,7 @@
   "linked": [
     [
       "@hangtime/grip-connect",
-      "@hangtime/grip-connect-cli",
+      "@hangtime/cli",
       "@hangtime/grip-connect-capacitor",
       "@hangtime/grip-connect-react-native",
       "@hangtime/grip-connect-runtime"

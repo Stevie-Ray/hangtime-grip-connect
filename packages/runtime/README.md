@@ -11,8 +11,7 @@ terminal.
 - **Data logging** -- pipe real-time force data into files, databases, or other tools.
 - **Headless testing** -- run device tests on CI or remote machines with Bluetooth.
 
-For a ready-made command-line tool, see
-[@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli).
+For a ready-made command-line tool, see [@hangtime/cli](https://www.npmjs.com/package/@hangtime/cli).
 
 ## Install
 

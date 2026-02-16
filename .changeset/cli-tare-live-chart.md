@@ -1,6 +1,6 @@
 ---
 "@hangtime/grip-connect": patch
-"@hangtime/grip-connect-cli": patch
+"@hangtime/cli": patch
 ---
 
 CLI: stream renamed to live with babar chart; tare for stream devices starts stream first

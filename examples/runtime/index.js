@@ -1,4 +1,4 @@
-import { Progressor } from "@hangtime/grip-connect-cli"
+import { Progressor } from "@hangtime/cli"
 
 const progressor = new Progressor()
 

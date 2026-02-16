@@ -1,4 +1,4 @@
-# @hangtime/grip-connect-cli
+# @hangtime/cli
 
 ## 0.10.5
 

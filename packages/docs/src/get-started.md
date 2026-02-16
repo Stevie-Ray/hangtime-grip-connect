@@ -36,7 +36,7 @@ The library is available in multiple flavors:
 | **Capacitor**    | [@hangtime/grip-connect-capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor)       | Hybrid mobile apps (iOS/Android)                                                                          |
 | **React Native** | [@hangtime/grip-connect-react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) | Native mobile apps (Expo / RN)                                                                            |
 | **Runtime**      | [@hangtime/grip-connect-runtime](https://www.npmjs.com/package/@hangtime/grip-connect-runtime)           | [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or [Deno](https://deno.com/) programmatic adapter |
-| **CLI**          | [@hangtime/grip-connect-cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli)                   | Ready-made command-line tool for scanning, streaming, and exporting data                                  |
+| **CLI**          | [@hangtime/cli](https://www.npmjs.com/package/@hangtime/cli)                                             | Ready-made command-line tool for scanning, streaming, and exporting data                                  |
 
 See [Browser support](/browser-support) for Web Bluetooth requirements and [Platforms](/platforms/) for
 platform-specific setup.
@@ -73,7 +73,7 @@ npm install @hangtime/grip-connect-runtime
 ```
 
 ```sh [CLI]
-npm install -g @hangtime/grip-connect-cli
+npm install -g @hangtime/cli
 ```
 
 :::

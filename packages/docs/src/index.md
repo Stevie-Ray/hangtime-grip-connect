@@ -102,7 +102,7 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
   [npm capacitor](https://www.npmjs.com/package/@hangtime/grip-connect-capacitor) ·
   [npm react-native](https://www.npmjs.com/package/@hangtime/grip-connect-react-native) ·
   [npm runtime](https://www.npmjs.com/package/@hangtime/grip-connect-runtime) ·
-  [npm cli](https://www.npmjs.com/package/@hangtime/grip-connect-cli) · [JSR](https://jsr.io/@hangtime/grip-connect) ·
+  [npm cli](https://www.npmjs.com/package/@hangtime/cli) · [JSR](https://jsr.io/@hangtime/grip-connect) ·
   [unpkg](https://unpkg.com/@hangtime/grip-connect@latest?module) (CDN)
 - [Web Bluetooth spec](https://github.com/WebBluetoothCG/web-bluetooth) · [Discord](https://discord.gg/f7QQnEBQQt)
 

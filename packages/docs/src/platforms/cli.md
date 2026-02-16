@@ -1,64 +1,64 @@
 # CLI
 
-`@hangtime/grip-connect-cli` is a ready-made command-line tool for [Node.js](https://nodejs.org/),
-[Bun](https://bun.sh/), or [Deno](https://deno.com/). It provides interactive mode, colored output, and commands for
-streaming, watching, exporting, and inspecting devices -- all from the terminal. Built on the
-[Runtime](/platforms/runtime) package. Best for: quick data checks, device testing, and interactive exploration.
+`@hangtime/cli` is a ready-made command-line tool for [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or
+[Deno](https://deno.com/). It provides interactive mode, colored output, and commands for streaming, watching,
+exporting, and inspecting devices -- all from the terminal. Built on the [Runtime](/platforms/runtime) package. Best
+for: quick data checks, device testing, and interactive exploration.
 
 ## Install
 
 ### npm
 
-Package on [npm](https://www.npmjs.com/package/@hangtime/grip-connect-cli).
+Package on [npm](https://www.npmjs.com/package/@hangtime/cli).
 
 ::: code-group
 
 ```sh [npx]
-npx @hangtime/grip-connect-cli
+npx @hangtime/cli
 ```
 
 ```sh [npm]
-npm install -g @hangtime/grip-connect-cli
+npm install -g @hangtime/cli
 ```
 
 :::
 
 ### JSR
 
-The package is also published on [JSR](https://jsr.io/@hangtime/grip-connect-cli). Install from JSR with:
+The package is also published on [JSR](https://jsr.io/@hangtime/cli). Install from JSR with:
 
 ::: code-group
 
 ```sh [Deno]
-deno add jsr:@hangtime/grip-connect-cli
+deno add jsr:@hangtime/cli
 ```
 
 ```sh [pnpm]
-pnpm i jsr:@hangtime/grip-connect-cli
+pnpm i jsr:@hangtime/cli
 ```
 
 ```sh [Yarn]
-yarn add jsr:@hangtime/grip-connect-cli
+yarn add jsr:@hangtime/cli
 ```
 
 ```sh [vlt]
-vlt install jsr:@hangtime/grip-connect-cli
+vlt install jsr:@hangtime/cli
 ```
 
 ```sh [npm]
-npx jsr add @hangtime/grip-connect-cli
+npx jsr add @hangtime/cli
 ```
 
 ```sh [Bun]
-bunx jsr add @hangtime/grip-connect-cli
+bunx jsr add @hangtime/cli
 ```
 
 :::
 
 ## Commands
 
-After installing globally (`npm i -g @hangtime/grip-connect-cli`), the `grip-connect` binary is available. Running it
-without a subcommand starts **interactive mode**.
+After installing globally (`npm i -g @hangtime/cli`), the `grip-connect` binary is available. Running it without a
+subcommand starts **interactive mode**.
 
 ### Interactive mode
 

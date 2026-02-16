@@ -14,6 +14,6 @@ CLI). The same [device interface](/api/device-interface) applies; each platform 
 | [Capacitor](/platforms/capacitor)       | `@hangtime/grip-connect-capacitor`    | iOS and Android hybrid apps                                                                            |
 | [React Native](/platforms/react-native) | `@hangtime/grip-connect-react-native` | iOS and Android native apps                                                                            |
 | [Runtime](/platforms/runtime)           | `@hangtime/grip-connect-runtime`      | [Node.js](https://nodejs.org/), [Deno](https://deno.com/), [Bun](https://bun.sh/) programmatic adapter |
-| [CLI](/platforms/cli)                   | `@hangtime/grip-connect-cli`          | Ready-made command-line tool: interactive mode, stream, watch, info, tare, download                    |
+| [CLI](/platforms/cli)                   | `@hangtime/cli`                       | Ready-made command-line tool: interactive mode, stream, watch, info, tare, download                    |
 
 Pick a platform below for install, config, and code samples.

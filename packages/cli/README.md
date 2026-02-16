@@ -6,54 +6,54 @@ A Command Line Interface for connecting to grip strength training devices via Bl
 ## Quick Start
 
 ```sh
-npx @hangtime/grip-connect-cli
+npx @hangtime/cli
 ```
 
 This launches interactive mode: pick a device, connect, choose actions, then disconnect to return to the device picker
 (or run another action).
 
 If you see “could not determine executable to run”, your environment may be using an older cached or local version—try
-`npx @hangtime/grip-connect-cli@latest` or pin a specific version.
+`npx @hangtime/cli@latest` or pin a specific version.
 
 ### Commands (with npx)
 
 ```sh
 # Interactive mode (pick device and actions)
-npx @hangtime/grip-connect-cli
+npx @hangtime/cli
 
 # List all supported devices
-npx @hangtime/grip-connect-cli list
+npx @hangtime/cli list
 
 # Live Data: raw force visualised in real-time with chart (Esc to stop; use `tare` before live to zero)
-npx @hangtime/grip-connect-cli live progressor  # or: stream progressor
+npx @hangtime/cli live progressor  # or: stream progressor
 
 # Live Data for a fixed duration (e.g. 10 seconds)
-npx @hangtime/grip-connect-cli live progressor --duration 10
+npx @hangtime/cli live progressor --duration 10
 
 # Watch mode: indefinite stream + session summary (Esc to stop)
-npx @hangtime/grip-connect-cli watch progressor
+npx @hangtime/cli watch progressor
 
 # Use lbs for live/watch output (default is kg)
-npx @hangtime/grip-connect-cli live forceboard --unit lbs
+npx @hangtime/cli live forceboard --unit lbs
 
 # Show device info (battery, firmware, device ID, calibration, etc.)
-npx @hangtime/grip-connect-cli info entralpi
+npx @hangtime/cli info entralpi
 
 # Export session data
-npx @hangtime/grip-connect-cli download forceboard --format csv
+npx @hangtime/cli download forceboard --format csv
 
 # Run tare (zero) calibration. For stream devices (Progressor, ForceBoard, Motherboard),
 # tare automatically starts a stream first since tare requires live data.
-npx @hangtime/grip-connect-cli tare motherboard --duration 5000
+npx @hangtime/cli tare motherboard --duration 5000
 
 # Monitor activity status
-npx @hangtime/grip-connect-cli active progressor --threshold 2.5
+npx @hangtime/cli active progressor --threshold 2.5
 ```
 
 ## Optional: Global install
 
 ```sh
-npm install -g @hangtime/grip-connect-cli
+npm install -g @hangtime/cli
 ```
 
 Then use the `grip-connect` command anywhere:
@@ -114,11 +114,11 @@ The CLI uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node.j
 ## Options
 
 ```sh
-npx @hangtime/grip-connect-cli --json          # Output newline-delimited JSON
-npx @hangtime/grip-connect-cli --no-color      # Disable colored output
-npx @hangtime/grip-connect-cli --unit lbs      # Force unit for stream/watch (default: kg; -u shorthand)
-npx @hangtime/grip-connect-cli --version       # Show version
-npx @hangtime/grip-connect-cli --help          # Show help
+npx @hangtime/cli --json          # Output newline-delimited JSON
+npx @hangtime/cli --no-color      # Disable colored output
+npx @hangtime/cli --unit lbs      # Force unit for stream/watch (default: kg; -u shorthand)
+npx @hangtime/cli --version       # Show version
+npx @hangtime/cli --help          # Show help
 ```
 
 ## JSON Mode
@@ -126,9 +126,9 @@ npx @hangtime/grip-connect-cli --help          # Show help
 Use `--json` for machine-readable output, useful for piping into other tools:
 
 ```sh
-npx @hangtime/grip-connect-cli --json list
-npx @hangtime/grip-connect-cli --json live progressor
-npx @hangtime/grip-connect-cli --json watch forceboard | jq '.current'
+npx @hangtime/cli --json list
+npx @hangtime/cli --json live progressor
+npx @hangtime/cli --json watch forceboard | jq '.current'
 ```
 
 ## Requirements
