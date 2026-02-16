@@ -353,7 +353,7 @@ export class Progressor extends Device implements IProgressor {
     else if (kind === ProgressorResponses.RESPONSE_COMMAND) {
       if (!this.writeLast) return
 
-      let output = ""
+      let output: string
       if (this.writeLast === this.commands.GET_BATTERY_VOLTAGE) {
         output = new DataView(payload.buffer, payload.byteOffset, payload.byteLength).getUint32(0, true).toString()
       } else if (this.writeLast === this.commands.GET_FIRMWARE_VERSION) {

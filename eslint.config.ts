@@ -9,6 +9,12 @@ export default tseslint.config(
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   {
-    ignores: ["**/dist", "**/cache", "**/android", "**/ios"],
+    ignores: [
+      "**/dist",
+      "**/cache",
+      "**/android",
+      "**/ios",
+      "examples/reactnative/**", // TODO: Enable when eslint-config-expo is updated to ESLint 10.0.0
+    ],
   },
 ) satisfies Config

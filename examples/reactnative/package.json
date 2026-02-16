@@ -2,6 +2,7 @@
   "name": "@grip-connect/reactnative",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "start": "expo start",
     "prebuild": "expo prebuild",
@@ -16,7 +17,7 @@
     "@hangtime/grip-connect-react-native": "^0.10.6",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-picker/picker": "2.11.1",
-    "@react-navigation/bottom-tabs": "^7.13.0",
+    "@react-navigation/bottom-tabs": "^7.14.0",
     "@react-navigation/elements": "^2.9.5",
     "@react-navigation/native": "^7.1.28",
     "expo": "~54.0.9",

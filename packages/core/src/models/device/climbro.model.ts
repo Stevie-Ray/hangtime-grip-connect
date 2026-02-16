@@ -92,7 +92,7 @@ export class Climbro extends Device implements IClimbro {
         let flagSynchro = this.flagSynchro
         let forceCount = 0
         for (let i = 0; i < byteCount; i++) {
-          let b = buffer[i]
+          const b = buffer[i]
           if (b === ClimbroResponses.BAT_DAT) {
             flagSynchro = ClimbroResponses.BAT_DAT
             continue
@@ -102,7 +102,7 @@ export class Climbro extends Device implements IClimbro {
             continue
           }
           if (b === ClimbroResponses.DAT_36KG) {
-            b = 36
+            // 36kg sentinel: fall through to sync/force handling
           }
           if (flagSynchro === ClimbroResponses.BAT_DAT) continue
           if (flagSynchro === ClimbroResponses.SENS_DAT) {
