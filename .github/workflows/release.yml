@@ -28,6 +28,9 @@ jobs:
           cache: npm
           registry-url: "https://registry.npmjs.org"
 
+      - name: Setup npm for Trusted Publishing
+        run: npm install --global npm@^11.5.1
+
       - name: Install dependencies
         run: npm ci
 
@@ -40,11 +43,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify npm auth
-        run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: Version or Publish (Changesets)
         id: changesets
         uses: changesets/action@v1
@@ -55,7 +53,6 @@ jobs:
           title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Core JSR package
         if: steps.changesets.outputs.published == 'true'
