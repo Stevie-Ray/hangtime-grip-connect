@@ -23,5 +23,9 @@ jobs:
       - name: Lint
         run: npm run lint:check
 
+      - name: Changeset status
+        if: ${{ !startsWith(github.head_ref, 'changeset-release/') }}
+        run: npx changeset status
+
       - name: Build
         run: npm run build

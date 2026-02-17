@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+set -e
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$branch" = "HEAD" ]; then
+  exit 0
+fi
+
+if printf "%s" "$branch" | grep -Eq "^changeset-release/"; then
+  echo "Skipping changeset check on release automation branch: $branch"
+  exit 0
+fi
+
+base_ref="origin/main"
+if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+  base_ref="main"
+fi
+
+changed_files="$(git diff --name-only "$base_ref"...HEAD || true)"
+if [ -z "$changed_files" ]; then
+  exit 0
+fi
+
+if ! printf "%s\n" "$changed_files" | grep -Eq "^(packages/(core|runtime|cli|capacitor|react-native)/|package.json|\\.changeset/)"; then
+  echo "No publishable package changes detected; skipping changeset check."
+  exit 0
+fi
+
+echo "Publishable package changes detected; validating changesets..."
+npx changeset status

@@ -1,18 +1,22 @@
-name: Publish Package to NPM and JSR
+name: Release
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
 
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -21,6 +25,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: npm
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
@@ -35,110 +40,29 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Prepare workspace
-        run: rsync -a --exclude=node_modules . release/
-
-      - name: Upload workspace
-        uses: actions/upload-artifact@v6
+      - name: Version or Publish (Changesets)
+        id: changesets
+        uses: changesets/action@v1
         with:
-          name: workspace
-          path: release
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Publish Core NPM package
-        working-directory: ./packages/core
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "Error: dist directory not found in packages/core"
-            exit 1
-          fi
-          npm publish --access public
+          version: npm run changeset:version
+          publish: npm run changeset:publish
+          commit: "chore: version packages"
+          title: "chore: version packages"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish Runtime NPM package
-        working-directory: ./packages/runtime
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "Error: dist directory not found in packages/runtime"
-            exit 1
-          fi
-          npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish CLI NPM package
-        working-directory: ./packages/cli
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "Error: dist directory not found in packages/cli"
-            exit 1
-          fi
-          npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish Capacitor NPM package
-        working-directory: ./packages/capacitor
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish React Native NPM package
-        working-directory: ./packages/react-native
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  publish-jsr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Download workspace
-        uses: actions/download-artifact@v7
-        with:
-          name: workspace
-          path: .
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm ci
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Core JSR package
+        if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/core
         run: npx jsr publish
 
       - name: Publish Runtime JSR package
+        if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/runtime
         run: npx jsr publish
 
       - name: Publish CLI JSR package
+        if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/cli
         run: npx jsr publish

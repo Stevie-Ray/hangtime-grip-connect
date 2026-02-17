@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-react-native",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "description": "React Native module for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
@@ -19,7 +19,7 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.10.6",
+    "@hangtime/grip-connect": "^0.10.7",
     "react-native-ble-plx": "^3.5.0"
   },
   "devDependencies": {

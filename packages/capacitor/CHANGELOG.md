@@ -1,5 +1,17 @@
 # @hangtime/grip-connect-capacitor
 
+## 0.10.7
+
+### Patch Changes
+
+- Release 0.10.7
+  - Core: Add RFD interface (`RfdMode`, `RfdOptions`, `RFD_TIME_WINDOWS`)
+  - Core: RFD callback fields and device model updates
+  - CLI: RFD and stream/live refinements
+
+- Updated dependencies
+  - @hangtime/grip-connect@0.10.7
+
 ## 0.10.5
 
 ### Patch Changes
