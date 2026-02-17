@@ -1,18 +1,8 @@
 import type { Command } from "commander"
 import pc from "picocolors"
-import {
-  resolveDeviceKey,
-  createDevice,
-  connectAndRun,
-  resolveContext,
-  printHeader,
-  waitForKeyToStop,
-  muteNotify,
-  outputJson,
-  formatMeasurement,
-} from "../utils.js"
-import { createChartRenderer } from "../chart.js"
-import type { ForceMeasurement } from "../types.js"
+import { resolveDeviceKey, createDevice, connectAndRun, resolveContext, printHeader } from "../utils.js"
+import { parseDurationSeconds } from "../parsers.js"
+import { runLiveDataSession } from "../services/session.js"
 
 /**
  * Registers the `live` command (alias: `stream`) on the Commander program.
@@ -29,11 +19,8 @@ export function registerStream(program: Command): void {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
-      const durationSec = options.duration != null ? parseFloat(options.duration) : undefined
-      const durationMs = durationSec != null && !Number.isNaN(durationSec) ? Math.round(durationSec * 1000) : undefined
+      const durationMs = parseDurationSeconds(options.duration)
       const indefinite = durationMs == null || durationMs === 0
-      const chartEnabled = !ctx.json && process.stdout.isTTY
-      const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit })
 
       if (!ctx.json) {
         if (indefinite) {
@@ -44,40 +31,12 @@ export function registerStream(program: Command): void {
         }
       }
 
-      await connectAndRun(
-        device,
-        name,
-        async (d) => {
-          if (typeof d.stream !== "function") {
-            throw new Error("Live Data not supported on this device.")
-          }
-          d.notify((data: ForceMeasurement) => {
-            if (ctx.json) {
-              outputJson(data)
-            } else if (chartEnabled) {
-              chart.push({ current: data.current, mean: data.mean, peak: data.peak })
-            } else {
-              console.log(formatMeasurement(data))
-            }
-          }, ctx.unit)
-          if (chartEnabled) chart.start()
-          if (indefinite) {
-            await d.stream()
-            await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop")
-            const stopFn = d.stop
-            if (typeof stopFn === "function") await stopFn()
-          } else {
-            await d.stream(durationMs)
-            await d.stop?.()
-          }
-          if (chartEnabled) chart.stop()
-          muteNotify(d)
+      await connectAndRun(device, name, async (d) => runLiveDataSession(d, ctx, { durationMs }), ctx, {
+        setupDefaultNotify: false,
+      })
 
-          if (!ctx.json && !indefinite) {
-            console.log(pc.dim("\nLive Data complete."))
-          }
-        },
-        ctx,
-      )
+      if (!ctx.json && !indefinite) {
+        console.log(pc.dim("\nLive Data complete."))
+      }
     })
 }

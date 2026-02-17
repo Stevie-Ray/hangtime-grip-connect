@@ -1,7 +1,8 @@
 import type { Command } from "commander"
 import input from "@inquirer/input"
 import type { CliDevice, OutputContext, RunOptions } from "../types.js"
-import { pickDevice, pickAction, createDevice, connectAndRun, buildActions, resolveContext } from "../utils.js"
+import { buildActions } from "../actions.js"
+import { pickDevice, pickAction, createDevice, connectAndRun, resolveContext } from "../utils.js"
 
 /**
  * Pick action -> run -> repeat until Disconnect or Sleep.

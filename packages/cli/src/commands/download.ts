@@ -3,7 +3,9 @@
  */
 
 import type { Command } from "commander"
-import { resolveDeviceKey, createDevice, connectAndRun, resolveContext, printSuccess, fail } from "../utils.js"
+import { parseExportFormat } from "../parsers.js"
+import { runDownloadSession } from "../services/session.js"
+import { resolveDeviceKey, createDevice, connectAndRun, resolveContext } from "../utils.js"
 
 /**
  * Registers the `download` command on the Commander program.
@@ -18,31 +20,13 @@ export function registerDownload(program: Command): void {
     .option("-o, --output <dir>", "Output directory for the exported file")
     .action(async (deviceKey: string | undefined, options: { format: string; output?: string }) => {
       const ctx = resolveContext(program)
-      const format = options.format.toLowerCase() as "csv" | "json" | "xml"
-      if (!["csv", "json", "xml"].includes(format)) {
-        fail("Format must be csv, json, or xml.")
-      }
+      const format = parseExportFormat(options.format)
 
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
 
-      await connectAndRun(
-        device,
-        name,
-        async (d) => {
-          if (typeof d.download !== "function") {
-            fail("Download not supported on this device.")
-          }
-          const filePath = await d.download(format)
-          if (!ctx.json) {
-            printSuccess(
-              typeof filePath === "string"
-                ? `Session data exported to ${filePath}`
-                : `Session data exported as ${format.toUpperCase()}.`,
-            )
-          }
-        },
-        ctx,
-      )
+      await connectAndRun(device, name, async (d) => runDownloadSession(d, format, ctx), ctx, {
+        setupDefaultNotify: false,
+      })
     })
 }

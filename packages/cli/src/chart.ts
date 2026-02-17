@@ -1,5 +1,6 @@
 import process from "node:process"
 import { plot, blue, red, yellow, reset } from "asciichart"
+import pc from "picocolors"
 
 /** Number of samples to keep in the rolling buffer. */
 const DEFAULT_BUFFER_SIZE = 80
@@ -23,6 +24,102 @@ export interface ChartDataPoint {
   current: number
   mean: number
   peak: number
+}
+
+/** A force sample used to render post-run RFD analysis charts. */
+export interface RfdChartPoint {
+  /** Milliseconds elapsed since the start of the capture window. */
+  timeMs: number
+  /** Force value in stream unit. */
+  force: number
+}
+
+/** Options for rendering a static post-run RFD chart. */
+export interface RfdAnalyzeChartOptions {
+  /** Captured force samples over the analysis window. */
+  points: RfdChartPoint[]
+  /** Maximum force in the window. */
+  maxForce: number
+  /** 20% line value; ignored when show2080=false. */
+  line20?: number
+  /** 80% line value; ignored when show2080=false. */
+  line80?: number
+  /** Render 20/80 overlays when true. */
+  show2080?: boolean
+  /** Chart height in rows. */
+  height?: number
+  /** Max horizontal points shown in terminal. */
+  width?: number
+}
+
+function interpolateForce(points: RfdChartPoint[], targetTimeMs: number): number {
+  const first = points[0]
+  if (!first) return 0
+  if (targetTimeMs <= first.timeMs) return first.force
+  const last = points[points.length - 1]
+  if (!last) return 0
+  if (targetTimeMs >= last.timeMs) return last.force
+
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1]
+    const next = points[i]
+    if (!prev || !next) continue
+    if (next.timeMs < targetTimeMs) continue
+    const span = next.timeMs - prev.timeMs
+    if (span <= 0) return next.force
+    const ratio = (targetTimeMs - prev.timeMs) / span
+    return prev.force + (next.force - prev.force) * ratio
+  }
+
+  return last.force
+}
+
+function resamplePoints(points: RfdChartPoint[], width: number): number[] {
+  if (points.length === 0 || width <= 0) return []
+  if (points.length <= width) return points.map((p) => p.force)
+
+  const first = points[0]
+  const last = points[points.length - 1]
+  if (!first || !last) return []
+  const start = first.timeMs
+  const end = last.timeMs
+  const span = Math.max(1, end - start)
+  const out: number[] = new Array(width)
+  for (let i = 0; i < width; i++) {
+    const t = start + (span * i) / Math.max(1, width - 1)
+    out[i] = interpolateForce(points, t)
+  }
+  return out
+}
+
+/**
+ * Renders a static ASCII chart for post-run RFD analysis.
+ * Includes the force curve and optional 20/80 overlays.
+ */
+export function renderRfdAnalyzeChart(options: RfdAnalyzeChartOptions): string {
+  const { points, maxForce, line20, line80, show2080 = true, height = 14, width = 90 } = options
+  const forceSeries = resamplePoints(points, width)
+  if (forceSeries.length === 0) return ""
+
+  const safeMax = Math.max(1, maxForce)
+  const series: number[][] = []
+  const colors: string[] = []
+
+  if (show2080) {
+    series.push(new Array(forceSeries.length).fill(Math.max(0, line20 ?? 0)))
+    series.push(new Array(forceSeries.length).fill(Math.max(0, line80 ?? 0)))
+    colors.push(blue, red)
+  }
+  // Render force last so reference overlays don't hide the curve.
+  series.push(forceSeries)
+  colors.push(yellow)
+
+  return plot(series, {
+    height,
+    min: 0,
+    max: safeMax,
+    colors,
+  })
 }
 
 /**
@@ -56,6 +153,7 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
   let lastCurrent = 0
   let lastMean = 0
   let lastPeak = 0
+  let statusLine = ""
 
   const clamp0 = (v: number) => (v > 0 ? v : 0)
 
@@ -154,7 +252,7 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
     // Track line count so we can overwrite the previous frame cleanly
     const nl = countNewlines(chartStr)
     const chartLineCount = nl + (chartStr.endsWith("\n") ? 0 : 1)
-    const totalLines = chartLineCount + 1 // + stats line
+    const totalLines = chartLineCount + 1 + (statusLine ? 1 : 0) // + stats line (+ optional status)
 
     if (lastLines > 0) clearPrevious(lastLines)
     lastLines = totalLines
@@ -162,6 +260,7 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
     process.stdout.write(chartStr)
     if (!chartStr.endsWith("\n")) process.stdout.write("\n")
     process.stdout.write(statsLine + "\n")
+    if (statusLine) process.stdout.write(pc.dim(statusLine) + "\n")
   }
 
   function start(): void {
@@ -181,5 +280,11 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
     lastLines = 0
   }
 
-  return { push, start, stop }
+  function setStatus(status: string): void {
+    if (disabled || !started || !isTTY) return
+    statusLine = status
+    scheduleRender()
+  }
+
+  return { push, start, stop, setStatus }
 }

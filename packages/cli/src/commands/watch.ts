@@ -11,15 +11,14 @@ import type { ForceMeasurement, ForceUnit } from "../types.js"
 import {
   resolveDeviceKey,
   createDevice,
+  connectAndRun,
   resolveContext,
   outputJson,
   formatMeasurement,
   printHeader,
-  setupSignalHandlers,
   waitForKeyToStop,
   fail,
 } from "../utils.js"
-import ora from "ora"
 
 /**
  * Registers the `watch` command on the Commander program.
@@ -78,17 +77,12 @@ export function registerWatch(program: Command): void {
         }
       }, ctx.unit)
 
-      const spinner = ctx.json ? null : ora(`Connecting to ${pc.bold(name)}...`).start()
-
-      try {
-        await device.connect(async () => {
-          spinner?.succeed(`Connected to ${pc.bold(name)}`)
-
-          setupSignalHandlers(device, printSummary)
-
-          const streamFn = device.stream
+      await connectAndRun(
+        device,
+        name,
+        async (d) => {
+          const streamFn = d.stream
           if (typeof streamFn !== "function") {
-            device.disconnect()
             fail("Stream not supported on this device.")
           }
 
@@ -98,13 +92,14 @@ export function registerWatch(program: Command): void {
 
           await streamFn(0)
           await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop and see summary")
-          await device.stop?.()
+          await d.stop?.()
           printSummary()
-        })
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error)
-        spinner?.fail(`Connection failed: ${message}`)
-        fail(`Connection to ${name} failed: ${message}`)
-      }
+        },
+        ctx,
+        {
+          onSignal: printSummary,
+          setupDefaultNotify: false,
+        },
+      )
     })
 }

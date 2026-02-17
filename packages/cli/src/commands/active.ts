@@ -7,17 +7,17 @@
 
 import type { Command } from "commander"
 import pc from "picocolors"
+import { parseDurationMilliseconds, parseThreshold } from "../parsers.js"
 import {
   resolveDeviceKey,
   createDevice,
+  connectAndRun,
   resolveContext,
   outputJson,
   printHeader,
-  setupSignalHandlers,
   waitForKeyToStop,
   fail,
 } from "../utils.js"
-import ora from "ora"
 
 /**
  * Registers the `active` command on the Commander program.
@@ -34,23 +34,17 @@ export function registerActive(program: Command): void {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
-      const threshold = parseFloat(options.threshold)
-      const duration = parseInt(options.duration, 10)
+      const threshold = parseThreshold(options.threshold)
+      const duration = parseDurationMilliseconds(options.duration)
 
-      const spinner = ctx.json ? null : ora(`Connecting to ${pc.bold(name)}...`).start()
-
-      try {
-        await device.connect(async () => {
-          spinner?.succeed(`Connected to ${pc.bold(name)}`)
-
-          if (typeof device.active !== "function") {
-            device.disconnect()
+      await connectAndRun(
+        device,
+        name,
+        async (d) => {
+          if (typeof d.active !== "function") {
             fail("Activity monitoring not supported on this device.")
           }
-
-          setupSignalHandlers(device)
-
-          device.active(
+          d.active(
             (isActive: boolean) => {
               const ts = new Date().toISOString()
               if (ctx.json) {
@@ -69,12 +63,9 @@ export function registerActive(program: Command): void {
           }
 
           await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop")
-          device.disconnect()
-        })
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error)
-        spinner?.fail(`Connection failed: ${message}`)
-        fail(`Connection to ${name} failed: ${message}`)
-      }
+        },
+        ctx,
+        { setupDefaultNotify: false },
+      )
     })
 }

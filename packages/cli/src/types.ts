@@ -11,6 +11,8 @@ export type { ForceMeasurement }
 
 /** Force unit for display (kg, lbs, or N). */
 export type ForceUnit = "kg" | "lbs" | "n"
+/** Supported session export formats. */
+export type ExportFormat = "csv" | "json" | "xml"
 
 /**
  * Global output context derived from top-level CLI flags.
@@ -36,13 +38,17 @@ export interface RunOptions {
   /** Stream / tare duration in milliseconds. */
   duration?: number
   /** Export format for download. */
-  format?: "csv" | "json" | "xml"
+  format?: ExportFormat
   /** Output directory for downloaded files. */
   output?: string
   /** When `true`, stream indefinitely until interrupted. */
   watch?: boolean
   /** Calibration reference weight in kg (legacy). */
   refWeightKg?: number
+  /** RFD analysis mode: "20-80" (default) or time window ms (100, 150, 200, 250, 300, 1000). */
+  rfdMode?: "20-80" | 100 | 150 | 200 | 250 | 300 | 1000
+  /** RFD onset threshold in stream unit (default 0.5). */
+  rfdThreshold?: number
   /** Calibration curve for Progressor setCalibration (opcode 0x71). 12-byte hex string. */
   setCalibrationCurve?: string
   /** When true, run saveCalibration after Add Calibration point (Progressor). */
@@ -76,9 +82,14 @@ export interface CliDevice {
   /** Stop an active stream. */
   stop?(): Promise<void>
   /** Export collected data in the given format. */
-  download?(format?: "csv" | "json" | "xml"): Promise<void>
+  download?(format?: ExportFormat): Promise<void>
   /** Run tare (zero) calibration for the given duration. */
   tare?(duration?: number): boolean
+  /** Run an RFD (Rate of Force Development) capture session. */
+  rfd?(
+    duration?: number,
+    options?: { mode?: "20-80" | 100 | 150 | 200 | 250 | 300 | 1000; threshold?: number },
+  ): Promise<void>
   /** Check whether the device is currently connected. */
   isConnected?(): boolean
 }
@@ -96,6 +107,8 @@ export interface Action {
   description: string
   /** Optional color for the action name in the picker (e.g. "yellow" for orange). */
   nameColor?: "yellow" | "green" | "cyan" | "magenta"
+  /** When true, shown in picker but not selectable (placeholder for future features). */
+  disabled?: boolean
   /** Execute the action on a connected device. */
   run(device: CliDevice, options: RunOptions): Promise<void>
   /** Optional sub-actions: when present, run() shows a nested picker before delegating. */

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Entry point for the Grip Connect CLI.
+ * Entry point for the @hangtime/grip-connect CLI.
  *
  * Sets up the Commander program with global options, registers all
  * commands, and handles top-level errors so individual commands never
@@ -11,7 +11,6 @@
 import { createRequire } from "node:module"
 import process from "node:process"
 import { Command } from "commander"
-import { registerCommands } from "./commands/index.js"
 
 const require = createRequire(import.meta.url)
 const { version } = require("../package.json") as { version: string }
@@ -27,19 +26,27 @@ process.on("unhandledRejection", (reason: unknown) => {
   }
 })
 
-const program = new Command()
+async function main(): Promise<void> {
+  if (process.argv.includes("--no-color")) {
+    process.env["NO_COLOR"] = "1"
+  }
 
-program
-  .name("grip-connect")
-  .description("CLI tool for connecting to grip strength training devices")
-  .version(version)
-  .option("--json", "Output machine-readable newline-delimited JSON")
-  .option("--no-color", "Disable colored output")
-  .option("-u, --unit <kg|lbs|n>", "Force unit for stream/watch output", "kg")
+  const { registerCommands } = await import("./commands/index.js")
 
-registerCommands(program)
+  const program = new Command()
+  program
+    .name("@hangtime/cli")
+    .description("CLI tool for connecting to grip strength training devices")
+    .version(version)
+    .option("--json", "Output machine-readable newline-delimited JSON")
+    .option("--no-color", "Disable colored output")
+    .option("-u, --unit <kg|lbs|n>", "Force unit for stream/watch output", "kg")
 
-program.parseAsync().catch((error: unknown) => {
+  registerCommands(program)
+  await program.parseAsync()
+}
+
+main().catch((error: unknown) => {
   if (isPromptExitError(error)) process.exit(0)
   const message = error instanceof Error ? error.message : String(error)
   console.error(`\n${message}`)
