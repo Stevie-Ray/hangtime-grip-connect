@@ -1,5 +1,12 @@
 # @hangtime/grip-connect
 
+## 0.10.9
+
+### Patch Changes
+
+- 9bb474b: Improve package publishing reliability by setting scoped packages to publish as public, normalizing the CLI
+  bin path, and adding an npm auth preflight check in the release workflow.
+
 ## 0.10.8
 
 ### Patch Changes
