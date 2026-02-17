@@ -5,8 +5,11 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
-    "grip-connect": "./dist/index.js"
+    "grip-connect": "dist/index.js"
   },
   "files": [
     "dist",
