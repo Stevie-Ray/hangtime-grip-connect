@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@hangtime/grip-connect": "^0.10.9",
-    "react-native-ble-plx": "^3.5.0"
+    "react-native-ble-plx": "^3.5.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
