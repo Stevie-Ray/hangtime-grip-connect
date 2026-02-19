@@ -47,6 +47,8 @@
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish",
+    "sync:deno-versions": "node scripts/sync-deno-versions.mjs",
+    "check:deno-versions": "node scripts/check-deno-versions.mjs",
     "prepare": "husky"
   },
   "workspaces": [

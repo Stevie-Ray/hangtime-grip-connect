@@ -113,10 +113,14 @@ examples/                      # Sample applications and demos
 
 - Versioning and changelogs are managed with [Changesets](https://github.com/changesets/changesets).
 - Add a changeset for user-facing changes: `npm run changeset` (creates a file in `.changeset/`).
-- To apply version bumps and update changelogs: `npm run changeset:version`.
-- To publish packages to npm: `npm run changeset:publish`.
-- **Manually update after `changeset:version`**: expo, `examples/reactnative/app.json`,
-  `examples/reactnative/android/build.gradle`, deno.json(s).
+- On push/PR with publishable package changes, Husky/CI validate changesets (`npx changeset status`).
+- Release flow is CI-driven via `.github/workflows/release.yml` and `changesets/action`:
+  - It runs format/lint/build on `main`.
+  - It creates/updates a `changeset-release/*` PR with version/changelog changes when needed.
+  - After that release PR is merged, CI publishes with `npm run changeset:publish`.
+- Do NOT run local `npm run changeset:version`.
+- Do NOT run local `npm run changeset:publish`.
+- Versioning and publishing must happen only through CI/CD release workflow.
 
 ### Multi-Platform Considerations
 

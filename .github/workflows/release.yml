@@ -47,7 +47,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          version: npm run changeset:version
+          version: npm run changeset:version && npm run sync:deno-versions
           publish: npm run changeset:publish
           commit: "chore: version packages"
           title: "chore: version packages"

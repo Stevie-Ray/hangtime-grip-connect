@@ -27,5 +27,8 @@ jobs:
         if: ${{ !startsWith(github.head_ref, 'changeset-release/') }}
         run: npx changeset status
 
+      - name: Check Deno version sync
+        run: npm run check:deno-versions
+
       - name: Build
         run: npm run build
