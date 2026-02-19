@@ -27,6 +27,12 @@ export interface OutputContext {
   unit: ForceUnit
 }
 
+/** Per-connection interactive session state. */
+export interface InteractiveSessionState {
+  /** True after tare has been completed at least once for this connection. */
+  isTared: boolean
+}
+
 /**
  * Options that can be forwarded to action handlers.
  *
@@ -55,6 +61,8 @@ export interface RunOptions {
   saveCalibration?: boolean
   /** Global output context for JSON mode. */
   ctx?: OutputContext
+  /** Interactive connection-scoped state (used by stream actions/settings). */
+  sessionState?: InteractiveSessionState
 }
 
 /**

@@ -1,15 +1,14 @@
-import { buildSettingsAction } from "./action-builders/settings-action.js"
-import { buildStreamActions } from "./action-builders/stream-actions.js"
-import { buildTareAction } from "./action-builders/tare-action.js"
-import { devices } from "./devices/index.js"
-import type { Action, CliDevice, OutputContext, RunOptions } from "./types.js"
-import { printSuccess } from "./utils.js"
+import { devices } from "../../devices/index.js"
+import { buildSettingsAction } from "../settings/index.js"
+import { buildStreamActionsList } from "../stream-actions/index.js"
+import type { Action, CliDevice, OutputContext, RunOptions } from "../../types.js"
+import { printSuccess } from "../../utils.js"
 
 /**
  * Build interactive actions for a selected device.
  * Shared actions come first, then device-specific actions, then Disconnect.
  */
-export function buildActions(deviceKey: string, ctx?: OutputContext): Action[] {
+export function buildInteractiveActions(deviceKey: string, ctx?: OutputContext): Action[] {
   const key = deviceKey.toLowerCase()
   const definition = devices[key]
   if (!definition) return []
@@ -18,7 +17,7 @@ export function buildActions(deviceKey: string, ctx?: OutputContext): Action[] {
   const sharedActions: Action[] = []
 
   if (typeof device.stream === "function") {
-    sharedActions.push(...buildStreamActions())
+    sharedActions.push(...buildStreamActionsList())
   }
 
   const settingsAction = buildSettingsAction(device, definition, ctx)
@@ -26,15 +25,16 @@ export function buildActions(deviceKey: string, ctx?: OutputContext): Action[] {
     sharedActions.push(settingsAction)
   }
 
-  const tareAction = buildTareAction(device)
-  if (tareAction) {
-    sharedActions.push(tareAction)
-  }
-
   const disconnectAction: Action = {
     name: "Disconnect",
     description: "Disconnect from current device and pick another",
-    run: async (_device: CliDevice, options: RunOptions) => {
+    run: async (currentDevice: CliDevice, options: RunOptions) => {
+      if (key === "progressor") {
+        const sleepFn = (currentDevice as { sleep?: () => Promise<void> }).sleep
+        if (typeof sleepFn === "function") {
+          await sleepFn()
+        }
+      }
       if (!options.ctx?.json) {
         printSuccess("Disconnected. You can pick another device.")
       }

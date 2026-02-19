@@ -245,8 +245,7 @@ export async function connectAndRun(
           await callback(device)
           resolve()
         } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : String(error)
-          reject(new Error(message))
+          reject(error instanceof Error ? error : new Error(String(error)))
         } finally {
           cleanupSignalHandlers()
           device.disconnect()
@@ -258,6 +257,11 @@ export async function connectAndRun(
       .catch((error: unknown) => {
         const message = error instanceof Error ? error.message : String(error)
         spinner?.fail(`Connection failed: ${message}`)
+        if (error instanceof Error) {
+          error.message = pc.red(`Connection to ${name} failed: ${error.message}`)
+          reject(error)
+          return
+        }
         reject(new Error(pc.red(`Connection to ${name} failed: ${message}`)))
       })
   })

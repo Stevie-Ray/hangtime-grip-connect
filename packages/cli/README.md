@@ -33,6 +33,9 @@ npx @hangtime/cli live progressor --duration 10
 # Watch mode: indefinite stream + session summary (Esc to stop)
 npx @hangtime/cli watch progressor
 
+# Critical Force: 24 reps of 7s pull + 3s rest with live chart and CF/W' summary
+npx @hangtime/cli critical-force progressor
+
 # Use lbs for live/watch output (default is kg)
 npx @hangtime/cli live forceboard --unit lbs
 
@@ -73,6 +76,9 @@ grip-connect live progressor --duration 10
 
 # Watch mode: indefinite stream + session summary (Esc to stop)
 grip-connect watch progressor
+
+# Critical Force: 24 reps of 7s pull + 3s rest with live chart and CF/W' summary
+grip-connect critical-force progressor
 
 # Show device info (battery, firmware, device ID, calibration, etc.)
 grip-connect info entralpi

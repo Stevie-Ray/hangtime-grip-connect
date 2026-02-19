@@ -2,9 +2,10 @@ import input from "@inquirer/input"
 import process from "node:process"
 import select from "@inquirer/select"
 import pc from "picocolors"
-import { createChartRenderer, renderRfdAnalyzeChart, type RfdChartPoint } from "./chart.js"
-import type { CliDevice, ForceMeasurement, RunOptions } from "./types.js"
-import { muteNotify, outputJson, printSuccess } from "./utils.js"
+import { createChartRenderer, renderRfdAnalyzeChart, type RfdChartPoint } from "../../chart.js"
+import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
+import { muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../../utils.js"
+import { ensureTaredForStreamAction, promptStreamActionStart } from "./shared.js"
 
 const RFD_TIME_WINDOWS = [100, 150, 200, 250, 300, 1000] as const
 
@@ -138,7 +139,8 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
   const rawRfdSamples: CapturedRfdSample[] = []
   let captureStartMs = Date.now()
   const chartEnabled = !ctx.json && process.stdout.isTTY
-  const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit })
+  const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
+  let cancelled = false
   const countdown = async (prefix: string, seconds: number): Promise<void> => {
     for (let i = seconds; i >= 1; i--) {
       if (chartEnabled) {
@@ -160,19 +162,17 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         "Perform one explosive pull about half way into the cycle.\n\n" +
         pc.yellow("Please make sure that the device is tared before.\n"),
     )
-    const sessionAction = await select({
-      message: "Next:",
-      choices: [
-        { name: "Start", value: "start" as const },
-        { name: "Return", value: "return" as const },
-      ],
-    })
-    if (sessionAction === "return") return
+    const shouldStart = await promptStreamActionStart(ctx)
+    if (!shouldStart) return
+    await ensureTaredForStreamAction(device, opts)
+    console.log(pc.dim("\nPress Esc to stop"))
     if (chartEnabled) {
       chart.start()
       chart.push({ current: 0, mean: 0, peak: 0 })
     }
     await countdown("Session starts in:", 3)
+  } else {
+    await ensureTaredForStreamAction(device, opts)
   }
   device.notify((data: ForceMeasurement) => {
     if (ctx.json) {
@@ -199,14 +199,25 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       show("Pull in: 2")
       captureStartMs = Date.now()
       const streamPromise = device.stream(duration)
+      // Prevent late rejections from surfacing if user stops early.
+      void streamPromise.catch(() => undefined)
       await sleep(1000)
       show("Pull in: 1")
       await sleep(1000)
-      show("PULL!!!")
+      show("PULL")
       await sleep(700)
       if (chartEnabled) chart.setStatus("")
-      await streamPromise
-      await device.stop?.()
+      const stopPromise = process.stdin.isTTY ? waitForKeyToStop() : (Promise.race([]) as Promise<void>)
+      const state = await Promise.race([
+        streamPromise.then(() => "done" as const),
+        stopPromise.then(() => "stop" as const),
+      ])
+      if (state === "stop") {
+        cancelled = true
+        await device.stop?.()
+      } else {
+        await device.stop?.()
+      }
     } else {
       captureStartMs = Date.now()
       await device.stream(duration)
@@ -223,6 +234,10 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
     if (chartEnabled) chart.stop()
   }
   muteNotify(device)
+  if (!ctx.json && cancelled) {
+    console.log(pc.dim("\nRFD stopped."))
+    return
+  }
   if (!ctx.json && rfdSucceeded) {
     if (chartEnabled) {
       // Extra safety clear for terminals that occasionally leave chart ghost lines.
@@ -323,5 +338,13 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         typeof filePath === "string" ? `Data exported to ${filePath}` : `Data exported as ${format.toUpperCase()}.`,
       )
     }
+  }
+}
+
+export function buildRfdAction(): Action {
+  return {
+    name: "RFD",
+    description: "Record and calculate Rate of Force Development or explosive strength.",
+    run: async (device: CliDevice, options: RunOptions) => runRfdAction(device, options),
   }
 }

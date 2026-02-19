@@ -17,6 +17,8 @@ export interface ChartRendererOptions {
   disabled?: boolean
   /** Unit label for the force values (e.g. "kg", "lb"). */
   unit?: string
+  /** Dim status line output when true (default). */
+  dimStatus?: boolean
 }
 
 /** Data point pushed to the chart: current, mean, and peak force values. */
@@ -46,6 +48,20 @@ export interface RfdAnalyzeChartOptions {
   line80?: number
   /** Render 20/80 overlays when true. */
   show2080?: boolean
+  /** Chart height in rows. */
+  height?: number
+  /** Max horizontal points shown in terminal. */
+  width?: number
+}
+
+/** Options for rendering a static Critical Force session chart. */
+export interface CriticalForceChartOptions {
+  /** Full-session force samples. */
+  points: RfdChartPoint[]
+  /** Critical Force line value. */
+  criticalForce: number
+  /** Maximum force in the session. */
+  maxForce: number
   /** Chart height in rows. */
   height?: number
   /** Max horizontal points shown in terminal. */
@@ -123,6 +139,25 @@ export function renderRfdAnalyzeChart(options: RfdAnalyzeChartOptions): string {
 }
 
 /**
+ * Renders the full Critical Force session with a horizontal CF reference line.
+ */
+export function renderCriticalForceChart(options: CriticalForceChartOptions): string {
+  const { points, criticalForce, maxForce, height = 14, width = 90 } = options
+  const forceSeries = resamplePoints(points, width)
+  if (forceSeries.length === 0) return ""
+
+  const safeMax = Math.max(1, maxForce, criticalForce)
+  const cfLine = new Array(forceSeries.length).fill(Math.max(0, criticalForce))
+
+  return plot([forceSeries, cfLine], {
+    height,
+    min: 0,
+    max: safeMax,
+    colors: [yellow, red],
+  })
+}
+
+/**
  * Creates a live ASCII chart renderer for streaming force data.
  * Uses a ring buffer and renders to stdout when push() is called.
  * Call start() before pushing data and stop() when done to clear the chart.
@@ -131,7 +166,13 @@ export function renderRfdAnalyzeChart(options: RfdAnalyzeChartOptions): string {
  * @returns Object with push, start, and stop methods
  */
 export function createChartRenderer(options: ChartRendererOptions = {}) {
-  const { bufferSize = DEFAULT_BUFFER_SIZE, height = DEFAULT_HEIGHT, disabled = false, unit = "kg" } = options
+  const {
+    bufferSize = DEFAULT_BUFFER_SIZE,
+    height = DEFAULT_HEIGHT,
+    disabled = false,
+    unit = "kg",
+    dimStatus = true,
+  } = options
 
   // Ring buffers for current, mean, and peak (oldest at logical index 0)
   const currentBuf = new Array<number>(bufferSize).fill(0)
@@ -260,7 +301,7 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
     process.stdout.write(chartStr)
     if (!chartStr.endsWith("\n")) process.stdout.write("\n")
     process.stdout.write(statsLine + "\n")
-    if (statusLine) process.stdout.write(pc.dim(statusLine) + "\n")
+    if (statusLine) process.stdout.write((dimStatus ? pc.dim(statusLine) : statusLine) + "\n")
   }
 
   function start(): void {

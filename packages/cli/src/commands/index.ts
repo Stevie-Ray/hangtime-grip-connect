@@ -6,6 +6,7 @@
 
 import type { Command } from "commander"
 import { registerActive } from "./active.js"
+import { registerCriticalForce } from "./critical-force.js"
 import { registerDownload } from "./download.js"
 import { registerInfo } from "./info.js"
 import { registerInteractive } from "./interactive.js"
@@ -22,6 +23,7 @@ import { registerWatch } from "./watch.js"
 export function registerCommands(program: Command): void {
   registerList(program)
   registerStream(program)
+  registerCriticalForce(program)
   registerWatch(program)
   registerInfo(program)
   registerDownload(program)

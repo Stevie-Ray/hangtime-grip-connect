@@ -16,8 +16,14 @@ const require = createRequire(import.meta.url)
 const { version } = require("../package.json") as { version: string }
 
 function isPromptExitError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false
-  return error.name === "ExitPromptError" || error.name === "CancelPromptError"
+  if (!(error instanceof Error)) {
+    return typeof error === "string" && error.includes("User force closed the prompt with SIGINT")
+  }
+  return (
+    error.name === "ExitPromptError" ||
+    error.name === "CancelPromptError" ||
+    error.message.includes("User force closed the prompt with SIGINT")
+  )
 }
 
 process.on("unhandledRejection", (reason: unknown) => {

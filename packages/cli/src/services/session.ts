@@ -1,6 +1,7 @@
 import input from "@inquirer/input"
 import select from "@inquirer/select"
 import process from "node:process"
+import readline from "node:readline"
 import ora from "ora"
 import pc from "picocolors"
 import { createChartRenderer } from "../chart.js"
@@ -136,6 +137,98 @@ export async function runTareCalibration(device: CliDevice, duration: number, ct
   const spinner = ctx.json ? null : ora(`Tare calibration (${duration / 1000}s). Keep device still...`).start()
   await new Promise((resolve) => setTimeout(resolve, duration))
   spinner?.succeed("Tare calibration complete.")
+}
+
+function waitForEnterKey(): Promise<void> {
+  if (!process.stdin.isTTY) return Promise.resolve()
+
+  return new Promise((resolve) => {
+    let done = false
+    const cleanup = () => {
+      if (done) return
+      done = true
+      process.stdin.removeListener("keypress", onKeypress)
+      process.stdin.setRawMode?.(false)
+      process.stdin.pause()
+      resolve()
+    }
+    const onKeypress = (_str: string, key: readline.Key) => {
+      if (key.name === "return" || key.name === "enter") cleanup()
+    }
+
+    readline.emitKeypressEvents(process.stdin)
+    process.stdin.setRawMode?.(true)
+    process.stdin.resume()
+    process.stdin.on("keypress", onKeypress)
+  })
+}
+
+function toDisplayUnit(unit: OutputContext["unit"]): string {
+  if (unit === "lbs") return "LBS"
+  if (unit === "n") return "N"
+  return "KG"
+}
+
+/**
+ * Guided tare flow: show live current and perform tare when Enter is pressed.
+ * Falls back to default tare flow in non-interactive contexts.
+ */
+export async function runGuidedTareCalibration(device: CliDevice, duration: number, ctx: OutputContext): Promise<void> {
+  if (ctx.json || !process.stdout.isTTY || !process.stdin.isTTY) {
+    await runTareCalibration(device, duration, ctx)
+    return
+  }
+
+  if (!isStreamDeviceForTare(device)) {
+    await runTareCalibration(device, duration, ctx)
+    return
+  }
+
+  let current = 0
+  const unitLabel = toDisplayUnit(ctx.unit)
+  let rendered = false
+
+  const renderPrompt = () => {
+    if (rendered) process.stdout.write("\x1b[3A\x1b[J")
+    process.stdout.write("We're now ready, please tare your device before use.\n")
+    process.stdout.write(`${current.toFixed(1)}${unitLabel}\n`)
+    process.stdout.write("Press Enter to confirm.\n")
+    rendered = true
+  }
+
+  device.notify((data: ForceMeasurement) => {
+    current = Number.isFinite(data.current) ? data.current : 0
+  }, ctx.unit)
+
+  const streamFn = device.stream
+  if (typeof streamFn !== "function") {
+    await runTareCalibration(device, duration, ctx)
+    return
+  }
+
+  await streamFn(0)
+  renderPrompt()
+  const renderInterval = setInterval(renderPrompt, 100)
+
+  try {
+    await waitForEnterKey()
+  } finally {
+    clearInterval(renderInterval)
+  }
+
+  const started = device.tare?.(duration)
+  if (!started) {
+    await device.stop?.()
+    fail("Tare could not be started (already active?).")
+  }
+
+  if (!usesHardwareTare(device)) {
+    await new Promise((resolve) => setTimeout(resolve, duration))
+  }
+
+  await device.stop?.()
+  muteNotify(device)
+  printSuccess("Tare calibration complete.")
 }
 
 export async function runDownloadSession(device: CliDevice, format: ExportFormat, ctx: OutputContext): Promise<void> {

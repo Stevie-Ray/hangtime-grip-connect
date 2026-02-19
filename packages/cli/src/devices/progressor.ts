@@ -124,17 +124,7 @@ const errorSubactions: Action[] = [
 const progressor: DeviceDefinition = {
   name: "Progressor",
   class: Progressor as unknown as new () => CliDevice,
-  actions: [
-    {
-      name: "Sleep",
-      description: "Shutdown / sleep device",
-      run: async (device) => {
-        const d = device as unknown as Progressor
-        await d.sleep()
-        printResult("Sleep:", "sent")
-      },
-    },
-  ],
+  actions: [],
   calibrationSubactions,
   errorSubactions,
 }
