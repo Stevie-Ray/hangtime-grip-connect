@@ -37,7 +37,7 @@ const calibrationSubactions: Action[] = [
       const d = device as unknown as Progressor
       printResult("Current calibration curve:", await d.calibration())
 
-      let curve = opts?.setCalibrationCurve
+      let curve = opts?.calibration?.setCalibrationCurve
 
       if (!curve && opts?.ctx?.json) {
         fail("Set calibration requires --set-calibration-curve in JSON mode")
@@ -84,7 +84,7 @@ const calibrationSubactions: Action[] = [
       printResult("Add calibration point:", "captured")
       printResult("Calibration after:", await d.calibration())
 
-      let shouldSave = opts?.saveCalibration
+      let shouldSave = opts?.calibration?.saveCalibration
       if (shouldSave == null && !opts?.ctx?.json) {
         const raw = await input({
           message: "Save calibration now? (Requires zero + reference points first.) [y/N]:",

@@ -5,7 +5,7 @@ import pc from "picocolors"
 import { createChartRenderer, renderRfdAnalyzeChart, type RfdChartPoint } from "../../chart.js"
 import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
 import { muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../../utils.js"
-import { ensureTaredForStreamAction, promptStreamActionStart } from "./shared.js"
+import { ensureTaredForStreamAction, promptIntegerSecondsOption, promptStreamActionStart } from "./shared.js"
 
 const RFD_TIME_WINDOWS = [100, 150, 200, 250, 300, 1000] as const
 
@@ -132,9 +132,12 @@ function computeRfdMetrics(
  */
 export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise<void> {
   const ctx = opts.ctx ?? { json: false, unit: "kg" }
-  const duration = opts.duration ?? 5000
+  const duration = opts.stream?.durationMs ?? 5000
   const unit = ctx.unit
-  let rfdThreshold = opts.rfdThreshold ?? 0.5
+  const rfdSession = opts.session?.rfd
+  let rfdThreshold = rfdSession?.threshold ?? 0.5
+  let countdownSeconds = rfdSession?.countdownSeconds ?? 3
+  let leftRightMode = rfdSession?.leftRightMode ?? false
   if (typeof device.stream !== "function") return
   const rawRfdSamples: CapturedRfdSample[] = []
   let captureStartMs = Date.now()
@@ -162,7 +165,25 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         "Perform one explosive pull about half way into the cycle.\n\n" +
         pc.yellow("Please make sure that the device is tared before.\n"),
     )
-    const shouldStart = await promptStreamActionStart(ctx)
+    const shouldStart = await promptStreamActionStart(ctx, {
+      onConfigureOptions: async () => {
+        countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
+        leftRightMode =
+          (await select({
+            message: "Enable Left/Right mode:",
+            choices: [
+              { name: "Enabled", value: true },
+              { name: "Disabled", value: false },
+            ],
+            default: leftRightMode,
+          })) ?? leftRightMode
+        opts.session = {
+          ...(opts.session ?? {}),
+          rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
+        }
+      },
+      getOptionsLabel: () => `Options (Countdown: ${countdownSeconds}s, Left/Right: ${leftRightMode ? "On" : "Off"})`,
+    })
     if (!shouldStart) return
     await ensureTaredForStreamAction(device, opts)
     console.log(pc.dim("\nPress Esc to stop"))
@@ -170,7 +191,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       chart.start()
       chart.push({ current: 0, mean: 0, peak: 0 })
     }
-    await countdown("Session starts in:", 3)
+    await countdown("Session starts in:", countdownSeconds)
   } else {
     await ensureTaredForStreamAction(device, opts)
   }
@@ -304,6 +325,15 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         })
         const v = parseFloat(raw?.trim() ?? rfdThreshold.toString())
         rfdThreshold = Number.isFinite(v) ? v : rfdThreshold
+        opts.session = {
+          ...(opts.session ?? {}),
+          rfd: {
+            ...(opts.session?.rfd ?? {}),
+            threshold: rfdThreshold,
+            countdownSeconds,
+            leftRightMode,
+          },
+        }
         continue
       }
       const pickedWindow = await select({
@@ -323,7 +353,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
     })
     if (/^y(es)?$/i.test(raw?.trim() ?? "")) {
       const format =
-        opts.format ??
+        opts.export?.format ??
         (await select({
           message: "Export format:",
           choices: [

@@ -10,7 +10,7 @@ export function buildLiveDataAction(): Action {
     run: async (device: CliDevice, options: RunOptions) => {
       await ensureTaredForStreamAction(device, options)
 
-      const duration = options.duration
+      const duration = options.stream?.durationMs
       const indefinite = duration == null || duration === 0
       const outCtx = options.ctx ?? { json: false, unit: "kg" }
 
@@ -21,7 +21,7 @@ export function buildLiveDataAction(): Action {
       await runLiveDataSession(device, outCtx, {
         durationMs: duration,
         askDownload: false,
-        format: options.format,
+        format: options.export?.format,
       })
     },
   }

@@ -33,32 +33,93 @@ export interface InteractiveSessionState {
   isTared: boolean
 }
 
-/**
- * Options that can be forwarded to action handlers.
- *
- * Shared actions and device-specific actions receive these so they can
- * respect user-provided flags such as duration, export format, and output
- * directory.
- */
-export interface RunOptions {
+/** Common stream options for actions that collect live data. */
+export interface StreamRunOptions {
   /** Stream / tare duration in milliseconds. */
-  duration?: number
+  durationMs?: number
+  /** When `true`, stream indefinitely until interrupted. */
+  watch?: boolean
+}
+
+/** Export options for download/session save flows. */
+export interface ExportRunOptions {
   /** Export format for download. */
   format?: ExportFormat
   /** Output directory for downloaded files. */
   output?: string
-  /** When `true`, stream indefinitely until interrupted. */
-  watch?: boolean
+}
+
+/** Calibration-related options (device specific). */
+export interface CalibrationRunOptions {
   /** Calibration reference weight in kg (legacy). */
   refWeightKg?: number
-  /** RFD analysis mode: "20-80" (default) or time window ms (100, 150, 200, 250, 300, 1000). */
-  rfdMode?: "20-80" | 100 | 150 | 200 | 250 | 300 | 1000
-  /** RFD onset threshold in stream unit (default 0.5). */
-  rfdThreshold?: number
   /** Calibration curve for Progressor setCalibration (opcode 0x71). 12-byte hex string. */
   setCalibrationCurve?: string
   /** When true, run saveCalibration after Add Calibration point (Progressor). */
   saveCalibration?: boolean
+}
+
+/** Peak Force session options. */
+export interface PeakForceSessionOptions {
+  /** Peak Force capture mode. */
+  mode?: "single" | "left-right"
+}
+
+/** Endurance session options. */
+export interface EnduranceSessionOptions {
+  /** Endurance stream duration in seconds. */
+  durationSeconds?: number
+  /** Endurance countdown before capture starts in seconds. */
+  countdownSeconds?: number
+}
+
+/** RFD session options. */
+export interface RfdSessionOptions {
+  /** RFD analysis mode: "20-80" (default) or time window ms (100, 150, 200, 250, 300, 1000). */
+  mode?: "20-80" | 100 | 150 | 200 | 250 | 300 | 1000
+  /** RFD onset threshold in stream unit (default 0.5). */
+  threshold?: number
+  /** RFD countdown before capture starts in seconds. */
+  countdownSeconds?: number
+  /** When true, RFD session is configured to use left/right distribution mode. */
+  leftRightMode?: boolean
+}
+
+/** Repeaters session options. */
+export interface RepeatersSessionOptions {
+  /** Repeaters countdown before the first set in seconds. */
+  countdownSeconds?: number
+}
+
+/** Critical Force session options. */
+export interface CriticalForceSessionOptions {
+  /** Critical Force countdown before protocol starts in seconds. */
+  countdownSeconds?: number
+}
+
+/** Stream test/session specific options. */
+export interface SessionRunOptions {
+  peakForce?: PeakForceSessionOptions
+  endurance?: EnduranceSessionOptions
+  rfd?: RfdSessionOptions
+  repeaters?: RepeatersSessionOptions
+  criticalForce?: CriticalForceSessionOptions
+}
+
+/**
+ * Options that can be forwarded to action handlers.
+ *
+ * Shared actions and device-specific actions receive these grouped options.
+ */
+export interface RunOptions {
+  /** Common stream options. */
+  stream?: StreamRunOptions
+  /** Export options for download flow. */
+  export?: ExportRunOptions
+  /** Calibration options for settings/actions. */
+  calibration?: CalibrationRunOptions
+  /** Per-session stream test options. */
+  session?: SessionRunOptions
   /** Global output context for JSON mode. */
   ctx?: OutputContext
   /** Interactive connection-scoped state (used by stream actions/settings). */

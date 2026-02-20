@@ -3,7 +3,7 @@ import pc from "picocolors"
 import { createChartRenderer, renderCriticalForceChart, type RfdChartPoint } from "../../chart.js"
 import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
 import { fail, muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../../utils.js"
-import { ensureTaredForStreamAction, promptStreamActionStart } from "./shared.js"
+import { ensureTaredForStreamAction, promptIntegerSecondsOption, promptStreamActionStart } from "./shared.js"
 
 const TOTAL_REPS = 24
 const PULL_MS = 7000
@@ -83,6 +83,7 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
 
   const chartEnabled = !ctx.json && process.stdout.isTTY
   const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
+  let countdownSeconds = opts.session?.criticalForce?.countdownSeconds ?? 3
   const countdown = async (prefix: string, seconds: number): Promise<void> => {
     for (let i = seconds; i >= 1; i--) {
       if (chartEnabled) {
@@ -120,7 +121,16 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
         "If you reach the plateau before 24 reps, you have the option to cancel and save.\n",
     )
 
-    const shouldStart = await promptStreamActionStart(ctx)
+    const shouldStart = await promptStreamActionStart(ctx, {
+      onConfigureOptions: async () => {
+        countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
+        opts.session = {
+          ...(opts.session ?? {}),
+          criticalForce: { ...(opts.session?.criticalForce ?? {}), countdownSeconds },
+        }
+      },
+      getOptionsLabel: () => `Options (Countdown: ${countdownSeconds}s)`,
+    })
     if (!shouldStart) return
     await ensureTaredForStreamAction(device, opts)
     console.log(pc.dim("\nPress Esc to stop"))
@@ -155,7 +165,7 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
   }
 
   if (!ctx.json) {
-    await countdown("Session starts in:", 3)
+    await countdown("Session starts in:", countdownSeconds)
   }
 
   const stopPromise = process.stdin.isTTY ? waitForKeyToStop() : (Promise.race([]) as Promise<void>)

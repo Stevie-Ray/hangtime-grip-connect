@@ -30,10 +30,10 @@ export async function runInteractiveActionLoop(
     })
     const trimmed = raw.trim()
     if (trimmed === "") {
-      opts.duration = 0
+      opts.stream = { ...(opts.stream ?? {}), durationMs: 0 }
     } else {
       const sec = parseFloat(trimmed || "10")
-      opts.duration = (Number.isNaN(sec) ? 0 : sec) * 1000
+      opts.stream = { ...(opts.stream ?? {}), durationMs: (Number.isNaN(sec) ? 0 : sec) * 1000 }
     }
   }
 

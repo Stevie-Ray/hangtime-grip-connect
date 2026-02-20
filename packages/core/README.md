@@ -48,7 +48,7 @@ npx @hangtime/cli
 
 > The CLI requires Node.js 22 or newer
 
-![Force-Sensing Climbing Devices](https://github.com/user-attachments/assets/c1a8ef3b-8d94-47b6-84a6-f73893e948d6)
+![Force-Sensing Climbing Devices](https://github.com/user-attachments/assets/cfee765d-fd86-4f8e-bfd8-bef50adb9c5a)
 
 ## Install
 

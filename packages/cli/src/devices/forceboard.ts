@@ -48,7 +48,7 @@ const forceboard: DeviceDefinition = {
       description: "Quick Start mode (5s default)",
       run: async (device, options) => {
         const d = device as unknown as ForceBoard
-        const duration = options.duration ?? 5000
+        const duration = options.stream?.durationMs ?? 5000
         console.log(pc.cyan(`\nQuick Start running for ${duration / 1000}s...\n`))
         await d.quick(duration)
         printSuccess("Quick Start complete.")
