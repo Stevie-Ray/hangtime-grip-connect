@@ -63,6 +63,14 @@ export interface CalibrationRunOptions {
 export interface PeakForceSessionOptions {
   /** Peak Force capture mode. */
   mode?: "single" | "left-right"
+  /** Whether to include torque calculation in the summary. */
+  includeTorque?: boolean
+  /** Moment arm length in centimeters used for torque calculation. */
+  momentArmCm?: number
+  /** Whether to include peak force vs body weight comparison. */
+  includeBodyWeightComparison?: boolean
+  /** Body weight value used in comparison. */
+  bodyWeight?: number
 }
 
 /** Endurance session options. */
@@ -124,6 +132,8 @@ export interface RunOptions {
   ctx?: OutputContext
   /** Interactive connection-scoped state (used by stream actions/settings). */
   sessionState?: InteractiveSessionState
+  /** True when called from direct CLI command flow (skip interactive start prompts). */
+  nonInteractive?: boolean
 }
 
 /**

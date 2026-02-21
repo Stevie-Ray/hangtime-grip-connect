@@ -3,7 +3,14 @@ import pc from "picocolors"
 import { createChartRenderer, renderCriticalForceChart, type RfdChartPoint } from "../../chart.js"
 import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
 import { fail, muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../../utils.js"
-import { ensureTaredForStreamAction, promptIntegerSecondsOption, promptStreamActionStart } from "./shared.js"
+import {
+  ensureTaredForStreamAction,
+  promptSaveMeasurement,
+  promptIntegerSecondsOption,
+  promptStreamActionOptionsMenu,
+  promptStreamActionStart,
+  viewSavedMeasurements,
+} from "./shared.js"
 
 const TOTAL_REPS = 24
 const PULL_MS = 7000
@@ -121,17 +128,36 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
         "If you reach the plateau before 24 reps, you have the option to cancel and save.\n",
     )
 
-    const shouldStart = await promptStreamActionStart(ctx, {
-      onConfigureOptions: async () => {
-        countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
-        opts.session = {
-          ...(opts.session ?? {}),
-          criticalForce: { ...(opts.session?.criticalForce ?? {}), countdownSeconds },
-        }
-      },
-      getOptionsLabel: () => `Options (Countdown: ${countdownSeconds}s)`,
-    })
-    if (!shouldStart) return
+    if (!opts.nonInteractive) {
+      const shouldStart = await promptStreamActionStart(ctx, {
+        onConfigureOptions: async () => {
+          const openProtocolSubmenu = async (): Promise<void> => {
+            await promptStreamActionOptionsMenu("Critical Force Protocol", [
+              {
+                label: () => `Countdown: ${countdownSeconds}s`,
+                run: async () => {
+                  countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
+                  opts.session = {
+                    ...(opts.session ?? {}),
+                    criticalForce: { ...(opts.session?.criticalForce ?? {}), countdownSeconds },
+                  }
+                },
+              },
+            ])
+          }
+
+          await promptStreamActionOptionsMenu("Critical Force", [
+            {
+              label: () => `Protocol: Countdown ${countdownSeconds}s (open)`,
+              run: openProtocolSubmenu,
+            },
+          ])
+        },
+        getOptionsLabel: () => `Options (Countdown: ${countdownSeconds}s)`,
+        onViewMeasurements: async () => viewSavedMeasurements("critical-force", "Critical Force"),
+      })
+      if (!shouldStart) return
+    }
     await ensureTaredForStreamAction(device, opts)
     console.log(pc.dim("\nPress Esc to stop"))
   } else {
@@ -256,6 +282,22 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
   console.log(
     `W' represents the amount of work that can be performed above your Critical Force (CF). CF is determined per Gilles et al. (2010) as the mean force from the final six contractions, excluding outliers beyond one standard deviation. To calculate W', we integrate the force-time data relative to CF. Practically, for each of consecutive measurements, we take (Force - CF) and apply the trapezoid rule over the time interval. Summing across all reps yields your total W'.`,
   )
+
+  await promptSaveMeasurement("critical-force", "Critical Force", opts, {
+    headline: `CF ${criticalForce.toFixed(2)} ${ctx.unit} | W' ${wPrime.toFixed(2)} ${ctx.unit}*s`,
+    details: [
+      `Reps: ${Math.min(TOTAL_REPS, perRepMeans.length)}/${TOTAL_REPS}`,
+      `Ended early: ${endedEarly ? "Yes" : "No"}`,
+    ],
+    data: {
+      totalReps: TOTAL_REPS,
+      completedReps: Math.min(TOTAL_REPS, perRepMeans.length),
+      criticalForce: +criticalForce.toFixed(2),
+      wPrime: +wPrime.toFixed(2),
+      unit: ctx.unit,
+      endedEarly,
+    },
+  })
 
   if (endedEarly) {
     printSuccess("Critical Force session stopped early and results were saved.")

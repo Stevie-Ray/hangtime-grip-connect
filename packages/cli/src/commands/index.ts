@@ -11,9 +11,10 @@ import { registerDownload } from "./download.js"
 import { registerInfo } from "./info.js"
 import { registerInteractive } from "./interactive.js"
 import { registerList } from "./list.js"
+import { registerPeakForceMvc } from "./peak-force-mvc.js"
+import { registerRfd } from "./rfd.js"
 import { registerStream } from "./stream.js"
 import { registerTare } from "./tare.js"
-import { registerWatch } from "./watch.js"
 
 /**
  * Registers all CLI commands on the Commander program.
@@ -23,8 +24,9 @@ import { registerWatch } from "./watch.js"
 export function registerCommands(program: Command): void {
   registerList(program)
   registerStream(program)
+  registerPeakForceMvc(program)
+  registerRfd(program)
   registerCriticalForce(program)
-  registerWatch(program)
   registerInfo(program)
   registerDownload(program)
   registerTare(program)

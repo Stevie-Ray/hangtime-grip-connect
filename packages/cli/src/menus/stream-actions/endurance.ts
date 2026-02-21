@@ -1,5 +1,10 @@
 import type { Action, CliDevice, RunOptions } from "../../types.js"
-import { promptIntegerSecondsOption, runPlaceholderSession } from "./shared.js"
+import {
+  promptIntegerSecondsOption,
+  promptStreamActionOptionsMenu,
+  runPlaceholderSession,
+  viewSavedMeasurements,
+} from "./shared.js"
 
 export function buildEnduranceAction(): Action {
   return {
@@ -14,25 +19,45 @@ export function buildEnduranceAction(): Action {
         options,
         {
           onConfigureOptions: async () => {
-            const durationSeconds = await promptIntegerSecondsOption(
-              "Duration",
-              options.session?.endurance?.durationSeconds ?? 30,
-              1,
-            )
-            const countdownSeconds = await promptIntegerSecondsOption(
-              "Countdown",
-              options.session?.endurance?.countdownSeconds ?? 3,
-              0,
-            )
-            options.session = {
-              ...(options.session ?? {}),
-              endurance: { ...(options.session?.endurance ?? {}), durationSeconds, countdownSeconds },
+            let durationSeconds = options.session?.endurance?.durationSeconds ?? 30
+            let countdownSeconds = options.session?.endurance?.countdownSeconds ?? 3
+            const openTimingSubmenu = async (): Promise<void> => {
+              await promptStreamActionOptionsMenu("Endurance Timing", [
+                {
+                  label: () => `Duration: ${durationSeconds}s`,
+                  run: async () => {
+                    durationSeconds = await promptIntegerSecondsOption("Duration", durationSeconds, 1)
+                    options.session = {
+                      ...(options.session ?? {}),
+                      endurance: { ...(options.session?.endurance ?? {}), durationSeconds, countdownSeconds },
+                    }
+                  },
+                },
+                {
+                  label: () => `Countdown: ${countdownSeconds}s`,
+                  run: async () => {
+                    countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
+                    options.session = {
+                      ...(options.session ?? {}),
+                      endurance: { ...(options.session?.endurance ?? {}), durationSeconds, countdownSeconds },
+                    }
+                  },
+                },
+              ])
             }
+
+            await promptStreamActionOptionsMenu("Endurance", [
+              {
+                label: () => `Timing: ${durationSeconds}s duration, ${countdownSeconds}s countdown (open)`,
+                run: openTimingSubmenu,
+              },
+            ])
           },
           getOptionsLabel: () =>
             `Options (Duration: ${options.session?.endurance?.durationSeconds ?? 30}s, Countdown: ${
               options.session?.endurance?.countdownSeconds ?? 3
             }s)`,
+          onViewMeasurements: async () => viewSavedMeasurements("endurance", "Endurance"),
         },
         () => [
           `Duration: ${options.session?.endurance?.durationSeconds ?? 30} seconds`,

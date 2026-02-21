@@ -1,9 +1,9 @@
 # CLI
 
 `@hangtime/cli` is a ready-made command-line tool for [Node.js](https://nodejs.org/), [Bun](https://bun.sh/), or
-[Deno](https://deno.com/). It provides interactive mode, colored output, and commands for streaming, watching,
-exporting, and inspecting devices -- all from the terminal. Built on the [Runtime](/platforms/runtime) package. Best
-for: quick data checks, device testing, and interactive exploration.
+[Deno](https://deno.com/). It provides interactive mode, colored output, and commands for live testing, exporting, and
+inspecting devices -- all from the terminal. Built on the [Runtime](/platforms/runtime) package. Best for: quick data
+checks, device testing, and interactive exploration.
 
 ## Install
 
@@ -63,7 +63,7 @@ subcommand starts **interactive mode**.
 ### Interactive mode
 
 ```sh
-grip-connect
+npx @hangtime/cli
 ```
 
 Pick a device, then pick an action. After each action the CLI loops back so you can run multiple actions on the same
@@ -74,31 +74,52 @@ connection. Choose **Disconnect & exit** to stop.
 List all supported devices and their capabilities (stream, battery, tare, download, active).
 
 ```sh
-grip-connect list
+npx @hangtime/cli list
 ```
 
-### `stream`
+### `live`
 
-Stream force data for a fixed duration.
+Live force output with real-time charting.
 
 ```sh
-grip-connect stream progressor           # default 10 s
-grip-connect stream progressor -d 30000  # 30 s
-grip-connect stream progressor -w        # indefinite (alias for watch)
+npx @hangtime/cli live progressor
+npx @hangtime/cli live progressor --duration 10
 ```
 
-| Flag             | Description                     | Default |
-| ---------------- | ------------------------------- | ------- |
-| `-d, --duration` | Stream duration in milliseconds | `10000` |
-| `-w, --watch`    | Stream indefinitely (Ctrl+C)    | `false` |
+| Flag             | Description                    | Default      |
+| ---------------- | ------------------------------ | ------------ |
+| `-d, --duration` | Duration in seconds (optional) | `indefinite` |
 
-### `watch`
+### `peak-force-mvc` (aliases: `peak-force`, `mvc`)
 
-Stream indefinitely until Ctrl+C. Prints a session summary (peak, mean, samples, elapsed) on exit.
+Run Peak Force / MVC test with optional torque and body-weight metrics.
 
 ```sh
-grip-connect watch motherboard
+npx @hangtime/cli peak-force-mvc progressor --mode left-right --include-torque --moment-arm-cm 35
 ```
+
+| Flag                               | Description                                  | Default  |
+| ---------------------------------- | -------------------------------------------- | -------- |
+| `--mode <single\|left-right>`      | Test mode                                    | `single` |
+| `--include-torque`                 | Include torque calculation                   | `false`  |
+| `--moment-arm-cm <cm>`             | Moment arm length in centimeters             | `35`     |
+| `--include-body-weight-comparison` | Include body-weight comparison               | `false`  |
+| `--body-weight <value>`            | Body weight (uses current CLI unit behavior) | `70`     |
+
+### `rfd`
+
+Run Rate of Force Development test.
+
+```sh
+npx @hangtime/cli rfd progressor --duration 5 --countdown 3 --threshold 0.5 --left-right
+```
+
+| Flag             | Description                               | Default |
+| ---------------- | ----------------------------------------- | ------- |
+| `-d, --duration` | Capture duration in seconds               | `5`     |
+| `--countdown`    | Countdown before capture starts (seconds) | `3`     |
+| `--threshold`    | Onset threshold in current force unit     | `0.5`   |
+| `--left-right`   | Enable Left/Right mode                    | `false` |
 
 ### `info`
 
@@ -106,7 +127,7 @@ Show all available device properties: battery, firmware, hardware, manufacturer,
 software, system ID, humidity, and temperature. Only properties supported by the device are displayed.
 
 ```sh
-grip-connect info entralpi
+npx @hangtime/cli info entralpi
 ```
 
 ### `download`
@@ -114,7 +135,7 @@ grip-connect info entralpi
 Export session data to a file.
 
 ```sh
-grip-connect download forceboard -f json
+npx @hangtime/cli download forceboard -f json
 ```
 
 | Flag           | Description                         | Default |
@@ -127,8 +148,8 @@ grip-connect download forceboard -f json
 Run tare (zero) calibration. A spinner indicates progress while the device collects baseline samples.
 
 ```sh
-grip-connect tare progressor           # default 5 s
-grip-connect tare progressor -d 10000  # 10 s
+npx @hangtime/cli tare progressor           # default 5 s
+npx @hangtime/cli tare progressor -d 10000  # 10 s
 ```
 
 | Flag             | Description                   | Default |
@@ -140,8 +161,8 @@ grip-connect tare progressor -d 10000  # 10 s
 Monitor activity status using the core `active()` callback. Prints timestamped status changes until Ctrl+C.
 
 ```sh
-grip-connect active progressor
-grip-connect active progressor -t 3.0 -d 1500
+npx @hangtime/cli active progressor
+npx @hangtime/cli active progressor -t 3.0 -d 1500
 ```
 
 | Flag              | Description                       | Default |
@@ -149,23 +170,43 @@ grip-connect active progressor -t 3.0 -d 1500
 | `-t, --threshold` | Force threshold in kg             | `2.5`   |
 | `-d, --duration`  | Duration to confirm activity (ms) | `1000`  |
 
+### `critical-force`
+
+Run 24x (7s pull / 3s rest) critical force protocol.
+
+```sh
+npx @hangtime/cli critical-force progressor --countdown 3
+```
+
+| Flag          | Description                                | Default |
+| ------------- | ------------------------------------------ | ------- |
+| `--countdown` | Countdown before protocol starts (seconds) | `3`     |
+
+## Measurements
+
+- Interactive stream tests include a `Measurements` list item in `Pick an option`.
+- Implemented tests (`Peak Force / MVC`, `RFD`, `Critical Force`) ask `Save measurement? [y/N]` after completion.
+- Saved records are persisted at `~/.grip-connect/measurements.json`.
+
 ## Global options
 
 | Flag            | Description                                      |
 | --------------- | ------------------------------------------------ |
 | `--json`        | Output newline-delimited JSON (machine-readable) |
 | `--no-color`    | Disable colored terminal output                  |
+| `-u, --unit`    | Force unit: `kg`, `lbs`, or `n`                  |
 | `-V, --version` | Print version number                             |
 | `-h, --help`    | Display help                                     |
 
 ## JSON mode
 
-Pass `--json` to any command for machine-readable output. For `stream` and `watch` this produces newline-delimited JSON
-(one measurement per line). For `list` and `info` it outputs a single JSON object.
+Pass `--json` to any command for machine-readable output. For `live` and test commands, this produces newline-delimited
+JSON (one measurement per line). For `list` and `info` it outputs a single JSON object.
 
 ```sh
-grip-connect stream progressor --json | jq '.current'
-grip-connect list --json
+npx @hangtime/cli live progressor --json | jq '.current'
+npx @hangtime/cli peak-force-mvc progressor --json
+npx @hangtime/cli list --json
 ```
 
 ## Supported platforms

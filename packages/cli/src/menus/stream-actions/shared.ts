@@ -2,11 +2,21 @@ import input from "@inquirer/input"
 import select from "@inquirer/select"
 import pc from "picocolors"
 import type { CliDevice, OutputContext, RunOptions } from "../../types.js"
+import type { MeasurementTestKey } from "../../services/measurements.js"
+import { listMeasurementRecords, saveMeasurementRecord } from "../../services/measurements.js"
 import { runGuidedTareCalibration } from "../../services/session.js"
 
 export interface StreamActionStartOptions {
   onConfigureOptions?: () => Promise<void>
   getOptionsLabel?: () => string
+  onViewMeasurements?: () => Promise<void>
+  getMeasurementsLabel?: () => string
+}
+
+export interface StreamActionOptionItem {
+  label: () => string
+  run: () => Promise<void>
+  disabled?: () => boolean
 }
 
 export async function promptStreamActionStart(
@@ -22,13 +32,20 @@ export async function promptStreamActionStart(
         ...(options?.onConfigureOptions
           ? [{ name: options.getOptionsLabel?.() ?? "Options", value: "options" as const }]
           : []),
+        ...(options?.onViewMeasurements
+          ? [{ name: options.getMeasurementsLabel?.() ?? "Measurements", value: "measurements" as const }]
+          : []),
         { name: "Go Back", value: "return" as const },
       ],
     })
 
     if (sessionAction === "start") return true
     if (sessionAction === "return") return false
-    await options?.onConfigureOptions?.()
+    if (sessionAction === "options") {
+      await options?.onConfigureOptions?.()
+      continue
+    }
+    await options?.onViewMeasurements?.()
   }
 }
 
@@ -68,6 +85,32 @@ export async function runPlaceholderSession(
   console.log(pc.dim("\nThis test is not implemented yet.\n"))
 }
 
+export async function promptStreamActionOptionsMenu(title: string, items: StreamActionOptionItem[]): Promise<void> {
+  if (items.length === 0) return
+
+  while (true) {
+    const selected = await select({
+      message: `${title} options:`,
+      choices: [
+        ...items.map((item, index) => ({
+          name: item.label(),
+          value: index,
+          ...(item.disabled?.()
+            ? {
+                disabled: true,
+              }
+            : {}),
+        })),
+        { name: "Back", value: -1 },
+      ],
+    })
+    if (selected === -1) return
+    const item = items[selected]
+    if (!item) continue
+    await item.run()
+  }
+}
+
 export async function promptIntegerSecondsOption(
   label: string,
   currentSeconds: number,
@@ -80,4 +123,64 @@ export async function promptIntegerSecondsOption(
   const next = Math.trunc(Number(raw.trim()))
   if (!Number.isFinite(next)) return currentSeconds
   return Math.max(minimumSeconds, next)
+}
+
+export async function viewSavedMeasurements(testKey: MeasurementTestKey, title: string): Promise<void> {
+  const records = await listMeasurementRecords(testKey)
+  if (records.length === 0) {
+    console.log(pc.dim(`\nNo saved measurements for ${title} yet.\n`))
+    return
+  }
+
+  while (true) {
+    const selected = await select({
+      message: `${title} measurements:`,
+      choices: [
+        ...records.map((record) => ({
+          name: `${new Date(record.createdAt).toLocaleString()} - ${record.headline}`,
+          value: record.id,
+        })),
+        { name: "Back", value: "__back" },
+      ],
+    })
+
+    if (selected === "__back") return
+    const record = records.find((item) => item.id === selected)
+    if (!record) continue
+    console.log(pc.cyan(`\n${record.testName} measurement\n`))
+    console.log(pc.dim(`Date: ${new Date(record.createdAt).toLocaleString()}`))
+    console.log(pc.bold(record.headline))
+    for (const line of record.details) {
+      console.log(pc.dim(`- ${line}`))
+    }
+    await input({ message: "Press Enter to continue", default: "" })
+  }
+}
+
+export async function promptSaveMeasurement(
+  testKey: MeasurementTestKey,
+  testName: string,
+  options: RunOptions,
+  payload: {
+    headline: string
+    details?: string[]
+    data: Record<string, unknown>
+  },
+): Promise<void> {
+  if (options.ctx?.json) return
+  const raw = await input({
+    message: "Save measurement? [y/N]:",
+    default: "n",
+  })
+  if (!/^y(es)?$/i.test(raw?.trim() ?? "")) return
+
+  await saveMeasurementRecord({
+    testKey,
+    testName,
+    headline: payload.headline,
+    details: payload.details ?? [],
+    data: payload.data,
+    ...(options.ctx?.unit ? { unit: options.ctx.unit } : {}),
+  })
+  console.log(pc.green("\nMeasurement saved.\n"))
 }

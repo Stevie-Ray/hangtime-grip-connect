@@ -15,6 +15,40 @@ import { Command } from "commander"
 const require = createRequire(import.meta.url)
 const { version } = require("../package.json") as { version: string }
 
+const STARTUP_SPLASH = `
+                                        :--------------:                                        
+                                        @@@@@@@@@@@@@@@@                                        
+                                        @@@@@@@@@@@@@@@@                                        
+                                        :==============:                                        
+                                                                                                
+                                        #@+   @@@@   *@*                                        
+                                         @@:  %@@%  :@@   .      :@=                            
+                                  :%@@    %@%+.==:+@@%    @@%= .@@@@@=                          
+                                *@@@@@@-    %@@@@@@%    :@@@@@@@@@@@@-                          
+                              *@@@@@@@*     :@@@@@@:     =@@@@@@@@@=                            
+                             @@@@@@#        :@@@@@@:        #@@@@@@                             
+                           :@@@@@@          :@@@@@@:          @@@@@@-                           
+                          :@@@@@%           :@@@@@@:           %@@@@@:                          
+                          @@@@@#            :@@@@@@:            #@@@@@                          
+                         @@@@@%             :@@  @@:             @@@@@%                         
+                         @@@@@              :@@  @@:              @@@@@                         
+                        +@@@@%              :@@  @@:              @@@@@=                        
+                        %@@@@+              :@@  @@:              *@@@@*                        
+                        %@@@@=               =-  -=               =@@@@%                        
+                        #@@@@#                                    %@@@@*                        
+                        -@@@@@                                    @@@@@:                        
+                         @@@@@=                                  =@@@@@                         
+                         =@@@@@                                  @@@@@=                         
+                          %@@@@@                                @@@@@#                          
+                           @@@@@@-                            -@@@@@%                           
+                            #@@@@@%                          %@@@@@*                            
+                             -@@@@@@%.                    .%@@@@@@.                             
+                               %@@@@@@@*.              :*@@@@@@@*                               
+                                .%@@@@@@@@@@%**==**%@@@@@@@@@@%                                 
+                                   =%@@@@@@@@@@@@@@@@@@@@@@#-                                   
+                                       -*@@@@@@@@@@@@@@*:                                       
+                                              :--.`
+
 function isPromptExitError(error: unknown): boolean {
   if (!(error instanceof Error)) {
     return typeof error === "string" && error.includes("User force closed the prompt with SIGINT")
@@ -46,9 +80,13 @@ async function main(): Promise<void> {
     .version(version)
     .option("--json", "Output machine-readable newline-delimited JSON")
     .option("--no-color", "Disable colored output")
-    .option("-u, --unit <kg|lbs|n>", "Force unit for stream/watch output", "kg")
+    .option("-u, --unit <kg|lbs|n>", "Force unit for test output", "kg")
 
   registerCommands(program)
+  if (process.stdout.isTTY && !process.argv.includes("--json")) {
+    console.log(STARTUP_SPLASH)
+    console.log("")
+  }
   await program.parseAsync()
 }
 

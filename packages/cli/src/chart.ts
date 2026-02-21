@@ -19,12 +19,20 @@ export interface ChartRendererOptions {
   unit?: string
   /** Dim status line output when true (default). */
   dimStatus?: boolean
+  /** Render current series when true (default). */
+  showCurrent?: boolean
 }
 
 /** Data point pushed to the chart: current, mean, and peak force values. */
 export interface ChartDataPoint {
   current: number
   mean: number
+  peak: number
+}
+
+/** Data point pushed to the Peak/MVC live chart. */
+export interface PeakMvcChartDataPoint {
+  current: number
   peak: number
 }
 
@@ -62,6 +70,18 @@ export interface CriticalForceChartOptions {
   criticalForce: number
   /** Maximum force in the session. */
   maxForce: number
+  /** Chart height in rows. */
+  height?: number
+  /** Max horizontal points shown in terminal. */
+  width?: number
+}
+
+/** Options for rendering a static Peak Force / MVC chart. */
+export interface PeakForceChartOptions {
+  /** Captured force samples for a single trial. */
+  points: RfdChartPoint[]
+  /** Peak force value for the trial. */
+  peakForce: number
   /** Chart height in rows. */
   height?: number
   /** Max horizontal points shown in terminal. */
@@ -150,6 +170,26 @@ export function renderCriticalForceChart(options: CriticalForceChartOptions): st
   const cfLine = new Array(forceSeries.length).fill(Math.max(0, criticalForce))
 
   return plot([forceSeries, cfLine], {
+    height,
+    min: 0,
+    max: safeMax,
+    colors: [yellow, red],
+  })
+}
+
+/**
+ * Renders a Peak Force/MVC chart with a horizontal line at the measured max.
+ */
+export function renderPeakForceChart(options: PeakForceChartOptions): string {
+  const { points, peakForce, height = 14, width = 90 } = options
+  const forceSeries = resamplePoints(points, width)
+  if (forceSeries.length === 0) return ""
+
+  const safePeak = Math.max(0, peakForce)
+  const safeMax = Math.max(1, safePeak)
+  const peakLine = new Array(forceSeries.length).fill(safePeak)
+
+  return plot([forceSeries, peakLine], {
     height,
     min: 0,
     max: safeMax,
@@ -295,6 +335,143 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
     const chartLineCount = nl + (chartStr.endsWith("\n") ? 0 : 1)
     const totalLines = chartLineCount + 1 + (statusLine ? 1 : 0) // + stats line (+ optional status)
 
+    if (lastLines > 0) clearPrevious(lastLines)
+    lastLines = totalLines
+
+    process.stdout.write(chartStr)
+    if (!chartStr.endsWith("\n")) process.stdout.write("\n")
+    process.stdout.write(statsLine + "\n")
+    if (statusLine) process.stdout.write((dimStatus ? pc.dim(statusLine) : statusLine) + "\n")
+  }
+
+  function start(): void {
+    if (disabled || started) return
+    isTTY = !!process.stdout.isTTY
+    if (!isTTY) return
+    started = true
+    lastLines = 0
+  }
+
+  function stop(): void {
+    if (!started) return
+    stoppedToken++
+    renderScheduled = false
+    started = false
+    if (isTTY && lastLines > 0) clearPrevious(lastLines)
+    lastLines = 0
+  }
+
+  function setStatus(status: string): void {
+    if (disabled || !started || !isTTY) return
+    statusLine = status
+    scheduleRender()
+  }
+
+  return { push, start, stop, setStatus }
+}
+
+/**
+ * Creates a live Peak/MVC chart renderer with current force and max-force line.
+ */
+export function createPeakMvcChartRenderer(options: ChartRendererOptions = {}) {
+  const {
+    bufferSize = DEFAULT_BUFFER_SIZE,
+    height = DEFAULT_HEIGHT,
+    disabled = false,
+    unit = "kg",
+    dimStatus = true,
+    showCurrent = true,
+  } = options
+
+  const currentBuf = new Array<number>(bufferSize).fill(0)
+  const peakBuf = new Array<number>(bufferSize).fill(0)
+  const currentLinear = new Array<number>(bufferSize)
+  const peakLinear = new Array<number>(bufferSize)
+
+  let head = 0
+  let count = 0
+  let renderScheduled = false
+  let started = false
+  let isTTY = false
+  let stoppedToken = 0
+  let lastLines = 0
+  let lastCurrent = 0
+  let lastPeak = 0
+  let statusLine = ""
+
+  const clamp0 = (v: number) => (v > 0 ? v : 0)
+
+  function scheduleRender(): void {
+    if (renderScheduled) return
+    renderScheduled = true
+    const token = stoppedToken
+    process.nextTick(() => {
+      renderScheduled = false
+      if (token !== stoppedToken) return
+      render()
+    })
+  }
+
+  function push(data: PeakMvcChartDataPoint): void {
+    if (disabled || !started || !isTTY) return
+    const c = clamp0(data.current)
+    const p = clamp0(data.peak)
+    currentBuf[head] = c
+    peakBuf[head] = p
+    head++
+    if (head >= bufferSize) head = 0
+    if (count < bufferSize) count++
+    lastCurrent = c
+    lastPeak = p
+    scheduleRender()
+  }
+
+  function linearizeAndGetMax(): number {
+    let idx = head - count
+    if (idx < 0) idx += bufferSize
+    let maxY = 1
+    for (let i = 0; i < count; i++) {
+      const c = currentBuf[idx] ?? 0
+      const p = peakBuf[idx] ?? 0
+      currentLinear[i] = c
+      peakLinear[i] = p
+      if (c > maxY) maxY = c
+      if (p > maxY) maxY = p
+      idx++
+      if (idx >= bufferSize) idx = 0
+    }
+    return maxY
+  }
+
+  function countNewlines(s: string): number {
+    let n = 0
+    for (let i = 0; i < s.length; i++) if (s.charCodeAt(i) === 10) n++
+    return n
+  }
+
+  function clearPrevious(lines: number): void {
+    if (lines <= 0) return
+    process.stdout.write(`\r\x1b[${lines}A\x1b[J`)
+  }
+
+  function render(): void {
+    if (disabled || !started || !isTTY || count === 0) return
+    const maxY = linearizeAndGetMax()
+    const series = showCurrent
+      ? [currentLinear.slice(0, count), peakLinear.slice(0, count)]
+      : [peakLinear.slice(0, count)]
+    const chartStr = plot(series, {
+      height,
+      min: 0,
+      max: maxY,
+      colors: showCurrent ? [blue, red] : [red],
+    })
+    const statsLine =
+      blue + `Current: ${lastCurrent.toFixed(2)} ${unit}` + `  ` + red + `Max: ${lastPeak.toFixed(2)} ${unit}` + reset
+
+    const nl = countNewlines(chartStr)
+    const chartLineCount = nl + (chartStr.endsWith("\n") ? 0 : 1)
+    const totalLines = chartLineCount + 1 + (statusLine ? 1 : 0)
     if (lastLines > 0) clearPrevious(lastLines)
     lastLines = totalLines
 

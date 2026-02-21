@@ -12,7 +12,6 @@ import { runLiveDataSession } from "../services/session.js"
 export function registerStream(program: Command): void {
   program
     .command("live [device]")
-    .alias("stream")
     .description("Live Data: just the raw data visualised in real-time (Esc to stop, or use -d for a fixed duration)")
     .option("-d, --duration <seconds>", "Run for this many seconds (omit to run until Esc)")
     .action(async (deviceKey: string | undefined, options: { duration?: string }) => {

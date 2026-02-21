@@ -31,7 +31,7 @@
     "webbluetooth": "^3.6.0"
   },
   "devDependencies": {
-    "@types/node": "^22.19.2",
+    "@types/node": "^22.19.11",
     "typescript": "^5.9.3"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",

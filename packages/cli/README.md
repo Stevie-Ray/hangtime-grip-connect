@@ -25,18 +25,21 @@ npx @hangtime/cli
 npx @hangtime/cli list
 
 # Live Data: raw force visualised in real-time with chart (Esc to stop; use `tare` before live to zero)
-npx @hangtime/cli live progressor  # or: stream progressor
+npx @hangtime/cli live progressor
 
 # Live Data for a fixed duration (e.g. 10 seconds)
 npx @hangtime/cli live progressor --duration 10
 
-# Watch mode: indefinite stream + session summary (Esc to stop)
-npx @hangtime/cli watch progressor
-
 # Critical Force: 24 reps of 7s pull + 3s rest with live chart and CF/W' summary
 npx @hangtime/cli critical-force progressor
 
-# Use lbs for live/watch output (default is kg)
+# Peak Force / MVC (aliases: peak-force, mvc)
+npx @hangtime/cli peak-force-mvc progressor --mode left-right --include-torque --moment-arm-cm 35
+
+# RFD test
+npx @hangtime/cli rfd progressor --duration 5 --countdown 3 --threshold 0.5 --left-right
+
+# Use lbs for live/test output (default is kg)
 npx @hangtime/cli live forceboard --unit lbs
 
 # Show device info (battery, firmware, device ID, calibration, etc.)
@@ -74,11 +77,14 @@ grip-connect live progressor
 # Live Data for a fixed duration (e.g. 10 seconds)
 grip-connect live progressor --duration 10
 
-# Watch mode: indefinite stream + session summary (Esc to stop)
-grip-connect watch progressor
-
 # Critical Force: 24 reps of 7s pull + 3s rest with live chart and CF/W' summary
 grip-connect critical-force progressor
+
+# Peak Force / MVC
+grip-connect peak-force-mvc progressor --mode single
+
+# RFD test
+grip-connect rfd progressor --duration 5 --threshold 0.5
 
 # Show device info (battery, firmware, device ID, calibration, etc.)
 grip-connect info entralpi
@@ -122,10 +128,49 @@ The CLI uses [webbluetooth](https://github.com/thegecko/webbluetooth) for Node.j
 ```sh
 npx @hangtime/cli --json          # Output newline-delimited JSON
 npx @hangtime/cli --no-color      # Disable colored output
-npx @hangtime/cli --unit lbs      # Force unit for stream/watch (default: kg; -u shorthand)
+npx @hangtime/cli --unit lbs      # Force unit for test output (default: kg; -u shorthand)
 npx @hangtime/cli --version       # Show version
 npx @hangtime/cli --help          # Show help
 ```
+
+## Test Commands
+
+### `peak-force-mvc [device]` (aliases: `peak-force`, `mvc`)
+
+```sh
+npx @hangtime/cli peak-force-mvc progressor --mode left-right --include-torque --moment-arm-cm 35
+```
+
+- `--mode <single|left-right>`
+- `--include-torque`
+- `--moment-arm-cm <cm>`
+- `--include-body-weight-comparison`
+- `--body-weight <value>` (uses current `--unit` behavior)
+
+### `rfd [device]`
+
+```sh
+npx @hangtime/cli rfd progressor --duration 5 --countdown 3 --threshold 0.5 --left-right
+```
+
+- `-d, --duration <seconds>`
+- `--countdown <seconds>`
+- `--threshold <value>`
+- `--left-right`
+
+### `critical-force [device]`
+
+```sh
+npx @hangtime/cli critical-force progressor --countdown 3
+```
+
+- `--countdown <seconds>`
+
+## Measurements
+
+- Stream test start menus include a `Measurements` entry.
+- Implemented tests (`Peak Force / MVC`, `RFD`, `Critical Force`) ask `Save measurement? [y/N]` when finished.
+- Measurements are stored at `~/.grip-connect/measurements.json`.
 
 ## JSON Mode
 
@@ -134,7 +179,7 @@ Use `--json` for machine-readable output, useful for piping into other tools:
 ```sh
 npx @hangtime/cli --json list
 npx @hangtime/cli --json live progressor
-npx @hangtime/cli --json watch forceboard | jq '.current'
+npx @hangtime/cli --json peak-force-mvc progressor
 ```
 
 ## Requirements

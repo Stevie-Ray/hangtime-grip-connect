@@ -59,7 +59,6 @@ export function registerList(program: Command): void {
       console.log(
         `  ${pc.dim("$")} grip-connect live [device]       ${pc.dim("Live Data: raw force visualised in real-time")}`,
       )
-      console.log(`  ${pc.dim("$")} grip-connect watch [device]      ${pc.dim("Indefinite stream + summary")}`)
       console.log(`  ${pc.dim("$")} grip-connect info [device]       ${pc.dim("Device information")}`)
       console.log(`  ${pc.dim("$")} grip-connect download [device]   ${pc.dim("Export session data")}`)
       console.log(`  ${pc.dim("$")} grip-connect tare [device]       ${pc.dim("Tare calibration")}`)
