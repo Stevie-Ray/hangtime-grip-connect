@@ -46,6 +46,7 @@
     "build:examples:reactnative": "npm run build && npm run build --workspace ./examples/reactnative",
     "changeset": "changeset",
     "changeset:version": "changeset version",
+    "changeset:version:ci": "changeset version && npm run sync:deno-versions",
     "changeset:publish": "changeset publish",
     "sync:deno-versions": "node scripts/sync-deno-versions.mjs",
     "check:deno-versions": "node scripts/check-deno-versions.mjs",
