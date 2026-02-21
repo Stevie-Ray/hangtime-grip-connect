@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@hangtime/cli": "^0.10.10"
+    "@hangtime/cli": "^0.11.0"
   },
   "trustedDependencies": [
     "@hangtime/cli",
