@@ -11,6 +11,8 @@ export type { ForceMeasurement }
 
 /** Force unit for display (kg, lbs, or N). */
 export type ForceUnit = "kg" | "lbs" | "n"
+/** Supported CLI language codes. */
+export type CliLanguage = "en" | "es" | "de" | "it" | "no" | "fr" | "nl"
 /** Supported session export formats. */
 export type ExportFormat = "csv" | "json" | "xml"
 
@@ -25,6 +27,8 @@ export interface OutputContext {
   json: boolean
   /** Force unit for stream/watch output. */
   unit: ForceUnit
+  /** Interactive language for labels and prompts. */
+  language: CliLanguage
 }
 
 /** Per-connection interactive session state. */
@@ -37,8 +41,6 @@ export interface InteractiveSessionState {
 export interface StreamRunOptions {
   /** Stream / tare duration in milliseconds. */
   durationMs?: number
-  /** When `true`, stream indefinitely until interrupted. */
-  watch?: boolean
 }
 
 /** Export options for download/session save flows. */
@@ -57,6 +59,14 @@ export interface CalibrationRunOptions {
   setCalibrationCurve?: string
   /** When true, run saveCalibration after Add Calibration point (Progressor). */
   saveCalibration?: boolean
+}
+
+/** Options for device-specific interactive actions when called non-interactively. */
+export interface DeviceActionRunOptions {
+  /** Motherboard LED color. */
+  ledColor?: "green" | "red" | "orange" | "off"
+  /** ForceBoard quick-start threshold in lbs. */
+  thresholdLbs?: number
 }
 
 /** Peak Force session options. */
@@ -79,6 +89,22 @@ export interface EnduranceSessionOptions {
   durationSeconds?: number
   /** Endurance countdown before capture starts in seconds. */
   countdownSeconds?: number
+  /** Enable left/right mode for sequential side captures. */
+  leftRightMode?: boolean
+  /** Starting side when left/right mode is enabled. */
+  startSide?: "left" | "right"
+  /** Pause between left/right side captures in seconds. */
+  pauseBetweenSidesSeconds?: number
+  /** Plot a target zone derived from MVC percentages. */
+  plotTargetZone?: boolean
+  /** Left maximum voluntary contraction in kilograms. */
+  leftMvcKg?: number
+  /** Right maximum voluntary contraction in kilograms. */
+  rightMvcKg?: number
+  /** Minimum target zone value as percent of MVC. */
+  targetZoneMinPercent?: number
+  /** Maximum target zone value as percent of MVC. */
+  targetZoneMaxPercent?: number
 }
 
 /** RFD session options. */
@@ -97,6 +123,32 @@ export interface RfdSessionOptions {
 export interface RepeatersSessionOptions {
   /** Repeaters countdown before the first set in seconds. */
   countdownSeconds?: number
+  /** Number of sets. */
+  sets?: number
+  /** Number of reps per set. */
+  repsPerSet?: number
+  /** Work time in seconds per rep. */
+  workSeconds?: number
+  /** Rest time in seconds between reps. */
+  restSeconds?: number
+  /** Pause time in seconds between sets. */
+  pauseSeconds?: number
+  /** Enable left/right mode for sequential side captures. */
+  leftRightMode?: boolean
+  /** Starting side when left/right mode is enabled. */
+  startSide?: "left" | "right"
+  /** Pause between left/right side captures in seconds. */
+  pauseBetweenSidesSeconds?: number
+  /** Plot target zone derived from MVC percentages. */
+  plotTargetZone?: boolean
+  /** Left maximum voluntary contraction in kilograms. */
+  leftMvcKg?: number
+  /** Right maximum voluntary contraction in kilograms. */
+  rightMvcKg?: number
+  /** Minimum target zone value as percent of MVC. */
+  targetZoneMinPercent?: number
+  /** Maximum target zone value as percent of MVC. */
+  targetZoneMaxPercent?: number
 }
 
 /** Critical Force session options. */
@@ -126,6 +178,8 @@ export interface RunOptions {
   export?: ExportRunOptions
   /** Calibration options for settings/actions. */
   calibration?: CalibrationRunOptions
+  /** Device action parameters for non-interactive action execution. */
+  deviceAction?: DeviceActionRunOptions
   /** Per-session stream test options. */
   session?: SessionRunOptions
   /** Global output context for JSON mode. */
@@ -161,7 +215,7 @@ export interface CliDevice {
   /** Stop an active stream. */
   stop?(): Promise<void>
   /** Export collected data in the given format. */
-  download?(format?: ExportFormat): Promise<void>
+  download?(format?: ExportFormat): Promise<string | undefined>
   /** Run tare (zero) calibration for the given duration. */
   tare?(duration?: number): boolean
   /** Run an RFD (Rate of Force Development) capture session. */
@@ -180,6 +234,8 @@ export interface CliDevice {
  * runtime prototype-walking. Actions with subactions show a nested menu.
  */
 export interface Action {
+  /** Stable identifier for logic that must not depend on translated labels. */
+  actionId?: string
   /** Short display name shown in the interactive picker. */
   name: string
   /** One-line description shown next to the name. */

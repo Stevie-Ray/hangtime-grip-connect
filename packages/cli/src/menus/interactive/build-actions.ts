@@ -3,6 +3,7 @@ import { buildSettingsAction } from "../settings/index.js"
 import { buildStreamActionsList } from "../stream-actions/index.js"
 import type { Action, CliDevice, OutputContext, RunOptions } from "../../types.js"
 import { printSuccess } from "../../utils.js"
+import { localizeInteractiveActions } from "./translations.js"
 
 /**
  * Build interactive actions for a selected device.
@@ -26,6 +27,7 @@ export function buildInteractiveActions(deviceKey: string, ctx?: OutputContext):
   }
 
   const disconnectAction: Action = {
+    actionId: "disconnect",
     name: "Disconnect",
     description: "Disconnect from current device and pick another",
     run: async (currentDevice: CliDevice, options: RunOptions) => {
@@ -41,5 +43,6 @@ export function buildInteractiveActions(deviceKey: string, ctx?: OutputContext):
     },
   }
 
-  return [...sharedActions, ...definition.actions, disconnectAction]
+  const allActions = [...sharedActions, ...definition.actions, disconnectAction]
+  return localizeInteractiveActions(allActions, ctx?.language ?? "en")
 }

@@ -25,7 +25,7 @@ export function registerDownload(program: Command): void {
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
 
-      await connectAndRun(device, name, async (d) => runDownloadSession(d, format, ctx), ctx, {
+      await connectAndRun(device, name, async (d) => runDownloadSession(d, format, ctx, options.output), ctx, {
         setupDefaultNotify: false,
       })
     })

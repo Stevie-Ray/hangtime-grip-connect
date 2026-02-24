@@ -1,16 +1,20 @@
-import input from "@inquirer/input"
 import process from "node:process"
 import select from "@inquirer/select"
 import pc from "picocolors"
 import { createPeakMvcChartRenderer, renderPeakForceChart, type RfdChartPoint } from "../../chart.js"
-import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
+import { convertForce, toNewtons } from "../../force-units.js"
+import type { Action, CliDevice, CliLanguage, ForceMeasurement, RunOptions } from "../../types.js"
+import { setTranslationLanguage, t } from "../interactive/translations.js"
 import { muteNotify, outputJson, waitForKeyToStop } from "../../utils.js"
 import {
   ensureTaredForStreamAction,
+  promptNumberOption,
   promptSaveMeasurement,
+  readSessionConfig,
   promptStreamActionOptionsMenu,
   promptStreamActionStart,
   viewSavedMeasurements,
+  writeSessionConfig,
 } from "./shared.js"
 
 type PeakMode = "single" | "left-right"
@@ -30,32 +34,13 @@ interface PeakForceTrialResult {
 }
 
 const DEFAULT_CAPTURE_DURATION_MS = 5000
-const KG_TO_NEWTON = 9.80665
-const LBS_TO_NEWTON = 4.4482216152605
-
-function toNewtons(force: number, unit: "kg" | "lbs" | "n"): number {
-  if (unit === "n") return force
-  if (unit === "lbs") return force * LBS_TO_NEWTON
-  return force * KG_TO_NEWTON
-}
-
-function convertForce(value: number, from: "kg" | "lbs" | "n", to: "kg" | "lbs"): number {
-  if (to === "kg") {
-    if (from === "kg") return value
-    if (from === "lbs") return value * 0.45359237
-    return value / KG_TO_NEWTON
-  }
-  if (from === "lbs") return value
-  if (from === "kg") return value * 2.2046226218
-  return value / LBS_TO_NEWTON
-}
 
 function resolveBodyWeightUnit(unit: "kg" | "lbs" | "n"): "kg" | "lbs" {
   return unit === "lbs" ? "lbs" : "kg"
 }
 
 function normalizePeakConfig(options: RunOptions): PeakForceConfig {
-  const raw = options.session?.peakForce
+  const raw = readSessionConfig(options, "peakForce")
   const mode = raw?.mode === "left-right" ? "left-right" : "single"
   const includeTorque = raw?.includeTorque ?? false
   const momentArmCm = Math.max(0, raw?.momentArmCm ?? 35)
@@ -70,25 +55,13 @@ function normalizePeakConfig(options: RunOptions): PeakForceConfig {
   }
 }
 
-function savePeakConfig(options: RunOptions, config: PeakForceConfig): void {
-  options.session = {
-    ...(options.session ?? {}),
-    peakForce: {
-      ...(options.session?.peakForce ?? {}),
-      mode: config.mode,
-      includeTorque: config.includeTorque,
-      momentArmCm: config.momentArmCm,
-      includeBodyWeightComparison: config.includeBodyWeightComparison,
-      bodyWeight: config.bodyWeight,
-    },
-  }
-}
-
-function formatOptionsLabel(config: PeakForceConfig): string {
+function formatOptionsLabel(config: PeakForceConfig, language: CliLanguage): string {
+  setTranslationLanguage(language)
   return (
-    `Options (Mode: ${config.mode === "single" ? "Single" : "Left/Right"}, ` +
-    `Torque: ${config.includeTorque ? "On" : "Off"}, ` +
-    `Body Weight: ${config.includeBodyWeightComparison ? "On" : "Off"})`
+    `${t("menu.options")} (` +
+    `${t("menu.mode")}: ${config.mode === "single" ? t("menu.single") : t("menu.left-right")}, ` +
+    `${t("menu.torque")}: ${config.includeTorque ? t("menu.on") : t("menu.off")}, ` +
+    `${t("menu.body-weight")}: ${config.includeBodyWeightComparison ? t("menu.on") : t("menu.off")})`
   )
 }
 
@@ -96,18 +69,11 @@ async function promptBoolean(message: string, defaultValue: boolean): Promise<bo
   return select({
     message,
     choices: [
-      { name: "Enabled", value: true },
-      { name: "Disabled", value: false },
+      { name: t("menu.enabled"), value: true },
+      { name: t("menu.disabled"), value: false },
     ],
     default: defaultValue,
   })
-}
-
-async function promptPositiveNumber(message: string, current: number, minimum = 0): Promise<number> {
-  const raw = await input({ message, default: current.toString() })
-  const parsed = Number(raw.trim())
-  if (!Number.isFinite(parsed)) return current
-  return Math.max(minimum, parsed)
 }
 
 async function capturePeakForceTrial(
@@ -115,7 +81,7 @@ async function capturePeakForceTrial(
   options: RunOptions,
   label: string,
 ): Promise<PeakForceTrialResult> {
-  const ctx = options.ctx ?? { json: false, unit: "kg" }
+  const ctx = options.ctx ?? { json: false, unit: "kg", language: "en" }
   const points: RfdChartPoint[] = []
   let peakForce = 0
   let startMs = 0
@@ -149,7 +115,7 @@ async function capturePeakForceTrial(
   try {
     if (process.stdin.isTTY && !ctx.json) {
       await device.stream()
-      await waitForKeyToStop(`Press Esc to stop ${label.toLowerCase()} capture.`)
+      await waitForKeyToStop(t("menu.press-esc-to-stop-capture", { label: label.toLowerCase() }))
       await device.stop?.()
     } else {
       // Fallback for non-interactive runs where Esc is unavailable.
@@ -172,158 +138,183 @@ function printTrialResult(
   bodyWeightUnit: "kg" | "lbs",
 ): void {
   const chart = renderPeakForceChart({ points: trial.points, peakForce: trial.peakForce })
-  console.log(pc.cyan(`\n${trial.label} Result\n`))
+  console.log(pc.cyan(`\n${trial.label} ${t("menu.result")}\n`))
   if (chart) {
     console.log(chart)
   } else {
-    console.log(pc.dim("No chart data captured."))
+    console.log(pc.dim(t("menu.no-chart-data-captured")))
   }
 
   console.log(pc.dim("─".repeat(50)))
-  console.log(`  ${pc.bold("Peak Force:")} ${trial.peakForce.toFixed(2)} ${unit}`)
+  console.log(`  ${pc.bold(`${t("menu.peak-force")}:`)} ${trial.peakForce.toFixed(2)} ${unit}`)
 
   if (config.includeTorque) {
     const momentArmMeters = config.momentArmCm / 100
     const torqueNm = toNewtons(trial.peakForce, unit) * momentArmMeters
-    console.log(`  ${pc.bold("Torque:")} ${torqueNm.toFixed(2)} N*m`)
+    console.log(`  ${pc.bold(`${t("menu.torque")}:`)} ${torqueNm.toFixed(2)} N*m`)
   }
 
   if (config.includeBodyWeightComparison && config.bodyWeight > 0) {
     const peakInBodyWeightUnit = convertForce(trial.peakForce, unit, bodyWeightUnit)
     const ratio = peakInBodyWeightUnit / config.bodyWeight
     console.log(
-      `  ${pc.bold("Peak / Body Weight:")} ${ratio.toFixed(2)}x (${(ratio * 100).toFixed(1)}%) [${config.bodyWeight.toFixed(2)} ${bodyWeightUnit}]`,
+      `  ${pc.bold(`${t("menu.peak-body-weight")}:`)} ${ratio.toFixed(2)}x (${(ratio * 100).toFixed(1)}%) [${config.bodyWeight.toFixed(2)} ${bodyWeightUnit}]`,
     )
   }
 }
 
 export async function runPeakForceMvcAction(device: CliDevice, options: RunOptions): Promise<void> {
-  const ctx = options.ctx ?? { json: false, unit: "kg" }
+  const ctx = options.ctx ?? { json: false, unit: "kg", language: "en" }
   if (typeof device.stream !== "function") return
 
+  setTranslationLanguage(ctx.language)
   const config = normalizePeakConfig(options)
   const bodyWeightUnit = resolveBodyWeightUnit(ctx.unit)
+  const peakLabel = t("actions.peak-force-mvc.name")
 
   if (!ctx.json) {
     console.log(
-      pc.cyan("\nPeak Force / MVC\n") +
+      pc.cyan(`\n${peakLabel}\n`) +
         pc.dim("─".repeat(60) + "\n") +
-        "Use this test to measure the peak force (maximum voluntary contraction, MVC) of a muscle. " +
-        "Choose Single or Left/Right to record one side or both. " +
-        "You can also enable torque and body weight calculations to get more detailed insights into your strength measurements.\n\n" +
-        pc.bold("What is torque? ") +
-        "Torque accounts for your limb length, making it easier to compare strength across different body sizes. " +
-        "By measuring the distance from your joint to where force is applied, we can calculate how much rotational strength you produce.\n",
+        t("copy.peakForceIntro") +
+        pc.bold(`${t("menu.what-is-torque")} `) +
+        t("copy.peakForceTorqueInfo"),
     )
 
     if (!options.nonInteractive) {
       const shouldStart = await promptStreamActionStart(ctx, {
         onConfigureOptions: async () => {
           const openTorqueSubmenu = async (): Promise<void> => {
-            await promptStreamActionOptionsMenu("Torque", [
-              {
-                label: () => `Include torque calculation: ${config.includeTorque ? "Enabled" : "Disabled"}`,
-                run: async () => {
-                  const wasEnabled = config.includeTorque
-                  config.includeTorque = await promptBoolean("Include torque calculation:", config.includeTorque)
-                  if (!wasEnabled && config.includeTorque) {
-                    config.momentArmCm = await promptPositiveNumber("Moment arm length (cm):", config.momentArmCm, 0)
-                  }
-                  savePeakConfig(options, config)
+            await promptStreamActionOptionsMenu(
+              t("menu.torque"),
+              [
+                {
+                  label: () =>
+                    `${t("menu.include-torque-calculation")}: ${config.includeTorque ? t("menu.enabled") : t("menu.disabled")}`,
+                  run: async () => {
+                    const wasEnabled = config.includeTorque
+                    config.includeTorque = await promptBoolean(
+                      `${t("menu.include-torque-calculation")}:`,
+                      config.includeTorque,
+                    )
+                    if (!wasEnabled && config.includeTorque) {
+                      config.momentArmCm = await promptNumberOption(
+                        t("menu.moment-arm-length-cm"),
+                        config.momentArmCm,
+                        0,
+                      )
+                    }
+                    writeSessionConfig(options, "peakForce", config)
+                  },
                 },
-              },
-              {
-                label: () => "Moment arm length (cm)",
-                disabled: () => !config.includeTorque,
-                run: async () => {
-                  config.momentArmCm = await promptPositiveNumber("Moment arm length (cm):", config.momentArmCm, 0)
-                  savePeakConfig(options, config)
+                {
+                  label: () => t("menu.moment-arm-length-cm"),
+                  disabled: () => !config.includeTorque,
+                  run: async () => {
+                    config.momentArmCm = await promptNumberOption(t("menu.moment-arm-length-cm"), config.momentArmCm, 0)
+                    writeSessionConfig(options, "peakForce", config)
+                  },
                 },
-              },
-            ])
+              ],
+              ctx.language,
+            )
           }
 
           const openBodyWeightSubmenu = async (): Promise<void> => {
-            await promptStreamActionOptionsMenu("Body Weight Comparison", [
-              {
-                label: () =>
-                  `Include body weight comparison: ${config.includeBodyWeightComparison ? "Enabled" : "Disabled"}`,
-                run: async () => {
-                  const wasEnabled = config.includeBodyWeightComparison
-                  config.includeBodyWeightComparison = await promptBoolean(
-                    "Include body weight comparison:",
-                    config.includeBodyWeightComparison,
-                  )
-                  if (!wasEnabled && config.includeBodyWeightComparison) {
-                    config.bodyWeight = await promptPositiveNumber(
-                      `Body weight (${bodyWeightUnit}):`,
+            await promptStreamActionOptionsMenu(
+              t("menu.body-weight-comparison"),
+              [
+                {
+                  label: () =>
+                    `${t("menu.include-body-weight-comparison")}: ${
+                      config.includeBodyWeightComparison ? t("menu.enabled") : t("menu.disabled")
+                    }`,
+                  run: async () => {
+                    const wasEnabled = config.includeBodyWeightComparison
+                    config.includeBodyWeightComparison = await promptBoolean(
+                      `${t("menu.include-body-weight-comparison")}:`,
+                      config.includeBodyWeightComparison,
+                    )
+                    if (!wasEnabled && config.includeBodyWeightComparison) {
+                      config.bodyWeight = await promptNumberOption(
+                        `${t("menu.body-weight")} (${bodyWeightUnit})`,
+                        config.bodyWeight,
+                        0.01,
+                      )
+                    }
+                    writeSessionConfig(options, "peakForce", config)
+                  },
+                },
+                {
+                  label: () => `${t("menu.body-weight")} (${bodyWeightUnit})`,
+                  disabled: () => !config.includeBodyWeightComparison,
+                  run: async () => {
+                    config.bodyWeight = await promptNumberOption(
+                      `${t("menu.body-weight")} (${bodyWeightUnit})`,
                       config.bodyWeight,
                       0.01,
                     )
-                  }
-                  savePeakConfig(options, config)
+                    writeSessionConfig(options, "peakForce", config)
+                  },
+                },
+              ],
+              ctx.language,
+            )
+          }
+
+          await promptStreamActionOptionsMenu(
+            peakLabel,
+            [
+              {
+                label: () =>
+                  `${t("menu.mode")}: ${config.mode === "single" ? t("menu.single-mode") : t("menu.left-right")}`,
+                run: async () => {
+                  config.mode = await select({
+                    message: `${peakLabel} ${t("menu.mode").toLowerCase()}:`,
+                    choices: [
+                      { name: t("menu.single-mode"), value: "single" as const },
+                      { name: t("menu.left-right"), value: "left-right" as const },
+                    ],
+                    default: config.mode,
+                  })
+                  writeSessionConfig(options, "peakForce", config)
                 },
               },
               {
-                label: () => `Body weight (${bodyWeightUnit})`,
-                disabled: () => !config.includeBodyWeightComparison,
-                run: async () => {
-                  config.bodyWeight = await promptPositiveNumber(
-                    `Body weight (${bodyWeightUnit}):`,
-                    config.bodyWeight,
-                    0.01,
-                  )
-                  savePeakConfig(options, config)
-                },
+                label: () =>
+                  `${t("menu.torque")}: ${config.includeTorque ? config.momentArmCm.toFixed(0) : t("menu.disabled")}`,
+                run: openTorqueSubmenu,
               },
-            ])
-          }
-
-          await promptStreamActionOptionsMenu("Peak Force / MVC", [
-            {
-              label: () => `Mode: ${config.mode === "single" ? "Single mode" : "Left/Right"}`,
-              run: async () => {
-                config.mode = await select({
-                  message: "Peak Force mode:",
-                  choices: [
-                    { name: "Single mode", value: "single" as const },
-                    { name: "Left/Right", value: "left-right" as const },
-                  ],
-                  default: config.mode,
-                })
-                savePeakConfig(options, config)
+              {
+                label: () =>
+                  `${t("menu.body-weight-comparison")}: ${
+                    config.includeBodyWeightComparison
+                      ? `${config.bodyWeight.toFixed(0)}${bodyWeightUnit}`
+                      : t("menu.disabled")
+                  }`,
+                run: openBodyWeightSubmenu,
               },
-            },
-            {
-              label: () => `Torque: ${config.includeTorque ? config.momentArmCm.toFixed(0) : "Disabled"}`,
-              run: openTorqueSubmenu,
-            },
-            {
-              label: () =>
-                `Body weight comparison: ${
-                  config.includeBodyWeightComparison ? `${config.bodyWeight.toFixed(0)}${bodyWeightUnit}` : "Disabled"
-                }`,
-              run: openBodyWeightSubmenu,
-            },
-          ])
+            ],
+            ctx.language,
+          )
         },
-        getOptionsLabel: () => formatOptionsLabel(config),
-        onViewMeasurements: async () => viewSavedMeasurements("peak-force-mvc", "Peak Force / MVC"),
+        getOptionsLabel: () => formatOptionsLabel(config, ctx.language),
+        onViewMeasurements: async () => viewSavedMeasurements("peak-force-mvc", peakLabel, ctx.language),
       })
       if (!shouldStart) return
     }
   }
 
-  savePeakConfig(options, config)
+  writeSessionConfig(options, "peakForce", config)
   await ensureTaredForStreamAction(device, options)
 
-  const trialLabels = config.mode === "left-right" ? ["Left", "Right"] : ["Single"]
+  const trialLabels = config.mode === "left-right" ? [t("menu.left"), t("menu.right")] : [t("menu.single")]
   const trialResults: PeakForceTrialResult[] = []
 
   for (const label of trialLabels) {
     if (!ctx.json) {
-      console.log(pc.dim(`\n${label} trial`))
-      console.log(pc.dim("Pull maximally, then press Esc to finish the trial."))
+      console.log(pc.dim(`\n${label} ${t("menu.trial")}`))
+      console.log(pc.dim(t("menu.pull-max-then-esc-finish-trial")))
     }
 
     const trial = await capturePeakForceTrial(device, options, label)
@@ -370,11 +361,13 @@ export async function runPeakForceMvcAction(device: CliDevice, options: RunOptio
       const weaker = left.peakForce >= right.peakForce ? right : left
       imbalancePct = stronger.peakForce > 0 ? ((stronger.peakForce - weaker.peakForce) / stronger.peakForce) * 100 : 0
 
-      console.log(pc.cyan("\nLeft/Right Comparison\n"))
+      console.log(pc.cyan(`\n${t("menu.left-right-comparison")}\n`))
       console.log(pc.dim("─".repeat(50)))
-      console.log(`  ${pc.bold("Stronger side:")} ${stronger.label}`)
-      console.log(`  ${pc.bold("Difference:")} ${(stronger.peakForce - weaker.peakForce).toFixed(2)} ${ctx.unit}`)
-      console.log(`  ${pc.bold("Imbalance:")} ${imbalancePct.toFixed(1)}%`)
+      console.log(`  ${pc.bold(`${t("menu.stronger-side")}:`)} ${stronger.label}`)
+      console.log(
+        `  ${pc.bold(`${t("menu.difference")}:`)} ${(stronger.peakForce - weaker.peakForce).toFixed(2)} ${ctx.unit}`,
+      )
+      console.log(`  ${pc.bold(`${t("menu.imbalance")}:`)} ${imbalancePct.toFixed(1)}%`)
     }
   }
 
@@ -382,18 +375,18 @@ export async function runPeakForceMvcAction(device: CliDevice, options: RunOptio
     (trial) => `${trial.label}: ${trial.peakForce.toFixed(2)} ${ctx.unit}`,
   )
   if (config.includeTorque) {
-    measurementDetails.push(`Moment arm: ${config.momentArmCm.toFixed(2)} cm`)
+    measurementDetails.push(`${t("menu.moment-arm-length-cm")}: ${config.momentArmCm.toFixed(2)} cm`)
   }
   if (config.includeBodyWeightComparison) {
-    measurementDetails.push(`Body weight: ${config.bodyWeight.toFixed(2)} ${bodyWeightUnit}`)
+    measurementDetails.push(`${t("menu.body-weight")}: ${config.bodyWeight.toFixed(2)} ${bodyWeightUnit}`)
   }
   if (imbalancePct != null) {
-    measurementDetails.push(`Imbalance: ${imbalancePct.toFixed(1)}%`)
+    measurementDetails.push(`${t("menu.imbalance")}: ${imbalancePct.toFixed(1)}%`)
   }
 
   const headline =
     config.mode === "single"
-      ? `Peak ${trialResults[0]?.peakForce.toFixed(2) ?? "0.00"} ${ctx.unit}`
+      ? `${t("menu.peak")} ${trialResults[0]?.peakForce.toFixed(2) ?? "0.00"} ${ctx.unit}`
       : `L ${trialResults[0]?.peakForce.toFixed(2) ?? "0.00"} / R ${trialResults[1]?.peakForce.toFixed(2) ?? "0.00"} ${ctx.unit}`
 
   await promptSaveMeasurement("peak-force-mvc", "Peak Force / MVC", options, {
@@ -418,6 +411,7 @@ export async function runPeakForceMvcAction(device: CliDevice, options: RunOptio
 
 export function buildPeakForceMvcAction(): Action {
   return {
+    actionId: "peak-force-mvc",
     name: "Peak Force / MVC",
     description: "Record maximum voluntary contraction (MVC), asymmetrically.",
     run: async (device: CliDevice, options: RunOptions) => runPeakForceMvcAction(device, options),

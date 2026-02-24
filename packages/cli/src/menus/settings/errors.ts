@@ -3,8 +3,10 @@ import { pickAction } from "../../utils.js"
 
 export function buildErrorsSettingsAction(errorSubactions: Action[]): Action {
   return {
+    actionId: "settings-errors",
     name: "Errors",
     description: "Get or clear error information",
+    subactions: errorSubactions,
     run: async (currentDevice: CliDevice, options: RunOptions) => {
       const sub = await pickAction(errorSubactions)
       await sub.run(currentDevice, options)

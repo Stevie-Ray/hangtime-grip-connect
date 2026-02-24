@@ -1,6 +1,7 @@
 import process from "node:process"
 import { plot, blue, red, yellow, reset } from "asciichart"
 import pc from "picocolors"
+import { t } from "./menus/interactive/translations.js"
 
 /** Number of samples to keep in the rolling buffer. */
 const DEFAULT_BUFFER_SIZE = 80
@@ -321,13 +322,13 @@ export function createChartRenderer(options: ChartRendererOptions = {}) {
 
     const statsLine =
       blue +
-      `Current: ${lastCurrent.toFixed(2)} ${unit}` +
+      `${t("menu.current")}: ${lastCurrent.toFixed(2)} ${unit}` +
       `  ` +
       red +
-      `Max: ${lastPeak.toFixed(2)} ${unit}` +
+      `${t("menu.max")}: ${lastPeak.toFixed(2)} ${unit}` +
       `  ` +
       yellow +
-      `Avg: ${lastMean.toFixed(2)} ${unit}` +
+      `${t("menu.avg")}: ${lastMean.toFixed(2)} ${unit}` +
       reset
 
     // Track line count so we can overwrite the previous frame cleanly
@@ -467,7 +468,12 @@ export function createPeakMvcChartRenderer(options: ChartRendererOptions = {}) {
       colors: showCurrent ? [blue, red] : [red],
     })
     const statsLine =
-      blue + `Current: ${lastCurrent.toFixed(2)} ${unit}` + `  ` + red + `Max: ${lastPeak.toFixed(2)} ${unit}` + reset
+      blue +
+      `${t("menu.current")}: ${lastCurrent.toFixed(2)} ${unit}` +
+      `  ` +
+      red +
+      `${t("menu.max")}: ${lastPeak.toFixed(2)} ${unit}` +
+      reset
 
     const nl = countNewlines(chartStr)
     const chartLineCount = nl + (chartStr.endsWith("\n") ? 0 : 1)

@@ -60,6 +60,38 @@ bunx jsr add @hangtime/cli
 After installing globally (`npm i -g @hangtime/cli`), the `grip-connect` binary is available. Running it without a
 subcommand starts **interactive mode**.
 
+Non-interactive commands support `device` first so CLI flow matches interactive flow (pick device, then action):
+
+```sh
+npx @hangtime/cli progressor live
+npx @hangtime/cli progressor peak-force-mvc --mode left-right
+npx @hangtime/cli action progressor settings/system-info
+```
+
+### Command list
+
+- `list`
+- `live`
+- `peak-force-mvc` (aliases: `peak-force`, `mvc`)
+- `rfd`
+- `endurance`
+- `repeaters`
+- `critical-force` (aliases: `critical`, `crictal-force`)
+- `info`
+- `download`
+- `tare`
+- `active`
+- `action` (run/list interactive action paths)
+
+### Help
+
+```sh
+npx @hangtime/cli --help
+npx @hangtime/cli live --help
+npx @hangtime/cli progressor live --help
+npx @hangtime/cli action --help
+```
+
 ### Interactive mode
 
 ```sh
@@ -67,7 +99,7 @@ npx @hangtime/cli
 ```
 
 Pick a device, then pick an action. After each action the CLI loops back so you can run multiple actions on the same
-connection. Choose **Disconnect & exit** to stop.
+connection. Choose **Disconnect** to return to the device picker.
 
 ### `list`
 
@@ -82,8 +114,8 @@ npx @hangtime/cli list
 Live force output with real-time charting.
 
 ```sh
-npx @hangtime/cli live progressor
-npx @hangtime/cli live progressor --duration 10
+npx @hangtime/cli progressor live
+npx @hangtime/cli progressor live --duration 10
 ```
 
 | Flag             | Description                    | Default      |
@@ -95,7 +127,7 @@ npx @hangtime/cli live progressor --duration 10
 Run Peak Force / MVC test with optional torque and body-weight metrics.
 
 ```sh
-npx @hangtime/cli peak-force-mvc progressor --mode left-right --include-torque --moment-arm-cm 35
+npx @hangtime/cli progressor peak-force-mvc --mode left-right --include-torque --moment-arm-cm 35
 ```
 
 | Flag                               | Description                                  | Default  |
@@ -111,15 +143,62 @@ npx @hangtime/cli peak-force-mvc progressor --mode left-right --include-torque -
 Run Rate of Force Development test.
 
 ```sh
-npx @hangtime/cli rfd progressor --duration 5 --countdown 3 --threshold 0.5 --left-right
+npx @hangtime/cli progressor rfd --duration 5 --countdown 00:03 --threshold 0.5 --left-right
 ```
 
-| Flag             | Description                               | Default |
-| ---------------- | ----------------------------------------- | ------- |
-| `-d, --duration` | Capture duration in seconds               | `5`     |
-| `--countdown`    | Countdown before capture starts (seconds) | `3`     |
-| `--threshold`    | Onset threshold in current force unit     | `0.5`   |
-| `--left-right`   | Enable Left/Right mode                    | `false` |
+| Flag             | Description                                          | Default |
+| ---------------- | ---------------------------------------------------- | ------- |
+| `-d, --duration` | Capture duration in seconds                          | `5`     |
+| `--countdown`    | Countdown before capture starts (`mm:ss` or seconds) | `3`     |
+| `--threshold`    | Onset threshold in current force unit                | `0.5`   |
+| `--left-right`   | Enable Left/Right mode                               | `false` |
+
+### `endurance`
+
+Run a time-based endurance test with optional left/right sequencing and MVC target zone.
+
+```sh
+npx @hangtime/cli progressor endurance --duration 00:30 --countdown 00:03 --left-right --start-side left --pause-between-sides 00:10 --plot-target-zone --left-mvc-kg 45 --right-mvc-kg 43 --target-min-percent 40 --target-max-percent 80
+```
+
+| Flag                    | Description                                          | Default |
+| ----------------------- | ---------------------------------------------------- | ------- |
+| `-d, --duration`        | Capture duration (`mm:ss` or seconds)                | `00:30` |
+| `--countdown`           | Countdown before capture starts (`mm:ss` or seconds) | `3`     |
+| `--left-right`          | Enable Left/Right mode                               | `false` |
+| `--start-side`          | Start side for Left/Right mode (`left` or `right`)   | `left`  |
+| `--pause-between-sides` | Pause between sides (`mm:ss` or seconds)             | `10`    |
+| `--plot-target-zone`    | Enable target zone plotting                          | `false` |
+| `--left-mvc-kg`         | Left MVC in kg                                       | `0`     |
+| `--right-mvc-kg`        | Right MVC in kg                                      | `0`     |
+| `--target-min-percent`  | Target zone minimum (% of MVC)                       | `40`    |
+| `--target-max-percent`  | Target zone maximum (% of MVC)                       | `80`    |
+
+### `repeaters`
+
+Run Repeaters protocol with configurable sets/reps timing, optional left/right sequencing, and optional MVC target
+levels.
+
+```sh
+npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --work 10 --rest 6 --pause 08:00 --countdown 3 --left-right --start-side left --pause-between-sides 10 --plot-target-levels --left-mvc-kg 45 --right-mvc-kg 43 --target-min-percent 40 --target-max-percent 80
+```
+
+| Flag                    | Description                                           | Default |
+| ----------------------- | ----------------------------------------------------- | ------- |
+| `--sets`                | Number of sets                                        | `3`     |
+| `--reps`                | Number of reps per set                                | `12`    |
+| `--work`                | Work duration per rep (`mm:ss` or seconds)            | `10`    |
+| `--rest`                | Rest duration between reps (`mm:ss` or seconds)       | `6`     |
+| `--pause`               | Pause duration between sets (`mm:ss` or seconds)      | `08:00` |
+| `--countdown`           | Countdown before protocol starts (`mm:ss` or seconds) | `3`     |
+| `--left-right`          | Enable Left/Right mode                                | `false` |
+| `--start-side`          | Start side for Left/Right mode (`left` or `right`)    | `left`  |
+| `--pause-between-sides` | Pause between sides (`mm:ss` or seconds)              | `10`    |
+| `--plot-target-levels`  | Enable target levels plotting                         | `false` |
+| `--left-mvc-kg`         | Left MVC in kg                                        | `0`     |
+| `--right-mvc-kg`        | Right MVC in kg                                       | `0`     |
+| `--target-min-percent`  | Target levels minimum (% of MVC)                      | `40`    |
+| `--target-max-percent`  | Target levels maximum (% of MVC)                      | `80`    |
 
 ### `info`
 
@@ -127,7 +206,7 @@ Show all available device properties: battery, firmware, hardware, manufacturer,
 software, system ID, humidity, and temperature. Only properties supported by the device are displayed.
 
 ```sh
-npx @hangtime/cli info entralpi
+npx @hangtime/cli entralpi info
 ```
 
 ### `download`
@@ -135,21 +214,21 @@ npx @hangtime/cli info entralpi
 Export session data to a file.
 
 ```sh
-npx @hangtime/cli download forceboard -f json
+npx @hangtime/cli forceboard download -f json -o ./exports
 ```
 
-| Flag           | Description                         | Default |
-| -------------- | ----------------------------------- | ------- |
-| `-f, --format` | Export format: `csv`, `json`, `xml` | `csv`   |
-| `-o, --output` | Output directory                    |         |
+| Flag           | Description                                      | Default |
+| -------------- | ------------------------------------------------ | ------- |
+| `-f, --format` | Export format: `csv`, `json`, `xml`              | `csv`   |
+| `-o, --output` | Output directory (creates and moves export file) |         |
 
 ### `tare`
 
 Run tare (zero) calibration. A spinner indicates progress while the device collects baseline samples.
 
 ```sh
-npx @hangtime/cli tare progressor           # default 5 s
-npx @hangtime/cli tare progressor -d 10000  # 10 s
+npx @hangtime/cli progressor tare           # default 5 s
+npx @hangtime/cli progressor tare -d 10000  # 10 s
 ```
 
 | Flag             | Description                   | Default |
@@ -158,11 +237,11 @@ npx @hangtime/cli tare progressor -d 10000  # 10 s
 
 ### `active`
 
-Monitor activity status using the core `active()` callback. Prints timestamped status changes until Ctrl+C.
+Monitor activity status using the core `active()` callback. Prints timestamped status changes until Esc.
 
 ```sh
-npx @hangtime/cli active progressor
-npx @hangtime/cli active progressor -t 3.0 -d 1500
+npx @hangtime/cli progressor active
+npx @hangtime/cli progressor active -t 3.0 -d 1500
 ```
 
 | Flag              | Description                       | Default |
@@ -170,22 +249,43 @@ npx @hangtime/cli active progressor -t 3.0 -d 1500
 | `-t, --threshold` | Force threshold in kg             | `2.5`   |
 | `-d, --duration`  | Duration to confirm activity (ms) | `1000`  |
 
+### `action`
+
+Run any interactive action (including settings and device-specific actions) via a non-interactive path. If `path` is
+omitted, the command lists all available action paths for the selected device.
+
+```sh
+npx @hangtime/cli action progressor
+npx @hangtime/cli action progressor settings/system-info
+npx @hangtime/cli action progressor settings/calibration/get-current-calibration-curve
+npx @hangtime/cli action motherboard led --led-color green
+```
+
+| Flag                      | Description                                             | Default |
+| ------------------------- | ------------------------------------------------------- | ------- |
+| `-d, --duration`          | Duration for actions that support it                    |         |
+| `--set-calibration-curve` | Progressor calibration curve (12-byte hex)              |         |
+| `--save-calibration`      | Save calibration after add calibration point            | `false` |
+| `--led-color`             | Motherboard LED color (`green`, `red`, `orange`, `off`) |         |
+| `--threshold-lbs`         | ForceBoard threshold in lbs                             |         |
+
 ### `critical-force`
 
 Run 24x (7s pull / 3s rest) critical force protocol.
 
 ```sh
-npx @hangtime/cli critical-force progressor --countdown 3
+npx @hangtime/cli progressor critical-force --countdown 00:03
 ```
 
-| Flag          | Description                                | Default |
-| ------------- | ------------------------------------------ | ------- |
-| `--countdown` | Countdown before protocol starts (seconds) | `3`     |
+| Flag          | Description                                           | Default |
+| ------------- | ----------------------------------------------------- | ------- |
+| `--countdown` | Countdown before protocol starts (`mm:ss` or seconds) | `3`     |
 
 ## Measurements
 
 - Interactive stream tests include a `Measurements` list item in `Pick an option`.
-- Implemented tests (`Peak Force / MVC`, `RFD`, `Critical Force`) ask `Save measurement? [y/N]` after completion.
+- Implemented tests (`Peak Force / MVC`, `Endurance`, `Repeaters`, `RFD`, `Critical Force`) ask
+  `Save measurement? [y/N]` after completion.
 - Saved records are persisted at `~/.grip-connect/measurements.json`.
 
 ## Global options
@@ -204,8 +304,8 @@ Pass `--json` to any command for machine-readable output. For `live` and test co
 JSON (one measurement per line). For `list` and `info` it outputs a single JSON object.
 
 ```sh
-npx @hangtime/cli live progressor --json | jq '.current'
-npx @hangtime/cli peak-force-mvc progressor --json
+npx @hangtime/cli progressor live --json | jq '.current'
+npx @hangtime/cli progressor peak-force-mvc --json
 npx @hangtime/cli list --json
 ```
 

@@ -5,13 +5,16 @@
  */
 
 import type { Command } from "commander"
+import { registerAction } from "./action.js"
 import { registerActive } from "./active.js"
 import { registerCriticalForce } from "./critical-force.js"
+import { registerEndurance } from "./endurance.js"
 import { registerDownload } from "./download.js"
 import { registerInfo } from "./info.js"
 import { registerInteractive } from "./interactive.js"
 import { registerList } from "./list.js"
 import { registerPeakForceMvc } from "./peak-force-mvc.js"
+import { registerRepeaters } from "./repeaters.js"
 import { registerRfd } from "./rfd.js"
 import { registerStream } from "./stream.js"
 import { registerTare } from "./tare.js"
@@ -22,9 +25,12 @@ import { registerTare } from "./tare.js"
  * @param program - The root Commander program instance.
  */
 export function registerCommands(program: Command): void {
+  registerAction(program)
   registerList(program)
   registerStream(program)
   registerPeakForceMvc(program)
+  registerEndurance(program)
+  registerRepeaters(program)
   registerRfd(program)
   registerCriticalForce(program)
   registerInfo(program)

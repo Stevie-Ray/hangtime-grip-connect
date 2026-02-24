@@ -9,13 +9,19 @@ import select from "@inquirer/select"
 import ora from "ora"
 import pc from "picocolors"
 import { devices } from "./devices/index.js"
+import { setTranslationLanguage, t } from "./menus/interactive/translations.js"
+import { readSavedPreferencesSync } from "./services/preferences.js"
 import type { Action, CliDevice, ForceMeasurement, OutputContext } from "./types.js"
 
 /** Resolves the output context from root Commander options. */
 export function resolveContext(program: { opts(): Record<string, unknown> }): OutputContext {
   const opts = program.opts()
-  const unit = opts["unit"] === "lbs" ? "lbs" : opts["unit"] === "n" ? "n" : "kg"
-  return { json: Boolean(opts["json"]), unit }
+  const saved = readSavedPreferencesSync()
+  const cliUnit = opts["unit"] === "lbs" ? "lbs" : opts["unit"] === "n" ? "n" : opts["unit"] === "kg" ? "kg" : undefined
+  const unit = cliUnit ?? saved.unit ?? "kg"
+  const language = saved.language ?? "en"
+  setTranslationLanguage(language)
+  return { json: Boolean(opts["json"]), unit, language }
 }
 
 /** Formats a force measurement with optional distribution fields. */
@@ -72,22 +78,22 @@ export function fail(message: string): never {
 /** Prompt for a device from the registry. */
 export async function pickDevice(): Promise<string> {
   return select({
-    message: "Select a device:",
+    message: t("menu.select-device"),
     choices: Object.entries(devices).map(([key, def]) => {
       const disabled = key === "wh-c06"
       return {
         name: disabled ? `${def.name}` : def.name,
         value: key,
-        ...(disabled && { disabled: true }),
+        ...(disabled && { disabled: `(${t("menu.disabled")})` }),
       }
     }),
   })
 }
 
 /** Prompt for an action. */
-export async function pickAction(actions: Action[], message = "What do you want to do?"): Promise<Action> {
+export async function pickAction(actions: Action[], message?: string): Promise<Action> {
   return select({
-    message,
+    message: message ?? t("menu.pick-option"),
     choices: actions.map((action) => {
       const color = action.nameColor ? pc[action.nameColor] : (s: string) => s
       return {
@@ -220,21 +226,22 @@ export async function connectAndRun(
   device: CliDevice,
   name: string,
   callback: (device: CliDevice) => Promise<void>,
-  ctx: OutputContext = { json: false, unit: "kg" },
+  ctx: OutputContext = { json: false, unit: "kg", language: "en" },
   options: ConnectAndRunOptions = {},
 ): Promise<void> {
+  setTranslationLanguage(ctx.language)
   if (typeof device.active === "function") {
     device.active(() => {
       // silence core default active callback
     })
   }
 
-  const spinner = ctx.json ? null : ora(`Connecting to ${pc.bold(name)}...`).start()
+  const spinner = ctx.json ? null : ora(t("menu.connecting-to-device", { name: pc.bold(name) })).start()
 
   return new Promise<void>((resolve, reject) => {
     device
       .connect(async () => {
-        spinner?.succeed(`Connected to ${pc.bold(name)}`)
+        spinner?.succeed(t("menu.connected-to-device", { name: pc.bold(name) }))
         const cleanupSignalHandlers = setupSignalHandlers(device, options.onSignal)
 
         if (options.setupDefaultNotify !== false) {
@@ -250,19 +257,19 @@ export async function connectAndRun(
           cleanupSignalHandlers()
           device.disconnect()
           if (!ctx.json && options.printDisconnectedMessage !== false) {
-            console.log(pc.dim("\nDisconnected."))
+            console.log(pc.dim(`\n${t("menu.disconnected")}`))
           }
         }
       })
       .catch((error: unknown) => {
         const message = error instanceof Error ? error.message : String(error)
-        spinner?.fail(`Connection failed: ${message}`)
+        spinner?.fail(t("menu.connection-failed", { message }))
         if (error instanceof Error) {
-          error.message = pc.red(`Connection to ${name} failed: ${error.message}`)
+          error.message = pc.red(t("menu.connection-to-device-failed", { name, message: error.message }))
           reject(error)
           return
         }
-        reject(new Error(pc.red(`Connection to ${name} failed: ${message}`)))
+        reject(new Error(pc.red(t("menu.connection-to-device-failed", { name, message }))))
       })
   })
 }

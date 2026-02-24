@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "@hangtime/grip-connect-runtime": "^0.10.9",
-    "@inquirer/input": "^5.0.7",
-    "@inquirer/select": "^5.0.7",
+    "@inquirer/input": "^5.0.8",
+    "@inquirer/select": "^5.1.0",
     "asciichart": "^1.5.25",
     "commander": "^14.0.3",
     "ora": "^9.3.0",

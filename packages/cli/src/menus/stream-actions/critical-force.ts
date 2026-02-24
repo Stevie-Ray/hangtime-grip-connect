@@ -1,12 +1,15 @@
 import process from "node:process"
 import pc from "picocolors"
 import { createChartRenderer, renderCriticalForceChart, type RfdChartPoint } from "../../chart.js"
+import { formatClock } from "../../time.js"
 import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
+import { setTranslationLanguage, t } from "../interactive/translations.js"
 import { fail, muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../../utils.js"
 import {
   ensureTaredForStreamAction,
   promptSaveMeasurement,
   promptIntegerSecondsOption,
+  runCountdown,
   promptStreamActionOptionsMenu,
   promptStreamActionStart,
   viewSavedMeasurements,
@@ -83,7 +86,9 @@ function getRepAndPhase(elapsedMs: number): {
  * Run a 24x (7s pull / 3s rest) Critical Force protocol with live charting.
  */
 export async function runCriticalForceAction(device: CliDevice, opts: RunOptions): Promise<void> {
-  const ctx = opts.ctx ?? { json: false, unit: "kg" }
+  const ctx = opts.ctx ?? { json: false, unit: "kg", language: "en" }
+  setTranslationLanguage(ctx.language)
+  const criticalForceLabel = t("actions.critical-force.name")
   if (typeof device.stream !== "function") {
     fail("Critical Force not supported on this device.")
   }
@@ -91,17 +96,6 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
   const chartEnabled = !ctx.json && process.stdout.isTTY
   const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
   let countdownSeconds = opts.session?.criticalForce?.countdownSeconds ?? 3
-  const countdown = async (prefix: string, seconds: number): Promise<void> => {
-    for (let i = seconds; i >= 1; i--) {
-      if (chartEnabled) {
-        chart.setStatus(`${prefix} ${i}`)
-      } else {
-        console.log(pc.bold(`${prefix} ${i}`))
-      }
-      await new Promise((r) => setTimeout(r, 1000))
-    }
-    if (chartEnabled) chart.setStatus("")
-  }
   const samples: CriticalForceSample[] = []
   const sessionPoints: RfdChartPoint[] = []
   let maxForce = 0
@@ -110,56 +104,49 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
 
   if (!ctx.json) {
     console.log(
-      pc.cyan("\nCritical Force\n") +
-        pc.dim("─".repeat(60) + "\n") +
-        "In this test we utilize the methodology outlined in the scientific paper titled " +
-        pc.italic("An All-Out Test to Determine Finger Flexor Critical Force in Rock Climbers") +
-        " to measure critical force. " +
-        "The objective is to determine the force level you can sustain over a long period without fatigue, " +
-        "which is done by performing a series of 'pulls' until the force output flattens out and reaches a plateau.\n\n" +
-        "To identify it, you'll execute up to " +
-        pc.bold("24 'pulls'") +
-        ", each lasting for " +
-        pc.bold("7 seconds") +
-        " where you are pulling as hard as possible. " +
-        "This is followed by a " +
-        pc.bold("3 second") +
-        " break. " +
-        "If you reach the plateau before 24 reps, you have the option to cancel and save.\n",
+      pc.cyan(`\n${t("menu.critical-force")}\n`) + pc.dim("─".repeat(60) + "\n") + t("copy.criticalForceIntro"),
     )
 
     if (!opts.nonInteractive) {
       const shouldStart = await promptStreamActionStart(ctx, {
         onConfigureOptions: async () => {
           const openProtocolSubmenu = async (): Promise<void> => {
-            await promptStreamActionOptionsMenu("Critical Force Protocol", [
-              {
-                label: () => `Countdown: ${countdownSeconds}s`,
-                run: async () => {
-                  countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
-                  opts.session = {
-                    ...(opts.session ?? {}),
-                    criticalForce: { ...(opts.session?.criticalForce ?? {}), countdownSeconds },
-                  }
+            await promptStreamActionOptionsMenu(
+              `${criticalForceLabel} ${t("menu.protocol")}`,
+              [
+                {
+                  label: () => `${t("menu.countdown")}: ${formatClock(countdownSeconds)}`,
+                  run: async () => {
+                    countdownSeconds = await promptIntegerSecondsOption(t("menu.countdown"), countdownSeconds, 0)
+                    opts.session = {
+                      ...(opts.session ?? {}),
+                      criticalForce: { ...(opts.session?.criticalForce ?? {}), countdownSeconds },
+                    }
+                  },
                 },
-              },
-            ])
+              ],
+              ctx.language,
+            )
           }
 
-          await promptStreamActionOptionsMenu("Critical Force", [
-            {
-              label: () => `Protocol: Countdown ${countdownSeconds}s (open)`,
-              run: openProtocolSubmenu,
-            },
-          ])
+          await promptStreamActionOptionsMenu(
+            criticalForceLabel,
+            [
+              {
+                label: () => `${t("menu.protocol")}: ${t("menu.countdown")} ${formatClock(countdownSeconds)}`,
+                run: openProtocolSubmenu,
+              },
+            ],
+            ctx.language,
+          )
         },
-        getOptionsLabel: () => `Options (Countdown: ${countdownSeconds}s)`,
-        onViewMeasurements: async () => viewSavedMeasurements("critical-force", "Critical Force"),
+        getOptionsLabel: () => `${t("menu.options")} (${t("menu.countdown")}: ${formatClock(countdownSeconds)})`,
+        onViewMeasurements: async () => viewSavedMeasurements("critical-force", criticalForceLabel, ctx.language),
       })
       if (!shouldStart) return
     }
     await ensureTaredForStreamAction(device, opts)
-    console.log(pc.dim("\nPress Esc to stop"))
+    console.log(pc.dim(`\n${t("menu.press-esc-to-stop")}`))
   } else {
     await ensureTaredForStreamAction(device, opts)
   }
@@ -191,7 +178,7 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
   }
 
   if (!ctx.json) {
-    await countdown("Session starts in:", countdownSeconds)
+    await runCountdown(countdownSeconds, chartEnabled ? chart : undefined)
   }
 
   const stopPromise = process.stdin.isTTY ? waitForKeyToStop() : (Promise.race([]) as Promise<void>)
@@ -203,9 +190,16 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
     ? setInterval(() => {
         const elapsed = Date.now() - sessionStartMs
         const { completedReps, inPull, secondsRemaining } = getRepAndPhase(elapsed)
-        const phaseText = inPull ? `PULL (${secondsRemaining}s)` : `REST (${secondsRemaining}s)`
+        const phase = inPull ? t("menu.pull") : t("menu.rest")
         chart.setStatus(
-          `Reps ${completedReps}/${TOTAL_REPS} Current: ${lastCurrent.toFixed(2)}${ctx.unit} ${phaseText}`,
+          t("menu.reps-current-phase", {
+            completed: completedReps,
+            total: TOTAL_REPS,
+            current: lastCurrent.toFixed(2),
+            unit: ctx.unit,
+            phase,
+            seconds: secondsRemaining,
+          }),
         )
       }, 100)
     : undefined
@@ -267,27 +261,25 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
     maxForce,
   })
 
-  console.log(pc.cyan("\nCritical Force Result\n"))
+  console.log(pc.cyan(`\n${t("menu.critical-force-result")}\n`))
   if (finalChart) {
     console.log(finalChart)
   } else {
-    console.log(pc.dim("No chart data captured."))
+    console.log(pc.dim(t("menu.no-chart-data-captured")))
   }
 
   console.log(pc.dim("─".repeat(50)))
-  console.log(`  ${pc.bold("Reps:")} ${Math.min(TOTAL_REPS, perRepMeans.length)}/${TOTAL_REPS}`)
-  console.log(`  ${pc.bold("Critical Force:")} ${criticalForce.toFixed(2)} ${ctx.unit}`)
+  console.log(`  ${pc.bold(`${t("menu.reps")}:`)} ${Math.min(TOTAL_REPS, perRepMeans.length)}/${TOTAL_REPS}`)
+  console.log(`  ${pc.bold(`${t("menu.critical-force")}:`)} ${criticalForce.toFixed(2)} ${ctx.unit}`)
   console.log(`  ${pc.bold("W':")} ${wPrime.toFixed(2)} ${ctx.unit}*s`)
   console.log("")
-  console.log(
-    `W' represents the amount of work that can be performed above your Critical Force (CF). CF is determined per Gilles et al. (2010) as the mean force from the final six contractions, excluding outliers beyond one standard deviation. To calculate W', we integrate the force-time data relative to CF. Practically, for each of consecutive measurements, we take (Force - CF) and apply the trapezoid rule over the time interval. Summing across all reps yields your total W'.`,
-  )
+  console.log(t("menu.w-prime-explainer"))
 
-  await promptSaveMeasurement("critical-force", "Critical Force", opts, {
+  await promptSaveMeasurement("critical-force", criticalForceLabel, opts, {
     headline: `CF ${criticalForce.toFixed(2)} ${ctx.unit} | W' ${wPrime.toFixed(2)} ${ctx.unit}*s`,
     details: [
-      `Reps: ${Math.min(TOTAL_REPS, perRepMeans.length)}/${TOTAL_REPS}`,
-      `Ended early: ${endedEarly ? "Yes" : "No"}`,
+      `${t("menu.reps")}: ${Math.min(TOTAL_REPS, perRepMeans.length)}/${TOTAL_REPS}`,
+      `${t("menu.ended-early")}: ${endedEarly ? t("menu.yes") : t("menu.no")}`,
     ],
     data: {
       totalReps: TOTAL_REPS,
@@ -300,14 +292,15 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
   })
 
   if (endedEarly) {
-    printSuccess("Critical Force session stopped early and results were saved.")
+    printSuccess(t("menu.critical-force-session-stopped-early-saved"))
   } else {
-    printSuccess("Critical Force session complete.")
+    printSuccess(t("menu.critical-force-session-complete"))
   }
 }
 
 export function buildCriticalForceAction(): Action {
   return {
+    actionId: "critical-force",
     name: "Critical Force",
     description: "Determine your sustainable maximum force with repeated pulls.",
     run: async (device: CliDevice, options: RunOptions) => runCriticalForceAction(device, options),

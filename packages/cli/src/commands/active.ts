@@ -7,6 +7,7 @@
 
 import type { Command } from "commander"
 import pc from "picocolors"
+import { setTranslationLanguage, t } from "../menus/interactive/translations.js"
 import { parseDurationMilliseconds, parseThreshold } from "../parsers.js"
 import {
   resolveDeviceKey,
@@ -32,6 +33,7 @@ export function registerActive(program: Command): void {
     .option("-d, --duration <ms>", "Duration in ms to confirm activity", "1000")
     .action(async (deviceKey: string | undefined, options: { threshold: string; duration: string }) => {
       const ctx = resolveContext(program)
+      setTranslationLanguage(ctx.language)
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
       const threshold = parseThreshold(options.threshold)
@@ -62,7 +64,7 @@ export function registerActive(program: Command): void {
             console.log(pc.dim(`  Threshold: ${threshold} kg  Duration: ${duration} ms\n`))
           }
 
-          await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop")
+          await waitForKeyToStop(ctx.json ? undefined : t("menu.press-esc-to-stop"))
         },
         ctx,
         { setupDefaultNotify: false },

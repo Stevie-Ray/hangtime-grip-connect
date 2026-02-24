@@ -55,14 +55,32 @@ export function registerList(program: Command): void {
       }
 
       console.log(`\n${pc.bold("Usage")}`)
-      console.log(`  ${pc.dim("$")} grip-connect                     ${pc.dim("Interactive mode")}`)
+      console.log(`  ${pc.dim("$")} grip-connect                              ${pc.dim("Interactive mode")}`)
       console.log(
-        `  ${pc.dim("$")} grip-connect live [device]       ${pc.dim("Live Data: raw force visualised in real-time")}`,
+        `  ${pc.dim("$")} grip-connect [device] [command] [options]   ${pc.dim("Device-first non-interactive mode")}`,
       )
-      console.log(`  ${pc.dim("$")} grip-connect info [device]       ${pc.dim("Device information")}`)
-      console.log(`  ${pc.dim("$")} grip-connect download [device]   ${pc.dim("Export session data")}`)
-      console.log(`  ${pc.dim("$")} grip-connect tare [device]       ${pc.dim("Tare calibration")}`)
-      console.log(`  ${pc.dim("$")} grip-connect active [device]     ${pc.dim("Activity monitor")}`)
-      console.log(`\n${pc.dim("Example:")} grip-connect live progressor\n`)
+
+      console.log(`\n${pc.bold("Commands")}`)
+      console.log(`  ${pc.dim("$")} grip-connect list                           ${pc.dim("List supported devices")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] live                  ${pc.dim("Live force data")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] peak-force-mvc        ${pc.dim("Peak Force / MVC test")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] rfd                   ${pc.dim("RFD test")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] endurance             ${pc.dim("Endurance test")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] repeaters             ${pc.dim("Repeaters test")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] critical-force        ${pc.dim("Critical Force test")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] info                  ${pc.dim("Device information")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] download              ${pc.dim("Export session data")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] tare                  ${pc.dim("Tare calibration")}`)
+      console.log(`  ${pc.dim("$")} grip-connect [device] active                ${pc.dim("Activity monitor")}`)
+      console.log(
+        `  ${pc.dim("$")} grip-connect action [device] [path]         ${pc.dim("Run/list interactive actions")}`,
+      )
+
+      console.log(`\n${pc.bold("Help")}`)
+      console.log(`  ${pc.dim("$")} grip-connect --help`)
+      console.log(`  ${pc.dim("$")} grip-connect live --help`)
+      console.log(`  ${pc.dim("$")} grip-connect progressor live --help`)
+
+      console.log(`\n${pc.dim("Example:")} grip-connect progressor live\n`)
     })
 }

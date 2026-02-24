@@ -1,14 +1,18 @@
 import type { ExportFormat } from "./types.js"
+import { parseSecondsLikeInput } from "./time.js"
 
 const EXPORT_FORMATS: readonly ExportFormat[] = ["csv", "json", "xml"] as const
 
 export function parseDurationSeconds(input: string | undefined): number | undefined {
   if (input == null) return undefined
-  const seconds = Number.parseFloat(input)
-  if (!Number.isFinite(seconds) || seconds < 0) {
-    throw new Error(`Invalid duration: ${input}. Use a non-negative number of seconds.`)
-  }
+  const seconds = parseSecondsLikeInput(input, "duration")
   return Math.round(seconds * 1000)
+}
+
+export function parseCountdownSeconds(input: string | undefined): number | undefined {
+  if (input == null) return undefined
+  const seconds = parseSecondsLikeInput(input, "countdown")
+  return Math.max(0, Math.trunc(seconds))
 }
 
 export function parseDurationMilliseconds(input: string): number {

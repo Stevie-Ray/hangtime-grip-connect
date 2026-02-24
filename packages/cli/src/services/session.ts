@@ -1,11 +1,12 @@
-import input from "@inquirer/input"
-import select from "@inquirer/select"
 import process from "node:process"
 import readline from "node:readline"
+import { copyFile, mkdir, rename, unlink } from "node:fs/promises"
+import path from "node:path"
 import ora from "ora"
-import pc from "picocolors"
 import { createChartRenderer } from "../chart.js"
+import { setTranslationLanguage, t } from "../menus/interactive/translations.js"
 import { fail, formatMeasurement, muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../utils.js"
+import { promptAndDownloadSessionData } from "./export.js"
 import type { CliDevice, ExportFormat, ForceMeasurement, OutputContext } from "../types.js"
 
 interface LiveDataOptions {
@@ -20,34 +21,6 @@ function isStreamDeviceForTare(device: CliDevice): boolean {
 
 function usesHardwareTare(device: CliDevice): boolean {
   return "usesHardwareTare" in device && (device as { usesHardwareTare?: boolean }).usesHardwareTare === true
-}
-
-async function maybeDownloadSessionData(device: CliDevice, ctx: OutputContext, format?: ExportFormat): Promise<void> {
-  if (typeof device.download !== "function" || ctx.json) return
-
-  const raw = await input({
-    message: "Download session data? [y/N]:",
-    default: "n",
-  })
-
-  if (!/^y(es)?$/i.test(raw?.trim() ?? "")) return
-
-  const selectedFormat =
-    format ??
-    (await select({
-      message: "Export format:",
-      choices: [
-        { name: "CSV", value: "csv" as const },
-        { name: "JSON", value: "json" as const },
-        { name: "XML", value: "xml" as const },
-      ],
-    }))
-
-  console.log(pc.cyan(`\nExporting ${selectedFormat}...\n`))
-  const filePath = await device.download(selectedFormat)
-  printSuccess(
-    typeof filePath === "string" ? `Data exported to ${filePath}` : `Data exported as ${selectedFormat.toUpperCase()}.`,
-  )
 }
 
 export async function runLiveDataSession(
@@ -78,7 +51,7 @@ export async function runLiveDataSession(
 
   if (indefinite) {
     await device.stream()
-    await waitForKeyToStop(ctx.json ? undefined : "Press Esc to stop")
+    await waitForKeyToStop(ctx.json ? undefined : t("menu.press-esc-to-stop"))
     const stopFn = device.stop
     if (typeof stopFn === "function") await stopFn()
   } else {
@@ -90,21 +63,22 @@ export async function runLiveDataSession(
   muteNotify(device)
 
   if (options.askDownload) {
-    await maybeDownloadSessionData(device, ctx, options.format)
+    await promptAndDownloadSessionData(device, ctx, options.format)
   }
 }
 
 export async function runTareCalibration(device: CliDevice, duration: number, ctx: OutputContext): Promise<void> {
+  setTranslationLanguage(ctx.language)
   if (typeof device.tare !== "function") {
     fail("Tare not supported on this device.")
   }
 
   if (isStreamDeviceForTare(device)) {
-    const streamSpinner = ctx.json ? null : ora("Starting stream for tare...").start()
+    const streamSpinner = ctx.json ? null : ora(t("menu.starting-stream-for-tare")).start()
     const streamFn = device.stream
     if (typeof streamFn === "function") await streamFn(0)
     await new Promise((resolve) => setTimeout(resolve, 1500))
-    streamSpinner?.succeed("Stream running.")
+    streamSpinner?.succeed(t("menu.stream-running"))
 
     const started = device.tare(duration)
     if (!started) {
@@ -113,11 +87,11 @@ export async function runTareCalibration(device: CliDevice, duration: number, ct
     }
 
     if (usesHardwareTare(device)) {
-      if (!ctx.json) ora().succeed("Tare complete (hardware).")
+      if (!ctx.json) ora().succeed(t("menu.tare-complete-hardware"))
     } else {
-      const spinner = ctx.json ? null : ora(`Tare calibration (${duration / 1000}s). Keep device still...`).start()
+      const spinner = ctx.json ? null : ora(t("menu.tare-calibration-keep-still", { seconds: duration / 1000 })).start()
       await new Promise((resolve) => setTimeout(resolve, duration))
-      spinner?.succeed("Tare calibration complete.")
+      spinner?.succeed(t("menu.tare-calibration-complete"))
     }
 
     await device.stop?.()
@@ -130,13 +104,13 @@ export async function runTareCalibration(device: CliDevice, duration: number, ct
   }
 
   if (usesHardwareTare(device)) {
-    if (!ctx.json) ora().succeed("Tare complete (hardware).")
+    if (!ctx.json) ora().succeed(t("menu.tare-complete-hardware"))
     return
   }
 
-  const spinner = ctx.json ? null : ora(`Tare calibration (${duration / 1000}s). Keep device still...`).start()
+  const spinner = ctx.json ? null : ora(t("menu.tare-calibration-keep-still", { seconds: duration / 1000 })).start()
   await new Promise((resolve) => setTimeout(resolve, duration))
-  spinner?.succeed("Tare calibration complete.")
+  spinner?.succeed(t("menu.tare-calibration-complete"))
 }
 
 function waitForEnterKey(): Promise<void> {
@@ -174,6 +148,7 @@ function toDisplayUnit(unit: OutputContext["unit"]): string {
  * Falls back to default tare flow in non-interactive contexts.
  */
 export async function runGuidedTareCalibration(device: CliDevice, duration: number, ctx: OutputContext): Promise<void> {
+  setTranslationLanguage(ctx.language)
   if (ctx.json || !process.stdout.isTTY || !process.stdin.isTTY) {
     await runTareCalibration(device, duration, ctx)
     return
@@ -190,9 +165,9 @@ export async function runGuidedTareCalibration(device: CliDevice, duration: numb
 
   const renderPrompt = () => {
     if (rendered) process.stdout.write("\x1b[3A\x1b[J")
-    process.stdout.write("We're now ready, please tare your device before use.\n")
+    process.stdout.write(`${t("menu.tare-ready-message")}\n`)
     process.stdout.write(`${current.toFixed(1)}${unitLabel}\n`)
-    process.stdout.write("Press Enter to confirm.\n")
+    process.stdout.write(`${t("menu.press-enter-to-confirm")}\n`)
     rendered = true
   }
 
@@ -228,20 +203,52 @@ export async function runGuidedTareCalibration(device: CliDevice, duration: numb
 
   await device.stop?.()
   muteNotify(device)
-  printSuccess("Tare calibration complete.")
+  printSuccess(t("menu.tare-calibration-complete"))
 }
 
-export async function runDownloadSession(device: CliDevice, format: ExportFormat, ctx: OutputContext): Promise<void> {
+export async function runDownloadSession(
+  device: CliDevice,
+  format: ExportFormat,
+  ctx: OutputContext,
+  outputDir?: string,
+): Promise<void> {
+  setTranslationLanguage(ctx.language)
   if (typeof device.download !== "function") {
     fail("Download not supported on this device.")
   }
 
   const filePath = await device.download(format)
+  let outputPath = filePath
+
+  if (typeof filePath === "string" && outputDir) {
+    const resolvedOutputDir = path.resolve(outputDir)
+    await mkdir(resolvedOutputDir, { recursive: true })
+
+    const sourcePath = path.resolve(filePath)
+    const targetPath = path.join(resolvedOutputDir, path.basename(sourcePath))
+
+    if (sourcePath !== targetPath) {
+      try {
+        await rename(sourcePath, targetPath)
+      } catch (error: unknown) {
+        const code =
+          typeof error === "object" && error && "code" in error ? String((error as { code: unknown }).code) : ""
+        if (code !== "EXDEV") {
+          throw error
+        }
+        await copyFile(sourcePath, targetPath)
+        await unlink(sourcePath)
+      }
+    }
+
+    outputPath = targetPath
+  }
+
   if (!ctx.json) {
     printSuccess(
-      typeof filePath === "string"
-        ? `Session data exported to ${filePath}`
-        : `Session data exported as ${format.toUpperCase()}.`,
+      typeof outputPath === "string"
+        ? t("menu.session-data-exported-to", { path: outputPath })
+        : t("menu.session-data-exported-as", { format: format.toUpperCase() }),
     )
   }
 }

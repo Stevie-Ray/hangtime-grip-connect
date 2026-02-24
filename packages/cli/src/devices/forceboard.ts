@@ -57,9 +57,9 @@ const forceboard: DeviceDefinition = {
     {
       name: "Threshold",
       description: "Set Quick Start threshold (lbs)",
-      run: async (device) => {
+      run: async (device, options) => {
         const d = device as unknown as ForceBoard
-        const lbs = 10
+        const lbs = options?.deviceAction?.thresholdLbs ?? 10
         await d.threshold(lbs)
         printSuccess(`Threshold set to ${lbs} lbs.`)
       },

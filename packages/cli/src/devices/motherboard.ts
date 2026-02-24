@@ -48,17 +48,19 @@ const motherboard: DeviceDefinition = {
     {
       name: "LED",
       description: "Set LED color (green / red / orange / off)",
-      run: async (device) => {
+      run: async (device, options) => {
         const d = device as unknown as Motherboard
-        const color = await select<"green" | "red" | "orange" | "off">({
-          message: "LED color:",
-          choices: [
-            { name: "Green", value: "green" },
-            { name: "Red", value: "red" },
-            { name: "Orange", value: "orange" },
-            { name: "Off", value: "off" },
-          ],
-        })
+        const color =
+          options?.deviceAction?.ledColor ??
+          (await select<"green" | "red" | "orange" | "off">({
+            message: "LED color:",
+            choices: [
+              { name: "Green", value: "green" },
+              { name: "Red", value: "red" },
+              { name: "Orange", value: "orange" },
+              { name: "Off", value: "off" },
+            ],
+          }))
         await d.led(color === "off" ? undefined : color)
         printSuccess(`LED set to ${color}.`)
       },

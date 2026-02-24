@@ -2,6 +2,7 @@ import input from "@inquirer/input"
 import type { CliDevice, InteractiveSessionState, OutputContext, RunOptions } from "../../types.js"
 import { pickAction } from "../../utils.js"
 import { buildInteractiveActions } from "./build-actions.js"
+import { setTranslationLanguage, t } from "./translations.js"
 
 /**
  * Pick action -> run -> repeat until Disconnect or Sleep.
@@ -14,18 +15,19 @@ export async function runInteractiveActionLoop(
   ctx: OutputContext,
   sessionState: InteractiveSessionState = { isTared: false },
 ): Promise<void> {
+  setTranslationLanguage(ctx.language)
   const actions = buildInteractiveActions(deviceKey, ctx)
   const action = await pickAction(actions)
 
-  if (action.name === "Disconnect") {
+  if (action.actionId === "disconnect") {
     await action.run(device, { ctx, sessionState })
     return
   }
 
   const opts: RunOptions = { ctx, sessionState }
-  if (action.name === "Live Data") {
+  if (action.actionId === "live-data") {
     const raw = await input({
-      message: "Duration in seconds (Optional):",
+      message: t("menu.duration-seconds-optional"),
       default: "",
     })
     const trimmed = raw.trim()
@@ -38,7 +40,7 @@ export async function runInteractiveActionLoop(
   }
 
   await action.run(device, opts)
-  if (action.name === "Sleep") return
+  if (action.actionId === "sleep" || action.name === "Sleep") return
 
   return runInteractiveActionLoop(device, deviceKey, ctx, sessionState)
 }

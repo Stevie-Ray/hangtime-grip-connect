@@ -1,18 +1,19 @@
 import select from "@inquirer/select"
 import { devices } from "../../devices/index.js"
+import { t } from "../interactive/translations.js"
 import type { CliDevice } from "../../types.js"
 import { fail } from "../../utils.js"
 
 /** Prompt for a device from the interactive device list. */
 export async function pickInteractiveDevice(): Promise<string> {
   return select({
-    message: "Select a device:",
+    message: t("menu.select-device"),
     choices: Object.entries(devices).map(([key, def]) => {
       const disabled = key === "wh-c06"
       return {
         name: disabled ? `${def.name}` : def.name,
         value: key,
-        ...(disabled && { disabled: true }),
+        ...(disabled && { disabled: `(${t("menu.disabled")})` }),
       }
     }),
   })

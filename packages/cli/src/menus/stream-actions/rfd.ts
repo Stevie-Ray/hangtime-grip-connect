@@ -3,11 +3,15 @@ import process from "node:process"
 import select from "@inquirer/select"
 import pc from "picocolors"
 import { createChartRenderer, renderRfdAnalyzeChart, type RfdChartPoint } from "../../chart.js"
+import { promptAndDownloadSessionData } from "../../services/export.js"
+import { formatClock } from "../../time.js"
 import type { Action, CliDevice, ForceMeasurement, RunOptions } from "../../types.js"
-import { muteNotify, outputJson, printSuccess, waitForKeyToStop } from "../../utils.js"
+import { setTranslationLanguage, t } from "../interactive/translations.js"
+import { muteNotify, outputJson, waitForKeyToStop } from "../../utils.js"
 import {
   ensureTaredForStreamAction,
   promptIntegerSecondsOption,
+  runCountdown,
   promptSaveMeasurement,
   promptStreamActionOptionsMenu,
   promptStreamActionStart,
@@ -138,7 +142,9 @@ function computeRfdMetrics(
  * Uses the connected device directly without command-layer adapters.
  */
 export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise<void> {
-  const ctx = opts.ctx ?? { json: false, unit: "kg" }
+  const ctx = opts.ctx ?? { json: false, unit: "kg", language: "en" }
+  setTranslationLanguage(ctx.language)
+  const rfdLabel = t("actions.rfd.name")
   let duration = opts.stream?.durationMs ?? 5000
   const unit = ctx.unit
   const rfdSession = opts.session?.rfd
@@ -151,118 +157,119 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
   const chartEnabled = !ctx.json && process.stdout.isTTY
   const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
   let cancelled = false
-  const countdown = async (prefix: string, seconds: number): Promise<void> => {
-    for (let i = seconds; i >= 1; i--) {
-      if (chartEnabled) {
-        chart.setStatus(`${prefix} ${i}`)
-      } else {
-        console.log(pc.bold(`${prefix} ${i}`))
-      }
-      await new Promise((r) => setTimeout(r, 1000))
-    }
-    if (chartEnabled) chart.setStatus("")
-  }
   if (!ctx.json) {
+    const durationSeconds = duration / 1000
     console.log(
       pc.cyan("\nRFD\n") +
         pc.dim("─".repeat(60) + "\n") +
-        "Rate of Force Development (RFD) is a measure of explosive strength or how fast the muscle is developing force. " +
-        "RFD is thus represented by the slope of the load curve. " +
-        `The recording runs for ${duration / 1000} seconds. ` +
-        "Perform one explosive pull about half way into the cycle.\n\n" +
-        pc.yellow("Please make sure that the device is tared before.\n"),
+        t("copy.rfdIntro", { durationSeconds }) +
+        pc.yellow(t("copy.rfdTareReminder")),
     )
     if (!opts.nonInteractive) {
       const shouldStart = await promptStreamActionStart(ctx, {
         onConfigureOptions: async () => {
           const openProtocolSubmenu = async (): Promise<void> => {
             const durationSeconds = Math.max(1, Math.round(duration / 1000))
-            await promptStreamActionOptionsMenu("RFD Protocol", [
-              {
-                label: () => `Duration: ${Math.max(1, Math.round(duration / 1000))}s`,
-                run: async () => {
-                  const nextSeconds = await promptIntegerSecondsOption("Duration", durationSeconds, 1)
-                  duration = nextSeconds * 1000
-                  opts.stream = { ...(opts.stream ?? {}), durationMs: duration }
+            await promptStreamActionOptionsMenu(
+              `${rfdLabel} ${t("menu.protocol")}`,
+              [
+                {
+                  label: () => `${t("menu.duration")}: ${Math.max(1, Math.round(duration / 1000))}s`,
+                  run: async () => {
+                    const nextSeconds = await promptIntegerSecondsOption(t("menu.duration"), durationSeconds, 1)
+                    duration = nextSeconds * 1000
+                    opts.stream = { ...(opts.stream ?? {}), durationMs: duration }
+                  },
                 },
-              },
-              {
-                label: () => `Countdown: ${countdownSeconds}s`,
-                run: async () => {
-                  countdownSeconds = await promptIntegerSecondsOption("Countdown", countdownSeconds, 0)
-                  opts.session = {
-                    ...(opts.session ?? {}),
-                    rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
-                  }
-                },
-              },
-              {
-                label: () => `Threshold: ${rfdThreshold.toFixed(2)} ${unit}`,
-                run: async () => {
-                  const raw = await input({
-                    message: `Threshold (${unit}):`,
-                    default: rfdThreshold.toFixed(2),
-                  })
-                  const next = Number.parseFloat(raw?.trim() ?? rfdThreshold.toString())
-                  if (Number.isFinite(next) && next >= 0) {
-                    rfdThreshold = next
+                {
+                  label: () => `${t("menu.countdown")}: ${formatClock(countdownSeconds)}`,
+                  run: async () => {
+                    countdownSeconds = await promptIntegerSecondsOption(t("menu.countdown"), countdownSeconds, 0)
                     opts.session = {
                       ...(opts.session ?? {}),
                       rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
                     }
-                  }
+                  },
                 },
-              },
-            ])
+                {
+                  label: () => `${t("menu.threshold")}: ${rfdThreshold.toFixed(2)} ${unit}`,
+                  run: async () => {
+                    const raw = await input({
+                      message: `${t("menu.threshold")} (${unit}):`,
+                      default: rfdThreshold.toFixed(2),
+                    })
+                    const next = Number.parseFloat(raw?.trim() ?? rfdThreshold.toString())
+                    if (Number.isFinite(next) && next >= 0) {
+                      rfdThreshold = next
+                      opts.session = {
+                        ...(opts.session ?? {}),
+                        rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
+                      }
+                    }
+                  },
+                },
+              ],
+              ctx.language,
+            )
           }
 
           const openModeSubmenu = async (): Promise<void> => {
-            await promptStreamActionOptionsMenu("RFD Mode", [
-              {
-                label: () => `Left/Right mode: ${leftRightMode ? "Enabled" : "Disabled"}`,
-                run: async () => {
-                  leftRightMode =
-                    (await select({
-                      message: "Enable Left/Right mode:",
-                      choices: [
-                        { name: "Enabled", value: true },
-                        { name: "Disabled", value: false },
-                      ],
-                      default: leftRightMode,
-                    })) ?? leftRightMode
-                  opts.session = {
-                    ...(opts.session ?? {}),
-                    rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
-                  }
+            await promptStreamActionOptionsMenu(
+              `${rfdLabel} ${t("menu.mode")}`,
+              [
+                {
+                  label: () =>
+                    `${t("menu.left-right-mode")}: ${leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                  run: async () => {
+                    leftRightMode =
+                      (await select({
+                        message: `${t("menu.enable-left-right-mode")}:`,
+                        choices: [
+                          { name: t("menu.enabled"), value: true },
+                          { name: t("menu.disabled"), value: false },
+                        ],
+                        default: leftRightMode,
+                      })) ?? leftRightMode
+                    opts.session = {
+                      ...(opts.session ?? {}),
+                      rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
+                    }
+                  },
                 },
-              },
-            ])
+              ],
+              ctx.language,
+            )
           }
 
-          await promptStreamActionOptionsMenu("RFD", [
-            {
-              label: () => `Protocol: Countdown ${countdownSeconds}s (open)`,
-              run: openProtocolSubmenu,
-            },
-            {
-              label: () => `Mode: Left/Right ${leftRightMode ? "Enabled" : "Disabled"} (open)`,
-              run: openModeSubmenu,
-            },
-          ])
+          await promptStreamActionOptionsMenu(
+            rfdLabel,
+            [
+              {
+                label: () => `${t("menu.protocol")}: ${t("menu.countdown")} ${formatClock(countdownSeconds)}`,
+                run: openProtocolSubmenu,
+              },
+              {
+                label: () =>
+                  `${t("menu.mode")}: ${t("menu.left-right")} ${leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                run: openModeSubmenu,
+              },
+            ],
+            ctx.language,
+          )
         },
         getOptionsLabel: () =>
-          `Options (Duration: ${Math.max(1, Math.round(duration / 1000))}s, Countdown: ${countdownSeconds}s, Threshold: ${rfdThreshold.toFixed(2)} ${unit}, Left/Right: ${leftRightMode ? "On" : "Off"})`,
-        onViewMeasurements: async () => viewSavedMeasurements("rfd", "RFD"),
+          `${t("menu.options")} (${t("menu.duration")}: ${Math.max(1, Math.round(duration / 1000))}s, ${t("menu.countdown")}: ${formatClock(countdownSeconds)}, ${t("menu.threshold")}: ${rfdThreshold.toFixed(2)} ${unit}, ${t("menu.left-right")}: ${leftRightMode ? t("menu.on") : t("menu.off")})`,
+        onViewMeasurements: async () => viewSavedMeasurements("rfd", rfdLabel, ctx.language),
       })
       if (!shouldStart) return
     }
     await ensureTaredForStreamAction(device, opts)
-    console.log(pc.dim("\nPress Esc to stop"))
+    console.log(pc.dim(`\n${t("menu.press-esc-to-stop")}`))
     if (chartEnabled) {
       chart.start()
       chart.push({ current: 0, mean: 0, peak: 0 })
     }
-    await countdown("Session starts in:", countdownSeconds)
+    await runCountdown(countdownSeconds, chartEnabled ? chart : undefined)
   } else {
     await ensureTaredForStreamAction(device, opts)
   }
@@ -286,17 +293,17 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       }
 
       // Show 3 immediately after the session countdown; stream starts on "2".
-      show("Pull in: 3")
+      show(t("menu.pull-in", { seconds: 3 }))
       await sleep(1000)
-      show("Pull in: 2")
+      show(t("menu.pull-in", { seconds: 2 }))
       captureStartMs = Date.now()
       const streamPromise = device.stream(duration)
       // Prevent late rejections from surfacing if user stops early.
       void streamPromise.catch(() => undefined)
       await sleep(1000)
-      show("Pull in: 1")
+      show(t("menu.pull-in", { seconds: 1 }))
       await sleep(1000)
-      show("PULL")
+      show(t("menu.pull"))
       await sleep(700)
       if (chartEnabled) chart.setStatus("")
       const stopPromise = process.stdin.isTTY ? waitForKeyToStop() : (Promise.race([]) as Promise<void>)
@@ -327,7 +334,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
   }
   muteNotify(device)
   if (!ctx.json && cancelled) {
-    console.log(pc.dim("\nRFD stopped."))
+    console.log(pc.dim(`\n${t("menu.rfd-stopped")}`))
     return
   }
   if (!ctx.json && rfdSucceeded) {
@@ -363,30 +370,35 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         show2080,
       })
 
-      console.log(pc.cyan("\nRFD Analyze\n"))
+      console.log(pc.cyan(`\n${t("menu.rfd-analyze")}\n`))
       if (analyzeChart) console.log(analyzeChart)
       console.log(pc.dim("─".repeat(40)))
       if (show2080) {
-        console.log(`  ${pc.bold("RFD 20/80:")}  ${metrics.rfdValue.toFixed(2)} ${unit}/s`)
+        console.log(`  ${pc.bold(`${t("menu.rfd-2080")}:`)}  ${metrics.rfdValue.toFixed(2)} ${unit}/s`)
       } else {
-        console.log(`  ${pc.bold(`RFD ${analyzeMode}ms:`)}   ${metrics.rfdValue.toFixed(2)} ${unit}/s`)
+        console.log(
+          `  ${pc.bold(`${t("menu.rfd-window", { mode: `${analyzeMode}` })}:`)}   ${metrics.rfdValue.toFixed(2)} ${unit}/s`,
+        )
       }
       console.log("")
 
       if (!process.stdin.isTTY || !process.stdout.isTTY) break
       const nav = await select({
-        message: "RFD view:",
+        message: `${rfdLabel} ${t("menu.rfd-view").toLowerCase()}:`,
         choices: [
           {
-            name: analyzeMode === "20-80" ? "20/80 (active)" : "20/80",
+            name: analyzeMode === "20-80" ? `20/80 (${t("menu.active")})` : "20/80",
             value: "20-80" as const,
           },
           {
-            name: analyzeMode !== "20-80" ? `Time Interval (active: ${analyzeMode} ms)` : "Time Interval",
+            name:
+              analyzeMode !== "20-80"
+                ? `${t("menu.time-interval")} (${t("menu.active")}: ${analyzeMode} ms)`
+                : t("menu.time-interval"),
             value: "time" as const,
           },
-          { name: `Threshold (${rfdThreshold.toFixed(2)} ${unit})`, value: "threshold" as const },
-          { name: "Continue", value: "done" as const },
+          { name: `${t("menu.threshold")} (${rfdThreshold.toFixed(2)} ${unit})`, value: "threshold" as const },
+          { name: t("menu.continue"), value: "done" as const },
         ],
       })
       if (nav === "done") {
@@ -399,7 +411,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       }
       if (nav === "threshold") {
         const raw = await input({
-          message: `Onset threshold (${unit}):`,
+          message: `${t("menu.onset-threshold")} (${unit}):`,
           default: rfdThreshold.toFixed(2),
         })
         const v = parseFloat(raw?.trim() ?? rfdThreshold.toString())
@@ -416,7 +428,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         continue
       }
       const pickedWindow = await select({
-        message: "Time interval:",
+        message: `${t("menu.time-interval")}:`,
         choices: RFD_TIME_WINDOWS.map((ms) => ({
           name: `${ms} ms`,
           value: ms as RfdModeChoice,
@@ -427,12 +439,12 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
 
     if (lastAnalyzed) {
       const modeLabel = lastAnalyzed.mode === "20-80" ? "20/80" : `${lastAnalyzed.mode}ms`
-      await promptSaveMeasurement("rfd", "RFD", opts, {
+      await promptSaveMeasurement("rfd", rfdLabel, opts, {
         headline: `RFD ${modeLabel}: ${lastAnalyzed.rfdValue.toFixed(2)} ${unit}/s`,
         details: [
-          `Max force: ${lastAnalyzed.maxForce.toFixed(2)} ${unit}`,
-          `Threshold: ${rfdThreshold.toFixed(2)} ${unit}`,
-          `Left/Right mode: ${leftRightMode ? "Enabled" : "Disabled"}`,
+          `${t("menu.max-force")}: ${lastAnalyzed.maxForce.toFixed(2)} ${unit}`,
+          `${t("menu.threshold")}: ${rfdThreshold.toFixed(2)} ${unit}`,
+          `${t("menu.left-right-mode")}: ${leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
         ],
         data: {
           mode: lastAnalyzed.mode,
@@ -445,33 +457,14 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       })
     }
   }
-  if (typeof device.download === "function" && !ctx.json && rfdSucceeded) {
-    const raw = await input({
-      message: "Download session data? [y/N]:",
-      default: "n",
-    })
-    if (/^y(es)?$/i.test(raw?.trim() ?? "")) {
-      const format =
-        opts.export?.format ??
-        (await select({
-          message: "Export format:",
-          choices: [
-            { name: "CSV", value: "csv" as const },
-            { name: "JSON", value: "json" as const },
-            { name: "XML", value: "xml" as const },
-          ],
-        }))
-      console.log(pc.cyan(`\nExporting ${format}...\n`))
-      const filePath = await device.download(format)
-      printSuccess(
-        typeof filePath === "string" ? `Data exported to ${filePath}` : `Data exported as ${format.toUpperCase()}.`,
-      )
-    }
+  if (rfdSucceeded) {
+    await promptAndDownloadSessionData(device, ctx, opts.export?.format)
   }
 }
 
 export function buildRfdAction(): Action {
   return {
+    actionId: "rfd",
     name: "RFD",
     description: "Record and calculate Rate of Force Development or explosive strength.",
     run: async (device: CliDevice, options: RunOptions) => runRfdAction(device, options),
