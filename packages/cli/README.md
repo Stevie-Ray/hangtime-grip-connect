@@ -42,13 +42,13 @@ npx @hangtime/cli progressor critical-force
 npx @hangtime/cli progressor peak-force-mvc --mode left-right --include-torque --moment-arm-cm 35
 
 # RFD test
-npx @hangtime/cli progressor rfd --duration 5 --countdown 00:03 --threshold 0.5 --left-right
+npx @hangtime/cli progressor rfd --duration 5 --count-down-time 00:03 --threshold 0.5 --mode bilateral
 
 # Endurance test
-npx @hangtime/cli progressor endurance --duration 00:30 --countdown 00:03 --plot-target-zone --left-mvc-kg 45 --right-mvc-kg 43
+npx @hangtime/cli progressor endurance --duration 00:30 --count-down-time 00:03 --mode bilateral --initial-side side.left --pause-between-sides 00:10 --levels-enabled --left-mvc 45 --right-mvc 43 --rest-level 40 --work-level 80
 
 # Repeaters test
-npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --work 10 --rest 6 --pause 08:00 --countdown 3 --plot-target-levels
+npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --rep-dur 10 --rep-pause-dur 6 --set-pause-dur 08:00 --count-down-time 3 --mode bilateral --initial-side side.left --pause-between-sides 10 --levels-enabled --left-mvc 45 --right-mvc 43 --rest-level 40 --work-level 80
 
 # Use lbs for live/test output (default is kg)
 npx @hangtime/cli forceboard live --unit lbs
@@ -179,38 +179,38 @@ npx @hangtime/cli progressor peak-force-mvc --mode left-right --include-torque -
 ### `rfd [device]`
 
 ```sh
-npx @hangtime/cli progressor rfd --duration 5 --countdown 00:03 --threshold 0.5 --left-right
+npx @hangtime/cli progressor rfd --duration 5 --count-down-time 00:03 --threshold 0.5 --mode bilateral
 ```
 
 - `-d, --duration <seconds>`
-- `--countdown <time>` (`mm:ss` or seconds)
+- `--count-down-time <time>` (`mm:ss` or seconds)
 - `--threshold <value>`
-- `--left-right`
+- `--mode <single|bilateral>`
 
 ### `endurance [device]`
 
 ```sh
-npx @hangtime/cli progressor endurance --duration 00:30 --countdown 00:03 --left-right --start-side left --pause-between-sides 00:10 --plot-target-zone --left-mvc-kg 45 --right-mvc-kg 43 --target-min-percent 40 --target-max-percent 80
+npx @hangtime/cli progressor endurance --duration 00:30 --count-down-time 00:03 --mode bilateral --initial-side side.left --pause-between-sides 00:10 --levels-enabled --left-mvc 45 --right-mvc 43 --rest-level 40 --work-level 80
 ```
 
 - `-d, --duration <time>` (`mm:ss` or seconds)
-- `--countdown <time>` (`mm:ss` or seconds)
-- `--left-right`
-- `--start-side <left|right>`
+- `--count-down-time <time>` (`mm:ss` or seconds)
+- `--mode <single|bilateral>`
+- `--initial-side <side.left|side.right>`
 - `--pause-between-sides <time>` (`mm:ss` or seconds)
-- `--plot-target-zone`
-- `--left-mvc-kg <value>`
-- `--right-mvc-kg <value>`
-- `--target-min-percent <value>`
-- `--target-max-percent <value>`
+- `--levels-enabled`
+- `--left-mvc <value>`
+- `--right-mvc <value>`
+- `--rest-level <value>`
+- `--work-level <value>`
 
 ### `critical-force [device]`
 
 ```sh
-npx @hangtime/cli progressor critical-force --countdown 00:03
+npx @hangtime/cli progressor critical-force --count-down-time 00:03
 ```
 
-- `--countdown <time>` (`mm:ss` or seconds)
+- `--count-down-time <time>` (`mm:ss` or seconds)
 
 ### `action [device] [path]`
 
@@ -233,23 +233,23 @@ npx @hangtime/cli action motherboard led --led-color green
 ### `repeaters [device]`
 
 ```sh
-npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --work 10 --rest 6 --pause 08:00 --countdown 3 --left-right --start-side left --pause-between-sides 10 --plot-target-levels --left-mvc-kg 45 --right-mvc-kg 43 --target-min-percent 40 --target-max-percent 80
+npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --rep-dur 10 --rep-pause-dur 6 --set-pause-dur 08:00 --count-down-time 3 --mode bilateral --initial-side side.left --pause-between-sides 10 --levels-enabled --left-mvc 45 --right-mvc 43 --rest-level 40 --work-level 80
 ```
 
 - `--sets <number>`
 - `--reps <number>`
-- `--work <time>` (`mm:ss` or seconds)
-- `--rest <time>` (`mm:ss` or seconds)
-- `--pause <time>` (`mm:ss` or seconds)
-- `--countdown <time>` (`mm:ss` or seconds)
-- `--left-right`
-- `--start-side <left|right>`
+- `--rep-dur <time>` (`mm:ss` or seconds)
+- `--rep-pause-dur <time>` (`mm:ss` or seconds)
+- `--set-pause-dur <time>` (`mm:ss` or seconds)
+- `--count-down-time <time>` (`mm:ss` or seconds)
+- `--mode <single|bilateral>`
+- `--initial-side <side.left|side.right>`
 - `--pause-between-sides <time>` (`mm:ss` or seconds)
-- `--plot-target-levels`
-- `--left-mvc-kg <value>`
-- `--right-mvc-kg <value>`
-- `--target-min-percent <value>`
-- `--target-max-percent <value>`
+- `--levels-enabled`
+- `--left-mvc <value>`
+- `--right-mvc <value>`
+- `--rest-level <value>`
+- `--work-level <value>`
 
 ## Measurements
 

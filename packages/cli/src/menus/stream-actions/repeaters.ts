@@ -5,7 +5,7 @@ import { createChartRenderer } from "../../chart.js"
 import { formatClock } from "../../time.js"
 import type { Action, CliDevice, RunOptions } from "../../types.js"
 import { muteNotify, outputJson, waitForKeyToStop } from "../../utils.js"
-import { measureMvcSides, resolveTargetZone, type TargetLevelsConfig } from "./target-levels.js"
+import { measureMvcSides, resolveTargetZone } from "./target-levels.js"
 import { setTranslationLanguage, t } from "../interactive/translations.js"
 import {
   ensureTaredForStreamAction,
@@ -23,19 +23,19 @@ import {
 
 interface RepeatersConfig {
   sets: number
-  repsPerSet: number
-  workSeconds: number
-  restSeconds: number
-  pauseSeconds: number
-  countdownSeconds: number
-  leftRightMode: boolean
-  startSide: "left" | "right"
-  pauseBetweenSidesSeconds: number
-  plotTargetZone: boolean
-  leftMvcKg: number
-  rightMvcKg: number
-  targetZoneMinPercent: number
-  targetZoneMaxPercent: number
+  reps: number
+  repDur: number
+  repPauseDur: number
+  setPauseDur: number
+  countDownTime: number
+  mode: "single" | "bilateral"
+  initialSide: "side.left" | "side.right"
+  pauseBetweenSides: number
+  levelsEnabled: boolean
+  leftMvc: number
+  rightMvc: number
+  restLevel: number
+  workLevel: number
 }
 
 interface RepeatersResult {
@@ -66,19 +66,19 @@ function normalizeRepeatersConfig(options: RunOptions): RepeatersConfig {
   const raw = readSessionConfig(options, "repeaters")
   return {
     sets: Math.max(1, Math.trunc(raw?.sets ?? 3)),
-    repsPerSet: Math.max(1, Math.trunc(raw?.repsPerSet ?? 12)),
-    workSeconds: Math.max(1, Math.trunc(raw?.workSeconds ?? 10)),
-    restSeconds: Math.max(0, Math.trunc(raw?.restSeconds ?? 6)),
-    pauseSeconds: Math.max(0, Math.trunc(raw?.pauseSeconds ?? 8 * 60)),
-    countdownSeconds: Math.max(0, Math.trunc(raw?.countdownSeconds ?? 3)),
-    leftRightMode: raw?.leftRightMode ?? false,
-    startSide: raw?.startSide === "right" ? "right" : "left",
-    pauseBetweenSidesSeconds: Math.max(0, Math.trunc(raw?.pauseBetweenSidesSeconds ?? 10)),
-    plotTargetZone: raw?.plotTargetZone ?? false,
-    leftMvcKg: Math.max(0, raw?.leftMvcKg ?? 0),
-    rightMvcKg: Math.max(0, raw?.rightMvcKg ?? 0),
-    targetZoneMinPercent: normalizePercent(raw?.targetZoneMinPercent ?? 40),
-    targetZoneMaxPercent: normalizePercent(raw?.targetZoneMaxPercent ?? 80),
+    reps: Math.max(1, Math.trunc(raw?.reps ?? 12)),
+    repDur: Math.max(1, Math.trunc(raw?.repDur ?? 10)),
+    repPauseDur: Math.max(0, Math.trunc(raw?.repPauseDur ?? 6)),
+    setPauseDur: Math.max(0, Math.trunc(raw?.setPauseDur ?? 8 * 60)),
+    countDownTime: Math.max(0, Math.trunc(raw?.countDownTime ?? 3)),
+    mode: raw?.mode === "bilateral" ? "bilateral" : "single",
+    initialSide: raw?.initialSide === "side.right" ? "side.right" : "side.left",
+    pauseBetweenSides: Math.max(0, Math.trunc(raw?.pauseBetweenSides ?? 10)),
+    levelsEnabled: raw?.levelsEnabled ?? false,
+    leftMvc: Math.max(0, raw?.leftMvc ?? 0),
+    rightMvc: Math.max(0, raw?.rightMvc ?? 0),
+    restLevel: normalizePercent(raw?.restLevel ?? 40),
+    workLevel: normalizePercent(raw?.workLevel ?? 80),
   }
 }
 
@@ -86,36 +86,36 @@ function buildTimeline(config: RepeatersConfig): TimelinePhase[] {
   const phases: TimelinePhase[] = []
   let cursor = 0
   for (let setIndex = 0; setIndex < config.sets; setIndex++) {
-    for (let repIndex = 0; repIndex < config.repsPerSet; repIndex++) {
+    for (let repIndex = 0; repIndex < config.reps; repIndex++) {
       phases.push({
         type: "work",
         setIndex,
         repIndex,
         startSecond: cursor,
-        endSecond: cursor + config.workSeconds,
+        endSecond: cursor + config.repDur,
       })
-      cursor += config.workSeconds
-      const isLastRepOfSet = repIndex === config.repsPerSet - 1
+      cursor += config.repDur
+      const isLastRepOfSet = repIndex === config.reps - 1
       const isLastSet = setIndex === config.sets - 1
-      if (!isLastRepOfSet && config.restSeconds > 0) {
+      if (!isLastRepOfSet && config.repPauseDur > 0) {
         phases.push({
           type: "rest",
           setIndex,
           repIndex,
           startSecond: cursor,
-          endSecond: cursor + config.restSeconds,
+          endSecond: cursor + config.repPauseDur,
         })
-        cursor += config.restSeconds
+        cursor += config.repPauseDur
       }
-      if (isLastRepOfSet && !isLastSet && config.pauseSeconds > 0) {
+      if (isLastRepOfSet && !isLastSet && config.setPauseDur > 0) {
         phases.push({
           type: "pause",
           setIndex,
           repIndex,
           startSecond: cursor,
-          endSecond: cursor + config.pauseSeconds,
+          endSecond: cursor + config.setPauseDur,
         })
-        cursor += config.pauseSeconds
+        cursor += config.setPauseDur
       }
     }
   }
@@ -138,7 +138,20 @@ async function runRepeatersCapture(
   const repeatersName = t("actions.repeaters.name")
   const timeline = buildTimeline(config)
   const totalSeconds = timeline.at(-1)?.endSecond ?? 0
-  const zone = resolveTargetZone(config as TargetLevelsConfig, side, ctx.unit)
+  const zone = resolveTargetZone(
+    {
+      plotTargetZone: config.levelsEnabled,
+      leftMvcKg: config.leftMvc,
+      rightMvcKg: config.rightMvc,
+      targetZoneMinPercent: config.restLevel,
+      targetZoneMaxPercent: config.workLevel,
+      initialSide: config.initialSide,
+      pauseBetweenSidesSeconds: config.pauseBetweenSides,
+      countdownSeconds: config.countDownTime,
+    },
+    side,
+    ctx.unit,
+  )
   const chartEnabled = !ctx.json && process.stdout.isTTY
   const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
 
@@ -184,15 +197,15 @@ async function runRepeatersCapture(
     console.log(pc.dim(`\n${displayLabel} ${repeatersName.toLowerCase()}`))
     console.log(
       pc.dim(
-        `Sets ${config.sets} · Reps ${config.repsPerSet} · Work ${formatClock(config.workSeconds)} · Rest ${formatClock(
-          config.restSeconds,
-        )} · Pause ${formatClock(config.pauseSeconds)}`,
+        `Sets ${config.sets} · Reps ${config.reps} · Work ${formatClock(config.repDur)} · Rest ${formatClock(
+          config.repPauseDur,
+        )} · Pause ${formatClock(config.setPauseDur)}`,
       ),
     )
     if (zone) {
       console.log(
         pc.dim(
-          `Target levels: ${zone.min.toFixed(2)}-${zone.max.toFixed(2)} ${ctx.unit} (${config.targetZoneMinPercent.toFixed(0)}-${config.targetZoneMaxPercent.toFixed(0)}% of ${zone.mvcKg.toFixed(2)}kg MVC)`,
+          `Target levels: ${zone.min.toFixed(2)}-${zone.max.toFixed(2)} ${ctx.unit} (${config.restLevel.toFixed(0)}-${config.workLevel.toFixed(0)}% of ${zone.mvcKg.toFixed(2)}kg MVC)`,
         ),
       )
     }
@@ -202,8 +215,8 @@ async function runRepeatersCapture(
     chart.start()
     chart.push({ current: 0, mean: 0, peak: 0 })
   }
-  if (!ctx.json && config.countdownSeconds > 0) {
-    await runCountdown(config.countdownSeconds, chartEnabled ? chart : undefined)
+  if (!ctx.json && config.countDownTime > 0) {
+    await runCountdown(config.countDownTime, chartEnabled ? chart : undefined)
   }
 
   let statusInterval: ReturnType<typeof setInterval> | undefined
@@ -233,7 +246,7 @@ async function runRepeatersCapture(
           const repNum = phase.repIndex + 1
           const phaseRemaining = Math.max(0, Math.ceil(phase.endSecond - elapsed))
           chart.setStatus(
-            `${t("menu.set")} ${setNum}/${config.sets} ${t("menu.rep")} ${repNum}/${config.repsPerSet} ${phaseLabel} ${formatClock(
+            `${t("menu.set")} ${setNum}/${config.sets} ${t("menu.rep")} ${repNum}/${config.reps} ${phaseLabel} ${formatClock(
               phaseRemaining,
             )} · ${t("menu.total")} ${formatClock(Math.floor(elapsed))}/${formatClock(totalSeconds)} (${t("menu.remaining-short")} ${formatClock(
               remaining,
@@ -283,24 +296,24 @@ async function runRepeatersCapture(
 function describeOptions(config: RepeatersConfig, t: (key: string) => string): string[] {
   const lines: string[] = [
     `${t("menu.sets")}: ${config.sets}`,
-    `${t("menu.set-reps")}: ${config.repsPerSet}`,
-    `${t("menu.work")}: ${formatClock(config.workSeconds)}`,
-    `${t("menu.rest")}: ${formatClock(config.restSeconds)}`,
-    `${t("menu.pause")}: ${formatClock(config.pauseSeconds)}`,
-    `${t("menu.countdown")}: ${formatClock(config.countdownSeconds)}`,
-    `${t("menu.left-right-mode")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+    `${t("menu.set-reps")}: ${config.reps}`,
+    `${t("menu.work")}: ${formatClock(config.repDur)}`,
+    `${t("menu.rest")}: ${formatClock(config.repPauseDur)}`,
+    `${t("menu.pause")}: ${formatClock(config.setPauseDur)}`,
+    `${t("menu.countdown")}: ${formatClock(config.countDownTime)}`,
+    `${t("menu.left-right-mode")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
   ]
-  if (config.leftRightMode) {
-    lines.push(`${t("menu.start-side-first")}: ${config.startSide === "left" ? t("menu.left") : t("menu.right")}`)
-    lines.push(`${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSidesSeconds)}`)
-  }
-  lines.push(`${t("menu.plot-target-levels")}: ${config.plotTargetZone ? t("menu.enabled") : t("menu.disabled")}`)
-  if (config.plotTargetZone) {
-    lines.push(`${t("menu.left-mvc")}: ${config.leftMvcKg.toFixed(2)} kg`)
-    lines.push(`${t("menu.right-mvc")}: ${config.rightMvcKg.toFixed(2)} kg`)
+  if (config.mode === "bilateral") {
     lines.push(
-      `${t("menu.target-levels")} range: ${config.targetZoneMinPercent.toFixed(0)}% - ${config.targetZoneMaxPercent.toFixed(0)}%`,
+      `${t("menu.start-side-first")}: ${config.initialSide === "side.left" ? t("menu.left") : t("menu.right")}`,
     )
+    lines.push(`${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSides)}`)
+  }
+  lines.push(`${t("menu.plot-target-levels")}: ${config.levelsEnabled ? t("menu.enabled") : t("menu.disabled")}`)
+  if (config.levelsEnabled) {
+    lines.push(`${t("menu.left-mvc")}: ${config.leftMvc.toFixed(2)} kg`)
+    lines.push(`${t("menu.right-mvc")}: ${config.rightMvc.toFixed(2)} kg`)
+    lines.push(`${t("menu.target-levels")} range: ${config.restLevel.toFixed(0)}% - ${config.workLevel.toFixed(0)}%`)
   }
   return lines
 }
@@ -324,76 +337,79 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
             [
               {
                 label: () =>
-                  `${t("menu.plot-target-levels")}: ${config.plotTargetZone ? t("menu.enabled") : t("menu.disabled")}`,
+                  `${t("menu.plot-target-levels")}: ${config.levelsEnabled ? t("menu.enabled") : t("menu.disabled")}`,
                 run: async () => {
-                  config.plotTargetZone =
+                  config.levelsEnabled =
                     (await select({
                       message: `${t("menu.plot-target-levels")}:`,
                       choices: [
                         { name: t("menu.enabled"), value: true },
                         { name: t("menu.disabled"), value: false },
                       ],
-                      default: config.plotTargetZone,
-                    })) ?? config.plotTargetZone
+                      default: config.levelsEnabled,
+                    })) ?? config.levelsEnabled
                   writeSessionConfig(options, "repeaters", config)
                 },
               },
               {
-                label: () => `${t("menu.left-mvc")}: ${config.leftMvcKg.toFixed(2)} kg`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.left-mvc")}: ${config.leftMvc.toFixed(2)} kg`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.leftMvcKg = await promptNumberOption(`${t("menu.left-mvc")} (kg)`, config.leftMvcKg, 0)
+                  config.leftMvc = await promptNumberOption(`${t("menu.left-mvc")} (kg)`, config.leftMvc, 0)
                   writeSessionConfig(options, "repeaters", config)
                 },
               },
               {
-                label: () => `${t("menu.right-mvc")}: ${config.rightMvcKg.toFixed(2)} kg`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.right-mvc")}: ${config.rightMvc.toFixed(2)} kg`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.rightMvcKg = await promptNumberOption(`${t("menu.right-mvc")} (kg)`, config.rightMvcKg, 0)
+                  config.rightMvc = await promptNumberOption(`${t("menu.right-mvc")} (kg)`, config.rightMvc, 0)
                   writeSessionConfig(options, "repeaters", config)
                 },
               },
               {
                 label: () => t("menu.measure"),
-                disabled: () => !config.plotTargetZone,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
                   await ensureTaredForStreamAction(device, options)
-                  const measured = await measureMvcSides(device, options, config as TargetLevelsConfig)
-                  config.leftMvcKg = measured.leftMvcKg
-                  config.rightMvcKg = measured.rightMvcKg
+                  const measured = await measureMvcSides(device, options, {
+                    plotTargetZone: config.levelsEnabled,
+                    leftMvcKg: config.leftMvc,
+                    rightMvcKg: config.rightMvc,
+                    targetZoneMinPercent: config.restLevel,
+                    targetZoneMaxPercent: config.workLevel,
+                    initialSide: config.initialSide,
+                    pauseBetweenSidesSeconds: config.pauseBetweenSides,
+                    countdownSeconds: config.countDownTime,
+                  })
+                  config.leftMvc = measured.leftMvcKg
+                  config.rightMvc = measured.rightMvcKg
                   writeSessionConfig(options, "repeaters", config)
                   console.log(
                     pc.green(
-                      `\nMVC updated. Left: ${config.leftMvcKg.toFixed(2)} kg, Right: ${config.rightMvcKg.toFixed(2)} kg\n`,
+                      `\nMVC updated. Left: ${config.leftMvc.toFixed(2)} kg, Right: ${config.rightMvc.toFixed(2)} kg\n`,
                     ),
                   )
                 },
               },
               {
-                label: () => `${t("menu.min-target-percent")}: ${config.targetZoneMinPercent.toFixed(0)}%`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.min-target-percent")}: ${config.restLevel.toFixed(0)}%`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.targetZoneMinPercent = await promptPercentOption(
-                    t("menu.min-target-percent"),
-                    config.targetZoneMinPercent,
-                  )
-                  if (config.targetZoneMinPercent > config.targetZoneMaxPercent) {
-                    config.targetZoneMaxPercent = config.targetZoneMinPercent
+                  config.restLevel = await promptPercentOption(t("menu.min-target-percent"), config.restLevel)
+                  if (config.restLevel > config.workLevel) {
+                    config.workLevel = config.restLevel
                   }
                   writeSessionConfig(options, "repeaters", config)
                 },
               },
               {
-                label: () => `${t("menu.max-target-percent")}: ${config.targetZoneMaxPercent.toFixed(0)}%`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.max-target-percent")}: ${config.workLevel.toFixed(0)}%`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.targetZoneMaxPercent = await promptPercentOption(
-                    t("menu.max-target-percent"),
-                    config.targetZoneMaxPercent,
-                  )
-                  if (config.targetZoneMaxPercent < config.targetZoneMinPercent) {
-                    config.targetZoneMinPercent = config.targetZoneMaxPercent
+                  config.workLevel = await promptPercentOption(t("menu.max-target-percent"), config.workLevel)
+                  if (config.workLevel < config.restLevel) {
+                    config.restLevel = config.workLevel
                   }
                   writeSessionConfig(options, "repeaters", config)
                 },
@@ -409,43 +425,43 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
             [
               {
                 label: () =>
-                  `${t("menu.enable-left-right-mode")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                  `${t("menu.enable-left-right-mode")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
                 run: async () => {
-                  config.leftRightMode =
+                  config.mode =
                     (await select({
                       message: `${t("menu.enable-left-right-mode")}:`,
                       choices: [
-                        { name: t("menu.enabled"), value: true },
-                        { name: t("menu.disabled"), value: false },
+                        { name: t("menu.enabled"), value: "bilateral" as const },
+                        { name: t("menu.disabled"), value: "single" as const },
                       ],
-                      default: config.leftRightMode,
-                    })) ?? config.leftRightMode
+                      default: config.mode,
+                    })) ?? config.mode
                   writeSessionConfig(options, "repeaters", config)
                 },
               },
               {
                 label: () =>
-                  `${t("menu.start-side-first")}: ${config.startSide === "left" ? t("menu.left") : t("menu.right")}`,
-                disabled: () => !config.leftRightMode,
+                  `${t("menu.start-side-first")}: ${config.initialSide === "side.left" ? t("menu.left") : t("menu.right")}`,
+                disabled: () => config.mode !== "bilateral",
                 run: async () => {
-                  config.startSide = await select({
+                  config.initialSide = await select({
                     message: t("menu.start-side-first"),
                     choices: [
-                      { name: t("menu.left"), value: "left" as const },
-                      { name: t("menu.right"), value: "right" as const },
+                      { name: t("menu.left"), value: "side.left" as const },
+                      { name: t("menu.right"), value: "side.right" as const },
                     ],
-                    default: config.startSide,
+                    default: config.initialSide,
                   })
                   writeSessionConfig(options, "repeaters", config)
                 },
               },
               {
-                label: () => `${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSidesSeconds)}`,
-                disabled: () => !config.leftRightMode,
+                label: () => `${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSides)}`,
+                disabled: () => config.mode !== "bilateral",
                 run: async () => {
-                  config.pauseBetweenSidesSeconds = await promptClockSecondsOption(
+                  config.pauseBetweenSides = await promptClockSecondsOption(
                     t("menu.pause-between-sides"),
-                    config.pauseBetweenSidesSeconds,
+                    config.pauseBetweenSides,
                     0,
                   )
                   writeSessionConfig(options, "repeaters", config)
@@ -467,54 +483,48 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
               },
             },
             {
-              label: () => `${t("menu.set-reps")}: ${config.repsPerSet}`,
+              label: () => `${t("menu.set-reps")}: ${config.reps}`,
               run: async () => {
-                config.repsPerSet = Math.max(
-                  1,
-                  Math.trunc(await promptNumberOption(t("menu.set-reps"), config.repsPerSet, 1)),
-                )
+                config.reps = Math.max(1, Math.trunc(await promptNumberOption(t("menu.set-reps"), config.reps, 1)))
                 writeSessionConfig(options, "repeaters", config)
               },
             },
             {
-              label: () => `${t("menu.work")}: ${formatClock(config.workSeconds)}`,
+              label: () => `${t("menu.work")}: ${formatClock(config.repDur)}`,
               run: async () => {
-                config.workSeconds = await promptClockSecondsOption(t("menu.work"), config.workSeconds, 1)
+                config.repDur = await promptClockSecondsOption(t("menu.work"), config.repDur, 1)
                 writeSessionConfig(options, "repeaters", config)
               },
             },
             {
-              label: () => `${t("menu.rest")}: ${formatClock(config.restSeconds)}`,
+              label: () => `${t("menu.rest")}: ${formatClock(config.repPauseDur)}`,
               run: async () => {
-                config.restSeconds = await promptClockSecondsOption(t("menu.rest"), config.restSeconds, 0)
+                config.repPauseDur = await promptClockSecondsOption(t("menu.rest"), config.repPauseDur, 0)
                 writeSessionConfig(options, "repeaters", config)
               },
             },
             {
-              label: () => `${t("menu.pause")}: ${formatClock(config.pauseSeconds)}`,
+              label: () => `${t("menu.pause")}: ${formatClock(config.setPauseDur)}`,
               run: async () => {
-                config.pauseSeconds = await promptClockSecondsOption(t("menu.pause"), config.pauseSeconds, 0)
+                config.setPauseDur = await promptClockSecondsOption(t("menu.pause"), config.setPauseDur, 0)
                 writeSessionConfig(options, "repeaters", config)
               },
             },
             {
-              label: () => `${t("menu.countdown")}: ${formatClock(config.countdownSeconds)}`,
+              label: () => `${t("menu.countdown")}: ${formatClock(config.countDownTime)}`,
               run: async () => {
-                config.countdownSeconds = await promptClockSecondsOption(
-                  t("menu.countdown"),
-                  config.countdownSeconds,
-                  0,
-                )
+                config.countDownTime = await promptClockSecondsOption(t("menu.countdown"), config.countDownTime, 0)
                 writeSessionConfig(options, "repeaters", config)
               },
             },
             {
-              label: () => `${t("menu.left-right")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+              label: () =>
+                `${t("menu.left-right")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
               run: openLeftRightSubmenu,
             },
             {
               label: () =>
-                `${t("menu.target-levels")}: ${config.plotTargetZone ? t("menu.enabled") : t("menu.disabled")}`,
+                `${t("menu.target-levels")}: ${config.levelsEnabled ? t("menu.enabled") : t("menu.disabled")}`,
               run: openTargetLevelsSubmenu,
             },
           ],
@@ -529,9 +539,10 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
 
   await ensureTaredForStreamAction(device, options)
 
-  const sequence: ("left" | "right" | "single")[] = config.leftRightMode
-    ? [config.startSide, config.startSide === "left" ? "right" : "left"]
-    : ["single"]
+  const sequence: ("left" | "right" | "single")[] =
+    config.mode === "bilateral"
+      ? [config.initialSide === "side.left" ? "left" : "right", config.initialSide === "side.left" ? "right" : "left"]
+      : ["single"]
 
   const results: RepeatersResult[] = []
   let cancelled = false
@@ -544,9 +555,9 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
     }
     if (capture.result) results.push(capture.result)
 
-    if (i < sequence.length - 1 && config.pauseBetweenSidesSeconds > 0 && !ctx.json) {
-      console.log(pc.dim(`\n${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSidesSeconds)}`))
-      await new Promise((resolve) => setTimeout(resolve, config.pauseBetweenSidesSeconds * 1000))
+    if (i < sequence.length - 1 && config.pauseBetweenSides > 0 && !ctx.json) {
+      console.log(pc.dim(`\n${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSides)}`))
+      await new Promise((resolve) => setTimeout(resolve, config.pauseBetweenSides * 1000))
     }
   }
 
@@ -576,19 +587,19 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
         cancelled,
         config: {
           sets: config.sets,
-          repsPerSet: config.repsPerSet,
-          workSeconds: config.workSeconds,
-          restSeconds: config.restSeconds,
-          pauseSeconds: config.pauseSeconds,
-          countdownSeconds: config.countdownSeconds,
-          leftRightMode: config.leftRightMode,
-          startSide: config.startSide,
-          pauseBetweenSidesSeconds: config.pauseBetweenSidesSeconds,
-          plotTargetZone: config.plotTargetZone,
-          leftMvcKg: config.leftMvcKg,
-          rightMvcKg: config.rightMvcKg,
-          targetZoneMinPercent: config.targetZoneMinPercent,
-          targetZoneMaxPercent: config.targetZoneMaxPercent,
+          reps: config.reps,
+          repDur: config.repDur,
+          repPauseDur: config.repPauseDur,
+          setPauseDur: config.setPauseDur,
+          countDownTime: config.countDownTime,
+          mode: config.mode,
+          initialSide: config.initialSide,
+          pauseBetweenSides: config.pauseBetweenSides,
+          levelsEnabled: config.levelsEnabled,
+          leftMvc: config.leftMvc,
+          rightMvc: config.rightMvc,
+          restLevel: config.restLevel,
+          workLevel: config.workLevel,
         },
         results: summary,
         unit: ctx.unit,
@@ -602,7 +613,7 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
     console.log(
       `${pc.bold(item.side.toUpperCase())}: ${t("menu.peak").toLowerCase()} ${item.peak.toFixed(2)} ${ctx.unit}, ${t("menu.mean-work").toLowerCase()} ${item.meanWork.toFixed(2)} ${ctx.unit}`,
     )
-    if (config.plotTargetZone) {
+    if (config.levelsEnabled) {
       console.log(
         pc.dim(
           `  ${t("menu.in-target")}: ${item.inZoneSeconds.toFixed(2)}s (${item.inZonePercent.toFixed(1)}%) | ${t("menu.below")}: ${item.belowZoneSeconds.toFixed(2)}s | ${t("menu.above")}: ${item.aboveZoneSeconds.toFixed(2)}s`,

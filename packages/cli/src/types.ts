@@ -88,73 +88,73 @@ export interface EnduranceSessionOptions {
   /** Endurance stream duration in seconds. */
   durationSeconds?: number
   /** Endurance countdown before capture starts in seconds. */
-  countdownSeconds?: number
-  /** Enable left/right mode for sequential side captures. */
-  leftRightMode?: boolean
+  countDownTime?: number
+  /** Endurance mode. "bilateral" alternates sides, "single" captures once. */
+  mode?: "single" | "bilateral"
   /** Starting side when left/right mode is enabled. */
-  startSide?: "left" | "right"
+  initialSide?: "side.left" | "side.right"
   /** Pause between left/right side captures in seconds. */
-  pauseBetweenSidesSeconds?: number
+  pauseBetweenSides?: number
   /** Plot a target zone derived from MVC percentages. */
-  plotTargetZone?: boolean
+  levelsEnabled?: boolean
   /** Left maximum voluntary contraction in kilograms. */
-  leftMvcKg?: number
+  leftMvc?: number
   /** Right maximum voluntary contraction in kilograms. */
-  rightMvcKg?: number
+  rightMvc?: number
   /** Minimum target zone value as percent of MVC. */
-  targetZoneMinPercent?: number
+  restLevel?: number
   /** Maximum target zone value as percent of MVC. */
-  targetZoneMaxPercent?: number
+  workLevel?: number
 }
 
 /** RFD session options. */
 export interface RfdSessionOptions {
   /** RFD analysis mode: "20-80" (default) or time window ms (100, 150, 200, 250, 300, 1000). */
-  mode?: "20-80" | 100 | 150 | 200 | 250 | 300 | 1000
+  rfdMode?: "20-80" | 100 | 150 | 200 | 250 | 300 | 1000
   /** RFD onset threshold in stream unit (default 0.5). */
   threshold?: number
   /** RFD countdown before capture starts in seconds. */
-  countdownSeconds?: number
-  /** When true, RFD session is configured to use left/right distribution mode. */
-  leftRightMode?: boolean
+  countDownTime?: number
+  /** RFD mode. "bilateral" enables left/right distribution mode. */
+  mode?: "single" | "bilateral"
 }
 
 /** Repeaters session options. */
 export interface RepeatersSessionOptions {
   /** Repeaters countdown before the first set in seconds. */
-  countdownSeconds?: number
+  countDownTime?: number
   /** Number of sets. */
   sets?: number
   /** Number of reps per set. */
-  repsPerSet?: number
+  reps?: number
   /** Work time in seconds per rep. */
-  workSeconds?: number
+  repDur?: number
   /** Rest time in seconds between reps. */
-  restSeconds?: number
+  repPauseDur?: number
   /** Pause time in seconds between sets. */
-  pauseSeconds?: number
-  /** Enable left/right mode for sequential side captures. */
-  leftRightMode?: boolean
+  setPauseDur?: number
+  /** Repeaters mode. "bilateral" alternates sides, "single" captures once. */
+  mode?: "single" | "bilateral"
   /** Starting side when left/right mode is enabled. */
-  startSide?: "left" | "right"
+  initialSide?: "side.left" | "side.right"
   /** Pause between left/right side captures in seconds. */
-  pauseBetweenSidesSeconds?: number
+  pauseBetweenSides?: number
   /** Plot target zone derived from MVC percentages. */
-  plotTargetZone?: boolean
+  levelsEnabled?: boolean
   /** Left maximum voluntary contraction in kilograms. */
-  leftMvcKg?: number
+  leftMvc?: number
   /** Right maximum voluntary contraction in kilograms. */
-  rightMvcKg?: number
+  rightMvc?: number
   /** Minimum target zone value as percent of MVC. */
-  targetZoneMinPercent?: number
+  restLevel?: number
   /** Maximum target zone value as percent of MVC. */
-  targetZoneMaxPercent?: number
+  workLevel?: number
 }
 
 /** Critical Force session options. */
 export interface CriticalForceSessionOptions {
   /** Critical Force countdown before protocol starts in seconds. */
-  countdownSeconds?: number
+  countDownTime?: number
 }
 
 /** Stream test/session specific options. */

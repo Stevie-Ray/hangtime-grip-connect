@@ -5,9 +5,9 @@ import { connectAndRun, createDevice, printHeader, resolveContext, resolveDevice
 
 interface RfdCliOptions {
   duration?: string
-  countdown?: string
+  countDownTime?: string
   threshold?: string
-  leftRight?: boolean
+  mode?: "single" | "bilateral"
 }
 
 export function registerRfd(program: Command): void {
@@ -15,16 +15,17 @@ export function registerRfd(program: Command): void {
     .command("rfd [device]")
     .description("Run Rate of Force Development test")
     .option("-d, --duration <seconds>", "Capture duration in seconds", "5")
-    .option("--countdown <time>", "Countdown before capture starts (mm:ss or seconds)", "3")
+    .option("--count-down-time <time>", "Countdown before capture starts (mm:ss or seconds)", "3")
     .option("--threshold <value>", "Onset threshold in current force unit", "0.5")
-    .option("--left-right", "Enable Left/Right mode")
+    .option("--mode <single|bilateral>", "Session mode", "single")
     .action(async (deviceKey: string | undefined, options: RfdCliOptions) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
       const durationMs = parseDurationSeconds(options.duration) ?? 5000
-      const countdownSeconds = parseCountdownSeconds(options.countdown) ?? 3
+      const countDownTime = parseCountdownSeconds(options.countDownTime) ?? 3
       const threshold = Number.isFinite(Number(options.threshold)) ? Number(options.threshold) : 0.5
+      const mode = options.mode === "bilateral" ? "bilateral" : "single"
 
       if (!ctx.json) {
         printHeader(`RFD – ${name}`)
@@ -40,9 +41,9 @@ export function registerRfd(program: Command): void {
             stream: { durationMs },
             session: {
               rfd: {
-                countdownSeconds,
+                countDownTime,
                 threshold,
-                leftRightMode: Boolean(options.leftRight),
+                mode,
               },
             },
           }),

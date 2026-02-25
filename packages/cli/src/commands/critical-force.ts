@@ -4,7 +4,7 @@ import { parseCountdownSeconds } from "../parsers.js"
 import { connectAndRun, createDevice, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
 
 interface CriticalForceCliOptions {
-  countdown?: string
+  countDownTime?: string
 }
 
 /**
@@ -16,12 +16,12 @@ export function registerCriticalForce(program: Command): void {
     .alias("critical")
     .alias("crictal-force")
     .description("Run the 24x (7s pull / 3s rest) critical force test")
-    .option("--countdown <time>", "Countdown before protocol starts (mm:ss or seconds)", "3")
+    .option("--count-down-time <time>", "Countdown before protocol starts (mm:ss or seconds)", "3")
     .action(async (deviceKey: string | undefined, options: CriticalForceCliOptions) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
       const { device, name } = createDevice(key)
-      const countdownSeconds = parseCountdownSeconds(options.countdown) ?? 3
+      const countDownTime = parseCountdownSeconds(options.countDownTime) ?? 3
 
       if (!ctx.json) {
         printHeader(`Critical Force – ${name}`)
@@ -34,7 +34,7 @@ export function registerCriticalForce(program: Command): void {
           runCriticalForceAction(d, {
             ctx,
             nonInteractive: true,
-            session: { criticalForce: { countdownSeconds } },
+            session: { criticalForce: { countDownTime } },
           }),
         ctx,
         {

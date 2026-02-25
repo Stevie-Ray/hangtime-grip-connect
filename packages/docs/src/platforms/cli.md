@@ -143,36 +143,36 @@ npx @hangtime/cli progressor peak-force-mvc --mode left-right --include-torque -
 Run Rate of Force Development test.
 
 ```sh
-npx @hangtime/cli progressor rfd --duration 5 --countdown 00:03 --threshold 0.5 --left-right
+npx @hangtime/cli progressor rfd --duration 5 --count-down-time 00:03 --threshold 0.5 --mode bilateral
 ```
 
-| Flag             | Description                                          | Default |
-| ---------------- | ---------------------------------------------------- | ------- |
-| `-d, --duration` | Capture duration in seconds                          | `5`     |
-| `--countdown`    | Countdown before capture starts (`mm:ss` or seconds) | `3`     |
-| `--threshold`    | Onset threshold in current force unit                | `0.5`   |
-| `--left-right`   | Enable Left/Right mode                               | `false` |
+| Flag                | Description                                          | Default  |
+| ------------------- | ---------------------------------------------------- | -------- |
+| `-d, --duration`    | Capture duration in seconds                          | `5`      |
+| `--count-down-time` | Countdown before capture starts (`mm:ss` or seconds) | `3`      |
+| `--threshold`       | Onset threshold in current force unit                | `0.5`    |
+| `--mode`            | Session mode (`single` or `bilateral`)               | `single` |
 
 ### `endurance`
 
 Run a time-based endurance test with optional left/right sequencing and MVC target zone.
 
 ```sh
-npx @hangtime/cli progressor endurance --duration 00:30 --countdown 00:03 --left-right --start-side left --pause-between-sides 00:10 --plot-target-zone --left-mvc-kg 45 --right-mvc-kg 43 --target-min-percent 40 --target-max-percent 80
+npx @hangtime/cli progressor endurance --duration 00:30 --count-down-time 00:03 --mode bilateral --initial-side side.left --pause-between-sides 00:10 --levels-enabled --left-mvc 45 --right-mvc 43 --rest-level 40 --work-level 80
 ```
 
-| Flag                    | Description                                          | Default |
-| ----------------------- | ---------------------------------------------------- | ------- |
-| `-d, --duration`        | Capture duration (`mm:ss` or seconds)                | `00:30` |
-| `--countdown`           | Countdown before capture starts (`mm:ss` or seconds) | `3`     |
-| `--left-right`          | Enable Left/Right mode                               | `false` |
-| `--start-side`          | Start side for Left/Right mode (`left` or `right`)   | `left`  |
-| `--pause-between-sides` | Pause between sides (`mm:ss` or seconds)             | `10`    |
-| `--plot-target-zone`    | Enable target zone plotting                          | `false` |
-| `--left-mvc-kg`         | Left MVC in kg                                       | `0`     |
-| `--right-mvc-kg`        | Right MVC in kg                                      | `0`     |
-| `--target-min-percent`  | Target zone minimum (% of MVC)                       | `40`    |
-| `--target-max-percent`  | Target zone maximum (% of MVC)                       | `80`    |
+| Flag                    | Description                                                   | Default     |
+| ----------------------- | ------------------------------------------------------------- | ----------- |
+| `-d, --duration`        | Capture duration (`mm:ss` or seconds)                         | `00:30`     |
+| `--count-down-time`     | Countdown before capture starts (`mm:ss` or seconds)          | `3`         |
+| `--mode`                | Session mode (`single` or `bilateral`)                        | `single`    |
+| `--initial-side`        | Initial side for bilateral mode (`side.left` or `side.right`) | `side.left` |
+| `--pause-between-sides` | Pause between sides (`mm:ss` or seconds)                      | `10`        |
+| `--levels-enabled`      | Enable target zone plotting                                   | `false`     |
+| `--left-mvc`            | Left MVC in kg                                                | `0`         |
+| `--right-mvc`           | Right MVC in kg                                               | `0`         |
+| `--rest-level`          | Target zone minimum (% of MVC)                                | `40`        |
+| `--work-level`          | Target zone maximum (% of MVC)                                | `80`        |
 
 ### `repeaters`
 
@@ -180,25 +180,25 @@ Run Repeaters protocol with configurable sets/reps timing, optional left/right s
 levels.
 
 ```sh
-npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --work 10 --rest 6 --pause 08:00 --countdown 3 --left-right --start-side left --pause-between-sides 10 --plot-target-levels --left-mvc-kg 45 --right-mvc-kg 43 --target-min-percent 40 --target-max-percent 80
+npx @hangtime/cli progressor repeaters --sets 3 --reps 12 --rep-dur 10 --rep-pause-dur 6 --set-pause-dur 08:00 --count-down-time 3 --mode bilateral --initial-side side.left --pause-between-sides 10 --levels-enabled --left-mvc 45 --right-mvc 43 --rest-level 40 --work-level 80
 ```
 
-| Flag                    | Description                                           | Default |
-| ----------------------- | ----------------------------------------------------- | ------- |
-| `--sets`                | Number of sets                                        | `3`     |
-| `--reps`                | Number of reps per set                                | `12`    |
-| `--work`                | Work duration per rep (`mm:ss` or seconds)            | `10`    |
-| `--rest`                | Rest duration between reps (`mm:ss` or seconds)       | `6`     |
-| `--pause`               | Pause duration between sets (`mm:ss` or seconds)      | `08:00` |
-| `--countdown`           | Countdown before protocol starts (`mm:ss` or seconds) | `3`     |
-| `--left-right`          | Enable Left/Right mode                                | `false` |
-| `--start-side`          | Start side for Left/Right mode (`left` or `right`)    | `left`  |
-| `--pause-between-sides` | Pause between sides (`mm:ss` or seconds)              | `10`    |
-| `--plot-target-levels`  | Enable target levels plotting                         | `false` |
-| `--left-mvc-kg`         | Left MVC in kg                                        | `0`     |
-| `--right-mvc-kg`        | Right MVC in kg                                       | `0`     |
-| `--target-min-percent`  | Target levels minimum (% of MVC)                      | `40`    |
-| `--target-max-percent`  | Target levels maximum (% of MVC)                      | `80`    |
+| Flag                    | Description                                                   | Default     |
+| ----------------------- | ------------------------------------------------------------- | ----------- |
+| `--sets`                | Number of sets                                                | `3`         |
+| `--reps`                | Number of reps per set                                        | `12`        |
+| `--rep-dur`             | Work duration per rep (`mm:ss` or seconds)                    | `10`        |
+| `--rep-pause-dur`       | Rest duration between reps (`mm:ss` or seconds)               | `6`         |
+| `--set-pause-dur`       | Pause duration between sets (`mm:ss` or seconds)              | `08:00`     |
+| `--count-down-time`     | Countdown before protocol starts (`mm:ss` or seconds)         | `3`         |
+| `--mode`                | Session mode (`single` or `bilateral`)                        | `single`    |
+| `--initial-side`        | Initial side for bilateral mode (`side.left` or `side.right`) | `side.left` |
+| `--pause-between-sides` | Pause between sides (`mm:ss` or seconds)                      | `10`        |
+| `--levels-enabled`      | Enable target levels plotting                                 | `false`     |
+| `--left-mvc`            | Left MVC in kg                                                | `0`         |
+| `--right-mvc`           | Right MVC in kg                                               | `0`         |
+| `--rest-level`          | Target levels minimum (% of MVC)                              | `40`        |
+| `--work-level`          | Target levels maximum (% of MVC)                              | `80`        |
 
 ### `info`
 
@@ -274,12 +274,12 @@ npx @hangtime/cli action motherboard led --led-color green
 Run 24x (7s pull / 3s rest) critical force protocol.
 
 ```sh
-npx @hangtime/cli progressor critical-force --countdown 00:03
+npx @hangtime/cli progressor critical-force --count-down-time 00:03
 ```
 
-| Flag          | Description                                           | Default |
-| ------------- | ----------------------------------------------------- | ------- |
-| `--countdown` | Countdown before protocol starts (`mm:ss` or seconds) | `3`     |
+| Flag                | Description                                           | Default |
+| ------------------- | ----------------------------------------------------- | ------- |
+| `--count-down-time` | Countdown before protocol starts (`mm:ss` or seconds) | `3`     |
 
 ## Measurements
 

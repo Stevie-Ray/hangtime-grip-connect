@@ -95,7 +95,7 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
 
   const chartEnabled = !ctx.json && process.stdout.isTTY
   const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
-  let countdownSeconds = opts.session?.criticalForce?.countdownSeconds ?? 3
+  let countDownTime = opts.session?.criticalForce?.countDownTime ?? 3
   const samples: CriticalForceSample[] = []
   const sessionPoints: RfdChartPoint[] = []
   let maxForce = 0
@@ -115,12 +115,12 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
               `${criticalForceLabel} ${t("menu.protocol")}`,
               [
                 {
-                  label: () => `${t("menu.countdown")}: ${formatClock(countdownSeconds)}`,
+                  label: () => `${t("menu.countdown")}: ${formatClock(countDownTime)}`,
                   run: async () => {
-                    countdownSeconds = await promptIntegerSecondsOption(t("menu.countdown"), countdownSeconds, 0)
+                    countDownTime = await promptIntegerSecondsOption(t("menu.countdown"), countDownTime, 0)
                     opts.session = {
                       ...(opts.session ?? {}),
-                      criticalForce: { ...(opts.session?.criticalForce ?? {}), countdownSeconds },
+                      criticalForce: { ...(opts.session?.criticalForce ?? {}), countDownTime },
                     }
                   },
                 },
@@ -133,14 +133,14 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
             criticalForceLabel,
             [
               {
-                label: () => `${t("menu.protocol")}: ${t("menu.countdown")} ${formatClock(countdownSeconds)}`,
+                label: () => `${t("menu.protocol")}: ${t("menu.countdown")} ${formatClock(countDownTime)}`,
                 run: openProtocolSubmenu,
               },
             ],
             ctx.language,
           )
         },
-        getOptionsLabel: () => `${t("menu.options")} (${t("menu.countdown")}: ${formatClock(countdownSeconds)})`,
+        getOptionsLabel: () => `${t("menu.options")} (${t("menu.countdown")}: ${formatClock(countDownTime)})`,
         onViewMeasurements: async () => viewSavedMeasurements("critical-force", criticalForceLabel, ctx.language),
       })
       if (!shouldStart) return
@@ -178,7 +178,7 @@ export async function runCriticalForceAction(device: CliDevice, opts: RunOptions
   }
 
   if (!ctx.json) {
-    await runCountdown(countdownSeconds, chartEnabled ? chart : undefined)
+    await runCountdown(countDownTime, chartEnabled ? chart : undefined)
   }
 
   const stopPromise = process.stdin.isTTY ? waitForKeyToStop() : (Promise.race([]) as Promise<void>)

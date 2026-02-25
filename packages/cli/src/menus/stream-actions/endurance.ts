@@ -5,7 +5,7 @@ import { createChartRenderer } from "../../chart.js"
 import { formatClock } from "../../time.js"
 import type { Action, CliDevice, RunOptions } from "../../types.js"
 import { muteNotify, outputJson, waitForKeyToStop } from "../../utils.js"
-import { measureMvcSides, resolveTargetZone, type TargetLevelsConfig } from "./target-levels.js"
+import { measureMvcSides, resolveTargetZone } from "./target-levels.js"
 import { setTranslationLanguage, t } from "../interactive/translations.js"
 import {
   ensureTaredForStreamAction,
@@ -23,15 +23,15 @@ import {
 
 interface EnduranceConfig {
   durationSeconds: number
-  countdownSeconds: number
-  leftRightMode: boolean
-  startSide: "left" | "right"
-  pauseBetweenSidesSeconds: number
-  plotTargetZone: boolean
-  leftMvcKg: number
-  rightMvcKg: number
-  targetZoneMinPercent: number
-  targetZoneMaxPercent: number
+  countDownTime: number
+  mode: "single" | "bilateral"
+  initialSide: "side.left" | "side.right"
+  pauseBetweenSides: number
+  levelsEnabled: boolean
+  leftMvc: number
+  rightMvc: number
+  restLevel: number
+  workLevel: number
 }
 
 interface EnduranceCaptureResult {
@@ -52,15 +52,15 @@ function normalizeEnduranceConfig(options: RunOptions): EnduranceConfig {
   const raw = readSessionConfig(options, "endurance")
   return {
     durationSeconds: Math.max(1, raw?.durationSeconds ?? 30),
-    countdownSeconds: Math.max(0, raw?.countdownSeconds ?? 3),
-    leftRightMode: raw?.leftRightMode ?? false,
-    startSide: raw?.startSide === "right" ? "right" : "left",
-    pauseBetweenSidesSeconds: Math.max(0, raw?.pauseBetweenSidesSeconds ?? 10),
-    plotTargetZone: raw?.plotTargetZone ?? false,
-    leftMvcKg: Math.max(0, raw?.leftMvcKg ?? 0),
-    rightMvcKg: Math.max(0, raw?.rightMvcKg ?? 0),
-    targetZoneMinPercent: normalizePercent(raw?.targetZoneMinPercent ?? 40),
-    targetZoneMaxPercent: normalizePercent(raw?.targetZoneMaxPercent ?? 80),
+    countDownTime: Math.max(0, raw?.countDownTime ?? 3),
+    mode: raw?.mode === "bilateral" ? "bilateral" : "single",
+    initialSide: raw?.initialSide === "side.right" ? "side.right" : "side.left",
+    pauseBetweenSides: Math.max(0, raw?.pauseBetweenSides ?? 10),
+    levelsEnabled: raw?.levelsEnabled ?? false,
+    leftMvc: Math.max(0, raw?.leftMvc ?? 0),
+    rightMvc: Math.max(0, raw?.rightMvc ?? 0),
+    restLevel: normalizePercent(raw?.restLevel ?? 40),
+    workLevel: normalizePercent(raw?.workLevel ?? 80),
   }
 }
 
@@ -79,7 +79,20 @@ async function runEnduranceCapture(
   const label: EnduranceCaptureResult["label"] = side === "left" ? "Left" : side === "right" ? "Right" : "Single"
   const displayLabel = side === "left" ? t("menu.left") : side === "right" ? t("menu.right") : t("menu.single")
   const enduranceName = t("actions.endurance.name")
-  const zone = resolveTargetZone(config, side, ctx.unit)
+  const zone = resolveTargetZone(
+    {
+      plotTargetZone: config.levelsEnabled,
+      leftMvcKg: config.leftMvc,
+      rightMvcKg: config.rightMvc,
+      targetZoneMinPercent: config.restLevel,
+      targetZoneMaxPercent: config.workLevel,
+      initialSide: config.initialSide,
+      pauseBetweenSidesSeconds: config.pauseBetweenSides,
+      countdownSeconds: config.countDownTime,
+    },
+    side,
+    ctx.unit,
+  )
   const chartEnabled = !ctx.json && process.stdout.isTTY
   const chart = createChartRenderer({ disabled: !chartEnabled, unit: ctx.unit, dimStatus: false })
   const durationMs = config.durationSeconds * 1000
@@ -133,12 +146,12 @@ async function runEnduranceCapture(
     if (zone) {
       console.log(
         pc.dim(
-          `Target zone: ${zone.min.toFixed(2)}-${zone.max.toFixed(2)} ${ctx.unit} (${config.targetZoneMinPercent.toFixed(0)}-${config.targetZoneMaxPercent.toFixed(0)}% of ${zone.mvcKg.toFixed(2)}kg MVC)`,
+          `Target zone: ${zone.min.toFixed(2)}-${zone.max.toFixed(2)} ${ctx.unit} (${config.restLevel.toFixed(0)}-${config.workLevel.toFixed(0)}% of ${zone.mvcKg.toFixed(2)}kg MVC)`,
         ),
       )
     }
-    if (config.countdownSeconds > 0) {
-      await runCountdown(config.countdownSeconds, chartEnabled ? chart : undefined)
+    if (config.countDownTime > 0) {
+      await runCountdown(config.countDownTime, chartEnabled ? chart : undefined)
     }
   }
 
@@ -201,22 +214,22 @@ async function runEnduranceCapture(
 function describeOptions(config: EnduranceConfig, t: (key: string) => string): string[] {
   const lines: string[] = [
     `${t("menu.duration")}: ${formatClock(config.durationSeconds)}`,
-    `${t("menu.countdown")}: ${formatClock(config.countdownSeconds)}`,
-    `${t("menu.left-right-mode")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+    `${t("menu.countdown")}: ${formatClock(config.countDownTime)}`,
+    `${t("menu.left-right-mode")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
   ]
 
-  if (config.leftRightMode) {
-    lines.push(`${t("menu.start-side-first")}: ${config.startSide === "left" ? t("menu.left") : t("menu.right")}`)
-    lines.push(`${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSidesSeconds)}`)
+  if (config.mode === "bilateral") {
+    lines.push(
+      `${t("menu.start-side-first")}: ${config.initialSide === "side.left" ? t("menu.left") : t("menu.right")}`,
+    )
+    lines.push(`${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSides)}`)
   }
 
-  lines.push(`${t("menu.plot-target-zone")}: ${config.plotTargetZone ? t("menu.enabled") : t("menu.disabled")}`)
-  if (config.plotTargetZone) {
-    lines.push(`${t("menu.left-mvc")}: ${config.leftMvcKg.toFixed(2)} kg`)
-    lines.push(`${t("menu.right-mvc")}: ${config.rightMvcKg.toFixed(2)} kg`)
-    lines.push(
-      `${t("menu.target-zone")} range: ${config.targetZoneMinPercent.toFixed(0)}% - ${config.targetZoneMaxPercent.toFixed(0)}%`,
-    )
+  lines.push(`${t("menu.plot-target-zone")}: ${config.levelsEnabled ? t("menu.enabled") : t("menu.disabled")}`)
+  if (config.levelsEnabled) {
+    lines.push(`${t("menu.left-mvc")}: ${config.leftMvc.toFixed(2)} kg`)
+    lines.push(`${t("menu.right-mvc")}: ${config.rightMvc.toFixed(2)} kg`)
+    lines.push(`${t("menu.target-zone")} range: ${config.restLevel.toFixed(0)}% - ${config.workLevel.toFixed(0)}%`)
   }
 
   return lines
@@ -241,43 +254,43 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
             [
               {
                 label: () =>
-                  `${t("menu.enable-left-right-mode")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                  `${t("menu.enable-left-right-mode")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
                 run: async () => {
-                  config.leftRightMode =
+                  config.mode =
                     (await select({
                       message: `${t("menu.enable-left-right-mode")}:`,
                       choices: [
-                        { name: t("menu.enabled"), value: true },
-                        { name: t("menu.disabled"), value: false },
+                        { name: t("menu.enabled"), value: "bilateral" as const },
+                        { name: t("menu.disabled"), value: "single" as const },
                       ],
-                      default: config.leftRightMode,
-                    })) ?? config.leftRightMode
+                      default: config.mode,
+                    })) ?? config.mode
                   writeSessionConfig(options, "endurance", config)
                 },
               },
               {
                 label: () =>
-                  `${t("menu.start-side-first")}: ${config.startSide === "left" ? t("menu.left") : t("menu.right")}`,
-                disabled: () => !config.leftRightMode,
+                  `${t("menu.start-side-first")}: ${config.initialSide === "side.left" ? t("menu.left") : t("menu.right")}`,
+                disabled: () => config.mode !== "bilateral",
                 run: async () => {
-                  config.startSide = await select({
+                  config.initialSide = await select({
                     message: t("menu.start-side-first"),
                     choices: [
-                      { name: t("menu.left"), value: "left" as const },
-                      { name: t("menu.right"), value: "right" as const },
+                      { name: t("menu.left"), value: "side.left" as const },
+                      { name: t("menu.right"), value: "side.right" as const },
                     ],
-                    default: config.startSide,
+                    default: config.initialSide,
                   })
                   writeSessionConfig(options, "endurance", config)
                 },
               },
               {
-                label: () => `${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSidesSeconds)}`,
-                disabled: () => !config.leftRightMode,
+                label: () => `${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSides)}`,
+                disabled: () => config.mode !== "bilateral",
                 run: async () => {
-                  config.pauseBetweenSidesSeconds = await promptClockSecondsOption(
+                  config.pauseBetweenSides = await promptClockSecondsOption(
                     t("menu.pause-between-sides"),
-                    config.pauseBetweenSidesSeconds,
+                    config.pauseBetweenSides,
                     0,
                   )
                   writeSessionConfig(options, "endurance", config)
@@ -294,77 +307,80 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
             [
               {
                 label: () =>
-                  `${t("menu.plot-target-zone")}: ${config.plotTargetZone ? t("menu.enabled") : t("menu.disabled")}`,
+                  `${t("menu.plot-target-zone")}: ${config.levelsEnabled ? t("menu.enabled") : t("menu.disabled")}`,
                 run: async () => {
-                  config.plotTargetZone =
+                  config.levelsEnabled =
                     (await select({
                       message: `${t("menu.plot-target-zone")}:`,
                       choices: [
                         { name: t("menu.enabled"), value: true },
                         { name: t("menu.disabled"), value: false },
                       ],
-                      default: config.plotTargetZone,
-                    })) ?? config.plotTargetZone
+                      default: config.levelsEnabled,
+                    })) ?? config.levelsEnabled
                   writeSessionConfig(options, "endurance", config)
                 },
               },
               {
-                label: () => `${t("menu.left-mvc")}: ${config.leftMvcKg.toFixed(2)} kg`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.left-mvc")}: ${config.leftMvc.toFixed(2)} kg`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.leftMvcKg = await promptNumberOption(`${t("menu.left-mvc")} (kg)`, config.leftMvcKg, 0)
+                  config.leftMvc = await promptNumberOption(`${t("menu.left-mvc")} (kg)`, config.leftMvc, 0)
                   writeSessionConfig(options, "endurance", config)
                 },
               },
               {
-                label: () => `${t("menu.right-mvc")}: ${config.rightMvcKg.toFixed(2)} kg`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.right-mvc")}: ${config.rightMvc.toFixed(2)} kg`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.rightMvcKg = await promptNumberOption(`${t("menu.right-mvc")} (kg)`, config.rightMvcKg, 0)
+                  config.rightMvc = await promptNumberOption(`${t("menu.right-mvc")} (kg)`, config.rightMvc, 0)
                   writeSessionConfig(options, "endurance", config)
                 },
               },
               {
                 label: () => t("menu.measure"),
-                disabled: () => !config.plotTargetZone,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
                   await ensureTaredForStreamAction(device, options)
-                  const measured = await measureMvcSides(device, options, config as TargetLevelsConfig)
-                  config.leftMvcKg = measured.leftMvcKg
-                  config.rightMvcKg = measured.rightMvcKg
+                  const measured = await measureMvcSides(device, options, {
+                    plotTargetZone: config.levelsEnabled,
+                    leftMvcKg: config.leftMvc,
+                    rightMvcKg: config.rightMvc,
+                    targetZoneMinPercent: config.restLevel,
+                    targetZoneMaxPercent: config.workLevel,
+                    initialSide: config.initialSide,
+                    pauseBetweenSidesSeconds: config.pauseBetweenSides,
+                    countdownSeconds: config.countDownTime,
+                  })
+                  config.leftMvc = measured.leftMvcKg
+                  config.rightMvc = measured.rightMvcKg
                   writeSessionConfig(options, "endurance", config)
 
                   console.log(
                     pc.green(
-                      `\nMVC updated. Left: ${config.leftMvcKg.toFixed(2)} kg, Right: ${config.rightMvcKg.toFixed(2)} kg\n`,
+                      `\nMVC updated. Left: ${config.leftMvc.toFixed(2)} kg, Right: ${config.rightMvc.toFixed(2)} kg\n`,
                     ),
                   )
                 },
               },
               {
-                label: () => `${t("menu.min-target-percent")}: ${config.targetZoneMinPercent.toFixed(0)}%`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.min-target-percent")}: ${config.restLevel.toFixed(0)}%`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.targetZoneMinPercent = await promptPercentNumber(
-                    t("menu.min-target-percent"),
-                    config.targetZoneMinPercent,
-                  )
-                  if (config.targetZoneMinPercent > config.targetZoneMaxPercent) {
-                    config.targetZoneMaxPercent = config.targetZoneMinPercent
+                  config.restLevel = await promptPercentNumber(t("menu.min-target-percent"), config.restLevel)
+                  if (config.restLevel > config.workLevel) {
+                    config.workLevel = config.restLevel
                   }
                   writeSessionConfig(options, "endurance", config)
                 },
               },
               {
-                label: () => `${t("menu.max-target-percent")}: ${config.targetZoneMaxPercent.toFixed(0)}%`,
-                disabled: () => !config.plotTargetZone,
+                label: () => `${t("menu.max-target-percent")}: ${config.workLevel.toFixed(0)}%`,
+                disabled: () => !config.levelsEnabled,
                 run: async () => {
-                  config.targetZoneMaxPercent = await promptPercentNumber(
-                    t("menu.max-target-percent"),
-                    config.targetZoneMaxPercent,
-                  )
-                  if (config.targetZoneMaxPercent < config.targetZoneMinPercent) {
-                    config.targetZoneMinPercent = config.targetZoneMaxPercent
+                  config.workLevel = await promptPercentNumber(t("menu.max-target-percent"), config.workLevel)
+                  if (config.workLevel < config.restLevel) {
+                    config.restLevel = config.workLevel
                   }
                   writeSessionConfig(options, "endurance", config)
                 },
@@ -385,26 +401,22 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
               },
             },
             {
-              label: () => `${t("menu.countdown")}: ${formatClock(config.countdownSeconds)}`,
+              label: () => `${t("menu.countdown")}: ${formatClock(config.countDownTime)}`,
               run: async () => {
-                config.countdownSeconds = await promptClockSecondsOption(
-                  t("menu.countdown"),
-                  config.countdownSeconds,
-                  0,
-                )
+                config.countDownTime = await promptClockSecondsOption(t("menu.countdown"), config.countDownTime, 0)
                 writeSessionConfig(options, "endurance", config)
               },
             },
             {
               label: () =>
-                `${t("menu.enable-left-right-mode")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                `${t("menu.enable-left-right-mode")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
               run: openModeSubmenu,
             },
             {
               label: () =>
                 `${t("menu.plot-target-zone")}: ${
-                  config.plotTargetZone
-                    ? `${config.targetZoneMinPercent.toFixed(0)}-${config.targetZoneMaxPercent.toFixed(0)}%`
+                  config.levelsEnabled
+                    ? `${config.restLevel.toFixed(0)}-${config.workLevel.toFixed(0)}%`
                     : t("menu.disabled")
                 }`,
               run: openTargetZoneSubmenu,
@@ -420,9 +432,10 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
   }
 
   await ensureTaredForStreamAction(device, options)
-  const sequence: ("left" | "right" | "single")[] = config.leftRightMode
-    ? [config.startSide, config.startSide === "left" ? "right" : "left"]
-    : ["single"]
+  const sequence: ("left" | "right" | "single")[] =
+    config.mode === "bilateral"
+      ? [config.initialSide === "side.left" ? "left" : "right", config.initialSide === "side.left" ? "right" : "left"]
+      : ["single"]
 
   const results: EnduranceCaptureResult[] = []
   let cancelled = false
@@ -435,9 +448,9 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
     }
     if (capture.result) results.push(capture.result)
 
-    if (i < sequence.length - 1 && config.pauseBetweenSidesSeconds > 0 && !ctx.json) {
-      console.log(pc.dim(`\n${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSidesSeconds)}`))
-      await new Promise((resolve) => setTimeout(resolve, config.pauseBetweenSidesSeconds * 1000))
+    if (i < sequence.length - 1 && config.pauseBetweenSides > 0 && !ctx.json) {
+      console.log(pc.dim(`\n${t("menu.pause-between-sides")}: ${formatClock(config.pauseBetweenSides)}`))
+      await new Promise((resolve) => setTimeout(resolve, config.pauseBetweenSides * 1000))
     }
   }
 
@@ -466,16 +479,16 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
         test: "endurance",
         cancelled,
         durationSeconds: config.durationSeconds,
-        countdownSeconds: config.countdownSeconds,
-        leftRightMode: config.leftRightMode,
-        startSide: config.startSide,
-        pauseBetweenSidesSeconds: config.pauseBetweenSidesSeconds,
-        targetZone: config.plotTargetZone
+        countDownTime: config.countDownTime,
+        mode: config.mode,
+        initialSide: config.initialSide,
+        pauseBetweenSides: config.pauseBetweenSides,
+        targetZone: config.levelsEnabled
           ? {
-              leftMvcKg: +config.leftMvcKg.toFixed(2),
-              rightMvcKg: +config.rightMvcKg.toFixed(2),
-              minPercent: +config.targetZoneMinPercent.toFixed(0),
-              maxPercent: +config.targetZoneMaxPercent.toFixed(0),
+              leftMvc: +config.leftMvc.toFixed(2),
+              rightMvc: +config.rightMvc.toFixed(2),
+              minPercent: +config.restLevel.toFixed(0),
+              maxPercent: +config.workLevel.toFixed(0),
             }
           : undefined,
         results: summary,
@@ -490,7 +503,7 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
     console.log(
       `${pc.bold(item.side.toUpperCase())}: ${t("menu.peak").toLowerCase()} ${item.peak.toFixed(2)} ${ctx.unit}, ${t("menu.mean").toLowerCase()} ${item.mean.toFixed(2)} ${ctx.unit}`,
     )
-    if (config.plotTargetZone) {
+    if (config.levelsEnabled) {
       console.log(
         pc.dim(
           `  ${t("menu.in-zone")}: ${item.inZoneSeconds.toFixed(2)}s (${item.inZonePercent.toFixed(1)}%) | ${t("menu.below")}: ${item.belowZoneSeconds.toFixed(2)}s | ${t("menu.above")}: ${item.aboveZoneSeconds.toFixed(2)}s`,
@@ -499,24 +512,25 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
     }
   }
 
-  const headline = config.leftRightMode
-    ? `Endurance L/R mean ${summary.map((s) => `${s.side}:${s.mean.toFixed(2)}`).join(" | ")} ${ctx.unit}`
-    : `Endurance mean ${summary[0]?.mean.toFixed(2) ?? "0.00"} ${ctx.unit}`
+  const headline =
+    config.mode === "bilateral"
+      ? `Endurance L/R mean ${summary.map((s) => `${s.side}:${s.mean.toFixed(2)}`).join(" | ")} ${ctx.unit}`
+      : `Endurance mean ${summary[0]?.mean.toFixed(2) ?? "0.00"} ${ctx.unit}`
 
   await promptSaveMeasurement("endurance", "Endurance", options, {
     headline,
     details: [
       `${t("menu.duration")}: ${formatClock(config.durationSeconds)}`,
-      `${t("menu.countdown")}: ${formatClock(config.countdownSeconds)}`,
-      `${t("menu.left-right-mode")}: ${config.leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
-      ...(config.leftRightMode
-        ? [`${t("menu.start-side-first")}: ${config.startSide === "left" ? t("menu.left") : t("menu.right")}`]
+      `${t("menu.countdown")}: ${formatClock(config.countDownTime)}`,
+      `${t("menu.left-right-mode")}: ${config.mode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
+      ...(config.mode === "bilateral"
+        ? [`${t("menu.start-side-first")}: ${config.initialSide === "side.left" ? t("menu.left") : t("menu.right")}`]
         : []),
-      ...(config.plotTargetZone
+      ...(config.levelsEnabled
         ? [
-            `${t("menu.target-zone")}: ${config.targetZoneMinPercent.toFixed(0)}-${config.targetZoneMaxPercent.toFixed(0)}% of MVC`,
-            `${t("menu.left-mvc")}: ${config.leftMvcKg.toFixed(2)} kg`,
-            `${t("menu.right-mvc")}: ${config.rightMvcKg.toFixed(2)} kg`,
+            `${t("menu.target-zone")}: ${config.restLevel.toFixed(0)}-${config.workLevel.toFixed(0)}% of MVC`,
+            `${t("menu.left-mvc")}: ${config.leftMvc.toFixed(2)} kg`,
+            `${t("menu.right-mvc")}: ${config.rightMvc.toFixed(2)} kg`,
           ]
         : []),
     ],
@@ -524,15 +538,15 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
       cancelled,
       config: {
         durationSeconds: config.durationSeconds,
-        countdownSeconds: config.countdownSeconds,
-        leftRightMode: config.leftRightMode,
-        startSide: config.startSide,
-        pauseBetweenSidesSeconds: config.pauseBetweenSidesSeconds,
-        plotTargetZone: config.plotTargetZone,
-        leftMvcKg: +config.leftMvcKg.toFixed(2),
-        rightMvcKg: +config.rightMvcKg.toFixed(2),
-        targetZoneMinPercent: +config.targetZoneMinPercent.toFixed(0),
-        targetZoneMaxPercent: +config.targetZoneMaxPercent.toFixed(0),
+        countDownTime: config.countDownTime,
+        mode: config.mode,
+        initialSide: config.initialSide,
+        pauseBetweenSides: config.pauseBetweenSides,
+        levelsEnabled: config.levelsEnabled,
+        leftMvc: +config.leftMvc.toFixed(2),
+        rightMvc: +config.rightMvc.toFixed(2),
+        restLevel: +config.restLevel.toFixed(0),
+        workLevel: +config.workLevel.toFixed(0),
       },
       results: summary,
       unit: ctx.unit,

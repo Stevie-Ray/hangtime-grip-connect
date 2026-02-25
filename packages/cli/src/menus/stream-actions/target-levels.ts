@@ -13,7 +13,7 @@ export interface TargetLevelsConfig {
   rightMvcKg: number
   targetZoneMinPercent: number
   targetZoneMaxPercent: number
-  startSide: "left" | "right"
+  initialSide: "side.left" | "side.right"
   pauseBetweenSidesSeconds: number
   countdownSeconds: number
 }
@@ -93,7 +93,7 @@ export async function measureMvcSides(
 ): Promise<{ leftMvcKg: number; rightMvcKg: number }> {
   let leftMvcKg = config.leftMvcKg
   let rightMvcKg = config.rightMvcKg
-  const firstSide = config.startSide
+  const firstSide = config.initialSide === "side.left" ? "left" : "right"
   const secondSide = firstSide === "left" ? "right" : "left"
   const order = [firstSide, secondSide] as const
   const sideLabel = (side: "left" | "right"): "Left" | "Right" => (side === "left" ? "Left" : "Right")

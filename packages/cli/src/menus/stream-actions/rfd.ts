@@ -149,8 +149,8 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
   const unit = ctx.unit
   const rfdSession = opts.session?.rfd
   let rfdThreshold = rfdSession?.threshold ?? 0.5
-  let countdownSeconds = rfdSession?.countdownSeconds ?? 3
-  let leftRightMode = rfdSession?.leftRightMode ?? false
+  let countDownTime = rfdSession?.countDownTime ?? 3
+  let distributionMode: "single" | "bilateral" = rfdSession?.mode === "bilateral" ? "bilateral" : "single"
   if (typeof device.stream !== "function") return
   const rawRfdSamples: CapturedRfdSample[] = []
   let captureStartMs = Date.now()
@@ -182,12 +182,17 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
                   },
                 },
                 {
-                  label: () => `${t("menu.countdown")}: ${formatClock(countdownSeconds)}`,
+                  label: () => `${t("menu.countdown")}: ${formatClock(countDownTime)}`,
                   run: async () => {
-                    countdownSeconds = await promptIntegerSecondsOption(t("menu.countdown"), countdownSeconds, 0)
+                    countDownTime = await promptIntegerSecondsOption(t("menu.countdown"), countDownTime, 0)
                     opts.session = {
                       ...(opts.session ?? {}),
-                      rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
+                      rfd: {
+                        ...(opts.session?.rfd ?? {}),
+                        countDownTime,
+                        mode: distributionMode,
+                        threshold: rfdThreshold,
+                      },
                     }
                   },
                 },
@@ -203,7 +208,12 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
                       rfdThreshold = next
                       opts.session = {
                         ...(opts.session ?? {}),
-                        rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
+                        rfd: {
+                          ...(opts.session?.rfd ?? {}),
+                          countDownTime,
+                          mode: distributionMode,
+                          threshold: rfdThreshold,
+                        },
                       }
                     }
                   },
@@ -219,20 +229,25 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
               [
                 {
                   label: () =>
-                    `${t("menu.left-right-mode")}: ${leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                    `${t("menu.left-right-mode")}: ${distributionMode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
                   run: async () => {
-                    leftRightMode =
+                    distributionMode =
                       (await select({
                         message: `${t("menu.enable-left-right-mode")}:`,
                         choices: [
-                          { name: t("menu.enabled"), value: true },
-                          { name: t("menu.disabled"), value: false },
+                          { name: t("menu.enabled"), value: "bilateral" as const },
+                          { name: t("menu.disabled"), value: "single" as const },
                         ],
-                        default: leftRightMode,
-                      })) ?? leftRightMode
+                        default: distributionMode,
+                      })) ?? distributionMode
                     opts.session = {
                       ...(opts.session ?? {}),
-                      rfd: { ...(opts.session?.rfd ?? {}), countdownSeconds, leftRightMode, threshold: rfdThreshold },
+                      rfd: {
+                        ...(opts.session?.rfd ?? {}),
+                        countDownTime,
+                        mode: distributionMode,
+                        threshold: rfdThreshold,
+                      },
                     }
                   },
                 },
@@ -245,12 +260,12 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
             rfdLabel,
             [
               {
-                label: () => `${t("menu.protocol")}: ${t("menu.countdown")} ${formatClock(countdownSeconds)}`,
+                label: () => `${t("menu.protocol")}: ${t("menu.countdown")} ${formatClock(countDownTime)}`,
                 run: openProtocolSubmenu,
               },
               {
                 label: () =>
-                  `${t("menu.mode")}: ${t("menu.left-right")} ${leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+                  `${t("menu.mode")}: ${t("menu.left-right")} ${distributionMode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
                 run: openModeSubmenu,
               },
             ],
@@ -258,7 +273,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
           )
         },
         getOptionsLabel: () =>
-          `${t("menu.options")} (${t("menu.duration")}: ${Math.max(1, Math.round(duration / 1000))}s, ${t("menu.countdown")}: ${formatClock(countdownSeconds)}, ${t("menu.threshold")}: ${rfdThreshold.toFixed(2)} ${unit}, ${t("menu.left-right")}: ${leftRightMode ? t("menu.on") : t("menu.off")})`,
+          `${t("menu.options")} (${t("menu.duration")}: ${Math.max(1, Math.round(duration / 1000))}s, ${t("menu.countdown")}: ${formatClock(countDownTime)}, ${t("menu.threshold")}: ${rfdThreshold.toFixed(2)} ${unit}, ${t("menu.left-right")}: ${distributionMode === "bilateral" ? t("menu.on") : t("menu.off")})`,
         onViewMeasurements: async () => viewSavedMeasurements("rfd", rfdLabel, ctx.language),
       })
       if (!shouldStart) return
@@ -269,7 +284,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       chart.start()
       chart.push({ current: 0, mean: 0, peak: 0 })
     }
-    await runCountdown(countdownSeconds, chartEnabled ? chart : undefined)
+    await runCountdown(countDownTime, chartEnabled ? chart : undefined)
   } else {
     await ensureTaredForStreamAction(device, opts)
   }
@@ -348,7 +363,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
       const c = Number.isFinite(s.measurement.current) ? s.measurement.current : 0
       return Math.max(m, p, c)
     }, 0)
-    let analyzeMode: RfdModeChoice = "20-80"
+    let analyzeMode: RfdModeChoice = rfdSession?.rfdMode ?? "20-80"
     let done = false
     let lastAnalyzed:
       | {
@@ -421,8 +436,9 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
           rfd: {
             ...(opts.session?.rfd ?? {}),
             threshold: rfdThreshold,
-            countdownSeconds,
-            leftRightMode,
+            countDownTime,
+            mode: distributionMode,
+            rfdMode: analyzeMode,
           },
         }
         continue
@@ -435,6 +451,16 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         })),
       })
       analyzeMode = pickedWindow
+      opts.session = {
+        ...(opts.session ?? {}),
+        rfd: {
+          ...(opts.session?.rfd ?? {}),
+          mode: distributionMode,
+          countDownTime,
+          threshold: rfdThreshold,
+          rfdMode: analyzeMode,
+        },
+      }
     }
 
     if (lastAnalyzed) {
@@ -444,14 +470,15 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
         details: [
           `${t("menu.max-force")}: ${lastAnalyzed.maxForce.toFixed(2)} ${unit}`,
           `${t("menu.threshold")}: ${rfdThreshold.toFixed(2)} ${unit}`,
-          `${t("menu.left-right-mode")}: ${leftRightMode ? t("menu.enabled") : t("menu.disabled")}`,
+          `${t("menu.left-right-mode")}: ${distributionMode === "bilateral" ? t("menu.enabled") : t("menu.disabled")}`,
         ],
         data: {
-          mode: lastAnalyzed.mode,
+          rfdMode: lastAnalyzed.mode,
+          mode: distributionMode,
           rfdValue: +lastAnalyzed.rfdValue.toFixed(2),
           maxForce: +lastAnalyzed.maxForce.toFixed(2),
           threshold: +rfdThreshold.toFixed(2),
-          leftRightMode,
+          countDownTime,
           unit,
         },
       })
