@@ -1,5 +1,11 @@
 # @hangtime/cli
 
+## 0.11.2
+
+### Patch Changes
+
+- 0e0bb4b: Complete interactive CLI locale coverage by filling missing translation keys across supported languages.
+
 ## 0.11.1
 
 ### Patch Changes
