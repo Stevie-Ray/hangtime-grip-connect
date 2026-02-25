@@ -5,16 +5,21 @@ import path from "node:path"
 import process from "node:process"
 
 const HITS_PER_PAGE = 1000
-const CACHE_FILE_PATH = path.join(os.homedir(), ".grip-connect", "algolia_trainingPrograms_dump.json")
+const GRIP_CONNECT_DIR_PATH = path.join(os.homedir(), ".grip-connect")
+const CACHE_FILE_PATH = path.join(GRIP_CONNECT_DIR_PATH, "algolia_training_programs.json")
+const TRAINING_PROGRAMS_ENV_FILE_PATHS = [path.resolve(process.cwd(), ".env"), path.join(GRIP_CONNECT_DIR_PATH, ".env")]
 
-try {
-  process.loadEnvFile?.(path.resolve(process.cwd(), ".env"))
-} catch {
-  // `.env` is optional; environment variables can also be provided by the shell.
+for (const envFilePath of TRAINING_PROGRAMS_ENV_FILE_PATHS) {
+  if (!existsSync(envFilePath)) continue
+  try {
+    process.loadEnvFile?.(envFilePath)
+  } catch {
+    // `.env` is optional; environment variables can also be provided by the shell.
+  }
 }
 
 export function hasTrainingProgramsEnvFile(): boolean {
-  return existsSync(path.resolve(process.cwd(), ".env"))
+  return TRAINING_PROGRAMS_ENV_FILE_PATHS.some((envFilePath) => existsSync(envFilePath))
 }
 
 interface AlgoliaTrainingProgramsResponse {
@@ -38,7 +43,7 @@ async function fetchTrainingProgramsPage(page: number): Promise<AlgoliaTrainingP
   const appId = process.env["ALGOLIA_APP_ID"]
   const apiKey = process.env["ALGOLIA_API_KEY"]
   if (!appId || !apiKey) {
-    throw new Error("Missing ALGOLIA_APP_ID or ALGOLIA_API_KEY in environment (.env)")
+    throw new Error("Missing ALGOLIA_APP_ID or ALGOLIA_API_KEY in environment (.env or ~/.grip-connect/.env)")
   }
 
   const trainingProgramsUrl = `https://${appId}-dsn.algolia.net/1/indexes/trainingPrograms/query`
