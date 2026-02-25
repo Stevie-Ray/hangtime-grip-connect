@@ -1,5 +1,16 @@
 # @hangtime/cli
 
+## 0.11.1
+
+### Patch Changes
+
+- 186913e: Refactor CLI translations to a key-based `t(...)` system with dedicated locale files, add persistent
+  language/unit preferences, and localize interactive prompts and session status output across menus and stream actions.
+- b7cb784: Align CLI session/config naming with the new training preset schema (for Repeaters, Endurance, RFD, and
+  Critical Force), replace old non-interactive flags with the new canonical flags (no backward aliases), and update
+  CLI/docs examples accordingly. Also make Training Programs `Load Preset` execute Repeaters directly when
+  `repeatersPreset` exists and localize Training Programs UI/messages across interactive languages.
+
 ## 0.11.0
 
 ### Minor Changes
