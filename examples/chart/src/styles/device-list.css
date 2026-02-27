@@ -1,0 +1,44 @@
+#device-list {
+  position: absolute;
+  top: calc(100% - 0.25rem);
+  right: 1rem;
+  width: min(260px, calc(100% - 2rem));
+  text-align: left;
+  background: #2a2a2a;
+  border: 1px solid #4a4a4a;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+}
+
+#device-list h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+#device-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#device-list li + li {
+  margin-top: 0.25rem;
+}
+
+#device-list li button {
+  width: 100%;
+  justify-content: flex-start;
+  margin: 0;
+}
+
+#device-connect-status {
+  display: block;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+[data-toggle-device-list].is-connected {
+  border-color: #22c55e;
+}

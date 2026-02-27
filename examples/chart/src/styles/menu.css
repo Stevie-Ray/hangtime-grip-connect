@@ -1,0 +1,47 @@
+.action-menu {
+  width: 100%;
+}
+
+.action-menu-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.action-menu-list li {
+  border: 1px solid #4a4a4a;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.action-menu-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  user-select: none;
+}
+
+.action-menu-link strong {
+  display: block;
+}
+
+.action-menu-link small {
+  opacity: 0.85;
+}
+
+.action-menu-list li:hover {
+  border-color: #646cff;
+  background: rgba(100, 108, 255, 0.12);
+}
+
+.action-menu-link-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,193 @@
+header,
+footer,
+#app {
+  flex: 0 0 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
+header {
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.header-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.header-row h1 {
+  font-size: 1.5rem;
+  justify-content: flex-start;
+  padding: 0;
+  gap: 0.5rem;
+}
+
+.header-brand small {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  text-align: left;
+  user-select: none;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#masses {
+  min-height: 80px;
+}
+
+#masses > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+#masses > div > div {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 calc(33.33% - 1rem);
+  gap: 0.5rem;
+  margin: 0.5rem;
+}
+
+#error {
+  white-space: pre;
+  justify-content: center;
+  background-color: #898989;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 0 1rem 1rem;
+}
+
+.chart {
+  padding: 0 0.5rem;
+  height: 320px !important;
+}
+
+.card {
+  background: #2e2e2e;
+  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem 1rem;
+  margin: 0 1rem;
+}
+
+.session-page {
+  width: 100%;
+  text-align: left;
+}
+
+.measurement-list {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.measurement-list li + li {
+  margin-top: 0.5rem;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-title-row h3 {
+  margin: 0;
+}
+
+.input {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input > button {
+  grid-column: span 2;
+}
+
+.input:last-of-type {
+  border: none;
+  grid-template-columns: 1fr;
+  display: inline-grid;
+  width: auto;
+}
+
+.input > strong {
+  grid-column: span 4;
+  padding: 0.5rem;
+}
+
+.card > div:not(.input) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.card > div:not(.input) > button {
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  margin: 0;
+}
+
+.card > div:not(.input) > button:hover {
+  opacity: 0.8;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+dialog form {
+  padding: 1rem;
+  min-width: 200px;
+}
+
+dialog menu {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.performance-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.performance-metrics {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.performance-row {
+  display: flex;
+  justify-content: space-between;
+}

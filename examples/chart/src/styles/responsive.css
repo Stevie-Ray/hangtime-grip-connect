@@ -1,0 +1,21 @@
+@media only screen and (min-width: 768px) {
+  .chart {
+    height: 480px !important;
+  }
+
+  .input strong {
+    flex: 0 0 auto;
+  }
+
+  .input > button {
+    grid-column: span 1;
+  }
+
+  #masses {
+    min-height: 40px;
+  }
+
+  #masses > div > div {
+    flex: 0 0 auto;
+  }
+}

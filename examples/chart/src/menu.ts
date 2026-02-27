@@ -1,0 +1,81 @@
+export interface MenuAction {
+  id: string
+  name: string
+  short_description: string
+  description?: string
+  disabled?: boolean
+}
+
+export const menuActions: MenuAction[] = [
+  {
+    id: "live-data",
+    name: "Live Data",
+    short_description: "Just the raw data visualised in real-time",
+  },
+  {
+    id: "peak-force-mvc",
+    name: "Peak Force / MVC",
+    short_description: "Record maximum voluntary contraction (MVC), asymmetrically.",
+    description:
+      "Use this test to measure the peak force (Maximum Voluntary Contraction (MVC)) of a muscle. Choose Single or Left/Right to record one side or both. You can also enable torque and body weight calculations to get more detailed insights into your strength measurements.",
+  },
+  {
+    id: "endurance",
+    name: "Endurance",
+    short_description: "Record data for a given duration.",
+  },
+  {
+    id: "rfd",
+    name: "RFD",
+    short_description: "Record and calculate Rate of Force Development or explosive strength.",
+    description:
+      "Rate of Force Development (RFD) is a measure of explosive strength or how fast the muscle is developing force. RFD is represented by the slope of the load curve. Perform one explosive pull about half way into the cycle.",
+  },
+  {
+    id: "repeaters",
+    name: "Repeaters",
+    short_description: "Design a custom workout consisting of sets and repetitions.",
+  },
+  {
+    id: "critical-force",
+    name: "Critical Force",
+    short_description: "Determine your sustainable maximum force with repeated pulls.",
+    description:
+      "In this test we use the all-out finger flexor protocol to estimate Critical Force: the highest force you can sustain without progressive fatigue. You perform repeated pull and rest intervals until your output plateaus.",
+  },
+  {
+    id: "training-programs",
+    name: "Training Programs",
+    short_description: "Get inspired by other users",
+    disabled: true,
+  },
+]
+
+export function setupMenu() {
+  const actions = menuActions
+
+  return `
+  <nav class="action-menu" aria-label="CLI interactive actions">
+    <menu class="action-menu-list">
+      ${actions
+        .map(
+          (action) => `
+            <li>
+              ${
+                action.disabled
+                  ? `<span class="action-menu-link action-menu-link-disabled" aria-label="${action.name}" aria-disabled="true">`
+                  : `<a class="action-menu-link" href="${
+                      action.id === "live-data" ? `?route=${action.id}&screen=chart` : `?route=${action.id}`
+                    }" aria-label="${action.name}">`
+              }
+                <strong>${action.name}</strong>
+                <small>${action.short_description}</small>
+              ${action.disabled ? "</span>" : "</a>"}
+            </li>
+          `,
+        )
+        .join("")}
+    </menu>
+  </nav>
+  `
+}
