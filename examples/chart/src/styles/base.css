@@ -131,6 +131,7 @@ footer small {
   justify-content: center;
   padding: 0 1rem;
   font-size: 0.75rem;
+  user-select: none;
 }
 
 footer .footer-cli-line {
@@ -150,6 +151,7 @@ footer .footer-cli-line code {
   border: 1px solid rgba(137, 137, 137, 0.45);
   background: rgba(137, 137, 137, 0.15);
   color: inherit;
+  user-select: text;
 }
 
 footer .footer-copy-btn {
