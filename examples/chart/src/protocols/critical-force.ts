@@ -2,7 +2,7 @@ import { maxCurrent, meanCurrent, toFixed } from "./helpers.js"
 import type { ForcePoint, TestModule } from "./types.js"
 
 export interface CriticalForceConfig {
-  countdownSeconds: number
+  countDownTime: number
 }
 
 function computeCriticalForce(points: ForcePoint[]): number {
@@ -29,7 +29,7 @@ function computeWPrime(points: ForcePoint[], criticalForce: number): number {
 export const criticalForceModule: TestModule<CriticalForceConfig> = {
   id: "critical-force",
   defaultConfig: {
-    countdownSeconds: 3,
+    countDownTime: 3,
   },
   renderOptions(config) {
     return `
@@ -37,7 +37,7 @@ export const criticalForceModule: TestModule<CriticalForceConfig> = {
         <label class="repeaters-field">
           <span class="repeaters-label">Countdown</span>
           <span class="repeaters-input-with-unit">
-            <input type="number" min="0" step="1" data-option="countdownSeconds" value="${config.countdownSeconds}" />
+            <input type="number" min="0" step="1" data-option="countDownTime" value="${config.countDownTime}" />
             <span class="repeaters-unit">s</span>
           </span>
         </label>
@@ -46,15 +46,18 @@ export const criticalForceModule: TestModule<CriticalForceConfig> = {
     `
   },
   parseOptions(root, current) {
-    const countdownSeconds = Math.max(
+    const legacyCountdownSeconds = (current as { countdownSeconds?: number }).countdownSeconds
+    const fallbackCountDownTime = Number.isFinite(legacyCountdownSeconds)
+      ? (legacyCountdownSeconds as number)
+      : current.countDownTime
+    const countDownTime = Math.max(
       0,
       Number.parseInt(
-        root.querySelector<HTMLInputElement>("[data-option=countdownSeconds]")?.value ??
-          String(current.countdownSeconds),
+        root.querySelector<HTMLInputElement>("[data-option=countDownTime]")?.value ?? String(fallbackCountDownTime),
         10,
-      ) || current.countdownSeconds,
+      ) || fallbackCountDownTime,
     )
-    return { countdownSeconds }
+    return { countDownTime }
   },
   renderMeasureSummary(_config, lastResult) {
     const last = lastResult ? `<p><strong>Last:</strong> ${lastResult.headline}</p>` : ""
@@ -64,7 +67,7 @@ export const criticalForceModule: TestModule<CriticalForceConfig> = {
     return 240000
   },
   getCountdownSeconds(config) {
-    return config.countdownSeconds
+    return config.countDownTime
   },
   getStatus(elapsedMs) {
     const totalReps = 24

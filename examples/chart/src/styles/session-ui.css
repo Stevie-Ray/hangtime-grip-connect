@@ -1,0 +1,95 @@
+#masses {
+  min-height: 80px;
+  width: 100%;
+}
+
+#masses > .device-mass {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+  gap: 0.5rem;
+}
+
+#masses > .device-mass > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  flex: 0 0 calc(33.33% - 1rem);
+  min-width: 120px;
+  border: 1px solid #4a4a4a;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+#masses label {
+  opacity: 0.85;
+  font-size: 0.75rem;
+}
+
+#masses strong {
+  font-size: 1rem;
+}
+
+#masses strong span {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+#masses {
+  min-height: 80px;
+}
+
+#masses > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+#masses > div > div {
+  display: flex;
+  justify-content: center;
+  flex: 0 0 calc(33.33% - 1rem);
+  gap: 0.5rem;
+  margin: 0.5rem;
+}
+
+.chart {
+  padding: 0 0.5rem;
+  height: 320px !important;
+}
+
+.measurement-list {
+  margin-bottom: 1rem;
+}
+
+.measurement-list-item {
+  cursor: default;
+}
+
+.measurement-list-item small {
+  display: block;
+}
+
+.measurement-empty {
+  min-height: 8rem;
+}
+
+.performance-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.performance-metrics {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.performance-row {
+  display: flex;
+  justify-content: space-between;
+}

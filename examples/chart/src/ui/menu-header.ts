@@ -1,4 +1,4 @@
-import { setupDeviceList } from "./device-list.js"
+import { setupDeviceList } from "../devices/list.js"
 
 export function setupMenuHeader(isDeviceConnected = false) {
   return `

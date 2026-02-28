@@ -14,12 +14,12 @@ const DEFAULT_SETTINGS: ChartPreferences = {
   language: "en",
 }
 
-function parseUnit(value: unknown): ForceUnit | null {
+export function parseUnit(value: unknown): ForceUnit | null {
   if (value === "kg" || value === "lbs" || value === "n") return value
   return null
 }
 
-function parseLanguage(value: unknown): CliLanguage | null {
+export function parseLanguage(value: unknown): CliLanguage | null {
   if (
     value === "en" ||
     value === "es" ||

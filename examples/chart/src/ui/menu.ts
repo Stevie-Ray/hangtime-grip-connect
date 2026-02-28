@@ -1,4 +1,4 @@
-import { hasTrainingProgramsEnv } from "./training-programs.js"
+import { hasTrainingProgramsEnv } from "../training-programs/api.js"
 
 export interface MenuAction {
   id: string
@@ -21,7 +21,7 @@ export const menuActions: MenuAction[] = [
     name: "Peak Force / MVC",
     short_description: "Record maximum voluntary contraction (MVC), asymmetrically.",
     description:
-      "Use this test to measure the peak force (Maximum Voluntary Contraction (MVC)) of a muscle. Choose Single or Left/Right to record one side or both. You can also enable torque and body weight calculations to get more detailed insights into your strength measurements.",
+      "Use this test to measure the peak force (Maximum Voluntary Contraction, MVC) of a muscle. Choose Single or Left/Right to record one side or both. You can also enable torque and body weight calculations to get more detailed insights into your strength measurements.",
   },
   {
     id: "endurance",

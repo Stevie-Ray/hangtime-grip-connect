@@ -5,6 +5,7 @@ export interface ForcePoint {
   current: number
   mean: number
   peak: number
+  unit: string
 }
 
 export interface SessionResult {

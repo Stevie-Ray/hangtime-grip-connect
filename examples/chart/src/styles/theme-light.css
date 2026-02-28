@@ -1,0 +1,64 @@
+@media (prefers-color-scheme: light) {
+  .app-shell-card {
+    background: #f9f9f9;
+  }
+
+  #masses > .device-mass > div {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  #error {
+    background-color: #d1d5db;
+  }
+
+  .settings-group {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  #session-options-form > label {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .new-session-shortcut,
+  .repeaters-set-wrapper,
+  .repeaters-field,
+  .repeaters-metric {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .new-session-shortcut:hover {
+    border-color: #4f46e5;
+    background: rgba(79, 70, 229, 0.12);
+  }
+
+  .settings-output {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .tare-dialog {
+    border-color: #d1d5db;
+    background: #ffffff;
+  }
+
+  .tare-dialog-current,
+  .tare-dialog-status {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .save-measurement-dialog {
+    border-color: #d1d5db;
+    background: #ffffff;
+  }
+
+  .save-measurement-field input,
+  .save-measurement-field textarea {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+}

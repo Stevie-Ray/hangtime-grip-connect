@@ -1,8 +1,7 @@
-import { maxCurrent, meanCurrent, toFixed } from "./helpers.js"
+import { maxCurrent, toFixed } from "./helpers.js"
 import type { TestModule } from "./types.js"
 
 export interface PeakForceMvcConfig {
-  durationSeconds: number
   mode: "single" | "left-right"
   includeTorque: boolean
   momentArmCm: number
@@ -13,7 +12,6 @@ export interface PeakForceMvcConfig {
 export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
   id: "peak-force-mvc",
   defaultConfig: {
-    durationSeconds: 5,
     mode: "single",
     includeTorque: false,
     momentArmCm: 35,
@@ -23,13 +21,6 @@ export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
   renderOptions(config) {
     return `
       <div class="repeaters-options">
-        <label class="repeaters-field">
-          <span class="repeaters-label">Duration</span>
-          <span class="repeaters-input-with-unit">
-            <input type="number" min="1" step="1" data-option="durationSeconds" value="${config.durationSeconds}" />
-            <span class="repeaters-unit">s</span>
-          </span>
-        </label>
         <label class="repeaters-field">
           <span class="repeaters-label">Mode</span>
           <select data-option="mode">
@@ -71,13 +62,6 @@ export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
     `
   },
   parseOptions(root, current) {
-    const durationSeconds = Math.max(
-      1,
-      Number.parseInt(
-        root.querySelector<HTMLInputElement>("[data-option=durationSeconds]")?.value ?? String(current.durationSeconds),
-        10,
-      ) || current.durationSeconds,
-    )
     const mode =
       (root.querySelector<HTMLSelectElement>("[data-option=mode]")?.value as PeakForceMvcConfig["mode"] | undefined) ??
       current.mode
@@ -94,7 +78,6 @@ export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
         root.querySelector<HTMLInputElement>("[data-option=bodyWeight]")?.value ?? String(current.bodyWeight),
       ) || current.bodyWeight
     return {
-      durationSeconds,
       mode,
       includeTorque,
       momentArmCm: Math.max(0, momentArmCm),
@@ -104,15 +87,16 @@ export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
   },
   renderMeasureSummary(config, lastResult) {
     const last = lastResult ? `<p><strong>Last:</strong> ${lastResult.headline}</p>` : ""
-    return `<p><strong>Mode:</strong> ${config.mode}</p><p><strong>Duration:</strong> ${config.durationSeconds}s</p>${last}`
+    return `<p><strong>Mode:</strong> ${config.mode}</p><p><strong>Duration:</strong> Continuous (save when ready)</p>${last}`
   },
-  resolveDurationMs(config) {
-    return config.durationSeconds * 1000
+  resolveDurationMs() {
+    return undefined
   },
   summarize(points, config) {
     const peak = maxCurrent(points)
-    const mean = meanCurrent(points)
-    const details = [`Peak force: ${toFixed(peak)}`, `Mean force: ${toFixed(mean)}`]
+    const unit = points[points.length - 1]?.unit ?? ""
+    const valueWithUnit = unit ? `${toFixed(peak)} ${unit}` : toFixed(peak)
+    const details: string[] = []
     if (config.includeTorque) {
       const torque = peak * (config.momentArmCm / 100)
       details.push(`Torque: ${toFixed(torque)} N*m`)
@@ -120,6 +104,6 @@ export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
     if (config.includeBodyWeight && config.bodyWeight > 0) {
       details.push(`Peak/Body weight: ${toFixed(peak / config.bodyWeight)}x`)
     }
-    return { headline: `Peak ${toFixed(peak)}`, details }
+    return { headline: `Peak ${valueWithUnit}`, details }
   },
 }

@@ -1,5 +1,5 @@
-import { getActiveDevice } from "./device-session.js"
-import { loadPreferences } from "./settings-storage.js"
+import { getActiveDevice } from "../devices/session.js"
+import { loadPreferences } from "../settings/storage.js"
 
 export type SettingsPageId = "unit" | "language" | "system-info" | "calibration" | "errors"
 

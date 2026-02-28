@@ -8,8 +8,8 @@ import {
   SmartBoardPro,
   WHC06,
 } from "@hangtime/grip-connect"
-import type { ConnectedDevice } from "./device-session.js"
-import { setActiveDevice } from "./device-session.js"
+import type { ConnectedDevice } from "./session.js"
+import { setActiveDevice } from "./session.js"
 
 type SupportedDevice = ConnectedDevice
 

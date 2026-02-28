@@ -1,5 +1,10 @@
 @import "./styles/base.css";
-@import "./styles/layout.css";
+@import "./styles/layout-shell.css";
+@import "./styles/session-options.css";
+@import "./styles/session-ui.css";
+@import "./styles/dialogs.css";
+@import "./styles/settings.css";
 @import "./styles/menu.css";
 @import "./styles/device-list.css";
 @import "./styles/responsive.css";
+@import "./styles/theme-light.css";

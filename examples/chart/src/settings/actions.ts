@@ -1,4 +1,4 @@
-import type { ConnectedDevice } from "./device-session.js"
+import type { ConnectedDevice } from "../devices/session.js"
 
 export type SettingsActionId =
   | "tare"

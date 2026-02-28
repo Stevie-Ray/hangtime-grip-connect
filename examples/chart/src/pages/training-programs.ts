@@ -1,6 +1,6 @@
-import type { TrainingProgramRecord } from "./training-programs.js"
-import { hasTrainingProgramsEnv } from "./training-programs.js"
-import { pickTrainingProgramId } from "./training-programs.js"
+import type { TrainingProgramRecord } from "../training-programs/api.js"
+import { hasTrainingProgramsEnv } from "../training-programs/api.js"
+import { pickTrainingProgramId } from "../training-programs/api.js"
 
 interface TrainingProgramsPageState {
   programs: TrainingProgramRecord[] | null

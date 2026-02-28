@@ -1,0 +1,43 @@
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+
+.settings-group h4 {
+  margin: 0;
+}
+
+.settings-group label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.25rem;
+}
+
+.settings-group input,
+.settings-group select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-output {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 4rem;
+  border-radius: 0.75rem;
+  border: 1px solid #4a4a4a;
+  padding: 0.75rem;
+  margin: 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+}

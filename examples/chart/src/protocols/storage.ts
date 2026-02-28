@@ -37,6 +37,13 @@ export function loadLastResult(testId: TestId): SessionResult | null {
 
 export interface StoredMeasurement extends SessionResult {
   createdAt: string
+  tag?: string
+  comment?: string
+}
+
+export interface MeasurementMetadata {
+  tag?: string
+  comment?: string
 }
 
 export function listMeasurements(testId: TestId): StoredMeasurement[] {
@@ -51,11 +58,15 @@ export function listMeasurements(testId: TestId): StoredMeasurement[] {
         const createdAt = (item as { createdAt?: unknown }).createdAt
         const headline = (item as { headline?: unknown }).headline
         const details = (item as { details?: unknown }).details
+        const tag = (item as { tag?: unknown }).tag
+        const comment = (item as { comment?: unknown }).comment
         if (typeof createdAt !== "string" || typeof headline !== "string" || !Array.isArray(details)) return null
         return {
           createdAt,
           headline,
           details: details.filter((value): value is string => typeof value === "string"),
+          ...(typeof tag === "string" && tag.trim().length > 0 ? { tag: tag.trim() } : {}),
+          ...(typeof comment === "string" && comment.trim().length > 0 ? { comment: comment.trim() } : {}),
         } satisfies StoredMeasurement
       })
       .filter((item): item is StoredMeasurement => item !== null)
@@ -69,12 +80,25 @@ export function saveLastResult(testId: TestId, result: SessionResult): void {
   saveMeasurement(testId, result)
 }
 
-export function saveMeasurement(testId: TestId, result: SessionResult): void {
+export function listMeasurementTags(testId: TestId): string[] {
+  const unique = new Set<string>()
+  for (const measurement of listMeasurements(testId)) {
+    const tag = measurement.tag?.trim()
+    if (tag) unique.add(tag)
+  }
+  return Array.from(unique).sort((a, b) => a.localeCompare(b))
+}
+
+export function saveMeasurement(testId: TestId, result: SessionResult, metadata?: MeasurementMetadata): void {
   const existing = listMeasurements(testId)
+  const tag = metadata?.tag?.trim()
+  const comment = metadata?.comment?.trim()
   const next: StoredMeasurement = {
     createdAt: new Date().toISOString(),
     headline: result.headline,
     details: result.details,
+    ...(tag ? { tag } : {}),
+    ...(comment ? { comment } : {}),
   }
   const updated = [next, ...existing].slice(0, 200)
   localStorage.setItem(resultKey(testId), JSON.stringify(updated))
