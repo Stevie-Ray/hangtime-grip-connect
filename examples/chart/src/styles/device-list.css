@@ -2,14 +2,16 @@
   position: absolute;
   top: calc(100% - 0.25rem);
   right: 1rem;
-  width: min(260px, calc(100% - 2rem));
+  width: min(360px, calc(100% - 2rem));
   text-align: left;
   background: #2a2a2a;
   border: 1px solid #4a4a4a;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   padding: 0.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   z-index: 20;
+  max-height: min(70dvh, 560px);
+  overflow-y: auto;
 }
 
 #device-list h3 {
@@ -27,10 +29,62 @@
   margin-top: 0.25rem;
 }
 
+#device-list .device-list-item {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+
 #device-list li button {
-  width: 100%;
-  justify-content: flex-start;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   margin: 0;
+  gap: 0.2rem;
+  line-height: 1.2;
+  min-height: 3rem;
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+}
+
+#device-list .device-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+#device-list .device-short-description {
+  font-size: 0.625rem;
+  font-weight: 400;
+}
+
+#device-list .device-link {
+  width: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #4a4a4a;
+  border-radius: 0.5rem;
+  color: #e5e7eb;
+  text-decoration: none;
+  background: #1f1f1f;
+}
+
+#device-list .device-link:hover {
+  border-color: #60a5fa;
+  color: #ffffff;
+  background: #23252a;
+}
+
+#device-list li button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#device-list li button:disabled:hover {
+  border-color: #4a4a4a;
+  background: inherit;
 }
 
 #device-connect-status {
@@ -56,9 +110,26 @@
     border-color: #d1d5db;
   }
 
+  #device-list .device-link {
+    color: #111827;
+    background: #f3f4f6;
+    border-color: #d1d5db;
+  }
+
+  #device-list .device-link:hover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    color: #111827;
+  }
+
   #device-list li button:hover {
     border-color: #4f46e5;
     background: #eef2ff;
+  }
+
+  #device-list li button:disabled:hover {
+    border-color: #d1d5db;
+    background: #f3f4f6;
   }
 
   #device-connect-status {
