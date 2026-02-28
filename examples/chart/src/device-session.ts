@@ -9,7 +9,7 @@ export interface ConnectedDevice {
   tare?(duration?: number): boolean
   battery?(): Promise<string | undefined>
   firmware?(): Promise<string | undefined>
-  calibration?(): Promise<string | undefined>
+  calibration?(): Promise<string | undefined> | Promise<void>
   setCalibration?(curve: Uint8Array): Promise<void>
   addCalibrationPoint?(): Promise<void>
   saveCalibration?(): Promise<void>
