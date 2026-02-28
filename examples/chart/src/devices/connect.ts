@@ -44,7 +44,7 @@ export async function connectSelectedDevice(
     await device.connect(
       async () => {
         connected = true
-        setActiveDevice(device)
+        setActiveDevice(device, deviceKey)
         if (statusElement) statusElement.textContent = `Connected to ${deviceName}.`
       },
       (error: Error) => {
@@ -54,7 +54,7 @@ export async function connectSelectedDevice(
     )
     if (!connected && !connectError && device.isConnected?.()) {
       connected = true
-      setActiveDevice(device)
+      setActiveDevice(device, deviceKey)
       if (statusElement) statusElement.textContent = `Connected to ${deviceName}.`
     }
     return connected

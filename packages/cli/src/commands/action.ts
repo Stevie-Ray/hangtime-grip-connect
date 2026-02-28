@@ -1,4 +1,5 @@
 import type { Command } from "commander"
+import { isDynamometerDeviceKey, isDynamometerOnlyActionId } from "../devices/capabilities.js"
 import type { Action, RunOptions } from "../types.js"
 import { parseDurationSeconds } from "../parsers.js"
 import { buildInteractiveActions } from "../menus/interactive/build-actions.js"
@@ -122,6 +123,12 @@ export function registerAction(program: Command): void {
       }
       if (resolved.action.subactions && resolved.action.subactions.length > 0) {
         fail(`Action path must target a runnable leaf action: ${path}`)
+      }
+      if (resolved.action.disabled) {
+        fail(`Action path is disabled for device '${key}': ${path}`)
+      }
+      if (isDynamometerOnlyActionId(resolved.action.actionId) && !isDynamometerDeviceKey(key)) {
+        fail(`Action '${path}' is only available for dynamometers.`)
       }
 
       const durationMs = options.duration ? parseDurationSeconds(options.duration) : undefined

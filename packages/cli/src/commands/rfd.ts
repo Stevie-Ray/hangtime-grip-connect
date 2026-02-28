@@ -1,7 +1,8 @@
 import type { Command } from "commander"
+import { isDynamometerDeviceKey } from "../devices/capabilities.js"
 import { runRfdAction } from "../menus/stream-actions/rfd.js"
 import { parseCountdownSeconds, parseDurationSeconds } from "../parsers.js"
-import { connectAndRun, createDevice, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
+import { connectAndRun, createDevice, fail, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
 
 interface RfdCliOptions {
   duration?: string
@@ -21,6 +22,9 @@ export function registerRfd(program: Command): void {
     .action(async (deviceKey: string | undefined, options: RfdCliOptions) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
+      if (!isDynamometerDeviceKey(key)) {
+        fail("This test is only available for dynamometers.")
+      }
       const { device, name } = createDevice(key)
       const durationMs = parseDurationSeconds(options.duration) ?? 5000
       const countDownTime = parseCountdownSeconds(options.countDownTime) ?? 3

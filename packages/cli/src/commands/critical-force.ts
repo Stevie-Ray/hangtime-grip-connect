@@ -1,7 +1,8 @@
 import type { Command } from "commander"
+import { isDynamometerDeviceKey } from "../devices/capabilities.js"
 import { runCriticalForceAction } from "../menus/stream-actions/critical-force.js"
 import { parseCountdownSeconds } from "../parsers.js"
-import { connectAndRun, createDevice, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
+import { connectAndRun, createDevice, fail, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
 
 interface CriticalForceCliOptions {
   countDownTime?: string
@@ -20,6 +21,9 @@ export function registerCriticalForce(program: Command): void {
     .action(async (deviceKey: string | undefined, options: CriticalForceCliOptions) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
+      if (!isDynamometerDeviceKey(key)) {
+        fail("This test is only available for dynamometers.")
+      }
       const { device, name } = createDevice(key)
       const countDownTime = parseCountdownSeconds(options.countDownTime) ?? 3
 

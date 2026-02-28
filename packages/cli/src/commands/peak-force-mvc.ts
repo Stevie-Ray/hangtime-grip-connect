@@ -1,6 +1,7 @@
 import type { Command } from "commander"
+import { isDynamometerDeviceKey } from "../devices/capabilities.js"
 import { runPeakForceMvcAction } from "../menus/stream-actions/peak-force-mvc.js"
-import { connectAndRun, createDevice, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
+import { connectAndRun, createDevice, fail, printHeader, resolveContext, resolveDeviceKey } from "../utils.js"
 
 interface PeakForceCliOptions {
   mode?: "single" | "left-right"
@@ -24,6 +25,9 @@ export function registerPeakForceMvc(program: Command): void {
     .action(async (deviceKey: string | undefined, options: PeakForceCliOptions) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
+      if (!isDynamometerDeviceKey(key)) {
+        fail("This test is only available for dynamometers.")
+      }
       const { device, name } = createDevice(key)
 
       const mode = options.mode === "left-right" ? "left-right" : "single"

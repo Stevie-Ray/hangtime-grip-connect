@@ -1,9 +1,15 @@
 import { connectSelectedDevice } from "../../devices/connect.js"
-import { getActiveDevice, setActiveDevice } from "../../devices/session.js"
+import { getActiveDevice, getActiveDeviceKey, setActiveDevice } from "../../devices/session.js"
 import type { SettingsActionId } from "../../settings/actions.js"
 import { parseLanguage, parseUnit, savePreferences } from "../../settings/storage.js"
 import { getTestModule } from "../../protocols/registry.js"
 import { loadConfig, saveConfig } from "../../protocols/storage.js"
+import {
+  canRunActionWithDeviceKey,
+  MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ,
+  requiresHighSamplingRate,
+} from "../../devices/capabilities.js"
+import { clearSessionSamplingRateState } from "../workflows/session-sampling-rate.js"
 import { copyTextToClipboard } from "./clipboard.js"
 import { navigate } from "./router.js"
 import type { AppState } from "./state.js"
@@ -74,6 +80,7 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
         if (!connected) return
         state.isDeviceConnected = true
         state.isDeviceTared = false
+        clearSessionSamplingRateState(state)
         const deviceList = appElement.querySelector<HTMLElement>("#device-list")
         if (deviceList) deviceList.setAttribute("hidden", "")
         const btButton = appElement.querySelector<HTMLButtonElement>("[data-toggle-device-list]")
@@ -115,6 +122,7 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
         setActiveDevice(null)
         state.isDeviceConnected = false
         state.isDeviceTared = false
+        clearSessionSamplingRateState(state)
         await render()
       })()
       return
@@ -198,6 +206,20 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
     void (async () => {
       if (!getActiveDevice()) {
         return
+      }
+      if (!canRunActionWithDeviceKey(actionId, getActiveDeviceKey())) {
+        return
+      }
+      if (requiresHighSamplingRate(actionId)) {
+        const hasMatchingSamplingProbe =
+          state.samplingRateDeviceKey === getActiveDeviceKey() && state.samplingRateActionId === actionId
+        const hasSufficientSamplingRate =
+          hasMatchingSamplingProbe &&
+          state.samplingRateHz != null &&
+          state.samplingRateHz >= MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ
+        if (!hasSufficientSamplingRate || state.samplingRateChecking) {
+          return
+        }
       }
 
       const module = getTestModule(actionId)

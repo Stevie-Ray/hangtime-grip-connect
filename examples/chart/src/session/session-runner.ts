@@ -1,6 +1,8 @@
 import type { Chart } from "chart.js/auto"
 import type { ForceMeasurement } from "@hangtime/grip-connect"
 import { getActiveDevice } from "../devices/session.js"
+import { getActiveDeviceKey } from "../devices/session.js"
+import { canRunActionWithDeviceKey } from "../devices/capabilities.js"
 import { loadPreferences } from "../settings/storage.js"
 import { getTestModule } from "../protocols/registry.js"
 import { loadConfig, saveMeasurement } from "../protocols/storage.js"
@@ -45,6 +47,14 @@ export function renderSessionChart(actionId: string): void {
   const module = getTestModule(actionId)
   if (!module) {
     statusElement.textContent = "No test found for this action."
+    stopButton.hidden = true
+    stopButton.disabled = true
+    resetButton.hidden = true
+    resetButton.disabled = true
+    return
+  }
+  if (!canRunActionWithDeviceKey(module.id, getActiveDeviceKey())) {
+    statusElement.textContent = "This test is only available for dynamometers."
     stopButton.hidden = true
     stopButton.disabled = true
     resetButton.hidden = true

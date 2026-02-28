@@ -11,6 +11,7 @@ import { setupSettingsPage } from "../../pages/settings.js"
 import { setupTrainingProgramsPage } from "../../pages/training-programs.js"
 import { getRouteActionId, getScreen, getSettingsPage, getTrainingProgramId } from "./router.js"
 import type { AppState } from "./state.js"
+import { ensureSessionSamplingRateForAction } from "../workflows/session-sampling-rate.js"
 
 interface RenderAppOptions {
   appElement: HTMLDivElement
@@ -38,6 +39,10 @@ export async function renderApp(options: RenderAppOptions): Promise<void> {
   const settingsPage = getSettingsPage()
   const trainingProgramId = getTrainingProgramId()
 
+  if (screen === "new-session" && actionId) {
+    await ensureSessionSamplingRateForAction(state, actionId)
+  }
+
   if (screen !== "chart") {
     await teardownSessionChart()
   }
@@ -57,7 +62,11 @@ export async function renderApp(options: RenderAppOptions): Promise<void> {
           ? screen === "chart"
             ? setupSessionChartPage(actionId)
             : screen === "new-session"
-              ? setupNewSessionPage(actionId)
+              ? setupNewSessionPage(actionId, {
+                  hz: state.samplingRateHz,
+                  checking: state.samplingRateChecking,
+                  error: state.samplingRateError,
+                })
               : setupSessionPage(actionId)
           : setupMenu()
 

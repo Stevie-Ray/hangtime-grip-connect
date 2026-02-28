@@ -19,11 +19,17 @@ export interface ConnectedDevice {
 }
 
 let activeDevice: ConnectedDevice | null = null
+let activeDeviceKey: string | null = null
 
-export function setActiveDevice(device: ConnectedDevice | null): void {
+export function setActiveDevice(device: ConnectedDevice | null, deviceKey?: string): void {
   activeDevice = device
+  activeDeviceKey = device && deviceKey ? deviceKey : null
 }
 
 export function getActiveDevice(): ConnectedDevice | null {
   return activeDevice
+}
+
+export function getActiveDeviceKey(): string | null {
+  return activeDeviceKey
 }

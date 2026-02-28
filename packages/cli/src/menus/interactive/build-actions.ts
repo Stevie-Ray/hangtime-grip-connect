@@ -5,6 +5,7 @@ import {
   hasTrainingProgramsEnvFile,
   type TrainingProgramRecord,
 } from "../../services/training-programs.js"
+import { isDynamometerDeviceKey, isDynamometerOnlyActionId } from "../../devices/capabilities.js"
 import { buildSettingsAction } from "../settings/index.js"
 import { buildStreamActionsList } from "../stream-actions/index.js"
 import { runRepeatersAction } from "../stream-actions/repeaters.js"
@@ -23,9 +24,17 @@ export function buildInteractiveActions(deviceKey: string, ctx?: OutputContext):
 
   const device = new definition.class() as unknown as CliDevice
   const sharedActions: Action[] = []
+  const isDynamometer = isDynamometerDeviceKey(key)
 
   if (typeof device.stream === "function") {
-    sharedActions.push(...buildStreamActionsList())
+    const streamActions = buildStreamActionsList().map((action) => {
+      if (!isDynamometerOnlyActionId(action.actionId) || isDynamometer) return action
+      return {
+        ...action,
+        disabled: true,
+      }
+    })
+    sharedActions.push(...streamActions)
   }
 
   const summarizeText = (input: string | undefined, fallback: string): string => {
