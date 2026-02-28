@@ -1,5 +1,5 @@
-import { maxCurrent, meanCurrent, toFixed } from "./helpers.js"
-import type { TestModule } from "./types.js"
+import { maxCurrent, meanCurrent, toFixed } from "../protocols/helpers.js"
+import type { TestModule } from "../protocols/types.js"
 
 export interface EnduranceConfig {
   durationSeconds: number

@@ -1,5 +1,5 @@
-import { maxCurrent, toFixed } from "./helpers.js"
-import type { TestModule } from "./types.js"
+import { maxCurrent, toFixed } from "../protocols/helpers.js"
+import type { TestModule } from "../protocols/types.js"
 
 export interface RfdConfig {
   durationSeconds: number
