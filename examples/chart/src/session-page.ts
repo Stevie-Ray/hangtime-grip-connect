@@ -21,7 +21,7 @@ export function setupSessionPage(actionId: string): string {
             </li>`
           })
           .join("")}</ul>`
-      : "<p>No measurements yet.</p>"
+      : '<p class="measurement-empty">No measurements yet.</p>'
 
   return `
     <section class="session-page" aria-label="${action.name}">

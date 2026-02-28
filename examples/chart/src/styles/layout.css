@@ -154,6 +154,10 @@ header {
   display: block;
 }
 
+.measurement-empty {
+  min-height: 8rem;
+}
+
 .page-title-row {
   display: flex;
   align-items: center;

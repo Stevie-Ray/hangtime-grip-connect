@@ -1,3 +1,5 @@
+import { hasTrainingProgramsEnv } from "./training-programs.js"
+
 export interface MenuAction {
   id: string
   name: string
@@ -5,6 +7,8 @@ export interface MenuAction {
   description?: string
   disabled?: boolean
 }
+
+const trainingProgramsEnabled = hasTrainingProgramsEnv()
 
 export const menuActions: MenuAction[] = [
   {
@@ -47,7 +51,7 @@ export const menuActions: MenuAction[] = [
     id: "training-programs",
     name: "Training Programs",
     short_description: "Get inspired by other users",
-    disabled: true,
+    disabled: !trainingProgramsEnabled,
   },
 ]
 
@@ -65,7 +69,11 @@ export function setupMenu() {
                 action.disabled
                   ? `<span class="card-content action-menu-link-disabled" aria-label="${action.name}" aria-disabled="true">`
                   : `<a class="card-content" href="${
-                      action.id === "live-data" ? `?route=${action.id}&screen=chart` : `?route=${action.id}`
+                      action.id === "live-data"
+                        ? `?route=${action.id}&screen=chart`
+                        : action.id === "training-programs"
+                          ? "?screen=training-programs"
+                          : `?route=${action.id}`
                     }" aria-label="${action.name}">`
               }
                 <strong>${action.name}</strong>

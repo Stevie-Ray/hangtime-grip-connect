@@ -11,12 +11,23 @@ import { renderSessionChart, setupSessionChartPage, teardownSessionChart } from 
 import { loadPreferences, savePreferences } from "./settings-storage.js"
 import { setupSessionPage } from "./session-page.js"
 import { setupSettingsPage } from "./settings-page.js"
+import { setupTrainingProgramsPage } from "./training-programs-page.js"
+import {
+  fetchTrainingPrograms,
+  hasTrainingProgramsEnv,
+  pickTrainingProgramId,
+  type TrainingProgramRecord,
+} from "./training-programs.js"
 import { getTestModule } from "./tests/registry.js"
 import { loadConfig, saveConfig } from "./tests/storage.js"
 
 const appElement = document.querySelector<HTMLDivElement>("#app")
 let isDeviceConnected = false
 let isDeviceTared = false
+let trainingPrograms: TrainingProgramRecord[] | null = null
+let trainingProgramsLoading = false
+let trainingProgramsError: string | null = null
+let trainingProgramsLoadPresetNotice: string | null = null
 
 setupFontAwesome()
 
@@ -31,6 +42,10 @@ function getScreen(): string | null {
 
 function getSettingsPage(): string | null {
   return new URLSearchParams(window.location.search).get("settings")
+}
+
+function getTrainingProgramId(): string | null {
+  return new URLSearchParams(window.location.search).get("trainingProgram")
 }
 
 function navigate(search: string): void {
@@ -392,6 +407,64 @@ async function runSettingsAction(action: SettingsActionId): Promise<void> {
   }
 }
 
+async function loadTrainingPrograms(forceRefresh = false): Promise<void> {
+  if (!hasTrainingProgramsEnv()) return
+  if (trainingProgramsLoading) return
+  if (trainingPrograms != null && !forceRefresh) return
+
+  trainingProgramsLoading = true
+  trainingProgramsError = null
+  if (forceRefresh) {
+    trainingProgramsLoadPresetNotice = null
+  }
+  void render()
+
+  try {
+    trainingPrograms = await fetchTrainingPrograms(forceRefresh)
+  } catch (error: unknown) {
+    trainingProgramsError = error instanceof Error ? error.message : "Failed to load training programs."
+  } finally {
+    trainingProgramsLoading = false
+  }
+
+  void render()
+}
+
+function parseRepeatersPreset(preset: unknown): {
+  countDownTime: number
+  sets: number
+  reps: number
+  repDur: number
+  repPauseDur: number
+  setPauseDur: number
+} | null {
+  if (typeof preset !== "object" || preset === null) return null
+  const raw = preset as Record<string, unknown>
+
+  const parseIntMin = (value: unknown, min: number, fallback: number): number => {
+    const n = typeof value === "number" ? value : Number(value)
+    if (!Number.isFinite(n)) return fallback
+    return Math.max(min, Math.trunc(n))
+  }
+
+  return {
+    countDownTime: parseIntMin(raw["countDownTime"], 0, 3),
+    sets: parseIntMin(raw["sets"], 1, 3),
+    reps: parseIntMin(raw["reps"], 1, 12),
+    repDur: parseIntMin(raw["repDur"], 1, 10),
+    repPauseDur: parseIntMin(raw["repPauseDur"], 0, 6),
+    setPauseDur: parseIntMin(raw["setPauseDur"], 0, 8 * 60),
+  }
+}
+
+function findTrainingProgramById(programId: string): TrainingProgramRecord | null {
+  if (!trainingPrograms) return null
+  const entry = trainingPrograms
+    .map((program, index) => ({ program, id: pickTrainingProgramId(program, index) }))
+    .find((item) => item.id === programId)
+  return entry?.program ?? null
+}
+
 async function render(): Promise<void> {
   if (!appElement) return
 
@@ -399,19 +472,28 @@ async function render(): Promise<void> {
   const actionId = getRouteActionId()
   const screen = getScreen()
   const settingsPage = getSettingsPage()
+  const trainingProgramId = getTrainingProgramId()
   if (screen !== "chart") {
     await teardownSessionChart()
   }
   const content =
-    screen === "settings"
-      ? setupSettingsPage(settingsPage)
-      : actionId
-        ? screen === "chart"
-          ? setupSessionChartPage(actionId)
-          : screen === "new-session"
-            ? setupNewSessionPage(actionId)
-            : setupSessionPage(actionId)
-        : setupMenu()
+    screen === "training-programs"
+      ? setupTrainingProgramsPage({
+          programs: trainingPrograms,
+          loading: trainingProgramsLoading,
+          error: trainingProgramsError,
+          selectedProgramId: trainingProgramId,
+          loadPresetNotice: trainingProgramsLoadPresetNotice,
+        })
+      : screen === "settings"
+        ? setupSettingsPage(settingsPage)
+        : actionId
+          ? screen === "chart"
+            ? setupSessionChartPage(actionId)
+            : screen === "new-session"
+              ? setupNewSessionPage(actionId)
+              : setupSessionPage(actionId)
+          : setupMenu()
 
   appElement.innerHTML = `
     <div class="app-shell-card">
@@ -435,6 +517,10 @@ async function render(): Promise<void> {
       if (!canStart) return
     }
     renderSessionChart(actionId)
+  }
+
+  if (screen === "training-programs") {
+    void loadTrainingPrograms()
   }
 }
 
@@ -504,6 +590,37 @@ appElement?.addEventListener("click", (event) => {
     const actionId = newSessionButton.dataset["newSessionAction"]
     if (!actionId) return
     navigate(`?route=${encodeURIComponent(actionId)}&screen=new-session`)
+    return
+  }
+
+  const refreshTrainingProgramsButton = target?.closest<HTMLButtonElement>("[data-refresh-training-programs]")
+  if (refreshTrainingProgramsButton) {
+    void loadTrainingPrograms(true)
+    return
+  }
+
+  const loadTrainingProgramButton = target?.closest<HTMLButtonElement>("[data-load-training-program]")
+  if (loadTrainingProgramButton) {
+    const programId = loadTrainingProgramButton.dataset["loadTrainingProgram"]
+    if (!programId) return
+
+    const program = findTrainingProgramById(programId)
+    if (!program) {
+      trainingProgramsLoadPresetNotice = "Training program not found."
+      void render()
+      return
+    }
+
+    const preset = parseRepeatersPreset(program["repeatersPreset"])
+    if (!preset) {
+      trainingProgramsLoadPresetNotice = "No repeaters preset found for this training program."
+      void render()
+      return
+    }
+
+    saveConfig("repeaters", preset)
+    trainingProgramsLoadPresetNotice = null
+    navigate("?route=repeaters&screen=new-session")
     return
   }
 
