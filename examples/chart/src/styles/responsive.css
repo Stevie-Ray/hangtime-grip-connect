@@ -15,7 +15,7 @@
     min-height: 40px;
   }
 
-  #masses > div > div {
+  #masses > .device-mass > div {
     flex: 0 0 auto;
   }
 }
