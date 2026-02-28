@@ -8,10 +8,11 @@ export interface RepeatersConfig {
   repDur: number
   repPauseDur: number
   setPauseDur: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
+  mvc: number
   leftMvc: number
   rightMvc: number
   restLevel: number
@@ -31,8 +32,8 @@ function computeTotalSeconds(config: RepeatersConfig): number {
 function getSideAtElapsedSeconds(
   config: RepeatersConfig,
   elapsedSeconds: number,
-): "left" | "right" | "single" | "pause" {
-  if (config.mode !== "bilateral") return "single"
+): "left" | "right" | "unilateral" | "pause" {
+  if (config.mode !== "bilateral") return "unilateral"
   const singleRound = computeSingleRoundSeconds(config)
   const pauseStart = singleRound
   const pauseEnd = pauseStart + config.pauseBetweenSides
@@ -43,10 +44,17 @@ function getSideAtElapsedSeconds(
   return secondSide
 }
 
-function getZoneRange(config: RepeatersConfig, side: "left" | "right" | "single"): { min: number; max: number } | null {
+function getZoneRange(
+  config: RepeatersConfig,
+  side: "left" | "right" | "unilateral",
+): { min: number; max: number } | null {
   if (!config.levelsEnabled) return null
   const mvc =
-    side === "left" ? config.leftMvc : side === "right" ? config.rightMvc : Math.max(config.leftMvc, config.rightMvc)
+    side === "left"
+      ? config.leftMvc
+      : side === "right"
+        ? config.rightMvc
+        : Math.max(config.mvc, config.leftMvc, config.rightMvc)
   if (!Number.isFinite(mvc) || mvc <= 0) return null
   const minPercent = Math.min(config.restLevel, config.workLevel)
   const maxPercent = Math.max(config.restLevel, config.workLevel)
@@ -72,10 +80,11 @@ export const repeatersModule: TestModule<RepeatersConfig> = {
     repDur: 10,
     repPauseDur: 10,
     setPauseDur: 120,
-    mode: "single",
+    mode: "unilateral",
     initialSide: "side.left",
     pauseBetweenSides: 10,
     levelsEnabled: false,
+    mvc: 0,
     leftMvc: 0,
     rightMvc: 0,
     restLevel: 40,
@@ -84,6 +93,7 @@ export const repeatersModule: TestModule<RepeatersConfig> = {
   renderOptions(config) {
     const minTarget = Math.min(config.restLevel, config.workLevel)
     const maxTarget = Math.max(config.restLevel, config.workLevel)
+    const singleMvc = Math.max(config.mvc, config.leftMvc, config.rightMvc)
     return `
       <div class="repeaters-options">
         <label class="repeaters-field">
@@ -148,11 +158,15 @@ export const repeatersModule: TestModule<RepeatersConfig> = {
           <input type="checkbox" data-option="levelsEnabled" ${config.levelsEnabled ? "checked" : ""} />
           <span class="repeaters-label">Plot target levels</span>
         </label>
-        <label class="repeaters-field session-option-dependent ${config.levelsEnabled ? "" : "is-disabled"}" data-option-group="target-levels" ${config.levelsEnabled ? "" : "hidden"}>
+        <label class="repeaters-field session-option-dependent ${config.levelsEnabled && config.mode !== "bilateral" ? "" : "is-disabled"}" data-option-group="target-levels-single" ${config.levelsEnabled && config.mode !== "bilateral" ? "" : "hidden"}>
+          <span class="repeaters-label">MVC (kg)</span>
+          <input type="number" min="0" step="0.1" data-option="mvc" value="${singleMvc}" />
+        </label>
+        <label class="repeaters-field session-option-dependent ${config.levelsEnabled && config.mode === "bilateral" ? "" : "is-disabled"}" data-option-group="target-levels-bilateral" ${config.levelsEnabled && config.mode === "bilateral" ? "" : "hidden"}>
           <span class="repeaters-label">Left MVC (kg)</span>
           <input type="number" min="0" step="0.1" data-option="leftMvc" value="${config.leftMvc}" />
         </label>
-        <label class="repeaters-field session-option-dependent ${config.levelsEnabled ? "" : "is-disabled"}" data-option-group="target-levels" ${config.levelsEnabled ? "" : "hidden"}>
+        <label class="repeaters-field session-option-dependent ${config.levelsEnabled && config.mode === "bilateral" ? "" : "is-disabled"}" data-option-group="target-levels-bilateral" ${config.levelsEnabled && config.mode === "bilateral" ? "" : "hidden"}>
           <span class="repeaters-label">Right MVC (kg)</span>
           <input type="number" min="0" step="0.1" data-option="rightMvc" value="${config.rightMvc}" />
         </label>
@@ -184,13 +198,16 @@ export const repeatersModule: TestModule<RepeatersConfig> = {
     const normalizePercent = (value: number): number => Math.max(0, Math.min(100, value))
     const leftRightEnabled =
       root.querySelector<HTMLInputElement>("[data-option=leftRightEnabled]")?.checked ?? current.mode === "bilateral"
-    const mode: RepeatersConfig["mode"] = leftRightEnabled ? "bilateral" : "single"
+    const mode: RepeatersConfig["mode"] = leftRightEnabled ? "bilateral" : "unilateral"
     const initialSide =
       (root.querySelector<HTMLSelectElement>("[data-option=initialSide]")?.value as
         | RepeatersConfig["initialSide"]
         | undefined) ?? current.initialSide
     const levelsEnabled =
       root.querySelector<HTMLInputElement>("[data-option=levelsEnabled]")?.checked ?? current.levelsEnabled
+    const mvc = readFloat("mvc", 0, Math.max(current.mvc, current.leftMvc, current.rightMvc))
+    const leftMvc = readFloat("leftMvc", 0, current.leftMvc)
+    const rightMvc = readFloat("rightMvc", 0, current.rightMvc)
     const rawRest = normalizePercent(readInt("restLevel", 0, current.restLevel))
     const rawWork = normalizePercent(readInt("workLevel", 0, current.workLevel))
     const restLevel = Math.min(rawRest, rawWork)
@@ -202,12 +219,13 @@ export const repeatersModule: TestModule<RepeatersConfig> = {
       repDur: readInt("repDur", 1, current.repDur),
       repPauseDur: readInt("repPauseDur", 0, current.repPauseDur),
       setPauseDur: readInt("setPauseDur", 0, current.setPauseDur),
-      mode: mode === "bilateral" ? "bilateral" : "single",
+      mode: mode === "bilateral" ? "bilateral" : "unilateral",
       initialSide: initialSide === "side.right" ? "side.right" : "side.left",
       pauseBetweenSides: readInt("pauseBetweenSides", 0, current.pauseBetweenSides),
       levelsEnabled,
-      leftMvc: readFloat("leftMvc", 0, current.leftMvc),
-      rightMvc: readFloat("rightMvc", 0, current.rightMvc),
+      mvc: mode === "bilateral" ? Math.max(leftMvc, rightMvc, mvc) : mvc,
+      leftMvc: mode === "bilateral" ? leftMvc : mvc,
+      rightMvc: mode === "bilateral" ? rightMvc : mvc,
       restLevel,
       workLevel,
     }

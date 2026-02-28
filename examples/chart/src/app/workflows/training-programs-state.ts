@@ -10,10 +10,11 @@ function parseRepeatersPreset(preset: unknown): {
   repDur: number
   repPauseDur: number
   setPauseDur: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
+  mvc: number
   leftMvc: number
   rightMvc: number
   restLevel: number
@@ -45,10 +46,11 @@ function parseRepeatersPreset(preset: unknown): {
     repDur: parseIntMin(raw["repDur"], 1, 10),
     repPauseDur: parseIntMin(raw["repPauseDur"], 0, 6),
     setPauseDur: parseIntMin(raw["setPauseDur"], 0, 8 * 60),
-    mode: raw["mode"] === "bilateral" ? "bilateral" : "single",
+    mode: raw["mode"] === "bilateral" ? "bilateral" : "unilateral",
     initialSide: raw["initialSide"] === "side.right" ? "side.right" : "side.left",
     pauseBetweenSides: parseIntMin(raw["pauseBetweenSides"], 0, 10),
     levelsEnabled: Boolean(raw["levelsEnabled"]),
+    mvc: parseNumberMin(raw["mvc"], 0, 0),
     leftMvc: parseNumberMin(raw["leftMvc"], 0, 0),
     rightMvc: parseNumberMin(raw["rightMvc"], 0, 0),
     restLevel,

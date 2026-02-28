@@ -24,7 +24,7 @@ import {
 interface EnduranceConfig {
   durationSeconds: number
   countDownTime: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
@@ -35,7 +35,7 @@ interface EnduranceConfig {
 }
 
 interface EnduranceCaptureResult {
-  side: "left" | "right" | "single"
+  side: "left" | "right" | "unilateral"
   label: "Left" | "Right" | "Single"
   peak: number
   mean: number
@@ -53,7 +53,7 @@ function normalizeEnduranceConfig(options: RunOptions): EnduranceConfig {
   return {
     durationSeconds: Math.max(1, raw?.durationSeconds ?? 30),
     countDownTime: Math.max(0, raw?.countDownTime ?? 3),
-    mode: raw?.mode === "bilateral" ? "bilateral" : "single",
+    mode: raw?.mode === "bilateral" ? "bilateral" : "unilateral",
     initialSide: raw?.initialSide === "side.right" ? "side.right" : "side.left",
     pauseBetweenSides: Math.max(0, raw?.pauseBetweenSides ?? 10),
     levelsEnabled: raw?.levelsEnabled ?? false,
@@ -73,7 +73,7 @@ async function runEnduranceCapture(
   device: CliDevice,
   options: RunOptions,
   config: EnduranceConfig,
-  side: "left" | "right" | "single",
+  side: "left" | "right" | "unilateral",
 ): Promise<{ result?: EnduranceCaptureResult; cancelled: boolean }> {
   const ctx = options.ctx ?? { json: false, unit: "kg" as const, language: "en" as const }
   const label: EnduranceCaptureResult["label"] = side === "left" ? "Left" : side === "right" ? "Right" : "Single"
@@ -261,7 +261,7 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
                       message: `${t("menu.enable-left-right-mode")}:`,
                       choices: [
                         { name: t("menu.enabled"), value: "bilateral" as const },
-                        { name: t("menu.disabled"), value: "single" as const },
+                        { name: t("menu.disabled"), value: "unilateral" as const },
                       ],
                       default: config.mode,
                     })) ?? config.mode
@@ -432,10 +432,10 @@ export async function runEnduranceAction(device: CliDevice, options: RunOptions)
   }
 
   await ensureTaredForStreamAction(device, options)
-  const sequence: ("left" | "right" | "single")[] =
+  const sequence: ("left" | "right" | "unilateral")[] =
     config.mode === "bilateral"
       ? [config.initialSide === "side.left" ? "left" : "right", config.initialSide === "side.left" ? "right" : "left"]
-      : ["single"]
+      : ["unilateral"]
 
   const results: EnduranceCaptureResult[] = []
   let cancelled = false

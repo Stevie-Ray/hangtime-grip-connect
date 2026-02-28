@@ -10,7 +10,7 @@ interface RepeatersCliOptions {
   repPauseDur?: string
   setPauseDur?: string
   countDownTime?: string
-  mode?: "single" | "bilateral"
+  mode?: "single" | "unilateral" | "left-right" | "bilateral"
   initialSide?: "side.left" | "side.right"
   pauseBetweenSides?: string
   levelsEnabled?: boolean
@@ -30,7 +30,7 @@ export function registerRepeaters(program: Command): void {
     .option("--rep-pause-dur <time>", "Rest duration between reps (mm:ss or seconds)", "6")
     .option("--set-pause-dur <time>", "Pause duration between sets (mm:ss or seconds)", "08:00")
     .option("--count-down-time <time>", "Countdown before capture starts (mm:ss or seconds)", "3")
-    .option("--mode <single|bilateral>", "Session mode", "single")
+    .option("--mode <single|left-right>", "Session mode", "single")
     .option("--initial-side <side.left|side.right>", "Initial side for Left/Right mode", "side.left")
     .option("--pause-between-sides <time>", "Pause between sides (mm:ss or seconds)", "10")
     .option("--levels-enabled", "Enable target levels plotting")
@@ -57,7 +57,7 @@ export function registerRepeaters(program: Command): void {
       const rawMax = Number.isFinite(Number(options.workLevel)) ? Number(options.workLevel) : 80
       const restLevel = Math.max(0, Math.min(100, Math.min(rawMin, rawMax)))
       const workLevel = Math.max(0, Math.min(100, Math.max(rawMin, rawMax)))
-      const mode = options.mode === "bilateral" ? "bilateral" : "single"
+      const mode = options.mode === "bilateral" || options.mode === "left-right" ? "bilateral" : "unilateral"
 
       if (!ctx.json) {
         printHeader(`Repeaters – ${name}`)

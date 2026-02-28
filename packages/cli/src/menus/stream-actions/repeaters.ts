@@ -28,10 +28,11 @@ interface RepeatersConfig {
   repPauseDur: number
   setPauseDur: number
   countDownTime: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
+  mvc: number
   leftMvc: number
   rightMvc: number
   restLevel: number
@@ -39,7 +40,7 @@ interface RepeatersConfig {
 }
 
 interface RepeatersResult {
-  side: "left" | "right" | "single"
+  side: "left" | "right" | "unilateral"
   label: "Left" | "Right" | "Single"
   peak: number
   meanWork: number
@@ -71,10 +72,11 @@ function normalizeRepeatersConfig(options: RunOptions): RepeatersConfig {
     repPauseDur: Math.max(0, Math.trunc(raw?.repPauseDur ?? 6)),
     setPauseDur: Math.max(0, Math.trunc(raw?.setPauseDur ?? 8 * 60)),
     countDownTime: Math.max(0, Math.trunc(raw?.countDownTime ?? 3)),
-    mode: raw?.mode === "bilateral" ? "bilateral" : "single",
+    mode: raw?.mode === "bilateral" ? "bilateral" : "unilateral",
     initialSide: raw?.initialSide === "side.right" ? "side.right" : "side.left",
     pauseBetweenSides: Math.max(0, Math.trunc(raw?.pauseBetweenSides ?? 10)),
     levelsEnabled: raw?.levelsEnabled ?? false,
+    mvc: Math.max(0, raw?.mvc ?? 0),
     leftMvc: Math.max(0, raw?.leftMvc ?? 0),
     rightMvc: Math.max(0, raw?.rightMvc ?? 0),
     restLevel: normalizePercent(raw?.restLevel ?? 40),
@@ -130,7 +132,7 @@ async function runRepeatersCapture(
   device: CliDevice,
   options: RunOptions,
   config: RepeatersConfig,
-  side: "left" | "right" | "single",
+  side: "left" | "right" | "unilateral",
 ): Promise<{ result?: RepeatersResult; cancelled: boolean }> {
   const ctx = options.ctx ?? { json: false, unit: "kg" as const, language: "en" as const }
   const label: RepeatersResult["label"] = side === "left" ? "Left" : side === "right" ? "Right" : "Single"
@@ -148,6 +150,7 @@ async function runRepeatersCapture(
       initialSide: config.initialSide,
       pauseBetweenSidesSeconds: config.pauseBetweenSides,
       countdownSeconds: config.countDownTime,
+      mvcKg: config.mvc,
     },
     side,
     ctx.unit,
@@ -432,7 +435,7 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
                       message: `${t("menu.enable-left-right-mode")}:`,
                       choices: [
                         { name: t("menu.enabled"), value: "bilateral" as const },
-                        { name: t("menu.disabled"), value: "single" as const },
+                        { name: t("menu.disabled"), value: "unilateral" as const },
                       ],
                       default: config.mode,
                     })) ?? config.mode
@@ -539,10 +542,10 @@ export async function runRepeatersAction(device: CliDevice, options: RunOptions)
 
   await ensureTaredForStreamAction(device, options)
 
-  const sequence: ("left" | "right" | "single")[] =
+  const sequence: ("left" | "right" | "unilateral")[] =
     config.mode === "bilateral"
       ? [config.initialSide === "side.left" ? "left" : "right", config.initialSide === "side.left" ? "right" : "left"]
-      : ["single"]
+      : ["unilateral"]
 
   const results: RepeatersResult[] = []
   let cancelled = false

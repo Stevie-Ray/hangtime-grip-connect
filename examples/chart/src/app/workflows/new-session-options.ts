@@ -1,3 +1,6 @@
+import { isDynamometerDeviceKey } from "../../devices/capabilities.js"
+import { getActiveDeviceKey } from "../../devices/session.js"
+
 function toggleOptionGroup(group: HTMLElement, input: HTMLInputElement | HTMLSelectElement, enabled: boolean): void {
   group.toggleAttribute("hidden", !enabled)
   group.classList.toggle("is-disabled", !enabled)
@@ -22,6 +25,26 @@ export function syncNewSessionOptionVisibility(appElement: HTMLDivElement): void
     toggleOptionGroup(bodyWeightGroup, bodyWeightInput, includeBodyWeight)
   }
 
+  const modeValue = form.querySelector<HTMLSelectElement>("[data-option=mode]")?.value
+  const leftRightToggleInput = form.querySelector<HTMLInputElement>("[data-option=leftRightEnabled]")
+  if (leftRightToggleInput) {
+    const activeDeviceKey = getActiveDeviceKey()
+    if (!activeDeviceKey || isDynamometerDeviceKey(activeDeviceKey)) {
+      leftRightToggleInput.disabled = false
+    } else {
+      leftRightToggleInput.checked = false
+      leftRightToggleInput.disabled = true
+    }
+  }
+  const leftRightToggle = leftRightToggleInput?.checked
+  const leftRightEnabled = leftRightToggle ?? modeValue === "bilateral"
+  const leftRightGroups = form.querySelectorAll<HTMLElement>("[data-option-group=left-right]")
+  leftRightGroups.forEach((group) => {
+    const input = group.querySelector<HTMLInputElement | HTMLSelectElement>("input, select")
+    if (!input) return
+    toggleOptionGroup(group, input, leftRightEnabled)
+  })
+
   const levelsEnabled = form.querySelector<HTMLInputElement>("[data-option=levelsEnabled]")?.checked
   const targetLevelGroups = form.querySelectorAll<HTMLElement>("[data-option-group=target-levels]")
   targetLevelGroups.forEach((group) => {
@@ -30,13 +53,17 @@ export function syncNewSessionOptionVisibility(appElement: HTMLDivElement): void
     toggleOptionGroup(group, input, levelsEnabled)
   })
 
-  const modeValue = form.querySelector<HTMLSelectElement>("[data-option=mode]")?.value
-  const leftRightToggle = form.querySelector<HTMLInputElement>("[data-option=leftRightEnabled]")?.checked
-  const leftRightEnabled = leftRightToggle ?? modeValue === "bilateral"
-  const leftRightGroups = form.querySelectorAll<HTMLElement>("[data-option-group=left-right]")
-  leftRightGroups.forEach((group) => {
+  const targetLevelsSingleGroups = form.querySelectorAll<HTMLElement>("[data-option-group=target-levels-single]")
+  targetLevelsSingleGroups.forEach((group) => {
     const input = group.querySelector<HTMLInputElement | HTMLSelectElement>("input, select")
-    if (!input) return
-    toggleOptionGroup(group, input, leftRightEnabled)
+    if (levelsEnabled == null || !input) return
+    toggleOptionGroup(group, input, levelsEnabled && !leftRightEnabled)
+  })
+
+  const targetLevelsBilateralGroups = form.querySelectorAll<HTMLElement>("[data-option-group=target-levels-bilateral]")
+  targetLevelsBilateralGroups.forEach((group) => {
+    const input = group.querySelector<HTMLInputElement | HTMLSelectElement>("input, select")
+    if (levelsEnabled == null || !input) return
+    toggleOptionGroup(group, input, levelsEnabled && leftRightEnabled)
   })
 }

@@ -9,6 +9,7 @@ import { runCountdown } from "./shared.js"
 
 export interface TargetLevelsConfig {
   plotTargetZone: boolean
+  mvcKg?: number
   leftMvcKg: number
   rightMvcKg: number
   targetZoneMinPercent: number
@@ -30,15 +31,16 @@ function normalizePercent(value: number): number {
 
 export function resolveTargetZone(
   config: TargetLevelsConfig,
-  side: "left" | "right" | "single",
+  side: "left" | "right" | "unilateral",
   unit: ForceUnit,
 ): TargetZone | undefined {
   if (!config.plotTargetZone) return undefined
   let mvcKg = 0
   if (side === "left") mvcKg = config.leftMvcKg
   if (side === "right") mvcKg = config.rightMvcKg
-  if (side === "single") {
-    if (config.leftMvcKg > 0 && config.rightMvcKg > 0) mvcKg = (config.leftMvcKg + config.rightMvcKg) / 2
+  if (side === "unilateral") {
+    if ((config.mvcKg ?? 0) > 0) mvcKg = config.mvcKg ?? 0
+    else if (config.leftMvcKg > 0 && config.rightMvcKg > 0) mvcKg = (config.leftMvcKg + config.rightMvcKg) / 2
     else mvcKg = Math.max(config.leftMvcKg, config.rightMvcKg)
   }
   if (mvcKg <= 0) return undefined

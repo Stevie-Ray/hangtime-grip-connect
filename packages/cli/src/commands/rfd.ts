@@ -8,7 +8,7 @@ interface RfdCliOptions {
   duration?: string
   countDownTime?: string
   threshold?: string
-  mode?: "single" | "bilateral"
+  mode?: "single" | "unilateral" | "left-right" | "bilateral"
 }
 
 export function registerRfd(program: Command): void {
@@ -18,7 +18,7 @@ export function registerRfd(program: Command): void {
     .option("-d, --duration <seconds>", "Capture duration in seconds", "5")
     .option("--count-down-time <time>", "Countdown before capture starts (mm:ss or seconds)", "3")
     .option("--threshold <value>", "Onset threshold in current force unit", "0.5")
-    .option("--mode <single|bilateral>", "Session mode", "single")
+    .option("--mode <single|left-right>", "Session mode", "single")
     .action(async (deviceKey: string | undefined, options: RfdCliOptions) => {
       const ctx = resolveContext(program)
       const key = await resolveDeviceKey(deviceKey)
@@ -29,7 +29,7 @@ export function registerRfd(program: Command): void {
       const durationMs = parseDurationSeconds(options.duration) ?? 5000
       const countDownTime = parseCountdownSeconds(options.countDownTime) ?? 3
       const threshold = Number.isFinite(Number(options.threshold)) ? Number(options.threshold) : 0.5
-      const mode = options.mode === "bilateral" ? "bilateral" : "single"
+      const mode = options.mode === "bilateral" || options.mode === "left-right" ? "bilateral" : "unilateral"
 
       if (!ctx.json) {
         printHeader(`RFD – ${name}`)

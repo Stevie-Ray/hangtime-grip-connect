@@ -150,7 +150,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
   const rfdSession = opts.session?.rfd
   let rfdThreshold = rfdSession?.threshold ?? 0.5
   let countDownTime = rfdSession?.countDownTime ?? 3
-  let distributionMode: "single" | "bilateral" = rfdSession?.mode === "bilateral" ? "bilateral" : "single"
+  let distributionMode: "unilateral" | "bilateral" = rfdSession?.mode === "bilateral" ? "bilateral" : "unilateral"
   if (typeof device.stream !== "function") return
   const rawRfdSamples: CapturedRfdSample[] = []
   let captureStartMs = Date.now()
@@ -236,7 +236,7 @@ export async function runRfdAction(device: CliDevice, opts: RunOptions): Promise
                         message: `${t("menu.enable-left-right-mode")}:`,
                         choices: [
                           { name: t("menu.enabled"), value: "bilateral" as const },
-                          { name: t("menu.disabled"), value: "single" as const },
+                          { name: t("menu.disabled"), value: "unilateral" as const },
                         ],
                         default: distributionMode,
                       })) ?? distributionMode

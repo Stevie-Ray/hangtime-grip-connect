@@ -89,8 +89,8 @@ export interface EnduranceSessionOptions {
   durationSeconds?: number
   /** Endurance countdown before capture starts in seconds. */
   countDownTime?: number
-  /** Endurance mode. "bilateral" alternates sides, "single" captures once. */
-  mode?: "single" | "bilateral"
+  /** Endurance mode. "bilateral" alternates sides, "unilateral" captures once. */
+  mode?: "unilateral" | "bilateral"
   /** Starting side when left/right mode is enabled. */
   initialSide?: "side.left" | "side.right"
   /** Pause between left/right side captures in seconds. */
@@ -116,7 +116,7 @@ export interface RfdSessionOptions {
   /** RFD countdown before capture starts in seconds. */
   countDownTime?: number
   /** RFD mode. "bilateral" enables left/right distribution mode. */
-  mode?: "single" | "bilateral"
+  mode?: "unilateral" | "bilateral"
 }
 
 /** Repeaters session options. */
@@ -133,14 +133,16 @@ export interface RepeatersSessionOptions {
   repPauseDur?: number
   /** Pause time in seconds between sets. */
   setPauseDur?: number
-  /** Repeaters mode. "bilateral" alternates sides, "single" captures once. */
-  mode?: "single" | "bilateral"
+  /** Repeaters mode. "bilateral" alternates sides, "unilateral" captures once. */
+  mode?: "unilateral" | "bilateral"
   /** Starting side when left/right mode is enabled. */
   initialSide?: "side.left" | "side.right"
   /** Pause between left/right side captures in seconds. */
   pauseBetweenSides?: number
   /** Plot target zone derived from MVC percentages. */
   levelsEnabled?: boolean
+  /** Unified MVC value used by unilateral flows. */
+  mvc?: number
   /** Left maximum voluntary contraction in kilograms. */
   leftMvc?: number
   /** Right maximum voluntary contraction in kilograms. */

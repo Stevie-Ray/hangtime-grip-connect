@@ -4,10 +4,11 @@ export interface RepeatersChartConfig {
   repDur: number
   repPauseDur: number
   setPauseDur: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
+  mvc?: number
   leftMvc: number
   rightMvc: number
   restLevel: number
@@ -16,7 +17,7 @@ export interface RepeatersChartConfig {
 
 export interface EnduranceChartConfig {
   durationSeconds: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
@@ -28,24 +29,24 @@ export interface EnduranceChartConfig {
 
 export function isRepeatersChartConfig(config: unknown): config is RepeatersChartConfig {
   if (typeof config !== "object" || config === null) return false
-  const candidate = config as Partial<RepeatersChartConfig>
+  const candidate = config as Record<string, unknown>
   return (
-    typeof candidate.sets === "number" &&
-    typeof candidate.reps === "number" &&
-    typeof candidate.repDur === "number" &&
-    typeof candidate.repPauseDur === "number" &&
-    typeof candidate.setPauseDur === "number" &&
-    (candidate.mode === "single" || candidate.mode === "bilateral")
+    typeof candidate["sets"] === "number" &&
+    typeof candidate["reps"] === "number" &&
+    typeof candidate["repDur"] === "number" &&
+    typeof candidate["repPauseDur"] === "number" &&
+    typeof candidate["setPauseDur"] === "number" &&
+    (candidate["mode"] === "unilateral" || candidate["mode"] === "single" || candidate["mode"] === "bilateral")
   )
 }
 
 export function isEnduranceChartConfig(config: unknown): config is EnduranceChartConfig {
   if (typeof config !== "object" || config === null) return false
-  const candidate = config as Partial<EnduranceChartConfig>
+  const candidate = config as Record<string, unknown>
   return (
-    typeof candidate.durationSeconds === "number" &&
-    typeof candidate.pauseBetweenSides === "number" &&
-    (candidate.mode === "single" || candidate.mode === "bilateral")
+    typeof candidate["durationSeconds"] === "number" &&
+    typeof candidate["pauseBetweenSides"] === "number" &&
+    (candidate["mode"] === "unilateral" || candidate["mode"] === "single" || candidate["mode"] === "bilateral")
   )
 }
 
@@ -56,8 +57,8 @@ export function computeRepeatersSingleRoundSeconds(config: RepeatersChartConfig)
 function getRepeatersSideAtElapsedSeconds(
   config: RepeatersChartConfig,
   elapsedSeconds: number,
-): "left" | "right" | "single" | "pause" {
-  if (config.mode !== "bilateral") return "single"
+): "left" | "right" | "unilateral" | "pause" {
+  if (config.mode !== "bilateral") return "unilateral"
   const singleRound = computeRepeatersSingleRoundSeconds(config)
   const pauseStart = singleRound
   const pauseEnd = pauseStart + config.pauseBetweenSides
@@ -79,7 +80,11 @@ export function getRepeatersTargetZoneAtElapsedSeconds(
   const minPercent = Math.min(config.restLevel, config.workLevel)
   const maxPercent = Math.max(config.restLevel, config.workLevel)
   const mvc =
-    side === "left" ? config.leftMvc : side === "right" ? config.rightMvc : Math.max(config.leftMvc, config.rightMvc, 0)
+    side === "left"
+      ? config.leftMvc
+      : side === "right"
+        ? config.rightMvc
+        : Math.max(config.mvc ?? 0, config.leftMvc, config.rightMvc, 0)
 
   if (!Number.isFinite(mvc) || mvc <= 0) return null
   return {
@@ -91,8 +96,8 @@ export function getRepeatersTargetZoneAtElapsedSeconds(
 function getEnduranceSideAtElapsedSeconds(
   config: EnduranceChartConfig,
   elapsedSeconds: number,
-): "left" | "right" | "single" | "pause" {
-  if (config.mode !== "bilateral") return "single"
+): "left" | "right" | "unilateral" | "pause" {
+  if (config.mode !== "bilateral") return "unilateral"
   const pauseStart = config.durationSeconds
   const pauseEnd = pauseStart + config.pauseBetweenSides
   const firstSide = config.initialSide === "side.right" ? "right" : "left"

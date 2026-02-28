@@ -4,7 +4,7 @@ import type { TestModule } from "./types.js"
 export interface EnduranceConfig {
   durationSeconds: number
   countDownTime: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
@@ -22,8 +22,8 @@ function computeTotalDurationSeconds(config: EnduranceConfig): number {
 function getEnduranceSideAtElapsedSeconds(
   config: EnduranceConfig,
   elapsedSeconds: number,
-): "left" | "right" | "single" | "pause" {
-  if (config.mode !== "bilateral") return "single"
+): "left" | "right" | "unilateral" | "pause" {
+  if (config.mode !== "bilateral") return "unilateral"
   const pauseStart = config.durationSeconds
   const pauseEnd = pauseStart + config.pauseBetweenSides
   const firstSide = config.initialSide === "side.right" ? "right" : "left"
@@ -33,7 +33,10 @@ function getEnduranceSideAtElapsedSeconds(
   return secondSide
 }
 
-function getZoneRange(config: EnduranceConfig, side: "left" | "right" | "single"): { min: number; max: number } | null {
+function getZoneRange(
+  config: EnduranceConfig,
+  side: "left" | "right" | "unilateral",
+): { min: number; max: number } | null {
   if (!config.levelsEnabled) return null
   const mvc =
     side === "left" ? config.leftMvc : side === "right" ? config.rightMvc : Math.max(config.leftMvc, config.rightMvc)
@@ -51,7 +54,7 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
   defaultConfig: {
     durationSeconds: 30,
     countDownTime: 3,
-    mode: "single",
+    mode: "unilateral",
     initialSide: "side.left",
     pauseBetweenSides: 10,
     levelsEnabled: false,
@@ -61,6 +64,7 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
     workLevel: 80,
   },
   renderOptions(config) {
+    const singleMvc = Math.max(config.leftMvc, config.rightMvc)
     return `
       <div class="repeaters-options">
         <label class="repeaters-field">
@@ -101,14 +105,21 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
           <input type="checkbox" data-option="levelsEnabled" ${config.levelsEnabled ? "checked" : ""} />
           <span class="repeaters-label">Plot target zone</span>
         </label>
-        <label class="repeaters-field session-option-dependent ${config.levelsEnabled ? "" : "is-disabled"}" data-option-group="target-levels" ${config.levelsEnabled ? "" : "hidden"}>
+        <label class="repeaters-field session-option-dependent ${config.levelsEnabled && config.mode !== "bilateral" ? "" : "is-disabled"}" data-option-group="target-levels-single" ${config.levelsEnabled && config.mode !== "bilateral" ? "" : "hidden"}>
+          <span class="repeaters-label">MVC</span>
+          <span class="repeaters-input-with-unit">
+            <input type="number" min="0" step="0.1" data-option="mvc" value="${singleMvc}" />
+            <span class="repeaters-unit">kg</span>
+          </span>
+        </label>
+        <label class="repeaters-field session-option-dependent ${config.levelsEnabled && config.mode === "bilateral" ? "" : "is-disabled"}" data-option-group="target-levels-bilateral" ${config.levelsEnabled && config.mode === "bilateral" ? "" : "hidden"}>
           <span class="repeaters-label">Left MVC</span>
           <span class="repeaters-input-with-unit">
             <input type="number" min="0" step="0.1" data-option="leftMvc" value="${config.leftMvc}" />
             <span class="repeaters-unit">kg</span>
           </span>
         </label>
-        <label class="repeaters-field session-option-dependent ${config.levelsEnabled ? "" : "is-disabled"}" data-option-group="target-levels" ${config.levelsEnabled ? "" : "hidden"}>
+        <label class="repeaters-field session-option-dependent ${config.levelsEnabled && config.mode === "bilateral" ? "" : "is-disabled"}" data-option-group="target-levels-bilateral" ${config.levelsEnabled && config.mode === "bilateral" ? "" : "hidden"}>
           <span class="repeaters-label">Right MVC</span>
           <span class="repeaters-input-with-unit">
             <input type="number" min="0" step="0.1" data-option="rightMvc" value="${config.rightMvc}" />
@@ -150,7 +161,7 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
     )
     const leftRightEnabled =
       root.querySelector<HTMLInputElement>("[data-option=leftRightEnabled]")?.checked ?? current.mode === "bilateral"
-    const mode: EnduranceConfig["mode"] = leftRightEnabled ? "bilateral" : "single"
+    const mode: EnduranceConfig["mode"] = leftRightEnabled ? "bilateral" : "unilateral"
     const initialSide =
       (root.querySelector<HTMLSelectElement>("[data-option=initialSide]")?.value as
         | EnduranceConfig["initialSide"]
@@ -165,14 +176,19 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
     )
     const levelsEnabled =
       root.querySelector<HTMLInputElement>("[data-option=levelsEnabled]")?.checked ?? current.levelsEnabled
-    const leftMvc =
+    const mvc =
+      Number.parseFloat(root.querySelector<HTMLInputElement>("[data-option=mvc]")?.value ?? "") ||
+      Math.max(current.leftMvc, current.rightMvc)
+    const leftMvcInput =
       Number.parseFloat(
         root.querySelector<HTMLInputElement>("[data-option=leftMvc]")?.value ?? String(current.leftMvc),
       ) || current.leftMvc
-    const rightMvc =
+    const rightMvcInput =
       Number.parseFloat(
         root.querySelector<HTMLInputElement>("[data-option=rightMvc]")?.value ?? String(current.rightMvc),
       ) || current.rightMvc
+    const leftMvc = mode === "bilateral" ? leftMvcInput : mvc
+    const rightMvc = mode === "bilateral" ? rightMvcInput : mvc
     const rawRest = Number.parseFloat(
       root.querySelector<HTMLInputElement>("[data-option=restLevel]")?.value ?? String(current.restLevel),
     )

@@ -6,7 +6,7 @@ import { connectAndRun, createDevice, printHeader, resolveContext, resolveDevice
 interface EnduranceCliOptions {
   duration?: string
   countDownTime?: string
-  mode?: "single" | "bilateral"
+  mode?: "single" | "unilateral" | "left-right" | "bilateral"
   initialSide?: "side.left" | "side.right"
   pauseBetweenSides?: string
   levelsEnabled?: boolean
@@ -22,7 +22,7 @@ export function registerEndurance(program: Command): void {
     .description("Run time-based Endurance test")
     .option("-d, --duration <time>", "Capture duration (mm:ss or seconds)", "00:30")
     .option("--count-down-time <time>", "Countdown before capture starts (mm:ss or seconds)", "3")
-    .option("--mode <single|bilateral>", "Session mode", "single")
+    .option("--mode <single|left-right>", "Session mode", "single")
     .option("--initial-side <side.left|side.right>", "Initial side for Left/Right mode", "side.left")
     .option("--pause-between-sides <time>", "Pause between sides (mm:ss or seconds)", "10")
     .option("--levels-enabled", "Enable target zone plotting")
@@ -45,7 +45,7 @@ export function registerEndurance(program: Command): void {
       const rawMax = Number.isFinite(Number(options.workLevel)) ? Number(options.workLevel) : 80
       const restLevel = Math.max(0, Math.min(100, Math.min(rawMin, rawMax)))
       const workLevel = Math.max(0, Math.min(100, Math.max(rawMin, rawMax)))
-      const mode = options.mode === "bilateral" ? "bilateral" : "single"
+      const mode = options.mode === "bilateral" || options.mode === "left-right" ? "bilateral" : "unilateral"
 
       if (!ctx.json) {
         printHeader(`Endurance – ${name}`)

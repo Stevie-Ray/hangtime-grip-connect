@@ -4,7 +4,7 @@ import type { TestModule } from "../protocols/types.js"
 export interface EnduranceConfig {
   durationSeconds: number
   countDownTime: number
-  mode: "single" | "bilateral"
+  mode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
   levelsEnabled: boolean
@@ -22,8 +22,8 @@ function computeTotalDurationSeconds(config: EnduranceConfig): number {
 function getEnduranceSideAtElapsedSeconds(
   config: EnduranceConfig,
   elapsedSeconds: number,
-): "left" | "right" | "single" | "pause" {
-  if (config.mode !== "bilateral") return "single"
+): "left" | "right" | "unilateral" | "pause" {
+  if (config.mode !== "bilateral") return "unilateral"
   const pauseStart = config.durationSeconds
   const pauseEnd = pauseStart + config.pauseBetweenSides
   const firstSide = config.initialSide === "side.right" ? "right" : "left"
@@ -33,7 +33,10 @@ function getEnduranceSideAtElapsedSeconds(
   return secondSide
 }
 
-function getZoneRange(config: EnduranceConfig, side: "left" | "right" | "single"): { min: number; max: number } | null {
+function getZoneRange(
+  config: EnduranceConfig,
+  side: "left" | "right" | "unilateral",
+): { min: number; max: number } | null {
   if (!config.levelsEnabled) return null
   const mvc =
     side === "left" ? config.leftMvc : side === "right" ? config.rightMvc : Math.max(config.leftMvc, config.rightMvc)
@@ -51,7 +54,7 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
   defaultConfig: {
     durationSeconds: 30,
     countDownTime: 3,
-    mode: "single",
+    mode: "unilateral",
     initialSide: "side.left",
     pauseBetweenSides: 10,
     levelsEnabled: false,
@@ -150,7 +153,7 @@ export const enduranceModule: TestModule<EnduranceConfig> = {
     )
     const leftRightEnabled =
       root.querySelector<HTMLInputElement>("[data-option=leftRightEnabled]")?.checked ?? current.mode === "bilateral"
-    const mode: EnduranceConfig["mode"] = leftRightEnabled ? "bilateral" : "single"
+    const mode: EnduranceConfig["mode"] = leftRightEnabled ? "bilateral" : "unilateral"
     const initialSide =
       (root.querySelector<HTMLSelectElement>("[data-option=initialSide]")?.value as
         | EnduranceConfig["initialSide"]

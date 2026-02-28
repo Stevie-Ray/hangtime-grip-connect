@@ -6,7 +6,7 @@ export interface RfdConfig {
   countDownTime: number
   threshold: number
   mode: "20-80" | "100" | "150" | "200" | "250" | "300" | "1000"
-  distributionMode: "single" | "bilateral"
+  distributionMode: "unilateral" | "bilateral"
   initialSide: "side.left" | "side.right"
   pauseBetweenSides: number
 }
@@ -18,7 +18,7 @@ export const rfdModule: TestModule<RfdConfig> = {
     countDownTime: 3,
     threshold: 0.5,
     mode: "20-80",
-    distributionMode: "single",
+    distributionMode: "unilateral",
     initialSide: "side.left",
     pauseBetweenSides: 10,
   },
@@ -81,7 +81,7 @@ export const rfdModule: TestModule<RfdConfig> = {
       countDownTime,
       threshold: current.threshold,
       mode: current.mode,
-      distributionMode: leftRightEnabled ? "bilateral" : "single",
+      distributionMode: leftRightEnabled ? "bilateral" : "unilateral",
       initialSide: initialSide === "side.right" ? "side.right" : "side.left",
       pauseBetweenSides,
     }
