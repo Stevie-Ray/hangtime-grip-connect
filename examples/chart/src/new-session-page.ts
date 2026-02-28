@@ -15,13 +15,16 @@ export function setupNewSessionPage(actionId: string): string {
         <a class="session-back-link" href="?route=${action.id}"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>${action.name}</h3>
       </div>
-      
-      <p>${details}</p>
-      <form id="session-options-form">
-        ${options}
-      </form>
+
+      <div class="section-content">
+        <p>${details}</p>
+        <form id="session-options-form">
+          ${options}
+        </form>
+      </div>
 
       <button type="button" class="start-session-button" data-start-session-action="${action.id}">Start Session</button>
+  
     </section>
   `
 }

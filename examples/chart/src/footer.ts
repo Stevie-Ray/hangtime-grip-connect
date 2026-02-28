@@ -34,6 +34,13 @@ export function setupFooter(): string {
         <a href="https://grip-connect-flappy-bird.vercel.app/" target="_blank">
           <i class="fa-solid fa-gamepad"></i> Flappy Bird
         </a>
+        <span class="footer-cli-line">
+          This tool is also available for CLI:
+          <code>npx @hangtime/cli</code>
+          <button type="button" class="footer-copy-btn" data-copy-cli="npx @hangtime/cli" aria-label="Copy CLI command">
+            <i class="fa-solid fa-copy" aria-hidden="true"></i>
+          </button>
+        </span>
       </small>
     </footer>
   `

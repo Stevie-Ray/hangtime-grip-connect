@@ -42,3 +42,27 @@
 [data-toggle-device-list].is-connected {
   border-color: #22c55e;
 }
+
+@media (prefers-color-scheme: light) {
+  #device-list {
+    background: #ffffff;
+    border-color: #d1d5db;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  }
+
+  #device-list li button {
+    color: #111827;
+    background: #f3f4f6;
+    border-color: #d1d5db;
+  }
+
+  #device-list li button:hover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+
+  #device-connect-status {
+    color: #374151;
+    opacity: 1;
+  }
+}

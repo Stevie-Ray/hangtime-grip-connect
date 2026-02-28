@@ -9,13 +9,15 @@ export function setupSessionPage(actionId: string): string {
   const measurements = module ? listMeasurements(module.id) : []
   const measurementState =
     measurements.length > 0
-      ? `<ul class="measurement-list">${measurements
+      ? `<ul class="action-menu-list measurement-list">${measurements
           .map((item) => {
             const date = new Date(item.createdAt).toLocaleString()
-            return `<li>
-              <strong>${date}</strong>
-              <div>${item.headline}</div>
-              <small>${item.details.join(" | ")}</small>
+            return `<li class="card">
+              <span class="card-content measurement-list-item" aria-label="${date}">
+                <strong>${date}</strong>
+                <small>${item.headline}</small>
+                <small>${item.details.join(" | ")}</small>
+              </span>
             </li>`
           })
           .join("")}</ul>`
@@ -27,7 +29,10 @@ export function setupSessionPage(actionId: string): string {
         <a class="session-back-link" href="?"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>${action.name}</h3>
       </div>
-      ${measurementState}
+      
+      <div class="section-content">
+        ${measurementState}
+      </div>
 
       <button type="button" class="new-session-button" data-new-session-action="${action.id}">New Session</button>
     </section>

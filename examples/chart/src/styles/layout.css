@@ -79,7 +79,7 @@ header {
   height: 320px !important;
 }
 
-.card {
+.app-shell-card {
   background: #2e2e2e;
   border-radius: 2rem;
   display: flex;
@@ -96,13 +96,62 @@ header {
   text-align: left;
 }
 
-.measurement-list {
-  margin: 0 0 1rem;
-  padding-left: 1.25rem;
+.section-content {
+  margin-bottom: 0.75rem;
 }
 
-.measurement-list li + li {
-  margin-top: 0.5rem;
+#session-options-form {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+#session-options-form > label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid #4a4a4a;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+#session-options-form > label[hidden] {
+  display: none;
+}
+
+#session-options-form > label input:not([type="checkbox"]),
+#session-options-form > label select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#session-options-form > label.session-option-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#session-options-form > label.session-option-toggle input[type="checkbox"] {
+  margin: 0;
+}
+
+#session-options-form > label.session-option-dependent.is-disabled {
+  opacity: 0.7;
+}
+
+.measurement-list {
+  margin-bottom: 1rem;
+}
+
+.measurement-list-item {
+  cursor: default;
+}
+
+.measurement-list-item small {
+  display: block;
 }
 
 .page-title-row {
@@ -140,7 +189,7 @@ header {
   padding: 0.5rem;
 }
 
-.card > div:not(.input) {
+.app-shell-card > div:not(.input) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,14 +199,14 @@ header {
   width: 100%;
 }
 
-.card > div:not(.input) > button {
+.app-shell-card > div:not(.input) > button {
   padding: 0.25rem;
   background: none;
   border: none;
   margin: 0;
 }
 
-.card > div:not(.input) > button:hover {
+.app-shell-card > div:not(.input) > button:hover {
   opacity: 0.8;
 }
 
@@ -176,6 +225,42 @@ dialog menu {
   margin-top: 1rem;
 }
 
+.tare-dialog {
+  border: 1px solid #4a4a4a;
+  border-radius: 0.75rem;
+  background: #2e2e2e;
+  color: inherit;
+  width: min(480px, calc(100% - 2rem));
+  padding: 0;
+}
+
+.tare-dialog-form {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tare-dialog-form h3 {
+  margin: 0;
+}
+
+.tare-dialog-form p {
+  margin: 0;
+}
+
+.tare-dialog-current,
+.tare-dialog-status {
+  border: 1px solid #4a4a4a;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tare-dialog-actions {
+  justify-content: flex-end;
+}
+
 .performance-metric {
   display: flex;
   flex-direction: column;
@@ -190,4 +275,86 @@ dialog menu {
 .performance-row {
   display: flex;
   justify-content: space-between;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  border: 1px solid #4a4a4a;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+
+.settings-group h4 {
+  margin: 0;
+}
+
+.settings-group label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 0.25rem;
+}
+
+.settings-group input,
+.settings-group select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-output {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 4rem;
+  border-radius: 0.75rem;
+  border: 1px solid #4a4a4a;
+  padding: 0.75rem;
+  margin: 0;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (prefers-color-scheme: light) {
+  .app-shell-card {
+    background: #f9f9f9;
+  }
+
+  #error {
+    background-color: #d1d5db;
+  }
+
+  .settings-group {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  #session-options-form > label {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .settings-output {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
+
+  .tare-dialog {
+    border-color: #d1d5db;
+    background: #ffffff;
+  }
+
+  .tare-dialog-current,
+  .tare-dialog-status {
+    border-color: #d1d5db;
+    background: rgba(15, 23, 42, 0.03);
+  }
 }

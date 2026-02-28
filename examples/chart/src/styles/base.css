@@ -86,6 +86,10 @@ button small {
   font-size: 0.425rem;
 }
 
+button[hidden] {
+  display: none !important;
+}
+
 button:hover {
   border-color: #646cff;
 }
@@ -129,6 +133,55 @@ footer small {
   font-size: 0.75rem;
 }
 
+footer .footer-cli-line {
+  flex: 0 0 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+footer .footer-cli-line code {
+  font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(137, 137, 137, 0.45);
+  background: rgba(137, 137, 137, 0.15);
+  color: inherit;
+}
+
+footer .footer-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(137, 137, 137, 0.45);
+  background: rgba(137, 137, 137, 0.12);
+  color: inherit;
+}
+
+footer .footer-copy-btn:hover {
+  border-color: #646cff;
+}
+
+footer .footer-copy-btn.is-copied {
+  color: #3c8772;
+  border-color: #3c8772;
+  background: rgba(60, 135, 114, 0.12);
+}
+
+footer .footer-copy-btn.is-copy-error {
+  color: #c05757;
+  border-color: #c05757;
+  background: rgba(192, 87, 87, 0.12);
+}
+
 footer,
 footer a {
   color: #898989;
@@ -154,7 +207,7 @@ footer a:hover {
     background-color: #e6e6e6;
   }
 
-  .card {
+  .app-shell-card {
     background-color: #f9f9f9;
   }
 

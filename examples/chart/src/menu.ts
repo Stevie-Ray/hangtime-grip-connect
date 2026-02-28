@@ -60,11 +60,11 @@ export function setupMenu() {
       ${actions
         .map(
           (action) => `
-            <li>
+            <li class="card">
               ${
                 action.disabled
-                  ? `<span class="action-menu-link action-menu-link-disabled" aria-label="${action.name}" aria-disabled="true">`
-                  : `<a class="action-menu-link" href="${
+                  ? `<span class="card-content action-menu-link-disabled" aria-label="${action.name}" aria-disabled="true">`
+                  : `<a class="card-content" href="${
                       action.id === "live-data" ? `?route=${action.id}&screen=chart` : `?route=${action.id}`
                     }" aria-label="${action.name}">`
               }

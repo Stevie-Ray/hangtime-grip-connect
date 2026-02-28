@@ -2,6 +2,7 @@ import { Chart } from "chart.js/auto"
 import type { ForceMeasurement } from "@hangtime/grip-connect"
 import { menuActions } from "./menu.js"
 import { getActiveDevice } from "./device-session.js"
+import { loadPreferences } from "./settings-storage.js"
 import { getTestModule } from "./tests/registry.js"
 import { loadConfig, saveMeasurement } from "./tests/storage.js"
 import type { ForcePoint } from "./tests/types.js"
@@ -20,10 +21,13 @@ export function setupSessionChartPage(actionId: string): string {
         <a class="session-back-link" href="${backHref}"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>${action.name}</h3>
       </div>
-      <p id="session-status">Preparing session...</p>
-      <button type="button" data-stop-session>Stop Session</button>
-      <canvas id="session-chart" class="chart"></canvas>
-      <div id="session-result"></div>
+
+      <div class="section-content">
+        <p id="session-status">Preparing session...</p>
+        <button type="button" data-stop-session hidden disabled>Stop Session</button>
+        <canvas id="session-chart" class="chart"></canvas>
+        <div id="session-result"></div>
+      </div>
     </section>
   `
 }
@@ -49,14 +53,21 @@ export function renderSessionChart(actionId: string): void {
   const module = getTestModule(actionId)
   if (!module) {
     statusElement.textContent = "No test found for this action."
+    stopButton.hidden = true
+    stopButton.disabled = true
     return
   }
 
   const device = getActiveDevice()
   if (!device) {
     statusElement.textContent = "No connected device. Connect with Bluetooth first."
+    stopButton.hidden = true
+    stopButton.disabled = true
     return
   }
+
+  stopButton.hidden = false
+  stopButton.disabled = false
 
   sessionChart?.destroy()
   sessionChart = new Chart(chartElement, {
@@ -79,6 +90,7 @@ export function renderSessionChart(actionId: string): void {
   })
 
   const config = loadConfig(module.id, module.defaultConfig)
+  const { unit } = loadPreferences()
   const durationMs = module.resolveDurationMs(config)
   let startedAt = Date.now()
   const points: ForcePoint[] = []
@@ -136,10 +148,12 @@ export function renderSessionChart(actionId: string): void {
     sessionChart?.update("none")
   }
 
-  device.notify(notifyCb)
+  device.notify(notifyCb, unit)
 
   if (typeof device.stream !== "function") {
     statusElement.textContent = "Selected device does not support stream sessions."
+    stopButton.hidden = true
+    stopButton.disabled = true
     return
   }
 
