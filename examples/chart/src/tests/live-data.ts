@@ -12,10 +12,15 @@ export const liveDataModule: TestModule<LiveDataConfig> = {
   },
   renderOptions(config) {
     return `
-      <label>
-        Duration (seconds, 0 = continuous)
-        <input type="number" min="0" step="1" data-option="durationSeconds" value="${config.durationSeconds}" />
-      </label>
+      <div class="repeaters-options">
+        <label class="repeaters-field">
+          <span class="repeaters-label">Duration (0 = continuous)</span>
+          <span class="repeaters-input-with-unit">
+            <input type="number" min="0" step="1" data-option="durationSeconds" value="${config.durationSeconds}" />
+            <span class="repeaters-unit">s</span>
+          </span>
+        </label>
+      </div>
     `
   },
   parseOptions(root, current) {

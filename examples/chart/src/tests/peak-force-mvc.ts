@@ -22,39 +22,52 @@ export const peakForceMvcModule: TestModule<PeakForceMvcConfig> = {
   },
   renderOptions(config) {
     return `
-      <label class="session-option-item">Duration (seconds)
-        <input type="number" min="1" step="1" data-option="durationSeconds" value="${config.durationSeconds}" />
-      </label>
-      <label class="session-option-item">Mode
-        <select data-option="mode">
-          <option value="single" ${config.mode === "single" ? "selected" : ""}>Single</option>
-          <option value="left-right" ${config.mode === "left-right" ? "selected" : ""}>Left/Right</option>
-        </select>
-      </label>
-      <label class="session-option-item session-option-toggle">
-        <input type="checkbox" data-option="includeTorque" ${config.includeTorque ? "checked" : ""} />
-        <span>Include torque</span>
-      </label>
-      <label
-        class="session-option-item session-option-dependent${config.includeTorque ? "" : " is-disabled"}"
-        data-option-group="torque"
-        ${config.includeTorque ? "" : "hidden"}
-      >
-        Moment arm (cm)
-        <input type="number" min="0" step="0.1" data-option="momentArmCm" value="${config.momentArmCm}" />
-      </label>
-      <label class="session-option-item session-option-toggle">
-        <input type="checkbox" data-option="includeBodyWeight" ${config.includeBodyWeight ? "checked" : ""} />
-        <span>Include body-weight comparison</span>
-      </label>
-      <label
-        class="session-option-item session-option-dependent${config.includeBodyWeight ? "" : " is-disabled"}"
-        data-option-group="body-weight"
-        ${config.includeBodyWeight ? "" : "hidden"}
-      >
-        Body weight
-        <input type="number" min="0.1" step="0.1" data-option="bodyWeight" value="${config.bodyWeight}" />
-      </label>
+      <div class="repeaters-options">
+        <label class="repeaters-field">
+          <span class="repeaters-label">Duration</span>
+          <span class="repeaters-input-with-unit">
+            <input type="number" min="1" step="1" data-option="durationSeconds" value="${config.durationSeconds}" />
+            <span class="repeaters-unit">s</span>
+          </span>
+        </label>
+        <label class="repeaters-field">
+          <span class="repeaters-label">Mode</span>
+          <select data-option="mode">
+            <option value="single" ${config.mode === "single" ? "selected" : ""}>Single</option>
+            <option value="left-right" ${config.mode === "left-right" ? "selected" : ""}>Left/Right</option>
+          </select>
+        </label>
+        <label class="repeaters-field session-option-toggle">
+          <input type="checkbox" data-option="includeTorque" ${config.includeTorque ? "checked" : ""} />
+          <span class="repeaters-label">Include torque calculation</span>
+        </label>
+        <label
+          class="repeaters-field session-option-dependent${config.includeTorque ? "" : " is-disabled"}"
+          data-option-group="torque"
+          ${config.includeTorque ? "" : "hidden"}
+        >
+          <span class="repeaters-label">Moment arm length</span>
+          <span class="repeaters-input-with-unit">
+            <input type="number" min="0" step="0.1" data-option="momentArmCm" value="${config.momentArmCm}" />
+            <span class="repeaters-unit">cm</span>
+          </span>
+        </label>
+        <label class="repeaters-field session-option-toggle">
+          <input type="checkbox" data-option="includeBodyWeight" ${config.includeBodyWeight ? "checked" : ""} />
+          <span class="repeaters-label">Include body-weight comparison</span>
+        </label>
+        <label
+          class="repeaters-field session-option-dependent${config.includeBodyWeight ? "" : " is-disabled"}"
+          data-option-group="body-weight"
+          ${config.includeBodyWeight ? "" : "hidden"}
+        >
+          <span class="repeaters-label">Body weight</span>
+          <span class="repeaters-input-with-unit">
+            <input type="number" min="0.1" step="0.1" data-option="bodyWeight" value="${config.bodyWeight}" />
+            <span class="repeaters-unit">kg</span>
+          </span>
+        </label>
+      </div>
     `
   },
   parseOptions(root, current) {

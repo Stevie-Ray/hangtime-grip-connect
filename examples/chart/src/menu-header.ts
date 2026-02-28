@@ -1,6 +1,6 @@
 import { setupDeviceList } from "./device-list.js"
 
-export function setupMenuHeader() {
+export function setupMenuHeader(isDeviceConnected = false) {
   return `
   <header>
     <div class="header-row">
@@ -27,7 +27,7 @@ export function setupMenuHeader() {
         <button type="button" data-open-settings><i class="fa-solid fa-gear"></i> </button>
       </div>
     </div>
-    ${setupDeviceList()}
+    ${setupDeviceList(isDeviceConnected)}
   </header>
   `
 }

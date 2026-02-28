@@ -93,6 +93,11 @@
   opacity: 0.8;
 }
 
+#device-list .device-disconnect-btn {
+  width: 100%;
+  margin: 0.4rem 0 0;
+}
+
 [data-toggle-device-list].is-connected {
   border-color: #22c55e;
 }

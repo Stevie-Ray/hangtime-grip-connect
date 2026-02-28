@@ -33,10 +33,16 @@ export const criticalForceModule: TestModule<CriticalForceConfig> = {
   },
   renderOptions(config) {
     return `
-      <label>Countdown (seconds)
-        <input type="number" min="0" step="1" data-option="countdownSeconds" value="${config.countdownSeconds}" />
-      </label>
-      <p>Protocol uses repeated pull/rest cycles to estimate Critical Force.</p>
+      <div class="repeaters-options">
+        <label class="repeaters-field">
+          <span class="repeaters-label">Countdown</span>
+          <span class="repeaters-input-with-unit">
+            <input type="number" min="0" step="1" data-option="countdownSeconds" value="${config.countdownSeconds}" />
+            <span class="repeaters-unit">s</span>
+          </span>
+        </label>
+      </div>
+      <p class="new-session-description">Protocol uses repeated pull/rest cycles to estimate Critical Force.</p>
     `
   },
   parseOptions(root, current) {

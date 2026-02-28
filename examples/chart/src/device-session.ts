@@ -2,6 +2,7 @@ import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
 
 export interface ConnectedDevice {
   connect(success: () => void, error?: (error: Error) => void): Promise<void>
+  disconnect?(): void | Promise<void>
   isConnected?(): boolean
   notify(callback: (data: ForceMeasurement) => void, unit?: ForceUnit): void
   stream?(duration?: number): Promise<void>

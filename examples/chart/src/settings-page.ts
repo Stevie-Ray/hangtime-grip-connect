@@ -1,13 +1,12 @@
 import { getActiveDevice } from "./device-session.js"
 import { loadPreferences } from "./settings-storage.js"
 
-export type SettingsPageId = "unit" | "language" | "tare" | "system-info" | "calibration" | "errors"
+export type SettingsPageId = "unit" | "language" | "system-info" | "calibration" | "errors"
 
 function parseSettingsId(value: string | null): SettingsPageId | null {
   if (
     value === "unit" ||
     value === "language" ||
-    value === "tare" ||
     value === "system-info" ||
     value === "calibration" ||
     value === "errors"
@@ -30,9 +29,24 @@ interface CapabilityState {
 
 function readCapabilities(): CapabilityState {
   const device = getActiveDevice()
+  const maybeDevice = device as
+    | (typeof device & {
+        temperature?: () => Promise<unknown> | unknown
+        humidity?: () => Promise<unknown> | unknown
+        manufacturer?: () => Promise<unknown> | unknown
+      })
+    | null
   return {
     supportsTare: Boolean(device?.tare),
-    supportsSystemInfo: Boolean(device?.battery || device?.firmware),
+    supportsSystemInfo: Boolean(
+      device?.battery ||
+      device?.firmware ||
+      device?.calibration ||
+      device?.errorInfo ||
+      maybeDevice?.temperature ||
+      maybeDevice?.humidity ||
+      maybeDevice?.manufacturer,
+    ),
     supportsCalibrationRead: Boolean(device?.calibration),
     supportsCalibrationSet: Boolean(device?.setCalibration),
     supportsCalibrationAddPoint: Boolean(device?.addCalibrationPoint),
@@ -46,7 +60,7 @@ function renderSettingsList(): string {
   const capabilities = readCapabilities()
   const items = [
     { id: "unit", name: "Unit", description: "Set stream output to kilogram, pound, or newton", enabled: true },
-    { id: "tare", name: "Tare", description: "Zero offset reset", enabled: capabilities.supportsTare },
+
     { id: "language", name: "Language", description: "display language", enabled: true },
     {
       id: "system-info",
@@ -117,16 +131,12 @@ function renderUnitPage(): string {
         <h3>Unit</h3>
       </div>
       <div class="settings-group">
-        <label>
-          Force unit
           <select data-settings-unit>
-            <option value="kg" ${preferences.unit === "kg" ? "selected" : ""}>Kilogram (kg)</option>
-            <option value="lbs" ${preferences.unit === "lbs" ? "selected" : ""}>Pound (lbs)</option>
-            <option value="n" ${preferences.unit === "n" ? "selected" : ""}>Newton (n)</option>
-          </select>
-        </label>
+          <option value="kg" ${preferences.unit === "kg" ? "selected" : ""}>Kilogram (kg)</option>
+          <option value="lbs" ${preferences.unit === "lbs" ? "selected" : ""}>Pound (lbs)</option>
+          <option value="n" ${preferences.unit === "n" ? "selected" : ""}>Newton (n)</option>
+        </select>
       </div>
-      <p id="settings-status">Current unit: ${preferences.unit}</p>
     </section>
   `
 }
@@ -139,38 +149,17 @@ function renderLanguagePage(): string {
         <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>Language</h3>
       </div>
-      <div class="settings-group">
-        <label>
-          CLI language
-          <select data-settings-language>
-            <option value="en" ${preferences.language === "en" ? "selected" : ""}>English</option>
-            <option value="es" ${preferences.language === "es" ? "selected" : ""}>Espanol</option>
-            <option value="de" ${preferences.language === "de" ? "selected" : ""}>Deutsch</option>
-            <option value="it" ${preferences.language === "it" ? "selected" : ""}>Italiano</option>
-            <option value="no" ${preferences.language === "no" ? "selected" : ""}>Norsk</option>
-            <option value="fr" ${preferences.language === "fr" ? "selected" : ""}>Francais</option>
-            <option value="nl" ${preferences.language === "nl" ? "selected" : ""}>Nederlands</option>
-          </select>
-        </label>
+  <div class="settings-group">
+        <select data-settings-language>
+          <option value="en" ${preferences.language === "en" ? "selected" : ""}>English</option>
+          <option value="es" ${preferences.language === "es" ? "selected" : ""}>Espanol</option>
+          <option value="de" ${preferences.language === "de" ? "selected" : ""}>Deutsch</option>
+          <option value="it" ${preferences.language === "it" ? "selected" : ""}>Italiano</option>
+          <option value="no" ${preferences.language === "no" ? "selected" : ""}>Norsk</option>
+          <option value="fr" ${preferences.language === "fr" ? "selected" : ""}>Francais</option>
+          <option value="nl" ${preferences.language === "nl" ? "selected" : ""}>Nederlands</option>
+        </select>
       </div>
-      <p id="settings-status">Current language: ${preferences.language}</p>
-    </section>
-  `
-}
-
-function renderTarePage(): string {
-  const capabilities = readCapabilities()
-  return `
-    <section class="session-page" aria-label="Settings">
-      <div class="page-title-row">
-        <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
-        <h3>Tare</h3>
-      </div>
-      <div class="settings-group">
-        <button type="button" data-settings-action="tare" ${!capabilities.supportsTare ? "disabled" : ""}>Run Tare</button>
-      </div>
-      <p id="settings-status">${getActiveDevice() ? "Ready." : "No connected device."}</p>
-      <pre id="settings-device-output" class="settings-output" aria-live="polite"></pre>
     </section>
   `
 }
@@ -183,10 +172,7 @@ function renderSystemInfoPage(): string {
         <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>System Info</h3>
       </div>
-      <div class="settings-group">
-        <button type="button" data-settings-action="system-info" ${!capabilities.supportsSystemInfo ? "disabled" : ""}>Read System Info</button>
-      </div>
-      <p id="settings-status">${getActiveDevice() ? "Ready." : "No connected device."}</p>
+      <p id="settings-status">${getActiveDevice() ? (capabilities.supportsSystemInfo ? "Loading system info..." : "System info is not supported by this device.") : "No connected device."}</p>
       <pre id="settings-device-output" class="settings-output" aria-live="polite"></pre>
     </section>
   `
@@ -200,16 +186,14 @@ function renderCalibrationPage(): string {
         <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>Calibration</h3>
       </div>
-      <div class="settings-group">
-        <button type="button" data-settings-action="calibration-read" ${!capabilities.supportsCalibrationRead ? "disabled" : ""}>Get Calibration</button>
-        <label>
-          Set calibration curve (12 hex bytes)
-          <input type="text" placeholder="e.g. 00 00 00 00 11 22 33 44 55 66 77 88" data-settings-calibration-input />
-        </label>
-        <button type="button" data-settings-action="calibration-set" ${!capabilities.supportsCalibrationSet ? "disabled" : ""}>Set Calibration</button>
-        <button type="button" data-settings-action="calibration-add-point" ${!capabilities.supportsCalibrationAddPoint ? "disabled" : ""}>Add Calibration Point</button>
-        <button type="button" data-settings-action="calibration-save" ${!capabilities.supportsCalibrationSave ? "disabled" : ""}>Save Calibration</button>
-      </div>
+      <button type="button" data-settings-action="calibration-read" ${!capabilities.supportsCalibrationRead ? "disabled" : ""}>Get Calibration</button>
+      <label>
+        Set calibration curve (12 hex bytes)
+        <input type="text" placeholder="e.g. 00 00 00 00 11 22 33 44 55 66 77 88" data-settings-calibration-input />
+      </label>
+      <button type="button" data-settings-action="calibration-set" ${!capabilities.supportsCalibrationSet ? "disabled" : ""}>Set Calibration</button>
+      <button type="button" data-settings-action="calibration-add-point" ${!capabilities.supportsCalibrationAddPoint ? "disabled" : ""}>Add Calibration Point</button>
+      <button type="button" data-settings-action="calibration-save" ${!capabilities.supportsCalibrationSave ? "disabled" : ""}>Save Calibration</button>
       <p id="settings-status">${getActiveDevice() ? "Ready." : "No connected device."}</p>
       <pre id="settings-device-output" class="settings-output" aria-live="polite"></pre>
     </section>
@@ -224,10 +208,8 @@ function renderErrorsPage(): string {
         <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
         <h3>Errors</h3>
       </div>
-      <div class="settings-group">
-        <button type="button" data-settings-action="errors-read" ${!capabilities.supportsErrorInfo ? "disabled" : ""}>Get Errors</button>
-        <button type="button" data-settings-action="errors-clear" ${!capabilities.supportsErrorClear ? "disabled" : ""}>Clear Errors</button>
-      </div>
+      <button type="button" data-settings-action="errors-read" ${!capabilities.supportsErrorInfo ? "disabled" : ""}>Get Errors</button>
+      <button type="button" data-settings-action="errors-clear" ${!capabilities.supportsErrorClear ? "disabled" : ""}>Clear Errors</button>
       <p id="settings-status">${getActiveDevice() ? "Ready." : "No connected device."}</p>
       <pre id="settings-device-output" class="settings-output" aria-live="polite"></pre>
     </section>
@@ -239,7 +221,6 @@ export function setupSettingsPage(rawSettingsPageId: string | null): string {
   if (!settingsPageId) return renderSettingsList()
   if (settingsPageId === "unit") return renderUnitPage()
   if (settingsPageId === "language") return renderLanguagePage()
-  if (settingsPageId === "tare") return renderTarePage()
   if (settingsPageId === "system-info") return renderSystemInfoPage()
   if (settingsPageId === "calibration") return renderCalibrationPage()
   return renderErrorsPage()

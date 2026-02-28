@@ -169,11 +169,9 @@ export class Entralpi extends Device implements IEntralpi {
         const receivedData: string = (value.getUint16(0) / 100).toFixed(1)
 
         const convertedData = Number(receivedData)
-        // Adjust weight by using the tare value
-        // If tare is 0, use the original weight, otherwise subtract tare and invert.
-        // This will display the removed or 'no-hanging' weight.
-        const tare = this.applyTare(convertedData)
-        const numericData = tare === 0 ? convertedData : (convertedData - tare) * -1
+        // Adjust weight by using the tare value.
+        // Keep stream output consistent with other devices: positive load after tare.
+        const numericData = convertedData - this.applyTare(convertedData)
         const currentMassTotal = Math.max(-1000, numericData)
 
         // Update session stats before building packet

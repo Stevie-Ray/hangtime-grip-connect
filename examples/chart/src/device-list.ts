@@ -1,4 +1,4 @@
-export function setupDeviceList() {
+export function setupDeviceList(isConnected = false) {
   interface ListedDevice {
     key: string
     name: string
@@ -97,6 +97,7 @@ export function setupDeviceList() {
           )
           .join("")}
       </ul>
+      ${isConnected ? '<button type="button" class="device-disconnect-btn" data-disconnect-device>Disconnect</button>' : ""}
       <small id="device-connect-status"></small>
     </section>
   `

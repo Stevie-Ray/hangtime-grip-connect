@@ -1,13 +1,14 @@
 import "./style.css"
 import type { ForceUnit } from "@hangtime/grip-connect"
 import { connectSelectedDevice } from "./device-connect.js"
-import { getActiveDevice } from "./device-session.js"
+import { getActiveDevice, setActiveDevice } from "./device-session.js"
 import { setupFooter } from "./footer.js"
 import { convertFontAwesome, setupFontAwesome } from "./icons.js"
 import { setupMenuHeader } from "./menu-header.js"
 import { setupMenu } from "./menu.js"
 import { setupNewSessionPage } from "./new-session-page.js"
 import { renderSessionChart, setupSessionChartPage, teardownSessionChart } from "./session-chart-page.js"
+import { runSettingsAction, type SettingsActionId } from "./settings-actions.js"
 import { loadPreferences, savePreferences } from "./settings-storage.js"
 import { setupSessionPage } from "./session-page.js"
 import { setupSettingsPage } from "./settings-page.js"
@@ -73,19 +74,6 @@ function parseLanguage(value: string): "en" | "es" | "de" | "it" | "no" | "fr" |
   return null
 }
 
-function parseCalibrationCurveInput(raw: string): Uint8Array | null {
-  const trimmed = raw.trim()
-  if (!trimmed) return new Uint8Array(0)
-  const tokens = trimmed.split(/[\s,]+/).filter((token) => token.length > 0)
-  if (tokens.length !== 12) return null
-  const bytes = tokens.map((token) => {
-    const parsed = Number.parseInt(token.replace(/^0x/i, ""), 16)
-    return Number.isFinite(parsed) && parsed >= 0 && parsed <= 255 ? parsed : NaN
-  })
-  if (bytes.some((value) => Number.isNaN(value))) return null
-  return new Uint8Array(bytes)
-}
-
 async function copyTextToClipboard(text: string): Promise<boolean> {
   try {
     if (navigator.clipboard?.writeText) {
@@ -123,6 +111,19 @@ function updateSettingsFeedback(status: string, output?: string): void {
   if (outputElement && output != null) outputElement.textContent = output
 }
 
+function executeSettingsAction(action: SettingsActionId): void {
+  if (!appElement) return
+  void runSettingsAction({
+    action,
+    appElement,
+    device: getActiveDevice(),
+    setFeedback: updateSettingsFeedback,
+    onTareStarted: () => {
+      isDeviceTared = true
+    },
+  })
+}
+
 function syncNewSessionOptionVisibility(): void {
   if (!appElement) return
   const form = appElement.querySelector<HTMLElement>("#session-options-form")
@@ -145,6 +146,28 @@ function syncNewSessionOptionVisibility(): void {
     bodyWeightGroup.classList.toggle("is-disabled", !includeBodyWeight)
     bodyWeightInput.disabled = !includeBodyWeight
   }
+
+  const levelsEnabled = form.querySelector<HTMLInputElement>("[data-option=levelsEnabled]")?.checked
+  const targetLevelGroups = form.querySelectorAll<HTMLElement>("[data-option-group=target-levels]")
+  targetLevelGroups.forEach((group) => {
+    const input = group.querySelector<HTMLInputElement | HTMLSelectElement>("input, select")
+    if (levelsEnabled == null || !input) return
+    group.toggleAttribute("hidden", !levelsEnabled)
+    group.classList.toggle("is-disabled", !levelsEnabled)
+    input.disabled = !levelsEnabled
+  })
+
+  const modeValue = form.querySelector<HTMLSelectElement>("[data-option=mode]")?.value
+  const leftRightToggle = form.querySelector<HTMLInputElement>("[data-option=leftRightEnabled]")?.checked
+  const leftRightEnabled = leftRightToggle ?? modeValue === "bilateral"
+  const leftRightGroups = form.querySelectorAll<HTMLElement>("[data-option-group=left-right]")
+  leftRightGroups.forEach((group) => {
+    const input = group.querySelector<HTMLInputElement | HTMLSelectElement>("input, select")
+    if (!input) return
+    group.toggleAttribute("hidden", !leftRightEnabled)
+    group.classList.toggle("is-disabled", !leftRightEnabled)
+    input.disabled = !leftRightEnabled
+  })
 }
 
 function usesHardwareTare(device: NonNullable<ReturnType<typeof getActiveDevice>>): boolean {
@@ -291,122 +314,6 @@ async function ensureOneTimeTareForSession(): Promise<boolean> {
   return tared
 }
 
-type SettingsActionId =
-  | "tare"
-  | "system-info"
-  | "calibration-read"
-  | "calibration-set"
-  | "calibration-add-point"
-  | "calibration-save"
-  | "errors-read"
-  | "errors-clear"
-
-async function runSettingsAction(action: SettingsActionId): Promise<void> {
-  if (!appElement) return
-  const device = getActiveDevice()
-  if (!device) {
-    updateSettingsFeedback("No connected device.")
-    return
-  }
-
-  try {
-    if (action === "tare") {
-      if (!device.tare) {
-        updateSettingsFeedback("Tare is not supported by this device.")
-        return
-      }
-      const started = device.tare(1000)
-      updateSettingsFeedback(started ? "Tare started." : "Tare did not start.")
-      if (started) {
-        isDeviceTared = true
-      }
-      return
-    }
-
-    if (action === "system-info") {
-      const lines: string[] = []
-      if (device.battery) lines.push(`Battery: ${(await device.battery()) ?? "Unavailable"}`)
-      if (device.firmware) lines.push(`Firmware: ${(await device.firmware()) ?? "Unavailable"}`)
-      if (lines.length === 0) {
-        updateSettingsFeedback("System Info is not supported by this device.")
-        return
-      }
-      updateSettingsFeedback("System info loaded.", lines.join("\n"))
-      return
-    }
-
-    if (action === "calibration-read") {
-      if (!device.calibration) {
-        updateSettingsFeedback("Calibration is not supported by this device.")
-        return
-      }
-      const calibration = await device.calibration()
-      updateSettingsFeedback(
-        "Calibration loaded.",
-        calibration == null ? "No calibration payload returned." : String(calibration),
-      )
-      return
-    }
-
-    if (action === "calibration-set") {
-      if (!device.setCalibration) {
-        updateSettingsFeedback("Setting calibration is not supported by this device.")
-        return
-      }
-      const input = appElement.querySelector<HTMLInputElement>("[data-settings-calibration-input]")
-      const curve = parseCalibrationCurveInput(input?.value ?? "")
-      if (!curve) {
-        updateSettingsFeedback("Invalid curve. Provide 12 hex bytes separated by spaces or commas.")
-        return
-      }
-      await device.setCalibration(curve)
-      updateSettingsFeedback(curve.length === 0 ? "Calibration reset." : "Calibration curve updated.")
-      return
-    }
-
-    if (action === "calibration-add-point") {
-      if (!device.addCalibrationPoint) {
-        updateSettingsFeedback("Add calibration point is not supported by this device.")
-        return
-      }
-      await device.addCalibrationPoint()
-      updateSettingsFeedback("Calibration point captured.")
-      return
-    }
-
-    if (action === "calibration-save") {
-      if (!device.saveCalibration) {
-        updateSettingsFeedback("Save calibration is not supported by this device.")
-        return
-      }
-      await device.saveCalibration()
-      updateSettingsFeedback("Calibration saved.")
-      return
-    }
-
-    if (action === "errors-read") {
-      if (!device.errorInfo) {
-        updateSettingsFeedback("Error info is not supported by this device.")
-        return
-      }
-      const info = await device.errorInfo()
-      updateSettingsFeedback("Error info loaded.", info ?? "No error details returned.")
-      return
-    }
-
-    if (action === "errors-clear") {
-      if (!device.clearErrorInfo) {
-        updateSettingsFeedback("Clear errors is not supported by this device.")
-        return
-      }
-      await device.clearErrorInfo()
-      updateSettingsFeedback("Errors cleared.")
-    }
-  } catch (error: unknown) {
-    updateSettingsFeedback(error instanceof Error ? error.message : "Settings action failed.")
-  }
-}
-
 async function loadTrainingPrograms(forceRefresh = false): Promise<void> {
   if (!hasTrainingProgramsEnv()) return
   if (trainingProgramsLoading) return
@@ -437,6 +344,14 @@ function parseRepeatersPreset(preset: unknown): {
   repDur: number
   repPauseDur: number
   setPauseDur: number
+  mode: "single" | "bilateral"
+  initialSide: "side.left" | "side.right"
+  pauseBetweenSides: number
+  levelsEnabled: boolean
+  leftMvc: number
+  rightMvc: number
+  restLevel: number
+  workLevel: number
 } | null {
   if (typeof preset !== "object" || preset === null) return null
   const raw = preset as Record<string, unknown>
@@ -446,6 +361,16 @@ function parseRepeatersPreset(preset: unknown): {
     if (!Number.isFinite(n)) return fallback
     return Math.max(min, Math.trunc(n))
   }
+  const parseNumberMin = (value: unknown, min: number, fallback: number): number => {
+    const n = typeof value === "number" ? value : Number(value)
+    if (!Number.isFinite(n)) return fallback
+    return Math.max(min, n)
+  }
+
+  const rawRestLevel = parseIntMin(raw["restLevel"], 0, 40)
+  const rawWorkLevel = parseIntMin(raw["workLevel"], 0, 80)
+  const restLevel = Math.min(rawRestLevel, rawWorkLevel)
+  const workLevel = Math.max(rawRestLevel, rawWorkLevel)
 
   return {
     countDownTime: parseIntMin(raw["countDownTime"], 0, 3),
@@ -454,6 +379,14 @@ function parseRepeatersPreset(preset: unknown): {
     repDur: parseIntMin(raw["repDur"], 1, 10),
     repPauseDur: parseIntMin(raw["repPauseDur"], 0, 6),
     setPauseDur: parseIntMin(raw["setPauseDur"], 0, 8 * 60),
+    mode: raw["mode"] === "bilateral" ? "bilateral" : "single",
+    initialSide: raw["initialSide"] === "side.right" ? "side.right" : "side.left",
+    pauseBetweenSides: parseIntMin(raw["pauseBetweenSides"], 0, 10),
+    levelsEnabled: Boolean(raw["levelsEnabled"]),
+    leftMvc: parseNumberMin(raw["leftMvc"], 0, 0),
+    rightMvc: parseNumberMin(raw["rightMvc"], 0, 0),
+    restLevel,
+    workLevel,
   }
 }
 
@@ -497,7 +430,7 @@ async function render(): Promise<void> {
 
   appElement.innerHTML = `
     <div class="app-shell-card">
-      ${setupMenuHeader()}
+      ${setupMenuHeader(isDeviceConnected)}
       ${content}
     </div>
     ${setupFooter()}
@@ -509,6 +442,9 @@ async function render(): Promise<void> {
   convertFontAwesome()
   if (screen === "new-session") {
     syncNewSessionOptionVisibility()
+  }
+  if (screen === "settings" && settingsPage === "system-info" && getActiveDevice()) {
+    executeSettingsAction("system-info")
   }
   if (actionId && screen === "chart") {
     const device = getActiveDevice()
@@ -571,6 +507,40 @@ appElement?.addEventListener("click", (event) => {
     return
   }
 
+  const disconnectDeviceButton = target?.closest<HTMLButtonElement>("[data-disconnect-device]")
+  if (disconnectDeviceButton) {
+    const activeDevice = getActiveDevice()
+    const statusElement = appElement.querySelector<HTMLElement>("#device-connect-status")
+    if (!activeDevice) {
+      if (statusElement) statusElement.textContent = "No connected device."
+      return
+    }
+
+    if (statusElement) statusElement.textContent = "Disconnecting..."
+    void (async () => {
+      try {
+        await activeDevice.stop?.()
+      } catch {
+        // Ignore stop failures during disconnect.
+      }
+
+      try {
+        await Promise.resolve(activeDevice.disconnect?.())
+      } catch (error: unknown) {
+        if (statusElement) {
+          statusElement.textContent = error instanceof Error ? error.message : "Disconnect failed."
+        }
+        return
+      }
+
+      setActiveDevice(null)
+      isDeviceConnected = false
+      isDeviceTared = false
+      await render()
+    })()
+    return
+  }
+
   const openSettingsButton = target?.closest<HTMLButtonElement>("[data-open-settings]")
   if (openSettingsButton) {
     navigate("?screen=settings")
@@ -581,7 +551,7 @@ appElement?.addEventListener("click", (event) => {
   if (settingsActionButton) {
     const action = settingsActionButton.dataset["settingsAction"] as SettingsActionId | undefined
     if (!action) return
-    void runSettingsAction(action)
+    executeSettingsAction(action)
     return
   }
 
