@@ -18,6 +18,7 @@ import {
   isRepeatersChartConfig,
 } from "./protocol-zones.js"
 import { renderRfdPostAnalysis } from "./rfd-analysis.js"
+import { releaseWakeLock, requestWakeLock } from "../app/core/wake-lock.js"
 
 let sessionChart: Chart | null = null
 let stopActiveSession: (() => Promise<void>) | null = null
@@ -29,6 +30,7 @@ export async function teardownSessionChart(): Promise<void> {
     await stopActiveSession()
     stopActiveSession = null
   }
+  await releaseWakeLock()
   if (sessionChart) {
     sessionChart.destroy()
     sessionChart = null
@@ -124,6 +126,7 @@ export function renderSessionChart(actionId: string): void {
     }
     device.notify(() => undefined)
     stopActiveSession = null
+    await releaseWakeLock()
     navigateTo("?")
   }
 
@@ -175,6 +178,7 @@ export function renderSessionChart(actionId: string): void {
 
     device.notify(() => undefined)
     stopActiveSession = null
+    await releaseWakeLock()
 
     const result = module.summarize(points, config)
     pendingResult = result
@@ -296,10 +300,12 @@ export function renderSessionChart(actionId: string): void {
     stopButton.disabled = true
     resetButton.hidden = true
     resetButton.disabled = true
+    void releaseWakeLock()
     return
   }
 
   const runSession = async (): Promise<void> => {
+    await requestWakeLock()
     const countDownTime = module.getCountdownSeconds?.(config) ?? 0
     for (let left = Math.max(0, countDownTime); left >= 1; left--) {
       if (finished) return
