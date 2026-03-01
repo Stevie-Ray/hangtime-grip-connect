@@ -38,8 +38,13 @@ write, download). See [Device interface](/api/device-interface) for details.
 
 ### Device-specific
 
-| Method      | Returns                        | Description                                |
-| ----------- | ------------------------------ | ------------------------------------------ |
-| `battery()` | `Promise<string \| undefined>` | Battery level (updated via notifications). |
+| Method           | Returns                        | Description                                  |
+| ---------------- | ------------------------------ | -------------------------------------------- |
+| `battery()`      | `Promise<string \| undefined>` | Battery level (updated via notifications).   |
+| `hardware()`     | `Promise<string \| undefined>` | Hardware revision from Device Information.   |
+| `manufacturer()` | `Promise<string \| undefined>` | Manufacturer name from Device Information.   |
+| `model()`        | `Promise<string \| undefined>` | Model number string from Device Information. |
+| `software()`     | `Promise<string \| undefined>` | Software revision from Device Information.   |
+| `system()`       | `Promise<string \| undefined>` | System ID from Device Information.           |
 
 See [Devices](/devices/) and [Guide](/guide) for more.

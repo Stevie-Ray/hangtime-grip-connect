@@ -18,6 +18,46 @@ const climbro: DeviceDefinition = {
         printResult("Battery:", await d.battery())
       },
     },
+    {
+      name: "Hardware",
+      description: "Read hardware version",
+      run: async (device) => {
+        const d = device as unknown as Climbro
+        printResult("Hardware:", await d.hardware())
+      },
+    },
+    {
+      name: "Manufacturer",
+      description: "Read manufacturer info",
+      run: async (device) => {
+        const d = device as unknown as Climbro
+        printResult("Manufacturer:", await d.manufacturer())
+      },
+    },
+    {
+      name: "Model",
+      description: "Read model number",
+      run: async (device) => {
+        const d = device as unknown as Climbro
+        printResult("Model:", await d.model())
+      },
+    },
+    {
+      name: "Software",
+      description: "Read software version",
+      run: async (device) => {
+        const d = device as unknown as Climbro
+        printResult("Software:", await d.software())
+      },
+    },
+    {
+      name: "System ID",
+      description: "Read system identifier",
+      run: async (device) => {
+        const d = device as unknown as Climbro
+        printResult("System ID:", await d.system())
+      },
+    },
   ],
 }
 

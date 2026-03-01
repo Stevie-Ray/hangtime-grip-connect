@@ -57,9 +57,66 @@ export class Climbro extends Device implements IClimbro {
           uuid: "49535343-fe7d-4ae5-8fa9-9fafd205e455",
           characteristics: [
             {
-              name: "Read/Notify",
+              name: "UART Tramsmit (we set as rx)",
               id: "rx",
               uuid: "49535343-1e4d-4bd9-ba61-23c647249616",
+            },
+            {
+              name: "UART Receive (we set as tx)",
+              id: "tx",
+              uuid: "49535343-8841-43f4-a8d4-ecbe34729bb3",
+            },
+            {
+              name: "Transparent Control Point",
+              id: "tcp",
+              uuid: "49535343-4c8a-39b3-2f49-511cff073b7e",
+            },
+          ],
+        },
+        {
+          name: "Device Information",
+          id: "device",
+          uuid: "0000180a-0000-1000-8000-00805f9b34fb",
+          characteristics: [
+            {
+              name: "System ID",
+              id: "system",
+              uuid: "00002a23-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Model Number String",
+              id: "model", // RN487x
+              uuid: "00002a24-0000-1000-8000-00805f9b34fb",
+            },
+            // {
+            //   name: "Serial Number String (Blocked)",
+            //   id: "serial",
+            //   uuid: "00002a25-0000-1000-8000-00805f9b34fb",
+            // },
+            {
+              name: "Firmware Revision String",
+              id: "firmware",
+              uuid: "00002a26-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Hardware Revision String",
+              id: "hardware", // 5505 102_BLDK3
+              uuid: "00002a27-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Software Revision String",
+              id: "software", // 1.30
+              uuid: "00002a28-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "Manufacturer Name String",
+              id: "manufacturer", // Microchip
+              uuid: "00002a29-0000-1000-8000-00805f9b34fb",
+            },
+            {
+              name: "IEEE 11073-20601 Regulatory Certification Data List",
+              id: "certification",
+              uuid: "00002a2a-0000-1000-8000-00805f9b34fb",
             },
           ],
         },
@@ -74,6 +131,46 @@ export class Climbro extends Device implements IClimbro {
   battery = async (): Promise<string | undefined> => {
     // Battery level is continuously updated via notifications
     return this.batteryLevel.toString()
+  }
+
+  /**
+   * Retrieves hardware version from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the hardware version.
+   */
+  hardware = async (): Promise<string | undefined> => {
+    return await this.read("device", "hardware", 250)
+  }
+
+  /**
+   * Retrieves manufacturer information from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the manufacturer information.
+   */
+  manufacturer = async (): Promise<string | undefined> => {
+    return await this.read("device", "manufacturer", 250)
+  }
+
+  /**
+   * Retrieves model number from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the model number.
+   */
+  model = async (): Promise<string | undefined> => {
+    return await this.read("device", "model", 250)
+  }
+
+  /**
+   * Retrieves software version from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the software version.
+   */
+  software = async (): Promise<string | undefined> => {
+    return await this.read("device", "software", 250)
+  }
+
+  /**
+   * Retrieves system id from the device.
+   * @returns {Promise<string | undefined>} A Promise that resolves with the system id.
+   */
+  system = async (): Promise<string | undefined> => {
+    return await this.read("device", "system", 250)
   }
 
   /**
