@@ -24,9 +24,14 @@ export async function requestWakeLock(): Promise<boolean> {
   const wakeLock = getWakeLock()
   if (!wakeLock) return false
 
+  if (sentinel && !sentinel.released) {
+    wantsWakeLock = true
+    return true
+  }
+
+  wantsWakeLock = true
   try {
     sentinel = await wakeLock.request("screen")
-    wantsWakeLock = true
 
     sentinel.addEventListener("release", () => {
       sentinel = null
@@ -34,6 +39,7 @@ export async function requestWakeLock(): Promise<boolean> {
 
     return true
   } catch {
+    wantsWakeLock = false
     return false
   }
 }

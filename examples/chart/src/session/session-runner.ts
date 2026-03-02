@@ -18,7 +18,7 @@ import {
   isRepeatersChartConfig,
 } from "./protocol-zones.js"
 import { renderRfdPostAnalysis } from "./rfd-analysis.js"
-import { releaseWakeLock, requestWakeLock } from "../app/core/wake-lock.js"
+import { releaseWakeLock } from "../app/core/wake-lock.js"
 
 let sessionChart: Chart | null = null
 let stopActiveSession: (() => Promise<void>) | null = null
@@ -306,7 +306,7 @@ export function renderSessionChart(actionId: string): void {
     void releaseWakeLock()
     return
   }
-  
+
   const isGattOperationInProgressError = (error: unknown): boolean => {
     if (!(error instanceof Error)) return false
     return error.message.toLowerCase().includes("gatt operation already in progress")
@@ -336,7 +336,6 @@ export function renderSessionChart(actionId: string): void {
   }
 
   const runSession = async (): Promise<void> => {
-    await requestWakeLock()
     const countDownTime = module.getCountdownSeconds?.(config) ?? 0
     for (let left = Math.max(0, countDownTime); left >= 1; left--) {
       if (finished) return

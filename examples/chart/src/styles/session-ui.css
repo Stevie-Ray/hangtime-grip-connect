@@ -45,7 +45,7 @@
 
 #session-status {
   margin: 0 0 0.5rem;
-  font-size: clamp(1rem, 1.15vw, 1.2rem);
+  font-size: 0.875rem;
 }
 
 .session-controls > button {
@@ -199,7 +199,6 @@
 
   #session-status {
     margin-bottom: 0.4rem;
-    font-size: 1rem;
   }
 }
 

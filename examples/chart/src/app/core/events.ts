@@ -13,6 +13,7 @@ import { clearSessionSamplingRateState } from "../workflows/session-sampling-rat
 import { copyTextToClipboard } from "./clipboard.js"
 import { navigate } from "./router.js"
 import type { AppState } from "./state.js"
+import { requestWakeLock } from "./wake-lock.js"
 
 interface RegisterAppEventsOptions {
   appElement: HTMLDivElement
@@ -48,6 +49,15 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
   appElement.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null
 
+    const deviceList = appElement.querySelector<HTMLElement>("#device-list")
+    const toggleDeviceListButton = target?.closest<HTMLButtonElement>("[data-toggle-device-list]")
+    const clickIsInsideDeviceList = Boolean(deviceList && target && deviceList.contains(target))
+    if (deviceList && !deviceList.hasAttribute("hidden") && !clickIsInsideDeviceList && !toggleDeviceListButton) {
+      deviceList.setAttribute("hidden", "")
+      const btButton = appElement.querySelector<HTMLButtonElement>("[data-toggle-device-list]")
+      btButton?.setAttribute("aria-expanded", "false")
+    }
+
     const internalLink = target?.closest<HTMLAnchorElement>('a[href^="?"]')
     if (internalLink) {
       event.preventDefault()
@@ -56,9 +66,7 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
       return
     }
 
-    const toggleDeviceListButton = target?.closest<HTMLButtonElement>("[data-toggle-device-list]")
     if (toggleDeviceListButton) {
-      const deviceList = appElement.querySelector<HTMLElement>("#device-list")
       if (!deviceList) return
       const willOpen = deviceList.hasAttribute("hidden")
       if (willOpen) {
@@ -146,6 +154,8 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
     if (newSessionButton) {
       const actionId = newSessionButton.dataset["newSessionAction"]
       if (!actionId) return
+      // Pre-request wake lock on test selection to maximize user-gesture success.
+      void requestWakeLock()
       navigateAndRender(`?route=${encodeURIComponent(actionId)}&screen=new-session`)
       return
     }
@@ -202,6 +212,9 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
 
     const actionId = startSessionButton.dataset["startSessionAction"]
     if (!actionId) return
+
+    // Request wake lock while we still have a direct user activation.
+    void requestWakeLock()
 
     void (async () => {
       if (!getActiveDevice()) {
