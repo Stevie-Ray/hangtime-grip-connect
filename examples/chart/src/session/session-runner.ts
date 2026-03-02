@@ -27,7 +27,7 @@ type RfdAnalyzeMode = "20-80" | "100" | "150" | "200" | "250" | "300" | "1000"
 
 async function startStream(
   device: NonNullable<ReturnType<typeof getActiveDevice>>,
-  durationMs: number | null,
+  durationMs: number | null | undefined,
 ): Promise<void> {
   if (typeof device.stream !== "function") return
   if (durationMs == null) {
