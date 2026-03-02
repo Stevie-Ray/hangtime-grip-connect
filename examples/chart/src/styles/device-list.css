@@ -102,6 +102,41 @@
   border-color: #22c55e;
 }
 
+@media only screen and (max-width: 640px) {
+  #device-list {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
+    max-height: calc(100dvh - 1.5rem);
+    padding: 0.75rem;
+    border-radius: 1rem;
+  }
+
+  #device-list .device-list-item {
+    gap: 0.4rem;
+  }
+
+  #device-list li button {
+    min-height: 3.5rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  #device-list .device-name {
+    font-size: 0.95rem;
+  }
+
+  #device-list .device-short-description {
+    font-size: 0.72rem;
+  }
+
+  #device-list .device-link {
+    width: 2.5rem;
+    border-radius: 0.6rem;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   #device-list {
     background: #ffffff;

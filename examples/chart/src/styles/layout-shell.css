@@ -167,3 +167,32 @@ header {
 .app-shell-card > div:not(.input) > button:hover {
   opacity: 0.8;
 }
+
+@media only screen and (max-width: 640px) {
+  .header-row {
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .header-brand {
+    min-width: 0;
+  }
+
+  .header-row h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-brand small {
+    max-width: 100%;
+  }
+
+  .header-actions {
+    flex: 0 0 auto;
+    gap: 0.35rem;
+  }
+
+  .app-shell-card {
+    margin: 0 0.5rem;
+    padding: 0.75rem;
+  }
+}

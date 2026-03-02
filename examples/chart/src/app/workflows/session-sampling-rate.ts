@@ -62,7 +62,6 @@ export async function ensureSessionSamplingRateForAction(state: AppState, action
     }
 
     if (typeof device.stream !== "function") {
-      state.samplingRateError = "Selected device does not support stream sessions."
       return
     }
 

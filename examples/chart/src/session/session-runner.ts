@@ -295,7 +295,7 @@ export function renderSessionChart(actionId: string): void {
   device.notify(notifyCb, unit)
 
   if (typeof device.stream !== "function") {
-    statusElement.textContent = "Selected device does not support stream sessions."
+    statusElement.textContent = ""
     stopButton.hidden = true
     stopButton.disabled = true
     resetButton.hidden = true
