@@ -77,8 +77,7 @@ header {
 }
 
 .new-session-description {
-  margin: 0 0 0.65rem;
-  opacity: 0.9;
+  font-size: 0.875rem;
 }
 
 .new-session-toolbar {

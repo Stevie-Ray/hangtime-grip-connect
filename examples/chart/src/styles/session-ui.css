@@ -20,7 +20,7 @@
   min-width: 120px;
   border: 1px solid #4a4a4a;
   border-radius: 0.5rem;
-  padding: 0.5rem;
+  padding-block: 0.5rem;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -60,6 +60,8 @@
 .chart {
   padding: 0 0.5rem;
   height: 320px !important;
+  width: 100% !important;
+  max-width: 100%;
 }
 
 .measurement-list {
@@ -92,4 +94,53 @@
 .performance-row {
   display: flex;
   justify-content: space-between;
+}
+
+@media only screen and (max-width: 640px) {
+  .session-controls {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .session-controls > button {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 9rem;
+    margin: 0;
+  }
+
+  #masses > .device-mass {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  #masses > .device-mass > div {
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  #masses > .device-mass > div:only-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(18rem, 100%);
+  }
+
+  #masses > div > div {
+    margin: 0;
+  }
+
+  .chart {
+    height: 250px !important;
+    padding: 0 0.15rem;
+  }
+}
+
+@media only screen and (max-width: 420px) {
+  .session-controls > button {
+    flex-basis: 100%;
+    min-width: 0;
+  }
 }

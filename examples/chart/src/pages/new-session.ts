@@ -15,6 +15,16 @@ interface NewSessionSamplingRateState {
   error: string | null
 }
 
+function renderDescription(details: string): string {
+  const normalized = details.replaceAll("\\n\\n", "\n\n").replaceAll("\\n", "\n")
+  return normalized
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0)
+    .map((paragraph) => `<p class="new-session-description">${paragraph.replaceAll("\n", "<br>")}</p>`)
+    .join("")
+}
+
 export function setupNewSessionPage(actionId: string, samplingRateState?: NewSessionSamplingRateState): string {
   const action = menuActions.find((item) => item.id === actionId)
   if (!action || action.disabled) return ""
@@ -38,7 +48,7 @@ export function setupNewSessionPage(actionId: string, samplingRateState?: NewSes
       </div>
 
       <div class="section-content">
-        <p>${details}</p>
+        ${renderDescription(details)}
         <form id="session-options-form">
           ${options}
         </form>
