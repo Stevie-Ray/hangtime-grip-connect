@@ -62,6 +62,9 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
     if (internalLink) {
       event.preventDefault()
       const href = internalLink.getAttribute("href")
+      if (href && href.includes("route=live-data") && href.includes("screen=chart")) {
+        void requestWakeLock()
+      }
       if (href) navigateAndRender(href)
       return
     }
@@ -154,8 +157,6 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
     if (newSessionButton) {
       const actionId = newSessionButton.dataset["newSessionAction"]
       if (!actionId) return
-      // Pre-request wake lock on test selection to maximize user-gesture success.
-      void requestWakeLock()
       navigateAndRender(`?route=${encodeURIComponent(actionId)}&screen=new-session`)
       return
     }
