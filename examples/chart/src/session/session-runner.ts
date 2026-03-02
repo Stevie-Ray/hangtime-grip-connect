@@ -25,18 +25,6 @@ let stopActiveSession: (() => Promise<void>) | null = null
 
 type RfdAnalyzeMode = "20-80" | "100" | "150" | "200" | "250" | "300" | "1000"
 
-async function startStream(
-  device: NonNullable<ReturnType<typeof getActiveDevice>>,
-  durationMs: number | null | undefined,
-): Promise<void> {
-  if (typeof device.stream !== "function") return
-  if (durationMs == null) {
-    await device.stream()
-    return
-  }
-  await device.stream(durationMs)
-}
-
 export async function teardownSessionChart(): Promise<void> {
   if (stopActiveSession) {
     await stopActiveSession()
@@ -175,7 +163,10 @@ export function renderSessionChart(actionId: string): void {
     return true
   }
 
-  const finish = async (reason: string, options?: { promptSaveAndNavigate?: boolean }): Promise<void> => {
+  const finish = async (
+    reason: string,
+    options?: { promptSaveAndNavigate?: boolean; statusMessage?: string },
+  ): Promise<void> => {
     if (finished) return
     finished = true
     if (statusTimer) {
@@ -195,7 +186,7 @@ export function renderSessionChart(actionId: string): void {
     const result = module.summarize(points, config)
     pendingResult = result
 
-    statusElement.textContent = `Session ${reason}.`
+    statusElement.textContent = options?.statusMessage ?? `Session ${reason}.`
     if (module.id === "rfd" && resultElement) {
       const rfdConfig = config as { mode?: RfdAnalyzeMode; threshold?: number }
       renderRfdPostAnalysis(resultElement, points, rfdConfig.mode ?? "20-80", rfdConfig.threshold ?? 0.5)
@@ -315,6 +306,34 @@ export function renderSessionChart(actionId: string): void {
     void releaseWakeLock()
     return
   }
+  
+  const isGattOperationInProgressError = (error: unknown): boolean => {
+    if (!(error instanceof Error)) return false
+    return error.message.toLowerCase().includes("gatt operation already in progress")
+  }
+  const startStreamWithRetry = async (): Promise<void> => {
+    try {
+      if (durationMs == null) {
+        await device.stream?.()
+      } else {
+        await device.stream?.(durationMs)
+      }
+      return
+    } catch (error: unknown) {
+      if (!isGattOperationInProgressError(error)) {
+        throw error
+      }
+    }
+
+    statusElement.textContent = "Bluetooth busy, retrying..."
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    if (durationMs == null) {
+      await device.stream?.()
+    } else {
+      await device.stream?.(durationMs)
+    }
+  }
 
   const runSession = async (): Promise<void> => {
     await requestWakeLock()
@@ -340,7 +359,7 @@ export function renderSessionChart(actionId: string): void {
 
         statusElement.textContent = "Pull in 2..."
         startedAt = Date.now()
-        const streamPromise = startStream(device, durationMs)
+        const streamPromise = startStreamWithRetry()
         await new Promise((resolve) => setTimeout(resolve, 1000))
         if (finished) return
 
@@ -364,8 +383,8 @@ export function renderSessionChart(actionId: string): void {
           await finish("completed")
         }
       } catch (error: unknown) {
-        statusElement.textContent = error instanceof Error ? error.message : "Session failed."
-        await finish("failed")
+        const message = error instanceof Error && error.message ? error.message : "Session failed."
+        await finish("failed", { statusMessage: message })
       }
       return
     }
@@ -384,13 +403,13 @@ export function renderSessionChart(actionId: string): void {
       } catch {
         // Ignore stale stream stop failures before starting a new session.
       }
-      await startStream(device, durationMs)
+      await startStreamWithRetry()
       if (durationMs != null) {
         await finish("completed")
       }
     } catch (error: unknown) {
-      statusElement.textContent = error instanceof Error ? error.message : "Session failed."
-      await finish("failed")
+      const message = error instanceof Error && error.message ? error.message : "Session failed."
+      await finish("failed", { statusMessage: message })
     }
   }
 

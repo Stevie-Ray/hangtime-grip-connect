@@ -596,31 +596,39 @@ export abstract class Device extends BaseModel implements IDevice {
    * device.disconnect();
    */
   disconnect = (): void => {
-    if (this.isConnected()) {
+    const isConnected = this.isConnected()
+    if (isConnected) {
       this.updateTimestamp()
-      // Remove all notification listeners
-      this.services.forEach((service) => {
-        service.characteristics.forEach((char) => {
-          // Look for the "rx" characteristic that accepts notifications
-          if (char.characteristic && char.id === "rx") {
-            char.characteristic.stopNotifications()
-            const listener = this.notificationListeners.get(char.uuid)
-            if (listener) {
-              char.characteristic.removeEventListener("characteristicvaluechanged", listener)
-              this.notificationListeners.delete(char.uuid)
-            }
-          }
-        })
-      })
-      // Remove disconnect listener
-      this.bluetooth?.removeEventListener("gattserverdisconnected", this.onDisconnectedListener)
-      // Safely attempt to disconnect the device's GATT server, if available
-      this.bluetooth?.gatt?.disconnect()
-      // Reset properties
-      this.server = undefined
-      this.writeLast = null
-      this.isActive = false
     }
+
+    // Remove all notification listeners and stop notifications if possible.
+    this.services.forEach((service) => {
+      service.characteristics.forEach((char) => {
+        if (!char.characteristic || char.id !== "rx") return
+
+        if (isConnected) {
+          // Best effort only: avoid unhandled rejections when the device already disconnected.
+          void char.characteristic.stopNotifications().catch(() => undefined)
+        }
+
+        const listener = this.notificationListeners.get(char.uuid)
+        if (listener) {
+          char.characteristic.removeEventListener("characteristicvaluechanged", listener)
+          this.notificationListeners.delete(char.uuid)
+        }
+      })
+    })
+
+    // Remove disconnect listener
+    this.bluetooth?.removeEventListener("gattserverdisconnected", this.onDisconnectedListener)
+    // Safely attempt to disconnect the device's GATT server, if available
+    if (this.bluetooth?.gatt?.connected) {
+      this.bluetooth.gatt.disconnect()
+    }
+    // Reset properties
+    this.server = undefined
+    this.writeLast = null
+    this.isActive = false
   }
 
   /**

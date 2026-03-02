@@ -166,6 +166,7 @@
     min-width: 0;
     width: 100%;
     padding-block: 0.65rem;
+    padding-inline: 0;
   }
 
   #masses > .device-mass > div:only-child {
