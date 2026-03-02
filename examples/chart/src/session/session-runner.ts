@@ -25,6 +25,18 @@ let stopActiveSession: (() => Promise<void>) | null = null
 
 type RfdAnalyzeMode = "20-80" | "100" | "150" | "200" | "250" | "300" | "1000"
 
+async function startStream(
+  device: NonNullable<ReturnType<typeof getActiveDevice>>,
+  durationMs: number | null,
+): Promise<void> {
+  if (typeof device.stream !== "function") return
+  if (durationMs == null) {
+    await device.stream()
+    return
+  }
+  await device.stream(durationMs)
+}
+
 export async function teardownSessionChart(): Promise<void> {
   if (stopActiveSession) {
     await stopActiveSession()
@@ -328,7 +340,7 @@ export function renderSessionChart(actionId: string): void {
 
         statusElement.textContent = "Pull in 2..."
         startedAt = Date.now()
-        const streamPromise = device.stream?.(durationMs ?? 0)
+        const streamPromise = startStream(device, durationMs)
         await new Promise((resolve) => setTimeout(resolve, 1000))
         if (finished) return
 
@@ -372,7 +384,7 @@ export function renderSessionChart(actionId: string): void {
       } catch {
         // Ignore stale stream stop failures before starting a new session.
       }
-      await device.stream?.(durationMs ?? 0)
+      await startStream(device, durationMs)
       if (durationMs != null) {
         await finish("completed")
       }

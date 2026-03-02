@@ -63,7 +63,7 @@ async function runGuidedTareDialog(): Promise<boolean> {
   const streamFn = device.stream
   if (typeof streamFn === "function") {
     try {
-      await streamFn(0)
+      await streamFn()
       if (statusElement) statusElement.textContent = "Live stream active."
     } catch (error: unknown) {
       if (statusElement) {

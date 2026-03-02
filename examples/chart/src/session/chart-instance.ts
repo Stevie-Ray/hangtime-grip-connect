@@ -1,6 +1,11 @@
 import { Chart } from "chart.js/auto"
 
 export function createSessionChart(chartElement: HTMLCanvasElement): Chart {
+  const isMobileViewport =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 640px)").matches
+
   return new Chart(chartElement, {
     type: "line",
     data: {
@@ -16,7 +21,37 @@ export function createSessionChart(chartElement: HTMLCanvasElement): Chart {
       maintainAspectRatio: false,
       animation: false,
       elements: { point: { radius: 0 } },
-      scales: { y: { beginAtZero: true } },
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: isMobileViewport ? 10 : 12,
+            },
+            boxWidth: isMobileViewport ? 18 : 24,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            autoSkip: true,
+            maxTicksLimit: isMobileViewport ? 5 : 10,
+            maxRotation: 0,
+            minRotation: 0,
+            font: {
+              size: isMobileViewport ? 9 : 11,
+            },
+          },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            font: {
+              size: isMobileViewport ? 10 : 11,
+            },
+          },
+        },
+      },
     },
   })
 }

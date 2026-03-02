@@ -1,6 +1,7 @@
 #masses {
   min-height: 80px;
   width: 100%;
+  margin-bottom: 0.75rem;
 }
 
 #masses > .device-mass {
@@ -20,22 +21,35 @@
   min-width: 120px;
   border: 1px solid #4a4a4a;
   border-radius: 0.5rem;
-  padding-block: 0.5rem;
+  padding-block: 0.7rem;
+  padding-inline: 0.55rem;
   background: rgba(255, 255, 255, 0.03);
 }
 
 #masses label {
   opacity: 0.85;
-  font-size: 0.75rem;
+  font-size: clamp(0.8rem, 0.75vw, 0.95rem);
+  line-height: 1.2;
 }
 
 #masses strong {
-  font-size: 1rem;
+  font-size: clamp(1.15rem, 1.15vw, 1.6rem);
+  line-height: 1.08;
+  font-weight: 800;
 }
 
 #masses strong span {
-  font-size: 0.8rem;
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
   opacity: 0.85;
+}
+
+#session-status {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1rem, 1.15vw, 1.2rem);
+}
+
+.session-controls > button {
+  min-height: 2.6rem;
 }
 
 #masses {
@@ -62,6 +76,7 @@
   height: 320px !important;
   width: 100% !important;
   max-width: 100%;
+  margin-top: 0.6rem;
 }
 
 .measurement-list {
@@ -96,6 +111,36 @@
   justify-content: space-between;
 }
 
+@media only screen and (min-width: 900px) {
+  #session-status {
+    margin-bottom: 0.7rem;
+  }
+
+  .session-controls {
+    margin-bottom: 0.8rem;
+    gap: 0.6rem;
+  }
+
+  #masses > .device-mass {
+    gap: 0.7rem;
+    padding-top: 0.35rem;
+  }
+
+  #masses > .device-mass > div {
+    padding-block: 0.8rem;
+    padding-inline: 0.75rem;
+  }
+
+  #masses strong {
+    font-size: clamp(1.35rem, 1.5vw, 1.95rem);
+  }
+
+  .chart {
+    margin-top: 0.8rem;
+    height: 340px !important;
+  }
+}
+
 @media only screen and (max-width: 640px) {
   .session-controls {
     display: flex;
@@ -120,6 +165,7 @@
     flex: 0 0 auto;
     min-width: 0;
     width: 100%;
+    padding-block: 0.65rem;
   }
 
   #masses > .device-mass > div:only-child {
@@ -135,6 +181,24 @@
   .chart {
     height: 250px !important;
     padding: 0 0.15rem;
+    margin-top: 0.35rem;
+  }
+
+  #masses label {
+    font-size: clamp(0.8rem, 2.9vw, 0.95rem);
+  }
+
+  #masses strong {
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+  }
+
+  #masses strong span {
+    font-size: clamp(0.9rem, 3.2vw, 1.05rem);
+  }
+
+  #session-status {
+    margin-bottom: 0.4rem;
+    font-size: 1rem;
   }
 }
 
