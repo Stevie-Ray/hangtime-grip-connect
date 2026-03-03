@@ -57,7 +57,7 @@
     "examples/*"
   ],
   "devDependencies": {
-    "@changesets/cli": "^2.29.8",
+    "@changesets/cli": "^2.30.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.19.13",
     "@types/web-bluetooth": "^0.0.21",
