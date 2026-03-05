@@ -1,6 +1,7 @@
-import type { TrainingProgramRecord } from "../training-programs/api.js"
 import { hasTrainingProgramsEnv } from "../training-programs/api.js"
-import { pickTrainingProgramId } from "../training-programs/api.js"
+import { escapeHtml } from "../lib/html.js"
+import type { TrainingProgramEntry, TrainingProgramRecord } from "../training-programs/model.js"
+import { createTrainingProgramEntries, findTrainingProgramEntry } from "../training-programs/model.js"
 
 interface TrainingProgramsPageState {
   programs: TrainingProgramRecord[] | null
@@ -8,16 +9,6 @@ interface TrainingProgramsPageState {
   error: string | null
   selectedProgramId: string | null
   loadPresetNotice: string | null
-}
-
-function escapeHtml(value: unknown): string {
-  const stringValue = String(value ?? "")
-  return stringValue
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;")
 }
 
 function summarizeText(input: string | undefined, fallback: string): string {
@@ -42,6 +33,7 @@ function toTagsLabel(program: TrainingProgramRecord): string {
 
 export function setupTrainingProgramsPage(state: TrainingProgramsPageState): string {
   const hasEnv = hasTrainingProgramsEnv()
+  const entries = createTrainingProgramEntries(state.programs ?? [])
   const listHeader = `
     <div class="page-title-row">
       <a class="session-back-link" href="?"><i class="fa-solid fa-arrow-left"></i></a>
@@ -89,11 +81,8 @@ export function setupTrainingProgramsPage(state: TrainingProgramsPageState): str
     `
   }
 
-  const programs = state.programs ?? []
   if (state.selectedProgramId) {
-    const selectedEntry = programs
-      .map((program, index) => ({ program, id: pickTrainingProgramId(program, index) }))
-      .find((entry) => entry.id === state.selectedProgramId)
+    const selectedEntry = findTrainingProgramEntry(state.programs, state.selectedProgramId)
 
     if (!selectedEntry) {
       return `
@@ -141,16 +130,15 @@ export function setupTrainingProgramsPage(state: TrainingProgramsPageState): str
   }
 
   const listMarkup =
-    programs.length === 0
+    entries.length === 0
       ? "<p>No training programs found.</p>"
-      : `<ul class="action-menu-list training-programs-list">${programs
-          .map((program, index) => {
+      : `<ul class="action-menu-list training-programs-list">${entries
+          .map(({ id, program }: TrainingProgramEntry) => {
             const title = summarizeText(program.name ?? program.title, "Untitled")
             const description = summarizeText(program.description, "No description.")
             const likes = typeof program.likes === "number" ? program.likes : 0
             const dateLabel = toDateLabel(program)
             const tagsLabel = toTagsLabel(program)
-            const id = pickTrainingProgramId(program, index)
 
             return `
               <li class="card">

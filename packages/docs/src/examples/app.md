@@ -64,6 +64,6 @@ You can then connect to your force-sensing device.
 
 :::
 
-[Edit on StackBlitz](https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/examples/app?file=src%2Fdevices.ts)
+[Edit on StackBlitz](https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/examples/app?file=src%2Fmain.ts)
 
-<iframe src="https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/examples/app?embed=1&file=src%2Fdevices.ts&theme=dark" allow="bluetooth" width="100%" height="600px" style="margin-top: 2rem"></iframe>
+<iframe src="https://stackblitz.com/github/Stevie-Ray/hangtime-grip-connect/tree/main/examples/app?embed=1&file=src%2Fmain.ts&theme=dark" allow="bluetooth" width="100%" height="600px" style="margin-top: 2rem"></iframe>

@@ -1,3 +1,6 @@
+import { isTrainingProgramRecord } from "./model.js"
+import type { TrainingProgramRecord } from "./model.js"
+
 const HITS_PER_PAGE = 1000
 const TRAINING_PROGRAMS_CACHE_KEY = "grip-connect.chart.algolia_training_programs.v1"
 
@@ -8,22 +11,6 @@ interface AlgoliaTrainingProgramsResponse {
 
 interface TrainingProgramsCache {
   programs: TrainingProgramRecord[]
-}
-
-export interface TrainingProgramRecord {
-  objectID?: string
-  id?: string
-  title?: string
-  name?: string
-  date?: number
-  description?: string
-  likes?: number
-  tags?: unknown[]
-  [key: string]: unknown
-}
-
-export function pickTrainingProgramId(program: TrainingProgramRecord, index: number): string {
-  return String(program.objectID ?? program.id ?? `${index}`)
 }
 
 function getAlgoliaCredentials(): { appId: string; apiKey: string } | null {
@@ -44,7 +31,7 @@ function readTrainingProgramsCache(): TrainingProgramRecord[] | null {
     if (!cachedRaw) return null
     const parsed = JSON.parse(cachedRaw) as TrainingProgramsCache
     if (!Array.isArray(parsed.programs)) return null
-    return parsed.programs.filter((item): item is TrainingProgramRecord => typeof item === "object" && item != null)
+    return parsed.programs.filter(isTrainingProgramRecord)
   } catch {
     return null
   }
@@ -92,17 +79,15 @@ export async function fetchTrainingPrograms(forceRefresh = false): Promise<Train
   const nbPagesRaw = typeof firstPage.nbPages === "number" ? firstPage.nbPages : 1
   const nbPages = Math.max(1, Math.trunc(nbPagesRaw))
   const programs: TrainingProgramRecord[] = Array.isArray(firstPage.hits)
-    ? firstPage.hits.filter((hit): hit is TrainingProgramRecord => typeof hit === "object" && hit != null)
+    ? firstPage.hits.filter(isTrainingProgramRecord)
     : []
+  const remainingPages = Array.from({ length: Math.max(0, nbPages - 1) }, (_, index) => index + 1)
+  const remainingResponses = await Promise.all(remainingPages.map((page) => fetchTrainingProgramsPage(page)))
 
-  for (let page = 1; page < nbPages; page += 1) {
-    const pageResponse = await fetchTrainingProgramsPage(page)
-    if (!Array.isArray(pageResponse.hits)) continue
-    const pagePrograms = pageResponse.hits.filter(
-      (hit): hit is TrainingProgramRecord => typeof hit === "object" && hit != null,
-    )
-    programs.push(...pagePrograms)
-  }
+  remainingResponses.forEach((pageResponse) => {
+    if (!Array.isArray(pageResponse.hits)) return
+    programs.push(...pageResponse.hits.filter(isTrainingProgramRecord))
+  })
 
   writeTrainingProgramsCache(programs)
   return programs

@@ -59,7 +59,7 @@ export function setupMenu() {
   const actions = menuActions
 
   return `
-  <nav class="action-menu" aria-label="CLI interactive actions">
+  <nav class="action-menu" aria-label="Measurement actions">
     <menu class="action-menu-list">
       ${actions
         .map(

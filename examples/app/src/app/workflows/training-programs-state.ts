@@ -1,5 +1,5 @@
-import type { TrainingProgramRecord } from "../../training-programs/api.js"
-import { fetchTrainingPrograms, hasTrainingProgramsEnv, pickTrainingProgramId } from "../../training-programs/api.js"
+import { fetchTrainingPrograms, hasTrainingProgramsEnv } from "../../training-programs/api.js"
+import { findTrainingProgramEntry } from "../../training-programs/model.js"
 import { saveConfig } from "../../protocols/storage.js"
 import type { AppState } from "../core/state.js"
 
@@ -58,17 +58,6 @@ function parseRepeatersPreset(preset: unknown): {
   }
 }
 
-function findTrainingProgramById(
-  trainingPrograms: TrainingProgramRecord[] | null,
-  programId: string,
-): TrainingProgramRecord | null {
-  if (!trainingPrograms) return null
-  const entry = trainingPrograms
-    .map((program, index) => ({ program, id: pickTrainingProgramId(program, index) }))
-    .find((item) => item.id === programId)
-  return entry?.program ?? null
-}
-
 interface TrainingProgramStateOptions {
   state: AppState
   render: () => Promise<void>
@@ -101,13 +90,13 @@ export function createTrainingProgramState(options: TrainingProgramStateOptions)
   }
 
   const loadTrainingProgramPreset = (programId: string): { ok: boolean; navigateTo?: string } => {
-    const program = findTrainingProgramById(state.trainingPrograms, programId)
-    if (!program) {
+    const entry = findTrainingProgramEntry(state.trainingPrograms, programId)
+    if (!entry) {
       state.trainingProgramsLoadPresetNotice = "Training program not found."
       return { ok: false }
     }
 
-    const preset = parseRepeatersPreset(program["repeatersPreset"])
+    const preset = parseRepeatersPreset(entry.program["repeatersPreset"])
     if (!preset) {
       state.trainingProgramsLoadPresetNotice = "No repeaters preset found for this training program."
       return { ok: false }

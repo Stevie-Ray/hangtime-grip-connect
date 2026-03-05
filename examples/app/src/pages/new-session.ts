@@ -8,6 +8,7 @@ import {
 } from "../devices/capabilities.js"
 import { getTestModule } from "../protocols/registry.js"
 import { loadConfig } from "../protocols/storage.js"
+import { escapeHtml } from "../lib/html.js"
 
 interface NewSessionSamplingRateState {
   hz: number | null
@@ -21,7 +22,7 @@ function renderDescription(details: string): string {
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter((paragraph) => paragraph.length > 0)
-    .map((paragraph) => `<p class="new-session-description">${paragraph.replaceAll("\n", "<br>")}</p>`)
+    .map((paragraph) => `<p class="new-session-description">${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`)
     .join("")
 }
 
@@ -41,10 +42,10 @@ export function setupNewSessionPage(actionId: string, samplingRateState?: NewSes
   const canStart = isConnected && isSupportedByDevice && hasSufficientSamplingRate && !samplingRateChecking
 
   return `
-    <section class="session-page" aria-label="${action.name} options">
+    <section class="session-page" aria-label="${escapeHtml(action.name)} options">
       <div class="page-title-row">
         <a class="session-back-link" href="?route=${action.id}"><i class="fa-solid fa-arrow-left"></i></a>
-        <h3>${action.name}</h3>
+        <h3>${escapeHtml(action.name)}</h3>
       </div>
 
       <div class="section-content">
@@ -63,7 +64,7 @@ export function setupNewSessionPage(actionId: string, samplingRateState?: NewSes
                 ? "<p>Checking device sampling rate...</p>"
                 : hasSufficientSamplingRate
                   ? ""
-                  : `<p>This test is only available for dynamometers above ${MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ}Hz.${samplingRateHz != null ? ` (Detected: ${samplingRateHz.toFixed(0)}Hz)` : ""}</p>${samplingRateState?.error ? `<p>${samplingRateState.error}</p>` : ""}`
+                  : `<p>This test is only available for dynamometers above ${MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ}Hz.${samplingRateHz != null ? ` (Detected: ${samplingRateHz.toFixed(0)}Hz)` : ""}</p>${samplingRateState?.error ? `<p>${escapeHtml(samplingRateState.error)}</p>` : ""}`
               : ""
             : "<p>This test is only available for dynamometers.</p>"
           : "<p>No connected device. Connect with Bluetooth first.</p>"

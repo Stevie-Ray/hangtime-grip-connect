@@ -1,4 +1,4 @@
-import type { TrainingProgramRecord } from "../../training-programs/api.js"
+import type { TrainingProgramRecord } from "../../training-programs/model.js"
 
 export interface AppState {
   isDeviceConnected: boolean
