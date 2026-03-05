@@ -1,14 +1,14 @@
 import { Progressor as ProgressorBase } from "@hangtime/grip-connect"
-import { writeFile } from "node:fs/promises"
 import process from "node:process"
 import { bluetooth } from "webbluetooth"
+import { writeDownloadFile } from "../../download.js"
 
 /**
  * Represents a Tindeq Progressor device.
  * {@link https://tindeq.com}
  */
 export class Progressor extends ProgressorBase {
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<string> => {
     let content = ""
 
     if (format === "csv") {
@@ -19,16 +19,7 @@ export class Progressor extends ProgressorBase {
       content = this.downloadToXML()
     }
 
-    const now = new Date()
-    // YYYY-MM-DD
-    const date = now.toISOString().split("T")[0]
-    // HH-MM-SS
-    const time = now.toTimeString().split(" ")[0].replace(/:/g, "-")
-
-    const fileName = `data-export-${date}-${time}.${format}`
-
-    await writeFile(fileName, content)
-    console.log(`File saved as ${fileName}`)
+    return writeDownloadFile(format, content)
   }
 
   protected override async getBluetooth(): Promise<Bluetooth> {
