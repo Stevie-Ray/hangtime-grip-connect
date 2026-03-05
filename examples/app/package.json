@@ -1,5 +1,6 @@
 {
-  "name": "@grip-connect/chart",
+  "name": "@grip-connect/app",
+  "description": "Grip Connect | Force Measurement App",
   "private": true,
   "version": "0.0.0",
   "type": "module",

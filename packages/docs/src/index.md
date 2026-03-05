@@ -77,7 +77,7 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 
 | Demo                                                          | Description                                                                                                                      |
 | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| [Chart](https://grip-connect.vercel.app/)                     | Stream force from your device and watch it plotted live. Ideal for testing connection and seeing mass/force values in real time. |
+| [Force Measurement App](https://grip-connect.vercel.app/)     | Stream force from your device and watch it plotted live. Ideal for testing connection and seeing mass/force values in real time. |
 | [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/)   | Pull on your hangboard to fly the bird; pull strength controls altitude. Game and workout in one.                                |
 | [Kilter Board](https://grip-connect-kilter-board.vercel.app/) | Send a route from the browser. Your Kilter or compatible LED board lights up the problem on the wall.                            |
 | [Pong](https://hangtime-grip-connect-pong.vercel.app/)        | Move the paddle by applying force to your device. Minimal game loop that shows streamed force as input.                          |

@@ -34,8 +34,8 @@
         "vite": "^7.3.1",
       },
     },
-    "examples/chart": {
-      "name": "@grip-connect/chart",
+    "examples/app": {
+      "name": "@grip-connect/app",
       "version": "0.0.0",
       "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^7.2.0",
@@ -714,7 +714,7 @@
 
     "@grip-connect/capacitor": ["@grip-connect/capacitor@workspace:examples/capacitor"],
 
-    "@grip-connect/chart": ["@grip-connect/chart@workspace:examples/chart"],
+    "@grip-connect/app": ["@grip-connect/app@workspace:examples/app"],
 
     "@grip-connect/flappy-bird": ["@grip-connect/flappy-bird@workspace:examples/flappy-bird"],
 

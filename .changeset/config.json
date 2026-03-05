@@ -17,7 +17,7 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@grip-connect/capacitor",
-    "@grip-connect/chart",
+    "@grip-connect/app",
     "@grip-connect/flappy-bird",
     "@grip-connect/kilter-board",
     "@grip-connect/pong",

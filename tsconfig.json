@@ -6,7 +6,7 @@
     { "path": "packages/core" },
     { "path": "packages/react-native" },
     { "path": "packages/runtime" }
-    // { "path": "examples/chart" },
+    // { "path": "examples/app" },
     // { "path": "examples/flappy-bird" },
     // { "path": "examples/kilter-board" },
     // { "path": "examples/pong" },

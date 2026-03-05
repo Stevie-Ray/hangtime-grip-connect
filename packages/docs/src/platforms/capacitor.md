@@ -47,5 +47,5 @@ permissions.
 ## Next steps
 
 - [Get started](/get-started) - Install and minimal example.
-- [Examples](/examples/) - Capacitor demo app in the repo; [Chart](/examples/chart) and
+- [Examples](/examples/) - Capacitor demo app in the repo; [Force Measurement App](/examples/app) and
   [Flappy Bird](/examples/flappy-bird) for web patterns that translate to Capacitor.

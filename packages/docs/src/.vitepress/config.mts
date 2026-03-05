@@ -115,7 +115,7 @@ export default defineConfig({
           text: "Examples",
           link: "/examples/",
           items: [
-            { text: "Chart", link: "/examples/chart" },
+            { text: "Force Measurement App", link: "/examples/app" },
             { text: "Flappy Bird", link: "/examples/flappy-bird" },
             { text: "Kilter Board", link: "/examples/kilter-board" },
             { text: "Pong", link: "/examples/pong" },

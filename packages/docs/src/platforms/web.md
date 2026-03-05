@@ -70,4 +70,4 @@ environment.
 ## Next steps
 
 - [Get started](/get-started) - Install and minimal example.
-- [Examples](/examples/) - Chart, Flappy Bird, Kilter Board, Pong.
+- [Examples](/examples/) - Force Measurement App, Flappy Bird, Kilter Board, Pong.

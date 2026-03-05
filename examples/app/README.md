@@ -1,4 +1,4 @@
-# Grip Connect - Chart
+# Grip Connect - Force Measurement App
 
 Vite + Typescript example
 

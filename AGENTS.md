@@ -57,7 +57,7 @@ packages/                      # All published packages
 examples/                      # Sample applications and demos
   capacitor/                   # Capacitor demo app (Vite)
   reactnative/                 # Expo React Native demo app
-  chart/                       # Data charting example
+  app/                         # Force Measurement App example
   kilter-board/                # LED system board demo
   flappy-bird/                 # Physics/game demo
   pong/                        # Minimal game loop demo
