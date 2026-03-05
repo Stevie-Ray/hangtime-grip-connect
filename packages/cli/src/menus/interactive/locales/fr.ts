@@ -34,6 +34,10 @@ export const fr: InteractiveLocale = {
       name: "Deconnecter",
       description: "Deconnecter l'appareil actuel et en choisir un autre",
     },
+    reboot: {
+      name: "Redemarrer",
+      description: "Redemarrer l'appareil actuel",
+    },
     settings: {
       name: "Paramètres",
       description: "Unité, tare, langue, infos système, calibration, erreurs",
@@ -75,6 +79,7 @@ export const fr: InteractiveLocale = {
     "connection-failed": "Echec de connexion : {message}",
     "connection-to-device-failed": "Connexion a {name} echouee : {message}",
     disconnected: "Deconnecte.",
+    "reboot-command-sent": "Commande de redemarrage envoyee. Retour a la liste des appareils.",
     "tare-required-running-first": "Tare requis. Execution du tare en premier...",
     "tare-ready-message": "Nous sommes prets, veuillez tare votre appareil avant utilisation.",
     "press-enter-to-confirm": "Appuyez sur Entree pour confirmer.",

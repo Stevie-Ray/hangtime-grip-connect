@@ -119,7 +119,20 @@ export interface Commands {
   GET_PROGRESSOR_ID?: string
 
   /**
-   * Set calibration curve (3× u32 LE). Payload at offsets +2,+6,+10.
+   * Set calibration block. Payload at offsets +2,+6,+10.
+   * The 12-byte block is interpreted as 3× float32 LE: slope, intercept, trim.
    */
   SET_CALIBRATION?: string
+
+  /**
+   * Retrieves the advanced calibration table from the device.
+   * Used to inspect the hidden piecewise interpolation table exported by v2 firmware.
+   */
+  GET_CALIBRATION_TABLE?: string
+
+  /**
+   * Reboots the device immediately.
+   * Intended for diagnostic flows.
+   */
+  REBOOT?: string
 }

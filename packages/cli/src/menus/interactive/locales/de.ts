@@ -34,6 +34,10 @@ export const de: InteractiveLocale = {
       name: "Trennen",
       description: "Aktuelles Geraet trennen und ein anderes waehlen",
     },
+    reboot: {
+      name: "Neu starten",
+      description: "Aktuelles Geraet neu starten",
+    },
     settings: {
       name: "Einstellungen",
       description: "Einheit, Tara, Sprache, Systeminfo, Kalibrierung, Fehler",
@@ -75,6 +79,7 @@ export const de: InteractiveLocale = {
     "connection-failed": "Verbindung fehlgeschlagen: {message}",
     "connection-to-device-failed": "Verbindung mit {name} fehlgeschlagen: {message}",
     disconnected: "Getrennt.",
+    "reboot-command-sent": "Neustartbefehl gesendet. Zurueck zur Geraeteliste.",
     "tare-required-running-first": "Tara erforderlich. Tara wird zuerst ausgefuehrt...",
     "tare-ready-message": "Wir sind bereit, bitte tare dein Geraet vor der Nutzung.",
     "press-enter-to-confirm": "Druecke Enter zum Bestaetigen.",

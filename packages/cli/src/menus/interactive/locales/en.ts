@@ -34,6 +34,10 @@ export const en: InteractiveLocale = {
       name: "Disconnect",
       description: "Disconnect from current device and pick another",
     },
+    reboot: {
+      name: "Reboot",
+      description: "Reboot the current device",
+    },
     settings: {
       name: "Settings",
       description: "Unit, tare, language, system info, calibration, errors",
@@ -75,6 +79,7 @@ export const en: InteractiveLocale = {
     "connection-failed": "Connection failed: {message}",
     "connection-to-device-failed": "Connection to {name} failed: {message}",
     disconnected: "Disconnected.",
+    "reboot-command-sent": "Reboot command sent. Returning to the device list.",
     "tare-required-running-first": "Tare required. Running tare first...",
     "tare-ready-message": "We're now ready, please tare your device before use.",
     "press-enter-to-confirm": "Press Enter to confirm.",

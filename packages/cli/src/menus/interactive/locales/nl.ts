@@ -34,6 +34,10 @@ export const nl: InteractiveLocale = {
       name: "Verbinding verbreken",
       description: "Verbreek huidige verbinding en kies een ander apparaat",
     },
+    reboot: {
+      name: "Herstarten",
+      description: "Herstart het huidige apparaat",
+    },
     settings: {
       name: "Instellingen",
       description: "Eenheid, tare, taal, systeeminfo, kalibratie, fouten",
@@ -75,6 +79,7 @@ export const nl: InteractiveLocale = {
     "connection-failed": "Verbinding mislukt: {message}",
     "connection-to-device-failed": "Verbinding met {name} mislukt: {message}",
     disconnected: "Verbinding verbroken.",
+    "reboot-command-sent": "Herstartopdracht verzonden. Terug naar de apparatenlijst.",
     "tare-required-running-first": "Tare vereist. Eerst tare uitvoeren...",
     "tare-ready-message": "We zijn er klaar voor, tare nu je apparaat voor gebruik.",
     "press-enter-to-confirm": "Druk op Enter om te bevestigen.",

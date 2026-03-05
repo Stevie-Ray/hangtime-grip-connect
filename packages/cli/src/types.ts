@@ -204,6 +204,8 @@ export interface CliDevice {
   connect(callback: () => Promise<void>): Promise<void>
   /** Disconnect the device gracefully. */
   disconnect(): void
+  /** Reboot the device immediately, when supported. */
+  reboot?(): Promise<void>
   /** Register a callback for incoming force measurements. Optional unit: "kg" (default), "lbs", or "n". */
   notify(callback: (data: ForceMeasurement) => void, unit?: ForceUnit): void
   /** Register an activity callback with optional threshold/duration. */

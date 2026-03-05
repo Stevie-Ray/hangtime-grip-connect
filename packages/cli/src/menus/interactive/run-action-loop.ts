@@ -5,7 +5,7 @@ import { buildInteractiveActions } from "./build-actions.js"
 import { setTranslationLanguage, t } from "./translations.js"
 
 /**
- * Pick action -> run -> repeat until Disconnect or Sleep.
+ * Pick action -> run -> repeat until Disconnect, Reboot, or Sleep.
  * Keeps the user in an action menu for the same device so they can run multiple
  * operations (Live Data, Tare, Download, etc.) without reconnecting.
  */
@@ -19,7 +19,7 @@ export async function runInteractiveActionLoop(
   const actions = buildInteractiveActions(deviceKey, ctx)
   const action = await pickAction(actions)
 
-  if (action.actionId === "disconnect") {
+  if (action.actionId === "disconnect" || action.actionId === "reboot") {
     await action.run(device, { ctx, sessionState })
     return
   }

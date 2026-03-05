@@ -23,11 +23,17 @@ export interface IProgressor extends IDevice {
   progressorId(): Promise<string | undefined>
 
   /**
-   * Retrieves calibration curve from the device (opcode 0x72). Payload is 12 opaque bytes;
-   * parsed for display as hex plus 3× uint32 LE.
-   * @returns {Promise<string | undefined>} A Promise that resolves with a display string (e.g. "hex — 1: X | 2: Y | 3: Z").
+   * Retrieves the linear calibration block from the device (opcode 0x72).
+   * Parsed for display as raw hex plus 3× float32 LE coefficients:
+   * slope, intercept, and trim. Firmware uses: value = raw * slope + intercept + trim.
    */
   calibration(): Promise<string | undefined>
+
+  /**
+   * Retrieves the hidden 15-entry piecewise calibration table.
+   * Returns newline-separated decoded records in export order.
+   */
+  calibrationTable(): Promise<string | undefined>
 
   /**
    * Computes calibration curve from stored points and saves to flash.
@@ -42,9 +48,15 @@ export interface IProgressor extends IDevice {
   sleep(): Promise<void>
 
   /**
-   * Set a new calibration curve.
+   * Reboots the device immediately.
+   * Intended for diagnostic flows. Sends the firmware's required reboot-confirmation payload.
+   */
+  reboot(): Promise<void>
+
+  /**
+   * Set a new calibration block.
    * @warning Expert only. This will overwrite the current calibration curve.
-   * @param curve - The 12-byte calibration curve to set.
+   * @param curve - The 12-byte calibration block to set (3× float32 LE: slope, intercept, trim).
    */
   setCalibration(curve: Uint8Array): Promise<void>
 

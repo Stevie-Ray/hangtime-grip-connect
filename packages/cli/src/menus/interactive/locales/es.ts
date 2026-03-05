@@ -34,6 +34,10 @@ export const es: InteractiveLocale = {
       name: "Desconectar",
       description: "Desconectar del dispositivo actual y elegir otro",
     },
+    reboot: {
+      name: "Reiniciar",
+      description: "Reiniciar el dispositivo actual",
+    },
     settings: {
       name: "Configuración",
       description: "Unidad, tara, idioma, info del sistema, calibración, errores",
@@ -75,6 +79,7 @@ export const es: InteractiveLocale = {
     "connection-failed": "Conexion fallida: {message}",
     "connection-to-device-failed": "Conexion a {name} fallida: {message}",
     disconnected: "Desconectado.",
+    "reboot-command-sent": "Comando de reinicio enviado. Volviendo a la lista de dispositivos.",
     "tare-required-running-first": "Tare requerido. Ejecutando tare primero...",
     "tare-ready-message": "Ya estamos listos, por favor haz tare del dispositivo antes de usarlo.",
     "press-enter-to-confirm": "Pulsa Enter para confirmar.",

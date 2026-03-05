@@ -34,6 +34,10 @@ export const it: InteractiveLocale = {
       name: "Disconnetti",
       description: "Disconnetti il dispositivo corrente e scegline un altro",
     },
+    reboot: {
+      name: "Riavvia",
+      description: "Riavvia il dispositivo corrente",
+    },
     settings: {
       name: "Impostazioni",
       description: "Unità, tara, lingua, info sistema, calibrazione, errori",
@@ -75,6 +79,7 @@ export const it: InteractiveLocale = {
     "connection-failed": "Connessione fallita: {message}",
     "connection-to-device-failed": "Connessione a {name} fallita: {message}",
     disconnected: "Disconnesso.",
+    "reboot-command-sent": "Comando di riavvio inviato. Ritorno all'elenco dispositivi.",
     "tare-required-running-first": "Tare richiesto. Avvio tare prima...",
     "tare-ready-message": "Siamo pronti, esegui il tare del dispositivo prima dell'uso.",
     "press-enter-to-confirm": "Premi Invio per confermare.",

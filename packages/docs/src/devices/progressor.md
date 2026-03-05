@@ -43,10 +43,12 @@ read, write, tare, download). See [Device interface](/api/device-interface) for 
 | ----------------------- | ------------------------------ | ----------------------------------------------------------------- |
 | `battery()`             | `Promise<string \| undefined>` | Battery/voltage information.                                      |
 | `firmware()`            | `Promise<string \| undefined>` | Firmware version.                                                 |
-| `calibration()`         | `Promise<string \| undefined>` | Read current calibration curve.                                   |
+| `calibration()`         | `Promise<string \| undefined>` | Read linear calibration: slope, intercept, trim.                  |
+| `calibrationTable()`    | `Promise<string \| undefined>` | Read hidden 15-entry calibration table. Expert only.              |
 | `addCalibrationPoint()` | `Promise<void>`                | Capture current ADC reading as calibration point.                 |
 | `saveCalibration()`     | `Promise<void>`                | Compute curve from stored points and save to flash.               |
-| `setCalibration(curve)` | `Promise<void>`                | Raw overwrite: write 12-byte curve directly. Expert only.         |
+| `setCalibration(curve)` | `Promise<void>`                | Raw overwrite: write 12-byte calibration block. Expert only.      |
+| `reboot()`              | `Promise<void>`                | Reboot the device immediately. Expert only.                       |
 | `stop()`                | `Promise<void>`                | Stop an ongoing stream.                                           |
 | `stream(duration?)`     | `Promise<void>`                | Start force stream. `duration` in ms; `0` or omit for continuous. |
 
@@ -71,14 +73,38 @@ The device needs a stable load for each capture.
 
 #### Reading the calibration curve
 
-`calibration()` returns the current 12-byte curve as a hex string together with a decoded representation of the three
-32-bit little-endian values stored in the curve. Use it to inspect settings or back up a curve before overwriting.
+`calibration()` returns the current 12-byte block as a hex string together with the decoded `float32` coefficients:
+
+- `slope`
+- `intercept`
+- `trim`
+
+```text
+value = raw * slope + intercept + trim
+```
+
+The display also includes the combined `effective offset = intercept + trim`. Use the hex bytes for backup/restore if
+you want an exact copy of the device state. This is separate from the hidden piecewise table and its extra global offset
+state.
 
 #### Raw overwrite (expert only)
 
-`setCalibration(curve)` writes a 12-byte `Uint8Array` directly to the device, bypassing the measured-point flow. Use it
-to restore a backed-up curve or clone calibration between identical devices. **WARNING: EXPERT ONLY** - incorrect values
-will produce wrong force readings.
+`setCalibration(curve)` writes a 12-byte `Uint8Array` directly to the device, bypassing the measured-point flow. The
+block is interpreted by firmware as 3 little-endian `float32` values: `slope`, `intercept`, `trim`. Use it to restore a
+backed-up curve or clone calibration between identical devices. **WARNING: EXPERT ONLY** - incorrect values will produce
+wrong force readings.
+
+#### Advanced calibration table
+
+`calibrationTable()` exports the hidden 15-entry piecewise calibration table as newline-separated records. Each line
+includes the raw 16-byte payload followed by the decoded fields: `hex | lowerRaw..upperRaw | slope | intercept`. This
+command is based on firmware analysis rather than Tindeq’s public API, so availability may vary by firmware version and
+hardware clone.
+
+#### Reboot (expert only)
+
+`reboot()` sends opcode `0x75` with the firmware's required confirmation byte and triggers an immediate device reboot.
+Expect the BLE connection to drop right away.
 
 ### Performance metadata
 

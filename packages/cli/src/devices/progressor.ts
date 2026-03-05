@@ -23,7 +23,7 @@ function parseCurveHex(s: string): Uint8Array {
 const calibrationSubactions: Action[] = [
   {
     name: "Get Current Calibration Curve",
-    description: "Read calibration curve",
+    description: "Read linear calibration block (slope/intercept/trim)",
     run: async (device) => {
       const d = device as unknown as Progressor
       printResult("Calibration:", await d.calibration())
@@ -31,7 +31,7 @@ const calibrationSubactions: Action[] = [
   },
   {
     name: "Set Calibration Curve",
-    description: "Expert only. Raw overwrite, restore from backup / clone. ",
+    description: "Expert only. Raw overwrite of linear calibration block.",
     nameColor: "yellow",
     run: async (device, opts) => {
       const d = device as unknown as Progressor
@@ -45,7 +45,7 @@ const calibrationSubactions: Action[] = [
 
       if (!curve) {
         const raw = await input({
-          message: "Paste 12-byte curve (hex, e.g. FF FF FF FF FF FF FF FF 00 00 00 00):",
+          message: "Paste 12-byte calibration block (hex, 3× float32 LE: slope/intercept/trim):",
           default: "",
         })
         curve = raw?.trim() ?? ""
@@ -57,6 +57,16 @@ const calibrationSubactions: Action[] = [
       await d.setCalibration(bytes)
       printResult("Set calibration:", bytes.length === 0 ? "No curve provided, calibration reset" : "sent")
       printResult("Calibration after set:", await d.calibration())
+    },
+  },
+  {
+    name: "Get Calibration Table",
+    description: "V2 Firmware only. Read new 15-entry calibration table.",
+    nameColor: "yellow",
+    run: async (device) => {
+      const d = device as unknown as Progressor
+      const table = await d.calibrationTable()
+      printResult("Calibration table:", table ? `\n${table}` : undefined)
     },
   },
   {

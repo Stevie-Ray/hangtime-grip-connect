@@ -34,6 +34,10 @@ export const no: InteractiveLocale = {
       name: "Koble fra",
       description: "Koble fra gjeldende enhet og velg en annen",
     },
+    reboot: {
+      name: "Start pa nytt",
+      description: "Start gjeldende enhet pa nytt",
+    },
     settings: {
       name: "Innstillinger",
       description: "Enhet, tare, språk, systeminfo, kalibrering, feil",
@@ -75,6 +79,7 @@ export const no: InteractiveLocale = {
     "connection-failed": "Tilkobling feilet: {message}",
     "connection-to-device-failed": "Tilkobling til {name} feilet: {message}",
     disconnected: "Frakoblet.",
+    "reboot-command-sent": "Omstartskommando sendt. Tilbake til enhetslisten.",
     "tare-required-running-first": "Tare kreves. Kjorer tare forst...",
     "tare-ready-message": "Vi er klare, vennligst tare enheten din for bruk.",
     "press-enter-to-confirm": "Trykk Enter for a bekrefte.",

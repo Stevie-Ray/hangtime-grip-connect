@@ -66,9 +66,8 @@ function parseProgressorIdPayload(payload: Uint8Array): string {
 }
 
 /**
- * Parse calibration curve: 12 opaque bytes (CalibrationCurve = [u8; 12]).
- * Progressor two-point calibration stores two raw ADC readings (zero + reference)
- * and a third value (version/reserved). Exact layout is device-specific.
+ * Parse calibration block: 3× float32 LE.
+ * value = raw * slope + intercept + trim.
  */
 function parseCalibrationCurvePayload(payload: Uint8Array): string {
   const hex = toHex(payload)
@@ -76,14 +75,49 @@ function parseCalibrationCurvePayload(payload: Uint8Array): string {
   if (payload.length !== 12) return hex
 
   const view = new DataView(payload.buffer, payload.byteOffset, payload.byteLength)
-  const [v0, v1, v2] = [0, 4, 8].map((o) => view.getUint32(o, true))
+  const slope = view.getFloat32(0, true)
+  const intercept = view.getFloat32(4, true)
+  const trim = view.getFloat32(8, true)
+  const effectiveOffset = intercept + trim
 
-  return `${hex} — 1: ${v1.toLocaleString()} | 2: ${v0.toLocaleString()} | 3: ${v2}`
+  const formatSignedFloat = (value: number): string => {
+    const formatted = formatCalibrationFloat(Math.abs(value))
+    return value < 0 ? ` - ${formatted}` : ` + ${formatted}`
+  }
+
+  return `${hex} — slope: ${formatCalibrationFloat(slope)} | intercept: ${formatCalibrationFloat(intercept)} | trim: ${formatCalibrationFloat(trim)} | effective offset: ${formatCalibrationFloat(effectiveOffset)} | formula: raw * ${formatCalibrationFloat(slope)}${formatSignedFloat(intercept)}${formatSignedFloat(trim)}`
+}
+
+/**
+ * Format floating-point values for calibration-table display.
+ */
+function formatCalibrationFloat(value: number): string {
+  if (!Number.isFinite(value)) return String(value)
+  const abs = Math.abs(value)
+  return abs !== 0 && (abs >= 1_000_000 || abs < 0.0001) ? value.toExponential(6) : value.toFixed(6)
+}
+
+/**
+ * Parse one calibration table record: [u32 lower, u32 upper, f32 slope, f32 intercept].
+ */
+function parseCalibrationTableRecordPayload(payload: Uint8Array, index: number): string {
+  if (payload.length !== 16) return `${String(index).padStart(2, "0")}: ${toHex(payload)}`
+
+  const view = new DataView(payload.buffer, payload.byteOffset, payload.byteLength)
+  const lowerRaw = view.getUint32(0, true)
+  const upperRaw = view.getUint32(4, true)
+  const slope = view.getFloat32(8, true)
+  const intercept = view.getFloat32(12, true)
+  const hex = toHex(payload)
+
+  return `${String(index).padStart(2, "0")}: ${hex} | raw ${lowerRaw.toLocaleString()}..${upperRaw.toLocaleString()} | slope ${formatCalibrationFloat(slope)} | intercept ${formatCalibrationFloat(intercept)}`
 }
 
 export class Progressor extends Device implements IProgressor {
   /** Device timestamps (µs) of recent samples (samples in last 1s device time). */
   private recentSampleTimestamps: number[] = []
+  /** 1-based index for multi-packet calibration-table export responses. */
+  private calibrationTableRecordIndex = 0
 
   constructor() {
     super({
@@ -119,7 +153,7 @@ export class Progressor extends Device implements IProgressor {
           ],
         },
       ],
-      // Tindeq API: opcode = single byte (ASCII char code = decimal 100–114;)
+      // Tindeq API: opcode = single byte (ASCII char code = decimal 100–114 v2 firmware: 115-118)
       commands: {
         TARE_SCALE: "d", // 100 (0x64)
         START_WEIGHT_MEAS: "e", // 101 (0x65)
@@ -136,6 +170,11 @@ export class Progressor extends Device implements IProgressor {
         GET_PROGRESSOR_ID: "p", // 112 (0x70)
         SET_CALIBRATION: "q", // 113 (0x71)
         GET_CALIBRATION: "r", // 114 (0x72)
+        // V2 FIRMWARE ONLY COMMANDS
+        // ADD_CALIBRATION_TABLE_POINT: "s",  // 115 (0x73)
+        GET_CALIBRATION_TABLE: "t", // 116 (0x74)
+        REBOOT: "u", // 117 (0x75)
+        // CLR_CALIBRATION_TABLE: "v",  // 118 (0x76)
       },
     })
   }
@@ -153,7 +192,7 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Retrieves firmware version from the device (GetAppVersion, opcode 0x6B).
+   * Retrieves firmware version from the device.
    * @returns {Promise<string>} A Promise that resolves with the firmware version,
    */
   firmware = async (): Promise<string | undefined> => {
@@ -165,7 +204,7 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Retrieves the Progressor ID from the device (opcode 0x70).
+   * Retrieves the Progressor ID from the device.
    * @returns {Promise<string>} A Promise that resolves with the raw response (hex of payload).
    */
   progressorId = async (): Promise<string | undefined> => {
@@ -177,8 +216,8 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Retrieves calibration values from the device.
-   * @returns {Promise<string>} A Promise that resolves with the raw response (hex of payload).
+   * Retrieves the linear calibration block from the device.
+   * Returns raw hex plus decoded slope/intercept/trim coefficients.
    */
   calibration = async (): Promise<string | undefined> => {
     let response: string | undefined = undefined
@@ -189,7 +228,21 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Computes calibration curve from stored points and saves to flash (opcode 0x6A).
+   * Retrieves the hidden 15-entry piecewise calibration table.
+   * Each response packet contains one 16-byte record.
+   * @returns {Promise<string | undefined>} Newline-separated decoded records.
+   */
+  calibrationTable = async (): Promise<string | undefined> => {
+    const responses: string[] = []
+    this.calibrationTableRecordIndex = 0
+    await this.write("progressor", "tx", this.commands.GET_CALIBRATION_TABLE, 1000, (data) => {
+      responses.push(data)
+    })
+    return responses.length > 0 ? responses.join("\n") : undefined
+  }
+
+  /**
+   * Computes calibration curve from stored points and saves to flash.
    * Requires addCalibrationPoint() for zero and reference. Normal flow: i → i → j.
    * @returns {Promise<void>} A Promise that resolves when the command is sent.
    */
@@ -198,24 +251,24 @@ export class Progressor extends Device implements IProgressor {
   }
 
   /**
-   * Opcode 0x71 ('q'): write calibration curve directly (raw overwrite).
+   * Write calibration block directly (raw overwrite).
    *
    * Payload layout (14 bytes):
-   * - [0]   opcode ('q' = 0x71)
+   * - [0]   opcode ('q')
    * - [1]   reserved (ignored by firmware)
-   * - [2..13] 12-byte calibration curve (3× u32 LE read at offsets +2, +6, +10)
+   * - [2..13] 12-byte calibration block (3× float32 LE: slope, intercept, trim)
    *
    * Notes:
    * - This command does not compute anything; it overwrites stored calibration data.
-   * - Sending only the opcode (no 12-byte curve) is not a supported "reset" mode.
+   * - Sending only the opcode (no 12-byte calibration block) is not a supported "reset" mode.
    *
-   * @param curve - Raw 12-byte calibration curve (required).
+   * @param curve - Raw 12-byte calibration block (3× float32 LE: slope, intercept, trim) (required).
    * @returns Promise that resolves when the command is sent.
    */
   setCalibration = async (curve: Uint8Array): Promise<void> => {
     if (curve.length !== 12) throw new Error("Curve must be 12 bytes")
 
-    const opcode = (this.commands.SET_CALIBRATION as string).charCodeAt(0) // 0x71
+    const opcode = (this.commands.SET_CALIBRATION as string).charCodeAt(0)
     const payload = new Uint8Array(14)
 
     payload[0] = opcode
@@ -267,6 +320,16 @@ export class Progressor extends Device implements IProgressor {
   sleep = async (): Promise<void> => {
     const cmd = this.commands.SLEEP
     await this.write("progressor", "tx", typeof cmd === "string" ? cmd : String(cmd), 0)
+  }
+
+  /**
+   * Reboots the device immediately.
+   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   */
+  reboot = async (): Promise<void> => {
+    const opcode = (this.commands.REBOOT as string).charCodeAt(0)
+    // Send byte 1 to trigger the reboot.
+    await this.write("progressor", "tx", new Uint8Array([opcode, 0, 1]), 0)
   }
 
   /**
@@ -364,6 +427,9 @@ export class Progressor extends Device implements IProgressor {
         output = parseProgressorIdPayload(payload)
       } else if (this.writeLast === this.commands.GET_CALIBRATION) {
         output = parseCalibrationCurvePayload(payload)
+      } else if (this.writeLast === this.commands.GET_CALIBRATION_TABLE) {
+        this.calibrationTableRecordIndex += 1
+        output = parseCalibrationTableRecordPayload(payload, this.calibrationTableRecordIndex)
       } else {
         // Unknown command response: return raw hex
         output = toHex(payload)

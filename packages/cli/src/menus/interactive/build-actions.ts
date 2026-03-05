@@ -15,7 +15,8 @@ import { localizeInteractiveActions, setTranslationLanguage, t } from "./transla
 
 /**
  * Build interactive actions for a selected device.
- * Shared actions come first, then device-specific actions, then Disconnect.
+ * Shared actions come first, then device-specific actions, then Disconnect,
+ * then Reboot when the current device supports it.
  */
 export function buildInteractiveActions(deviceKey: string, ctx?: OutputContext): Action[] {
   const key = deviceKey.toLowerCase()
@@ -236,6 +237,29 @@ export function buildInteractiveActions(deviceKey: string, ctx?: OutputContext):
     },
   }
 
-  const allActions = [...sharedActions, ...definition.actions, disconnectAction]
+  const rebootAction =
+    typeof device.reboot === "function"
+      ? ({
+          actionId: "reboot",
+          name: "Reboot",
+          description: "Reboot the current device",
+          run: async (currentDevice: CliDevice, options: RunOptions) => {
+            setTranslationLanguage(options.ctx?.language ?? "en")
+            const rebootFn = currentDevice.reboot
+            if (typeof rebootFn !== "function") return
+            await rebootFn()
+            if (!options.ctx?.json) {
+              printSuccess(t("menu.reboot-command-sent"))
+            }
+          },
+        } satisfies Action)
+      : undefined
+
+  const allActions = [
+    ...sharedActions,
+    ...definition.actions,
+    disconnectAction,
+    ...(rebootAction ? [rebootAction] : []),
+  ]
   return localizeInteractiveActions(allActions, ctx?.language ?? "en")
 }
