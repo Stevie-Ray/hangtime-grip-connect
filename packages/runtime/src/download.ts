@@ -2,7 +2,7 @@ import { writeFile } from "node:fs/promises"
 
 export type DownloadFormat = "csv" | "json" | "xml"
 
-export async function writeDownloadFile(format: DownloadFormat, content: string): Promise<string> {
+export async function writeDownloadFile(format: DownloadFormat, content: string): Promise<void> {
   const now = new Date()
   const date = now.toISOString().split("T")[0]
   const time = now.toTimeString().split(" ")[0].replace(/:/g, "-")
@@ -10,6 +10,4 @@ export async function writeDownloadFile(format: DownloadFormat, content: string)
 
   await writeFile(fileName, content)
   console.log(`File saved as ${fileName}`)
-
-  return fileName
 }

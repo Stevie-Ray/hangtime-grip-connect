@@ -8,7 +8,7 @@ import { writeDownloadFile } from "../../download.js"
  * {@link https://griptonite.io}
  */
 export class Motherboard extends MotherboardBase {
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<string> => {
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
 
     if (format === "csv") {

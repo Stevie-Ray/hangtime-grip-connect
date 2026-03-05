@@ -8,7 +8,7 @@ import { writeDownloadFile } from "../../download.js"
  * {@link https://climbro.com/}
  */
 export class Climbro extends ClimbroBase {
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<string> => {
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
 
     if (format === "csv") {

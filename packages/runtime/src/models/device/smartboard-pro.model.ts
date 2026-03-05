@@ -9,7 +9,7 @@ import { writeDownloadFile } from "../../download.js"
  * {@link https://www.smartboard-climbing.com}
  */
 export class SmartBoardPro extends SmartBoardProBase {
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<string> => {
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
 
     if (format === "csv") {

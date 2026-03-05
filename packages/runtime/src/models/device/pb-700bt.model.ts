@@ -8,7 +8,7 @@ import { writeDownloadFile } from "../../download.js"
  * {@link https://www.nsd.com.tw/}
  */
 export class PB700BT extends PB700BTBase {
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<string> => {
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
 
     if (format === "csv") {

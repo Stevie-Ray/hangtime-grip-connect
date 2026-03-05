@@ -8,7 +8,7 @@ import { writeDownloadFile } from "../../download.js"
  * {@link https://pitchsix.com}
  */
 export class ForceBoard extends ForceBoardBase {
-  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<string> => {
+  override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
 
     if (format === "csv") {
