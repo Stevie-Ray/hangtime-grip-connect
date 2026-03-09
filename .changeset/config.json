@@ -21,7 +21,7 @@
     "@grip-connect/flappy-bird",
     "@grip-connect/kilter-board",
     "@grip-connect/pong",
-    "@grip-connect/reactnative",
+    "@grip-connect/react-native",
     "@grip-connect/runtime"
   ]
 }
