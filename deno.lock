@@ -9933,7 +9933,7 @@
           ]
         }
       },
-      "examples/reactnative": {
+      "examples/react-native": {
         "packageJson": {
           "dependencies": [
             "npm:@babel/core@^7.29.0",

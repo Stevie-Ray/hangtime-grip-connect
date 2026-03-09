@@ -10,6 +10,9 @@ web-build/
 expo-env.d.ts
 
 # Native
+# Expo Prebuild: generated native projects stay out of version control.
+android/
+ios/
 .kotlin/
 *.orig.*
 *.jks
@@ -36,4 +39,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+# Expo Prebuild
+android/
+ios/

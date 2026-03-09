@@ -41,7 +41,7 @@ optional `active` and `download`.
 | **Pong**                  | `examples/pong`         | [Pong](/examples/pong)                                                |
 | **Runtime**               | `examples/runtime`      | [Runtime](/examples/runtime): Node, Deno, Bun usage.                  |
 | **Capacitor**             | `examples/capacitor`    | [Capacitor](/examples/capacitor): hybrid app, device picker, BLE.     |
-| **React Native**          | `examples/reactnative`  | [React Native](/examples/react-native): Expo app with training modes. |
+| **React Native**          | `examples/react-native` | [React Native](/examples/react-native): Expo app with training modes. |
 
 ## Quick run
 
@@ -52,5 +52,5 @@ npm install
 npm run dev:examples:app
 ```
 
-Replace `app` with `flappy-bird`, `kilter-board`, `pong`, or `capacitor` (or `reactnative`) as needed. For Runtime
+Replace `app` with `flappy-bird`, `kilter-board`, `pong`, or `capacitor` (or `react-native`) as needed. For Runtime
 (Node), use `npm run start --workspace ./examples/runtime`. See each example’s doc page for run instructions.

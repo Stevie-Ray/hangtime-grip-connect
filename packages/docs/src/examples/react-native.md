@@ -13,7 +13,7 @@ training modes (peak force, endurance, timed hangs). The example is based on
 
 ## Source
 
-[examples/reactnative](https://github.com/Stevie-Ray/hangtime-grip-connect/tree/main/examples/reactnative)
+[examples/react-native](https://github.com/Stevie-Ray/hangtime-grip-connect/tree/main/examples/react-native)
 
 ## Stack
 
@@ -48,7 +48,7 @@ From the repo root:
 
 ```sh
 npm install
-npm run dev:examples:reactnative
+npm run dev:examples:react-native
 ```
 
 Then choose **Run on iOS simulator** or **Run on Android device/emulator** from the Expo CLI. For a native build:

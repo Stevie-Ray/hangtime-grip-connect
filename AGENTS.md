@@ -56,7 +56,7 @@ packages/                      # All published packages
   docs/                        # VitePress documentation site
 examples/                      # Sample applications and demos
   capacitor/                   # Capacitor demo app (Vite)
-  reactnative/                 # Expo React Native demo app
+  react-native/                # Expo React Native demo app
   app/                         # Force Measurement App example
   kilter-board/                # LED system board demo
   flappy-bird/                 # Physics/game demo

@@ -14,7 +14,7 @@ export default tseslint.config(
       "**/cache",
       "**/android",
       "**/ios",
-      "examples/reactnative/**", // TODO: Enable when eslint-config-expo is updated to ESLint 10.0.0
+      "examples/react-native/**", // TODO: Enable when eslint-config-expo is updated to ESLint 10.0.0
     ],
   },
 ) satisfies Config

@@ -53,7 +53,7 @@ await device.connect(
 ## Example app
 
 The repo includes an
-[Expo example app](https://github.com/Stevie-Ray/hangtime-grip-connect/tree/main/examples/reactnative) that uses this
+[Expo example app](https://github.com/Stevie-Ray/hangtime-grip-connect/tree/main/examples/react-native) that uses this
 package. Use it as a reference for project setup and BLE usage.
 
 ## Next steps
