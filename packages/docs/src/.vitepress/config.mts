@@ -168,6 +168,10 @@ export default defineConfig({
         icon: "github",
         link: "https://github.com/Stevie-Ray/hangtime-grip-connect",
       },
+      {
+        icon: "discord",
+        link: "https://discord.gg/f7QQnEBQQt",
+      },
     ],
     footer: {
       message: "Released under the BSD 2-Clause License.",

@@ -104,6 +104,6 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
   [npm runtime](https://www.npmjs.com/package/@hangtime/grip-connect-runtime) ·
   [npm cli](https://www.npmjs.com/package/@hangtime/cli) · [JSR](https://jsr.io/@hangtime/grip-connect) ·
   [unpkg](https://unpkg.com/@hangtime/grip-connect@latest?module) (CDN)
-- [Web Bluetooth spec](https://github.com/WebBluetoothCG/web-bluetooth) · [Discord](https://discord.gg/f7QQnEBQQt)
+- [Web Bluetooth spec](https://github.com/WebBluetoothCG/web-bluetooth)
 
 </div>

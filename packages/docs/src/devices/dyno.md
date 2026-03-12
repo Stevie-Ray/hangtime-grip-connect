@@ -14,6 +14,3 @@ added when the hardware is released and support is finalized.
 
 Use the shared [device interface](/api/device-interface) and [Quick start guide](/guide) for connection and streaming
 patterns.
-
-For integration questions, see [GitHub Issues](https://github.com/Stevie-Ray/hangtime-grip-connect/issues) or
-[Discord](https://discord.gg/f7QQnEBQQt).

@@ -81,6 +81,3 @@ In Chrome (desktop or Android), you can inspect Bluetooth devices and GATT servi
 
 Use **localhost** (e.g. `npm run dev` with Vite) so Web Bluetooth works without HTTPS. For testing on a phone, use a
 tunnel or deploy to a host with HTTPS. See [Get started](/get-started) for a minimal example.
-
-For more help, see [GitHub Issues](https://github.com/Stevie-Ray/hangtime-grip-connect/issues) or
-[Discord](https://discord.gg/f7QQnEBQQt).
