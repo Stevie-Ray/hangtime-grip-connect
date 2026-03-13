@@ -898,7 +898,9 @@ export abstract class Device extends BaseModel implements IDevice {
     }
 
     for (const service of services) {
-      const matchingService = this.services.find((boardService) => boardService.uuid === service.uuid)
+      const matchingService = this.services.find(
+        (boardService) => boardService.uuid.toLowerCase() === service.uuid.toLowerCase(),
+      )
 
       if (matchingService) {
         // Android bug: Add a small delay before getting characteristics
@@ -907,11 +909,15 @@ export abstract class Device extends BaseModel implements IDevice {
         const characteristics = await service.getCharacteristics()
 
         for (const characteristic of matchingService.characteristics) {
-          const matchingCharacteristic = characteristics.find((char) => char.uuid === characteristic.uuid)
+          const matchingCharacteristic = characteristics.find(
+            (char) => char.uuid.toLowerCase() === characteristic.uuid.toLowerCase(),
+          )
 
           if (matchingCharacteristic) {
             // Find the corresponding characteristic descriptor in the service's characteristics array
-            const descriptor = matchingService.characteristics.find((char) => char.uuid === matchingCharacteristic.uuid)
+            const descriptor = matchingService.characteristics.find(
+              (char) => char.uuid.toLowerCase() === matchingCharacteristic.uuid.toLowerCase(),
+            )
             if (descriptor) {
               // Assign the actual Bluetooth characteristic object to the descriptor so it can be used later
               descriptor.characteristic = matchingCharacteristic
