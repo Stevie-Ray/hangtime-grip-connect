@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grip Connect"
+  short_description: "Integrate Grip Connect on web and mobile"
+  default_prompt: "Use $grip-connect to help me integrate a Tindeq Progressor into my app."

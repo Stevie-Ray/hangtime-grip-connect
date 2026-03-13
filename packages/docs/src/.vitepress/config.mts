@@ -68,6 +68,7 @@ export default defineConfig({
           items: [
             { text: "Get started", link: "/get-started" },
             { text: "Quick start guide", link: "/guide" },
+            { text: "AI skill", link: "/guide/ai-skill" },
             { text: "Adding a custom device", link: "/guide/custom-device" },
             { text: "Browser support", link: "/browser-support" },
           ],

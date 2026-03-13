@@ -69,6 +69,15 @@ npm install @hangtime/grip-connect-react-native
 npm install @hangtime/grip-connect-runtime
 ```
 
+## Agent Skills
+
+Install the `SKILL.md` to give a compatible AI agent package-specific guidance for setup integration, and supported
+device workflows.
+
+```bash
+npx skills add Stevie-Ray/hangtime-grip-connect
+```
+
 ## Example usage (with a Motherboard)
 
 Simply importing the device you need from `@hangtime/grip-connect`.

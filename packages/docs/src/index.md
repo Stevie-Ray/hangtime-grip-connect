@@ -95,7 +95,8 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 
 ### Resources
 
-- [Get started](/get-started) · [API](/api/) · [Devices](/devices/) · [Examples](/examples/).
+- [Get started](/get-started) · [AI skill](/guide/ai-skill) · [API](/api/) · [Devices](/devices/) ·
+  [Examples](/examples/).
 - [GitHub](https://github.com/Stevie-Ray/hangtime-grip-connect) ·
   [Issues](https://github.com/Stevie-Ray/hangtime-grip-connect/issues)
 - **Packages** - [npm](https://www.npmjs.com/package/@hangtime/grip-connect) ·
