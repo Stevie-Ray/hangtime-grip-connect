@@ -27,8 +27,7 @@
   "scripts": {
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "build": "npm run clean && tsc --build",
-    "dev": "tsx src/index.ts",
-    "prepublishOnly": "npm run build"
+    "dev": "tsx src/index.ts"
   },
   "dependencies": {
     "@hangtime/grip-connect-runtime": "^0.10.9",

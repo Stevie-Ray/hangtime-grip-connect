@@ -23,8 +23,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "build": "npm run clean && tsc --build",
-    "prepublishOnly": "npm run build"
+    "build": "npm run clean && tsc --build"
   },
   "dependencies": {
     "@hangtime/grip-connect": "^0.10.9",
