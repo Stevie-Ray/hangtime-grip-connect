@@ -11,8 +11,8 @@ export default defineConfig({
         description: "Web Bluetooth API force-sensing Pong game for climbers",
         theme_color: "#242424",
         icons: [
-          { src: "img/pwa-192x192.png", sizes: "192x192", type: "image/png" },
-          { src: "img/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+          { src: "img/pwa-192x192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+          { src: "img/pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
         ],
       },
     }),

@@ -7,7 +7,8 @@
     {
       "src": "assets/imgs/logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "background_color": "#31d53d",
