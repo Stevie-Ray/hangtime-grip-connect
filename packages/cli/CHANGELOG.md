@@ -1,5 +1,17 @@
 # @hangtime/cli
 
+## 0.12.0
+
+### Minor Changes
+
+- b2e4c32: Add Climbro device information reads, Progressor v2 calibration and reboot support, and new CLI device
+  actions and interactive flows. Also includes connection robustness fixes such as case-insensitive UUID matching.
+
+### Patch Changes
+
+- Updated dependencies [b2e4c32]
+  - @hangtime/grip-connect-runtime@0.12.0
+
 ## 0.11.2
 
 ### Patch Changes
