@@ -51,9 +51,19 @@ export class ForceBoard extends Device implements IForceBoard {
           id: "dfu",
           uuid: "0000fe59-0000-1000-8000-00805f9b34fb",
           characteristics: [
+            // {
+            //   name: "DFU Control Point",
+            //   id: "control",
+            //   uuid: "8ec90001-f315-4f60-9fb8-838830daea50",
+            // },
+            // {
+            //   name: "DFU Packet",
+            //   id: "packet",
+            //   uuid: "8ec90002-f315-4f60-9fb8-838830daea50",
+            // },
             {
               name: "Buttonless DFU",
-              id: "dfu",
+              id: "buttonless",
               uuid: "8ec90003-f315-4f60-9fb8-838830daea50",
             },
           ],

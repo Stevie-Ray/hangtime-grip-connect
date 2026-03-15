@@ -214,6 +214,14 @@ export abstract class Device extends BaseModel implements IDevice {
   private tareActive = false
 
   /**
+   * The characteristic ID that accepts notifications.
+   * Switching to "buttonless" allows to enter DFU mode and update the firmware.
+   *
+   * @type {"rx" | "buttonless" | "control"}
+   */
+  protected notifyCharacteristicId: "rx" | "buttonless" = "rx"
+
+  /**
    * Timestamp when the tare calibration process started.
    * @type {number | null}
    */
@@ -604,7 +612,7 @@ export abstract class Device extends BaseModel implements IDevice {
     // Remove all notification listeners and stop notifications if possible.
     this.services.forEach((service) => {
       service.characteristics.forEach((char) => {
-        if (!char.characteristic || char.id !== "rx") return
+        if (!char.characteristic || char.id !== this.notifyCharacteristicId) return
 
         if (isConnected) {
           // Best effort only: avoid unhandled rejections when the device already disconnected.
@@ -921,8 +929,8 @@ export abstract class Device extends BaseModel implements IDevice {
             if (descriptor) {
               // Assign the actual Bluetooth characteristic object to the descriptor so it can be used later
               descriptor.characteristic = matchingCharacteristic
-              // Look for the "rx" characteristic id that accepts notifications
-              if (descriptor.id === "rx") {
+              // Look for our default notify characteristic id that accepts notifications
+              if (descriptor.id === this.notifyCharacteristicId) {
                 // Start receiving notifications for changes on this characteristic
                 matchingCharacteristic.startNotifications()
                 // Triggered when the characteristic's value changes

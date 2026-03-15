@@ -145,9 +145,19 @@ export class Progressor extends Device implements IProgressor {
           id: "dfu",
           uuid: "0000fe59-0000-1000-8000-00805f9b34fb",
           characteristics: [
+            // {
+            //   name: "DFU Control Point",
+            //   id: "control",
+            //   uuid: "8ec90001-f315-4f60-9fb8-838830daea50",
+            // },
+            // {
+            //   name: "DFU Packet",
+            //   id: "packet",
+            //   uuid: "8ec90002-f315-4f60-9fb8-838830daea50",
+            // },
             {
               name: "Buttonless DFU",
-              id: "dfu",
+              id: "buttonless",
               uuid: "8ec90003-f315-4f60-9fb8-838830daea50",
             },
           ],
@@ -276,6 +286,26 @@ export class Progressor extends Device implements IProgressor {
     payload.set(curve, 2)
 
     await this.write("progressor", "tx", payload, 0)
+  }
+
+  /**
+   * Sets the DFU mode of the device, preparing it for update.
+   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   */
+  setDfuMode = async (): Promise<void> => {
+    // Sets the DFU mode of a device, preparing it for update
+    this.notifyCharacteristicId = "buttonless"
+
+    await this.connect(
+      async () => {
+        // Enter Bootloader Opcode 0x01
+        await this.write("dfu", "buttonless", new Uint8Array([0x01]))
+      },
+      (error) => console.error("Error setting DFU mode:", error),
+    )
+
+    // After we are done: Reset the notify characteristic id to the default
+    // this.notifyCharacteristicId = "rx"
   }
 
   /**

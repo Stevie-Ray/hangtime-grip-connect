@@ -61,6 +61,12 @@ export interface IProgressor extends IDevice {
   setCalibration(curve: Uint8Array): Promise<void>
 
   /**
+   * Sets the DFU mode of the device, preparing it for update.
+   * @returns {Promise<void>} A Promise that resolves when the command is sent.
+   */
+  setDfuMode(): Promise<void>
+
+  /**
    * Retrieves error information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the error info text.
    */
