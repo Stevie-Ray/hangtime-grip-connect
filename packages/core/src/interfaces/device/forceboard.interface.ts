@@ -1,9 +1,9 @@
-import type { IDevice } from "../device.interface.js"
+import type { INordicDfuDevice } from "../nordic.interface.js"
 
 /**
  * Interface representing the PitchSix ForceBoard device, extending the base Device interface.
  */
-export interface IForceBoard extends IDevice {
+export interface IForceBoard extends INordicDfuDevice {
   /**
    * Retrieves battery or voltage information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.

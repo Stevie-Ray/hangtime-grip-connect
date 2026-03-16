@@ -1,9 +1,9 @@
-import type { IDevice } from "../device.interface.js"
+import type { INordicDfuDevice } from "../nordic.interface.js"
 
 /**
  * Interface representing the Tindeq Progressor device, extending the base Device interface.
  */
-export interface IProgressor extends IDevice {
+export interface IProgressor extends INordicDfuDevice {
   /**
    * Retrieves battery or voltage information from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery or voltage information.
@@ -59,12 +59,6 @@ export interface IProgressor extends IDevice {
    * @param curve - The 12-byte calibration block to set (3× float32 LE: slope, intercept, trim).
    */
   setCalibration(curve: Uint8Array): Promise<void>
-
-  /**
-   * Sets the DFU mode of the device, preparing it for update.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
-   */
-  setDfuMode(): Promise<void>
 
   /**
    * Retrieves error information from the device.

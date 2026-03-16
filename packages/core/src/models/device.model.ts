@@ -570,10 +570,12 @@ export abstract class Device extends BaseModel implements IDevice {
       //   }
       // }
 
-      this.bluetooth = await bluetooth.requestDevice({
-        filters: this.filters,
-        optionalServices: deviceServices,
-      })
+      if (!this.bluetooth?.gatt) {
+        this.bluetooth = await bluetooth.requestDevice({
+          filters: this.filters,
+          optionalServices: deviceServices,
+        })
+      }
 
       if (!this.bluetooth.gatt) {
         throw new Error("GATT is not available on this device")
@@ -581,7 +583,7 @@ export abstract class Device extends BaseModel implements IDevice {
 
       this.bluetooth.addEventListener("gattserverdisconnected", this.onDisconnectedListener)
 
-      this.server = await this.bluetooth.gatt.connect()
+      this.server = this.bluetooth.gatt.connected ? this.bluetooth.gatt : await this.bluetooth.gatt.connect()
 
       if (this.server.connected) {
         await this.onConnected(onSuccess)
@@ -948,6 +950,10 @@ export abstract class Device extends BaseModel implements IDevice {
                 this.notificationListeners.set(descriptor.uuid, listener)
               }
             }
+          } else if (matchingService.id === "dfu") {
+            // App mode exposes buttonless only, bootloader exposes control+packet only.
+            delete characteristic.characteristic
+            continue
           } else {
             throw new Error(`Characteristic ${characteristic.uuid} not found in service ${service.uuid}`)
           }

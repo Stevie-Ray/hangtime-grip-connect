@@ -1,7 +1,7 @@
 import { getActiveDevice } from "../devices/session.js"
 import { loadPreferences } from "../settings/storage.js"
 
-export type SettingsPageId = "unit" | "language" | "system-info" | "calibration" | "errors"
+export type SettingsPageId = "unit" | "language" | "system-info" | "calibration" | "errors" | "firmware"
 
 function parseSettingsId(value: string | null): SettingsPageId | null {
   if (
@@ -9,7 +9,8 @@ function parseSettingsId(value: string | null): SettingsPageId | null {
     value === "language" ||
     value === "system-info" ||
     value === "calibration" ||
-    value === "errors"
+    value === "errors" ||
+    value === "firmware"
   ) {
     return value
   }
@@ -25,6 +26,7 @@ interface CapabilityState {
   supportsCalibrationSave: boolean
   supportsErrorInfo: boolean
   supportsErrorClear: boolean
+  supportsFirmwareUpdate: boolean
 }
 
 function readCapabilities(): CapabilityState {
@@ -53,6 +55,7 @@ function readCapabilities(): CapabilityState {
     supportsCalibrationSave: Boolean(device?.saveCalibration),
     supportsErrorInfo: Boolean(device?.errorInfo),
     supportsErrorClear: Boolean(device?.clearErrorInfo),
+    supportsFirmwareUpdate: Boolean(device?.dfuUpload),
   }
 }
 
@@ -82,6 +85,12 @@ function renderSettingsList(): string {
       name: "Errors",
       description: "Get or clear error information",
       enabled: capabilities.supportsErrorInfo,
+    },
+    {
+      id: "firmware",
+      name: "Firmware (Beta)",
+      description: "Upload a Nordic DFU .zip firmware package",
+      enabled: capabilities.supportsFirmwareUpdate,
     },
   ] as const
 
@@ -216,6 +225,28 @@ function renderErrorsPage(): string {
   `
 }
 
+function renderFirmwarePage(): string {
+  const capabilities = readCapabilities()
+  return `
+    <section class="session-page" aria-label="Settings">
+      <div class="page-title-row">
+        <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
+        <h3>Firmware (Beta)</h3>
+      </div>
+      <p>Use at your own risk. Flashing the wrong Nordic DFU package can leave the device unresponsive.</p>
+      <div class="settings-group">
+        <label>
+          Nordic DFU package (.zip)
+          <input type="file" accept=".zip,application/zip" data-settings-firmware-file />
+        </label>
+      </div>
+      <button type="button" data-settings-action="firmware-upload" ${!capabilities.supportsFirmwareUpdate ? "disabled" : ""}>Upload Firmware</button>
+      <p id="settings-status">${getActiveDevice() ? "Choose a Nordic DFU package." : "No connected device."}</p>
+      <pre id="settings-device-output" class="settings-output" aria-live="polite"></pre>
+    </section>
+  `
+}
+
 export function setupSettingsPage(rawSettingsPageId: string | null): string {
   const settingsPageId = parseSettingsId(rawSettingsPageId)
   if (!settingsPageId) return renderSettingsList()
@@ -223,5 +254,6 @@ export function setupSettingsPage(rawSettingsPageId: string | null): string {
   if (settingsPageId === "language") return renderLanguagePage()
   if (settingsPageId === "system-info") return renderSystemInfoPage()
   if (settingsPageId === "calibration") return renderCalibrationPage()
+  if (settingsPageId === "firmware") return renderFirmwarePage()
   return renderErrorsPage()
 }

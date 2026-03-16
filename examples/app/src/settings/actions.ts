@@ -1,4 +1,6 @@
 import type { ConnectedDevice } from "../devices/session.js"
+import { setActiveDevice } from "../devices/session.js"
+import { loadNordicDfuPackage } from "./nordic-dfu-package.js"
 
 export type SettingsActionId =
   | "tare"
@@ -9,6 +11,7 @@ export type SettingsActionId =
   | "calibration-save"
   | "errors-read"
   | "errors-clear"
+  | "firmware-upload"
 
 interface RunSettingsActionOptions {
   action: SettingsActionId
@@ -339,8 +342,51 @@ export async function runSettingsAction(options: RunSettingsActionOptions): Prom
       }
       await device.clearErrorInfo()
       setFeedback("Errors cleared.")
+      return
+    }
+
+    if (action === "firmware-upload") {
+      if (!device.dfuUpload) {
+        setFeedback("Firmware update is not supported by this device.")
+        return
+      }
+
+      const input = appElement.querySelector<HTMLInputElement>("[data-settings-firmware-file]")
+      const file = input?.files?.[0]
+      if (!file) {
+        setFeedback("Choose a Nordic DFU .zip package first.")
+        return
+      }
+
+      const dfuPackage = await loadNordicDfuPackage(file)
+      setFeedback(
+        `Uploading ${dfuPackage.image.type} firmware...`,
+        `${dfuPackage.packageName}\n${dfuPackage.image.imageFile}\n${dfuPackage.image.initFile}`,
+      )
+
+      await device.dfuUpload(dfuPackage.image.initData, dfuPackage.image.imageData)
+      setActiveDevice(null)
+      if (input) input.value = ""
+
+      setFeedback(
+        "Firmware update complete. Reconnect the device to continue.",
+        `${dfuPackage.packageName}\n${dfuPackage.image.imageFile}\n${dfuPackage.image.initFile}`,
+      )
     }
   } catch (error: unknown) {
+    if (
+      action === "firmware-upload" &&
+      error instanceof Error &&
+      error.message.startsWith("Device entered DFU mode.")
+    ) {
+      setActiveDevice(null)
+      setFeedback(
+        error.message,
+        "Choose the Nordic DFU bootloader in the browser picker, then press Upload Firmware again.",
+      )
+      return
+    }
+
     setFeedback(error instanceof Error ? error.message : "Settings action failed.")
   }
 }

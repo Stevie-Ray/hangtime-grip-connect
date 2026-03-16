@@ -10,6 +10,8 @@ export type { IMotherboard } from "./device/motherboard.interface.js"
 
 export type { ImySmartBoard } from "./device/mysmartboard.interface.js"
 
+export type { INordicDfuDevice } from "./nordic.interface.js"
+
 export type { IProgressor } from "./device/progressor.interface.js"
 
 export type { ISmartBoardPro } from "./device/smartboard-pro.interface.js"

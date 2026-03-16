@@ -2,6 +2,7 @@ import { connectSelectedDevice } from "../../devices/connect.js"
 import { getActiveDevice, getActiveDeviceKey, setActiveDevice } from "../../devices/session.js"
 import type { SettingsActionId } from "../../settings/actions.js"
 import { parseLanguage, parseUnit, savePreferences } from "../../settings/storage.js"
+import { loadNordicDfuPackage } from "../../settings/nordic-dfu-package.js"
 import { getTestModule } from "../../protocols/registry.js"
 import { loadConfig, saveConfig } from "../../protocols/storage.js"
 import {
@@ -268,6 +269,29 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
       if (!language) return
       savePreferences({ language })
       updateSettingsFeedback(`Language updated: ${language}`)
+      return
+    }
+
+    const firmwareInput = target?.closest<HTMLInputElement>("[data-settings-firmware-file]")
+    if (firmwareInput) {
+      const file = firmwareInput.files?.[0]
+      if (!file) {
+        updateSettingsFeedback("Choose a Nordic DFU package.")
+        return
+      }
+
+      void (async () => {
+        try {
+          const dfuPackage = await loadNordicDfuPackage(file)
+          updateSettingsFeedback(
+            "Firmware package loaded.",
+            `${dfuPackage.packageName}\n${dfuPackage.image.imageFile}\n${dfuPackage.image.initFile}`,
+          )
+        } catch (error: unknown) {
+          firmwareInput.value = ""
+          updateSettingsFeedback(error instanceof Error ? error.message : "Failed to load firmware package.")
+        }
+      })()
       return
     }
 

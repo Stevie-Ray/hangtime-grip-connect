@@ -16,6 +16,7 @@ export interface ConnectedDevice {
   saveCalibration?(): Promise<void>
   errorInfo?(): Promise<string | undefined>
   clearErrorInfo?(): Promise<void>
+  dfuUpload?(initPacket: Uint8Array | ArrayBuffer, firmware: Uint8Array | ArrayBuffer): Promise<void>
 }
 
 let activeDevice: ConnectedDevice | null = null

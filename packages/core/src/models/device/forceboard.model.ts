@@ -1,11 +1,11 @@
-import { Device } from "../device.model.js"
+import { NordicDfuDevice, createNordicDfuService } from "../nordic.model.js"
 import type { IForceBoard } from "../../interfaces/device/forceboard.interface.js"
 
 /**
  * Represents a PitchSix Force Board device.
  * {@link https://pitchsix.com}
  */
-export class ForceBoard extends Device implements IForceBoard {
+export class ForceBoard extends NordicDfuDevice implements IForceBoard {
   protected override streamUnit = "lbs" as const
 
   constructor() {
@@ -46,28 +46,7 @@ export class ForceBoard extends Device implements IForceBoard {
             },
           ],
         },
-        {
-          name: "Nordic Device Firmware Update (DFU) Service",
-          id: "dfu",
-          uuid: "0000fe59-0000-1000-8000-00805f9b34fb",
-          characteristics: [
-            // {
-            //   name: "DFU Control Point",
-            //   id: "control",
-            //   uuid: "8ec90001-f315-4f60-9fb8-838830daea50",
-            // },
-            // {
-            //   name: "DFU Packet",
-            //   id: "packet",
-            //   uuid: "8ec90002-f315-4f60-9fb8-838830daea50",
-            // },
-            {
-              name: "Buttonless DFU",
-              id: "buttonless",
-              uuid: "8ec90003-f315-4f60-9fb8-838830daea50",
-            },
-          ],
-        },
+        createNordicDfuService(),
         {
           name: "",
           id: "",
