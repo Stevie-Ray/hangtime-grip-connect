@@ -61,7 +61,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.19.15",
     "@types/web-bluetooth": "^0.0.21",
-    "eslint": "^10.0.3",
+    "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
