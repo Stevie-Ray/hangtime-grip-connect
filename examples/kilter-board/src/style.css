@@ -30,9 +30,30 @@ body {
   overflow-y: hidden;
 }
 
+#svg {
+  width: min(100%, 1080px);
+  max-height: 720px;
+  height: auto;
+}
+
 #canvas {
   display: block;
   margin: auto;
+}
+
+fieldset {
+  margin: 0 auto;
+  max-inline-size: max-content;
+  display: flex;
+
+  gap: 1rem;
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
 }
 
 input {
@@ -60,6 +81,12 @@ input {
   text-align: center;
   transition: border-color 0.25s;
   margin-bottom: 2rem;
+}
+
+input[type="checkbox"] {
+  accent-color: #1a1a1a;
+  appearance: checkbox;
+  margin: 0;
 }
 
 button:hover,

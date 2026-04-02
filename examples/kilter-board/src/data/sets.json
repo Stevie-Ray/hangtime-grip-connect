@@ -1,0 +1,57 @@
+[
+  {
+    "hsm": 1,
+    "id": 1,
+    "name": "Bolt Ons"
+  },
+  {
+    "hsm": 2,
+    "id": 20,
+    "name": "Screw Ons"
+  },
+  {
+    "hsm": 1,
+    "id": 21,
+    "name": "JUUL All"
+  },
+  {
+    "hsm": 1,
+    "id": 22,
+    "name": "Demo Holds"
+  },
+  {
+    "hsm": 1,
+    "id": 23,
+    "name": "BKB All"
+  },
+  {
+    "hsm": 1,
+    "id": 24,
+    "name": "Spire All"
+  },
+  {
+    "hsm": 1,
+    "id": 25,
+    "name": "Orbit"
+  },
+  {
+    "hsm": 1,
+    "id": 26,
+    "name": "Mainline"
+  },
+  {
+    "hsm": 2,
+    "id": 27,
+    "name": "Auxiliary"
+  },
+  {
+    "hsm": 4,
+    "id": 28,
+    "name": "Mainline Kickboard"
+  },
+  {
+    "hsm": 8,
+    "id": 29,
+    "name": "Auxiliary Kickboard"
+  }
+]

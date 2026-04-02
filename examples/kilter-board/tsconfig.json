@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "include": ["src"],
   "compilerOptions": {
+    "resolveJsonModule": true,
     "types": ["web-bluetooth", "w3c-web-serial"]
   }
 }

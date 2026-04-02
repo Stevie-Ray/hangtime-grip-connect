@@ -1,0 +1,82 @@
+[
+  {
+    "created_at": "2015-12-31 20:02:31.000000",
+    "id": 1,
+    "instagram_caption": "",
+    "is_listed": 1,
+    "is_mirrored": 0,
+    "name": "Kilter Board Original",
+    "password": null,
+    "product_id": 1
+  },
+  {
+    "created_at": "2019-05-26 17:35:44.426770",
+    "id": 2,
+    "instagram_caption": "",
+    "is_listed": 1,
+    "is_mirrored": 0,
+    "name": "JUUL",
+    "password": "freedom",
+    "product_id": 2
+  },
+  {
+    "created_at": "2019-07-29 23:35:36.435295",
+    "id": 3,
+    "instagram_caption": "Kilter's Demo Board.",
+    "is_listed": 0,
+    "is_mirrored": 0,
+    "name": "Standard Medium",
+    "password": "sales",
+    "product_id": 3
+  },
+  {
+    "created_at": "2019-10-21 20:43:47.467242",
+    "id": 4,
+    "instagram_caption": "",
+    "is_listed": 0,
+    "is_mirrored": 0,
+    "name": "BKBBoard Level 1",
+    "password": "BKBlove",
+    "product_id": 4
+  },
+  {
+    "created_at": "2020-07-21 20:48:59.728468",
+    "id": 6,
+    "instagram_caption": "",
+    "is_listed": 0,
+    "is_mirrored": 0,
+    "name": "Tycho Complete",
+    "password": "explore",
+    "product_id": 6
+  },
+  {
+    "created_at": "2020-09-13 02:15:37.144386",
+    "id": 7,
+    "instagram_caption": "",
+    "is_listed": 1,
+    "is_mirrored": 0,
+    "name": "Tycho 2020",
+    "password": "explore",
+    "product_id": 6
+  },
+  {
+    "created_at": "2020-10-02 17:19:05.122166",
+    "id": 8,
+    "instagram_caption": "The Kilter Home Board.",
+    "is_listed": 1,
+    "is_mirrored": 0,
+    "name": "Kilter Board Homewall",
+    "password": null,
+    "product_id": 7
+  },
+  {
+    "created_at": "2020-04-29 01:19:34.621745",
+    "id": 5,
+    "instagram_caption": "",
+    "is_listed": 0,
+    "is_mirrored": 0,
+    "name": "Spire",
+    "password": "SPIREDOJO",
+    "product_id": 5
+  }
+]

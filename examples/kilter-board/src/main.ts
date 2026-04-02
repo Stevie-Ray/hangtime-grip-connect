@@ -1,6 +1,6 @@
 import "./style.css"
 
-import { setupArduino, setupDevice, processImageToHolds } from "./device.js"
+import { initializeBoardDemo, processImageToHolds, setupArduino, setupDevice } from "./device.js"
 import { setupFontAwesome } from "./icons.js"
 
 const controllerElement = document.querySelector<HTMLDivElement>("#controller")
@@ -13,6 +13,7 @@ if (controllerElement) {
 }
 
 setupFontAwesome()
+initializeBoardDemo()
 
 const deviceConnectButton = document.querySelector<HTMLButtonElement>("#deviceConnect")
 if (deviceConnectButton) {
