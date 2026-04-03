@@ -219,28 +219,31 @@ function renderConfigurator() {
   const setOptions = getKilterSets(currentConfig.layoutId, currentConfig.sizeId)
 
   configuratorElement.innerHTML = `
-      <label>
-        <span>Layout</span>
-        <select id="layout-select">
-          ${layoutOptions
-            .map(
-              (layout) =>
-                `<option value="${layout.id}" ${layout.id === currentConfig.layoutId ? "selected" : ""}>${layout.name}</option>`,
-            )
-            .join("")}
-        </select>
-      </label>
-      <label>
-        <span>Size</span>
-        <select id="size-select">
-          ${sizeOptions
-            .map(
-              (size) =>
-                `<option value="${size.id}" ${size.id === currentConfig.sizeId ? "selected" : ""}>${size.name}${size.description ? ` • ${size.description}` : ""}</option>`,
-            )
-            .join("")}
-        </select>
-      </label>
+      <fieldset id="layout-options">
+        <legend>Type</legend>
+        <label>
+          <span class="sr-only">Layout</span>
+          <select id="layout-select">
+            ${layoutOptions
+              .map(
+                (layout) =>
+                  `<option value="${layout.id}" ${layout.id === currentConfig.layoutId ? "selected" : ""}>${layout.name}</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+        <label>
+          <span class="sr-only">Size</span>
+          <select id="size-select">
+            ${sizeOptions
+              .map(
+                (size) =>
+                  `<option value="${size.id}" ${size.id === currentConfig.sizeId ? "selected" : ""}>${size.name}${size.description ? ` • ${size.description}` : ""}</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+      </fieldset>
       <fieldset id="set-options">
         <legend>Sets</legend>
         ${setOptions

@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "nl.stevie-ray.hangtime-grip-connect",
+      "bundleIdentifier": "nl.stevie-ray.hangtime.grip-connect",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -24,7 +24,7 @@
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "nl.stevie-ray.hangtime-grip-connect"
+      "package": "nl.stevieray.hangtime.gripconnect"
     },
     "web": {
       "bundler": "metro",

@@ -42,26 +42,42 @@ body {
 }
 
 fieldset {
-  margin: 0 auto;
-  max-inline-size: max-content;
+  margin: 0 auto 1rem;
   display: flex;
-
-  gap: 1rem;
-  label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
-  }
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 1rem;
+  padding: 0;
+  width: fit-content;
+  max-inline-size: 100%;
+  border-radius: 1rem;
+  border: none;
 }
 
-input {
-  max-width: 120px;
+fieldset select {
+  margin-bottom: 0;
 }
 
-input[type="file"] {
-  max-width: 220px;
+fieldset label {
+  display: inline-flex;
+  align-items: center;
+  column-gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+fieldset legend {
+  display: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 }
 
 button,
@@ -84,7 +100,7 @@ input {
 }
 
 input[type="checkbox"] {
-  accent-color: #1a1a1a;
+  accent-color: #e6e6e6;
   appearance: checkbox;
   margin: 0;
 }
@@ -133,7 +149,7 @@ footer {
 }
 
 footer small {
-  gap: 0.5rem;
+  column-gap: 0.5rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -165,6 +181,10 @@ footer a:hover {
   input,
   button {
     background-color: #e6e6e6;
+  }
+
+  input[type="checkbox"] {
+    accent-color: #1a1a1a;
   }
 
   footer a {
