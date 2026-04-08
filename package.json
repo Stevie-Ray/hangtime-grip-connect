@@ -61,12 +61,12 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.19.17",
     "@types/web-bluetooth": "^0.0.21",
-    "eslint": "^10.1.0",
+    "eslint": "^10.2.0",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
     "prettier": "^3.8.1",
     "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.0"
+    "typescript-eslint": "^8.58.1"
   }
 }
