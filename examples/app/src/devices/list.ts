@@ -36,7 +36,7 @@ export function setupDeviceList(isConnected = false) {
     {
       key: "cts500",
       name: "Jlyscales CTS500",
-      shortDescription: "Counterfeit Tindeq Progressor for measuring force",
+      shortDescription: "China-made copy of the Tindeq Progressor",
       url: "https://www.alibaba.com/product-detail/Mini-Climbing-Training-Scale-CTS500-Aluminum_1601637814595.html",
     },
     {
