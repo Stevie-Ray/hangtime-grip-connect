@@ -1,5 +1,6 @@
 import {
   Climbro,
+  CTS500,
   Entralpi,
   ForceBoard,
   Motherboard,
@@ -15,6 +16,7 @@ type SupportedDevice = ConnectedDevice
 
 function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "climbro") return new Climbro()
+  if (deviceKey === "cts500") return new CTS500()
   if (deviceKey === "entralpi") return new Entralpi()
   if (deviceKey === "forceboard") return new ForceBoard()
   if (deviceKey === "motherboard") return new Motherboard()

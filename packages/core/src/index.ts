@@ -1,5 +1,6 @@
 export type {
   IClimbro,
+  ICTS500,
   IEntralpi,
   IForceBoard,
   IKilterBoard,
@@ -20,6 +21,7 @@ export type {
 
 export {
   Climbro,
+  CTS500,
   Entralpi,
   ForceBoard,
   KilterBoard,

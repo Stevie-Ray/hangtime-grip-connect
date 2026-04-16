@@ -8,6 +8,7 @@ the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
 [Tindeq Progressor](https://tindeq.com/product/progressor/),
 [PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
 [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
+[Jlyscales CTS500](https://www.alibaba.com/product-detail/Mini-Climbing-Training-Scale-CTS500-Aluminum_1601637814595.html),
 [Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno), [Entralpi](https://entralpi.com/),
 [Climbro](https://climbro.com/), or [mySmartBoard](https://www.smartboard-climbing.com/)
 
@@ -149,6 +150,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [Weiheng - WH-C06](https://stevie-ray.github.io/hangtime-grip-connect/devices/wh-c06.html)
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
+- ➡️ [CTS500](https://stevie-ray.github.io/hangtime-grip-connect/devices/cts500.html)
 - ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)

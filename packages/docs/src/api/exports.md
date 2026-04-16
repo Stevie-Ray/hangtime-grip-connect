@@ -24,6 +24,7 @@ Use to instantiate and connect to a device. Example: `new Motherboard()` or `new
 | `KilterBoard`   | Kilter Board (and compatible LED boards) |
 | `Entralpi`      | Entralpi / Lefu / Unique CW275           |
 | `Climbro`       | Climbro                                  |
+| `CTS500`        | Jlyscales CTS500                         |
 | `mySmartBoard`  | mySmartBoard                             |
 | `SmartBoardPro` | SmartBoard Pro                           |
 | `WHC06`         | Weiheng WH-C06                           |
@@ -37,6 +38,7 @@ Use for TypeScript types when typing variables, parameters, or return values. Ex
 | Type             | Device                                   |
 | ---------------- | ---------------------------------------- |
 | `IClimbro`       | Climbro                                  |
+| `ICTS500`        | Jlyscales CTS500                         |
 | `IEntralpi`      | Entralpi / Lefu / Unique CW275           |
 | `IForceBoard`    | PitchSix Force Board                     |
 | `IKilterBoard`   | Kilter Board (and compatible LED boards) |

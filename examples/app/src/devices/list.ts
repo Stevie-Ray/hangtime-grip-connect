@@ -34,6 +34,12 @@ export function setupDeviceList(isConnected = false) {
       url: "https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/",
     },
     {
+      key: "cts500",
+      name: "Jlyscales CTS500",
+      shortDescription: "Counterfeit Tindeq Progressor for measuring force",
+      url: "https://www.alibaba.com/product-detail/Mini-Climbing-Training-Scale-CTS500-Aluminum_1601637814595.html",
+    },
+    {
       key: "motherboard",
       name: "Griptonite Motherboard",
       shortDescription: "Force sensors for Beastmaker hangboards",

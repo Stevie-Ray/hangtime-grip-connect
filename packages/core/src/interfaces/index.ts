@@ -1,5 +1,7 @@
 export type { IClimbro } from "./device/climbro.interface.js"
 
+export type { ICTS500 } from "./device/cts500.interface.js"
+
 export type { IEntralpi } from "./device/entralpi.interface.js"
 
 export type { IForceBoard } from "./device/forceboard.interface.js"

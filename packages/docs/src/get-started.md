@@ -19,7 +19,8 @@ hangboards, dynamometers, plates, and LED system boards used by climbers. It sup
 - **Dynamometers:** [Tindeq Progressor](https://tindeq.com/product/progressor/),
   [PitchSix Force Board](https://pitchsix.com/products/force-board-portable),
   [Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno),
-  [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/)
+  [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
+  [Jlyscales CTS500](https://www.alibaba.com/product-detail/Mini-Climbing-Training-Scale-CTS500-Aluminum_1601637814595.html)
 - **Scales / force plates:** [Entralpi](https://entralpi.com/)
 - **LED system boards:** [Kilter Board](https://settercloset.com/pages/the-kilter-board),
   [Tension Board](https://tensionclimbing.com/product/tension-board-2/),

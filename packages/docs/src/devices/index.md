@@ -45,7 +45,7 @@ examples.
 ## Device categories
 
 - **Hangboards** - Motherboard, Climbro, mySmartBoard, SmartBoard Pro (force streaming, optional LED).
-- **Dynamometers / force plates** - Progressor, ForceBoard, WH-C06, Entralpi (force measurement, tare, stream).
+- **Dynamometers / force plates** - Progressor, ForceBoard, WH-C06, Entralpi, CTS500 (force measurement, tare, stream).
 - **LED system boards** - Kilter Board (and compatible Aurora boards): route display via `led()`.
 - **Other** - PB-700BT (gyroscopic hand exerciser); Dyno (upcoming).
 
@@ -59,6 +59,7 @@ examples.
 | [KilterBoard](/devices/kilterboard)      | Kilter Board (and compatible LED boards) | LED route display                                  |
 | [Entralpi](/devices/entralpi)            | Entralpi / Lefu / Unique CW275           | Scale (force plate), stream                        |
 | [Climbro](/devices/climbro)              | Climbro                                  | Hangboard                                          |
+| [CTS500](/devices/cts500)                | CTS500                                   | Dynamometer                                        |
 | [mySmartBoard](/devices/mysmartboard)    | mySmartBoard                             | Hangboard                                          |
 | [SmartBoardPro](/devices/smartboard-pro) | SmartBoard Pro                           | Hangboard                                          |
 | [WHC06](/devices/wh-c06)                 | Weiheng WH-C06                           | Dynamometer, stream                                |

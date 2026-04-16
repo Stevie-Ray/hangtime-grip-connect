@@ -1,4 +1,4 @@
-const DYNAMOMETER_DEVICE_KEYS = new Set<string>(["progressor", "forceboard", "whc06"])
+const DYNAMOMETER_DEVICE_KEYS = new Set<string>(["progressor", "forceboard", "cts500", "whc06"])
 const DYNAMOMETER_ONLY_ACTION_IDS = new Set<string>(["peak-force-mvc", "rfd", "critical-force"])
 export const MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ = 80
 
