@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-runtime",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Runtime adapter for Grip Connect devices",
   "type": "module",
   "main": "dist/index.js",
@@ -26,7 +26,7 @@
     "build": "npm run clean && tsc --build"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.12.0",
+    "@hangtime/grip-connect": "^0.13.0",
     "webbluetooth": "^3.7.0"
   },
   "devDependencies": {
