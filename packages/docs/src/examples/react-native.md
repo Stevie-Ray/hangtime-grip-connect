@@ -25,10 +25,10 @@ training modes (peak force, endurance, timed hangs). The example is based on
 
 The example is a tabbed app with:
 
-- **Home:** Choose a training mode. Each uses a scale/force device (e.g. Progressor, Force Board, WH-C06) and the shared
-  [device interface](/api/device-interface) (`connect`, `notify`, `stream`).
-- **Device picker:** Select device type (WH-C06, Climbro, Entralpi, Force Board, Motherboard, mySmartBoard, Progressor).
-  The app creates the matching device class, scans, connects, and streams force data.
+- **Home:** Choose a training mode. Each uses a scale/force device (e.g. CTS500, Progressor, Force Board, WH-C06) and
+  the shared [device interface](/api/device-interface) (`connect`, `notify`, `stream`).
+- **Device picker:** Select device type (WH-C06, Climbro, CTS500, Entralpi, Force Board, Motherboard, mySmartBoard,
+  Progressor). The app creates the matching device class, scans, connects, and streams force data.
 - **History & settings:** Persist workout results and configure holds/units.
 
 Use it as a reference for:

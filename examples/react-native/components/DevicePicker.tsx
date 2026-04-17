@@ -6,6 +6,7 @@ import { Text } from "@/components/Themed"
 
 export type DeviceType =
   | "climbro"
+  | "cts500"
   | "entralpi"
   | "forceboard"
   | "motherboard"
@@ -32,6 +33,7 @@ export default function DevicePicker({ selectedDevice, onDeviceChange }: DeviceP
         >
           <Picker.Item label="Select device" value="" />
           <Picker.Item label="Climbro" value="climbro" />
+          <Picker.Item label="CTS500" value="cts500" />
           <Picker.Item label="Entralpi" value="entralpi" />
           <Picker.Item label="Force Board" value="forceboard" />
           <Picker.Item label="Motherboard" value="motherboard" />

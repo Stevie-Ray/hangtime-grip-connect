@@ -25,9 +25,9 @@ npm install @hangtime/grip-connect-runtime
 ## Usage
 
 ```ts
-import { Progressor } from "@hangtime/grip-connect-runtime"
+import { CTS500 } from "@hangtime/grip-connect-runtime"
 
-const device = new Progressor()
+const device = new CTS500()
 
 device.notify((data) => console.log(data.current))
 
@@ -56,6 +56,9 @@ support:
 
 **WH-C06** — Not supported in the runtime. The device relies on `watchAdvertisements()`, which is
 [unsupported in the webbluetooth adapter](https://github.com/thegecko/webbluetooth#implementation-status).
+
+All other runtime-supported devices from the core package, including `CTS500`, are re-exported with the same API and a
+filesystem-based `download()`.
 
 ## Documentation
 

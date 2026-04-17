@@ -150,7 +150,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
 - ✅ [Weiheng - WH-C06](https://stevie-ray.github.io/hangtime-grip-connect/devices/wh-c06.html)
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
-- ➡️ [CTS500](https://stevie-ray.github.io/hangtime-grip-connect/devices/cts500.html)
+- ✅ [CTS500](https://stevie-ray.github.io/hangtime-grip-connect/devices/cts500.html)
 - ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)

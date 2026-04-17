@@ -9,6 +9,7 @@
 import type { DeviceDefinition } from "../types.js"
 
 import climbro from "./climbro.js"
+import cts500 from "./cts500.js"
 import entralpi from "./entralpi.js"
 import forceboard from "./forceboard.js"
 import motherboard from "./motherboard.js"
@@ -21,6 +22,7 @@ import whc06 from "./wh-c06.js"
 /** Map of device keys to their definitions. */
 export const devices: Record<string, DeviceDefinition> = {
   climbro,
+  cts500,
   entralpi,
   forceboard,
   motherboard,

@@ -59,7 +59,7 @@ examples.
 | [KilterBoard](/devices/kilterboard)      | Kilter Board (and compatible LED boards) | LED route display                                  |
 | [Entralpi](/devices/entralpi)            | Entralpi / Lefu / Unique CW275           | Scale (force plate), stream                        |
 | [Climbro](/devices/climbro)              | Climbro                                  | Hangboard                                          |
-| [CTS500](/devices/cts500)                | CTS500                                   | Dynamometer                                        |
+| [CTS500](/devices/cts500)                | CTS500                                   | Dynamometer, stream, battery, tare                 |
 | [mySmartBoard](/devices/mysmartboard)    | mySmartBoard                             | Hangboard                                          |
 | [SmartBoardPro](/devices/smartboard-pro) | SmartBoard Pro                           | Hangboard                                          |
 | [WHC06](/devices/wh-c06)                 | Weiheng WH-C06                           | Dynamometer, stream                                |
@@ -70,8 +70,8 @@ examples.
 
 Many devices add methods on top of the shared interface:
 
-- **Stream**: Call `stream(durationMs)` after connect (e.g. Progressor, ForceBoard, Motherboard). Use `0` or omit for
-  continuous stream; call `stop()` to end. Data is delivered to the callback set with `notify()`.
+- **Stream**: Call `stream(durationMs)` after connect (e.g. Progressor, ForceBoard, CTS500, Motherboard). Use `0` or
+  omit for continuous stream; call `stop()` to end. Data is delivered to the callback set with `notify()`.
 - **Battery**: Where supported: `await device.battery()` after connect.
 - **Tare**: Uses the shared `tare(duration?)`; support varies by device.
 - **LED**: Where supported (e.g. Motherboard, Kilter Board): `await device.led("red")` or `device.led()` to turn off.

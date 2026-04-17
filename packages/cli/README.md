@@ -115,6 +115,7 @@ grip-connect progressor active --threshold 2.5
 | Key            | Name           | Capabilities                                                                                                             |
 | -------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | climbro        | Climbro        | battery, tare, download, active                                                                                          |
+| cts500         | CTS500         | stream, battery, tare, download, active                                                                                  |
 | entralpi       | Entralpi       | battery, tare, download, active                                                                                          |
 | forceboard     | ForceBoard     | stream, battery, tare, download, active                                                                                  |
 | motherboard    | Motherboard    | stream, battery, tare, download, active                                                                                  |

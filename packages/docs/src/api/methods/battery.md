@@ -12,6 +12,7 @@ Device-specific method. Retrieves battery or voltage information from the connec
 - [Motherboard](/devices/motherboard)
 - [Progressor](/devices/progressor)
 - [ForceBoard](/devices/forceboard)
+- [CTS500](/devices/cts500)
 - [Entralpi](/devices/entralpi)
 - [Climbro](/devices/climbro)
 

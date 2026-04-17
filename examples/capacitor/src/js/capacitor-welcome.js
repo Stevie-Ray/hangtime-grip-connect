@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core"
 import { SplashScreen } from "@capacitor/splash-screen"
 import {
   Climbro,
+  CTS500,
   Entralpi,
   ForceBoard,
   Motherboard,
@@ -135,6 +136,7 @@ globalThis.customElements.define(
           <select id="device-select">
             <option value="">Select device</option>
             <option value="climbro">Climbro</option>
+            <option value="cts500">CTS500</option>
             <option value="entralpi">Entralpi</option>
             <option value="forceboard">Force Board</option>
             <option value="motherboard">Motherboard</option>
@@ -176,6 +178,9 @@ globalThis.customElements.define(
           switch (selectedDeviceType) {
             case "climbro":
               device = new Climbro()
+              break
+            case "cts500":
+              device = new CTS500()
               break
             case "entralpi":
               device = new Entralpi()

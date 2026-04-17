@@ -2,6 +2,7 @@ export type { ForceUnit, ForceMeasurement, NotifyCallback, WriteCallback, Active
 
 export type {
   IClimbro,
+  ICTS500,
   IEntralpi,
   IForceBoard,
   IKilterBoard,
@@ -14,6 +15,7 @@ export type {
 
 export {
   Climbro,
+  CTS500,
   Entralpi,
   ForceBoard,
   KilterBoard,

@@ -72,9 +72,9 @@ only difference is that BLE is provided by the `webbluetooth` polyfill and `down
 triggering a browser download.
 
 ```ts
-import { Progressor } from "@hangtime/grip-connect-runtime"
+import { CTS500 } from "@hangtime/grip-connect-runtime"
 
-const device = new Progressor()
+const device = new CTS500()
 
 // Subscribe to real-time force data
 device.notify((data) => {
@@ -112,6 +112,7 @@ The runtime package re-exports all device classes from the core library with Nod
 | Class           | Device                                                                                                                                       |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Climbro`       | Climbro                                                                                                                                      |
+| `CTS500`        | Jlyscales CTS500                                                                                                                             |
 | `Entralpi`      | Entralpi                                                                                                                                     |
 | `ForceBoard`    | PitchSix Force Board                                                                                                                         |
 | `KilterBoard`   | Kilter Board                                                                                                                                 |

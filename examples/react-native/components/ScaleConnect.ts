@@ -2,6 +2,7 @@ import { BleManager } from "react-native-ble-plx"
 import BluetoothPermissions from "@/components/bluetoothPermissions"
 import {
   Climbro,
+  CTS500,
   Entralpi,
   ForceBoard,
   Motherboard,
@@ -13,7 +14,7 @@ import { Platform } from "react-native"
 import { DeviceType } from "@/components/DevicePicker"
 
 let bleManager: BleManager | null = null
-let device: WHC06 | Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | null = null
+let device: WHC06 | Climbro | CTS500 | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | null = null
 
 if (Platform.OS !== "web") {
   bleManager = new BleManager()
@@ -27,6 +28,8 @@ const createDevice = (deviceType: DeviceType) => {
       return new WHC06()
     case "climbro":
       return new Climbro()
+    case "cts500":
+      return new CTS500()
     case "entralpi":
       return new Entralpi()
     case "forceboard":

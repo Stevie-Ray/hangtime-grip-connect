@@ -35,7 +35,7 @@
     "build": "npm run build:cjs && npm run build:esm"
   },
   "devDependencies": {
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "license": "BSD-2-Clause",

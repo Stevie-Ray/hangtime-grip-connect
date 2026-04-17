@@ -5,10 +5,10 @@ description: Writes to a GATT characteristic with optional response callback.
 
 # write
 
-Writes a message to a GATT characteristic. Devices that support commands (Motherboard, Progressor, Force Board) expose a
-`commands` object-a standardized interface mapping semantic names (e.g. `GET_BATTERY_VOLTAGE`) to device-specific
-payloads. Pass `device.commands.COMMAND_NAME` as the message. An optional callback receives the characteristic's
-response (e.g. battery voltage, serial number).
+Writes a message to a GATT characteristic. Devices that support commands (Motherboard, Progressor, Force Board, CTS500)
+expose a `commands` object-a standardized interface mapping semantic names (e.g. `GET_BATTERY_VOLTAGE`) to
+device-specific payloads. Pass `device.commands.COMMAND_NAME` as the message. An optional callback receives the
+characteristic's response (e.g. battery voltage, serial number).
 
 ## Signature
 
@@ -65,18 +65,18 @@ The optional callback receives a `string` - the characteristic's response (e.g. 
 
 ## Commands
 
-Devices that support commands (Motherboard, Progressor, Force Board) map semantic names to protocol-specific payloads.
-Use `device.commands.COMMAND_NAME` as the message-each device defines its own values. Common commands:
+Devices that support commands (Motherboard, Progressor, Force Board, CTS500) map semantic names to protocol-specific
+payloads. Use `device.commands.COMMAND_NAME` as the message-each device defines its own values. Common commands:
 
-| Command                | Description           | Devices                              |
-| ---------------------- | --------------------- | ------------------------------------ |
-| `START_WEIGHT_MEAS`    | Start force streaming | Motherboard, Progressor, Force Board |
-| `STOP_WEIGHT_MEAS`     | Stop streaming        | Motherboard, Progressor, Force Board |
-| `SLEEP`                | Put device to sleep   | Motherboard, Progressor              |
-| `GET_SERIAL`           | Get serial number     | Motherboard                          |
-| `GET_BATTERY_VOLTAGE`  | Get battery voltage   | Progressor                           |
-| `GET_FIRMWARE_VERSION` | Get firmware version  | Progressor                           |
-| `TARE_SCALE`           | Tare (zero) the scale | Progressor, Force Board              |
-| `START_QUICK_MEAS`     | Quick measure mode    | Force Board                          |
+| Command                | Description           | Devices                                      |
+| ---------------------- | --------------------- | -------------------------------------------- |
+| `START_WEIGHT_MEAS`    | Start force streaming | Motherboard, Progressor, Force Board, CTS500 |
+| `STOP_WEIGHT_MEAS`     | Stop streaming        | Motherboard, Progressor, Force Board, CTS500 |
+| `SLEEP`                | Put device to sleep   | Motherboard, Progressor                      |
+| `GET_SERIAL`           | Get serial number     | Motherboard                                  |
+| `GET_BATTERY_VOLTAGE`  | Get battery voltage   | Progressor, CTS500                           |
+| `GET_FIRMWARE_VERSION` | Get firmware version  | Progressor, CTS500                           |
+| `TARE_SCALE`           | Tare (zero) the scale | Progressor, Force Board, CTS500              |
+| `START_QUICK_MEAS`     | Quick measure mode    | Force Board                                  |
 
 See [Devices](/devices/) for which commands each device supports.

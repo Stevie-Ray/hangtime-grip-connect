@@ -1,5 +1,6 @@
 export {
   Climbro,
+  CTS500,
   Entralpi,
   ForceBoard,
   KilterBoard,

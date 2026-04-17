@@ -1,5 +1,7 @@
 export { Climbro } from "./device/climbro.model.js"
 
+export { CTS500 } from "./device/cts500.model.js"
+
 export { Entralpi } from "./device/entralpi.model.js"
 
 export { ForceBoard } from "./device/forceboard.model.js"

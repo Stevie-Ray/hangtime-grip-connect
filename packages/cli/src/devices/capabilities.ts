@@ -1,4 +1,4 @@
-const DYNAMOMETER_DEVICE_KEYS = new Set<string>(["progressor", "forceboard", "wh-c06"])
+const DYNAMOMETER_DEVICE_KEYS = new Set<string>(["progressor", "forceboard", "cts500", "wh-c06"])
 const DYNAMOMETER_ONLY_ACTION_IDS = new Set<string>(["peak-force-mvc", "rfd", "critical-force"])
 
 export function isDynamometerDeviceKey(deviceKey: string): boolean {

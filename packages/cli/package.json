@@ -42,7 +42,7 @@
     "@types/asciichart": "^1.5.8",
     "@types/node": "^22.19.17",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "license": "BSD-2-Clause",

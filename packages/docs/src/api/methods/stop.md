@@ -12,6 +12,7 @@ Device-specific method. Stops a force stream that was started with `stream()`.
 - [Motherboard](/devices/motherboard)
 - [Progressor](/devices/progressor)
 - [ForceBoard](/devices/forceboard)
+- [CTS500](/devices/cts500)
 
 ## Signature
 

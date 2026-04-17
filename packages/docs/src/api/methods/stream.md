@@ -13,6 +13,7 @@ Device-specific method. Starts streaming force data from the device. Data is del
 - [Motherboard](/devices/motherboard)
 - [Progressor](/devices/progressor)
 - [ForceBoard](/devices/forceboard)
+- [CTS500](/devices/cts500)
 
 ## Signature
 
