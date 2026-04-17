@@ -1,4 +1,5 @@
 import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
+import type { DeviceBaudRate, DeviceSamplingRate } from "../settings/rates.js"
 
 export interface ConnectedDevice {
   connect(success: () => void, error?: (error: Error) => void): Promise<void>
@@ -10,6 +11,8 @@ export interface ConnectedDevice {
   tare?(duration?: number): boolean
   battery?(): Promise<string | undefined>
   firmware?(): Promise<string | undefined>
+  setBaudRate?(baudRate: DeviceBaudRate): Promise<void>
+  setSamplingRate?(samplingRate: DeviceSamplingRate): Promise<void>
   calibration?(): Promise<unknown>
   setCalibration?(curve: Uint8Array): Promise<void>
   addCalibrationPoint?(): Promise<void>

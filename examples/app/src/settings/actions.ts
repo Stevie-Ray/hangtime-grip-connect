@@ -1,9 +1,13 @@
 import type { ConnectedDevice } from "../devices/session.js"
 import { setActiveDevice } from "../devices/session.js"
+import { parseBaudRate, parseSamplingRate } from "./rates.js"
+import { savePreferences } from "./storage.js"
 import { loadNordicDfuPackage } from "./nordic-dfu-package.js"
 
 export type SettingsActionId =
   | "tare"
+  | "sample-rate-set"
+  | "baud-rate-set"
   | "system-info"
   | "calibration-read"
   | "calibration-set"
@@ -276,6 +280,44 @@ export async function runSettingsAction(options: RunSettingsActionOptions): Prom
     if (action === "system-info") {
       const output = await readSystemInfo(device)
       setFeedback("", output)
+      return
+    }
+
+    if (action === "sample-rate-set") {
+      if (!device.setSamplingRate) {
+        setFeedback("Sample rate is not supported by this device.")
+        return
+      }
+
+      const input = appElement.querySelector<HTMLSelectElement>("[data-settings-sample-rate]")
+      const rate = parseSamplingRate(input?.value ?? "")
+      if (!rate) {
+        setFeedback("Choose a valid sample rate.")
+        return
+      }
+
+      await device.setSamplingRate(rate)
+      savePreferences({ sampleRate: rate })
+      setFeedback(`Sample rate updated: ${rate}Hz.`)
+      return
+    }
+
+    if (action === "baud-rate-set") {
+      if (!device.setBaudRate) {
+        setFeedback("Baud rate is not supported by this device.")
+        return
+      }
+
+      const input = appElement.querySelector<HTMLSelectElement>("[data-settings-baud-rate]")
+      const rate = parseBaudRate(input?.value ?? "")
+      if (!rate) {
+        setFeedback("Choose a valid baud rate.")
+        return
+      }
+
+      await device.setBaudRate(rate)
+      savePreferences({ baudRate: rate })
+      setFeedback(`Baud rate updated: ${rate}.`)
       return
     }
 

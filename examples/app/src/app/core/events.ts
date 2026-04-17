@@ -272,6 +272,18 @@ export function registerAppEvents(options: RegisterAppEventsOptions): void {
       return
     }
 
+    const sampleRateSelect = target?.closest<HTMLSelectElement>("[data-settings-sample-rate]")
+    if (sampleRateSelect) {
+      executeSettingsAction("sample-rate-set")
+      return
+    }
+
+    const baudRateSelect = target?.closest<HTMLSelectElement>("[data-settings-baud-rate]")
+    if (baudRateSelect) {
+      executeSettingsAction("baud-rate-set")
+      return
+    }
+
     const firmwareInput = target?.closest<HTMLInputElement>("[data-settings-firmware-file]")
     if (firmwareInput) {
       const file = firmwareInput.files?.[0]

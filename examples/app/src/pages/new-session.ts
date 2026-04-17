@@ -40,6 +40,10 @@ export function setupNewSessionPage(actionId: string, samplingRateState?: NewSes
   const hasSufficientSamplingRate =
     !samplingRateRequired || (samplingRateHz != null && samplingRateHz >= MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ)
   const canStart = isConnected && isSupportedByDevice && hasSufficientSamplingRate && !samplingRateChecking
+  const samplingRateStatus =
+    samplingRateHz != null
+      ? `<p>Detected sampling rate: ${samplingRateHz.toFixed(0)}Hz. Minimum required: ${MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ}Hz.</p>`
+      : ""
 
   return `
     <section class="session-page" aria-label="${escapeHtml(action.name)} options">
@@ -62,9 +66,11 @@ export function setupNewSessionPage(actionId: string, samplingRateState?: NewSes
             ? samplingRateRequired
               ? samplingRateChecking
                 ? "<p>Checking device sampling rate...</p>"
-                : hasSufficientSamplingRate
-                  ? ""
-                  : `<p>This test is only available for dynamometers above ${MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ}Hz.${samplingRateHz != null ? ` (Detected: ${samplingRateHz.toFixed(0)}Hz)` : ""}</p>${samplingRateState?.error ? `<p>${escapeHtml(samplingRateState.error)}</p>` : ""}`
+                : `${samplingRateStatus}${
+                    hasSufficientSamplingRate
+                      ? ""
+                      : `<p>This test is only available for dynamometers above ${MIN_DYNAMIC_TEST_SAMPLING_RATE_HZ}Hz.</p>`
+                  }${samplingRateState?.error ? `<p>${escapeHtml(samplingRateState.error)}</p>` : ""}`
               : ""
             : "<p>This test is only available for dynamometers.</p>"
           : "<p>No connected device. Connect with Bluetooth first.</p>"

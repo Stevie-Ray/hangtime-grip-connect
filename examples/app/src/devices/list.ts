@@ -30,13 +30,13 @@ export function setupDeviceList(isConnected = false) {
     {
       key: "whc06",
       name: "Weiheng WH-C06",
-      shortDescription: "Crane scale used as affordable dynamometer",
+      shortDescription: "China-made budget-friendly crane scale",
       url: "https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/",
     },
     {
       key: "cts500",
       name: "Jlyscales CTS500",
-      shortDescription: "China-made copy of the Tindeq Progressor",
+      shortDescription: "China-made lookalike of the Tindeq Progressor",
       url: "https://www.alibaba.com/product-detail/Mini-Climbing-Training-Scale-CTS500-Aluminum_1601637814595.html",
     },
     {

@@ -1,12 +1,25 @@
 import { getActiveDevice } from "../devices/session.js"
+import { BAUD_RATE_OPTIONS, SAMPLING_RATE_OPTIONS } from "../settings/rates.js"
 import { loadPreferences } from "../settings/storage.js"
 
-export type SettingsPageId = "unit" | "language" | "system-info" | "calibration" | "errors" | "firmware"
+export type SettingsPageId =
+  | "unit"
+  | "language"
+  | "rates"
+  | "sample-rate"
+  | "baud-rate"
+  | "system-info"
+  | "calibration"
+  | "errors"
+  | "firmware"
 
 function parseSettingsId(value: string | null): SettingsPageId | null {
   if (
     value === "unit" ||
     value === "language" ||
+    value === "rates" ||
+    value === "sample-rate" ||
+    value === "baud-rate" ||
     value === "system-info" ||
     value === "calibration" ||
     value === "errors" ||
@@ -18,7 +31,9 @@ function parseSettingsId(value: string | null): SettingsPageId | null {
 }
 
 interface CapabilityState {
+  supportsBaudRate: boolean
   supportsTare: boolean
+  supportsSampleRate: boolean
   supportsSystemInfo: boolean
   supportsCalibrationRead: boolean
   supportsCalibrationSet: boolean
@@ -39,7 +54,9 @@ function readCapabilities(): CapabilityState {
       })
     | null
   return {
+    supportsBaudRate: Boolean(device?.setBaudRate),
     supportsTare: Boolean(device?.tare),
+    supportsSampleRate: Boolean(device?.setSamplingRate),
     supportsSystemInfo: Boolean(
       device?.battery ||
       device?.firmware ||
@@ -65,6 +82,12 @@ function renderSettingsList(): string {
     { id: "unit", name: "Unit", description: "Set stream output to kilogram, pound, or newton", enabled: true },
 
     { id: "language", name: "Language", description: "display language", enabled: true },
+    {
+      id: "rates",
+      name: "Rates",
+      description: "Configure sample rate and baud rate on supported devices",
+      enabled: capabilities.supportsSampleRate || capabilities.supportsBaudRate,
+    },
     {
       id: "system-info",
       name: "System Info",
@@ -173,6 +196,60 @@ function renderLanguagePage(): string {
   `
 }
 
+function renderRatesPage(): string {
+  const capabilities = readCapabilities()
+  const items = [
+    {
+      id: "sample-rate",
+      name: "Sample Rate",
+      description: "Set the device sampling frequency",
+      enabled: capabilities.supportsSampleRate,
+    },
+    {
+      id: "baud-rate",
+      name: "Baud Rate",
+      description: "Set the device UART baud rate",
+      enabled: capabilities.supportsBaudRate,
+    },
+  ] as const
+
+  return `
+    <section class="session-page" aria-label="Settings">
+      <div class="page-title-row">
+        <a class="session-back-link" href="?screen=settings"><i class="fa-solid fa-arrow-left"></i></a>
+        <h3>Rates</h3>
+      </div>
+      <nav class="action-menu" aria-label="Rate settings">
+        <menu class="action-menu-list">
+          ${items
+            .map((item) => {
+              if (!item.enabled) {
+                return `
+                  <li class="card">
+                    <span class="card-content action-menu-link-disabled" aria-label="${item.name}" aria-disabled="true">
+                      <strong>${item.name}</strong>
+                      <small>${item.description}</small>
+                    </span>
+                  </li>
+                `
+              }
+              return `
+                <li class="card">
+                  <a class="card-content" href="?screen=settings&settings=${item.id}" aria-label="${item.name}">
+                    <strong>${item.name}</strong>
+                    <small>${item.description}</small>
+                  </a>
+                </li>
+              `
+            })
+            .join("")}
+        </menu>
+      </nav>
+      <p id="settings-status">${getActiveDevice() ? "Choose a device rate to configure." : "No connected device. Device-only settings are disabled."}</p>
+    </section>
+  `
+}
+
 function renderSystemInfoPage(): string {
   const capabilities = readCapabilities()
   return `
@@ -183,6 +260,65 @@ function renderSystemInfoPage(): string {
       </div>
       <p id="settings-status">${getActiveDevice() ? (capabilities.supportsSystemInfo ? "Loading system info..." : "System info is not supported by this device.") : "No connected device."}</p>
       <pre id="settings-device-output" class="settings-output" aria-live="polite"></pre>
+    </section>
+  `
+}
+
+function renderSampleRatePage(): string {
+  const preferences = loadPreferences()
+  const capabilities = readCapabilities()
+
+  return `
+    <section class="session-page" aria-label="Settings">
+      <div class="page-title-row">
+        <a class="session-back-link" href="?screen=settings&settings=rates"><i class="fa-solid fa-arrow-left"></i></a>
+        <h3>Sample Rate</h3>
+      </div>
+      <div class="settings-group">
+        <select data-settings-sample-rate ${!capabilities.supportsSampleRate ? "disabled" : ""}>
+          <option value="" ${preferences.sampleRate == null ? "selected" : ""}>Choose sample rate</option>
+          ${SAMPLING_RATE_OPTIONS.map(
+            (rate) =>
+              `<option value="${rate}" ${preferences.sampleRate === rate ? "selected" : ""}>${rate} Hz</option>`,
+          ).join("")}
+        </select>
+      </div>
+      <p id="settings-status">${
+        !getActiveDevice()
+          ? "No connected device."
+          : capabilities.supportsSampleRate
+            ? "Choose a sample rate."
+            : "Sample rate is not supported by this device."
+      }</p>
+    </section>
+  `
+}
+
+function renderBaudRatePage(): string {
+  const preferences = loadPreferences()
+  const capabilities = readCapabilities()
+
+  return `
+    <section class="session-page" aria-label="Settings">
+      <div class="page-title-row">
+        <a class="session-back-link" href="?screen=settings&settings=rates"><i class="fa-solid fa-arrow-left"></i></a>
+        <h3>Baud Rate</h3>
+      </div>
+      <div class="settings-group">
+        <select data-settings-baud-rate ${!capabilities.supportsBaudRate ? "disabled" : ""}>
+          <option value="" ${preferences.baudRate == null ? "selected" : ""}>Choose baud rate</option>
+          ${BAUD_RATE_OPTIONS.map(
+            (rate) => `<option value="${rate}" ${preferences.baudRate === rate ? "selected" : ""}>${rate}</option>`,
+          ).join("")}
+        </select>
+      </div>
+      <p id="settings-status">${
+        !getActiveDevice()
+          ? "No connected device."
+          : capabilities.supportsBaudRate
+            ? "Choose a baud rate."
+            : "Baud rate is not supported by this device."
+      }</p>
     </section>
   `
 }
@@ -252,6 +388,9 @@ export function setupSettingsPage(rawSettingsPageId: string | null): string {
   if (!settingsPageId) return renderSettingsList()
   if (settingsPageId === "unit") return renderUnitPage()
   if (settingsPageId === "language") return renderLanguagePage()
+  if (settingsPageId === "rates") return renderRatesPage()
+  if (settingsPageId === "sample-rate") return renderSampleRatePage()
+  if (settingsPageId === "baud-rate") return renderBaudRatePage()
   if (settingsPageId === "system-info") return renderSystemInfoPage()
   if (settingsPageId === "calibration") return renderCalibrationPage()
   if (settingsPageId === "firmware") return renderFirmwarePage()
