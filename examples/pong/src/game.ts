@@ -1,10 +1,19 @@
-import { Climbro, Entralpi, ForceBoard, Motherboard, mySmartBoard, Progressor, WHC06 } from "@hangtime/grip-connect"
+import {
+  CTS500,
+  Climbro,
+  Entralpi,
+  ForceBoard,
+  Motherboard,
+  mySmartBoard,
+  Progressor,
+  WHC06,
+} from "@hangtime/grip-connect"
 import { requestWakeLock } from "./wake-lock.js"
 
 let mass: number
 let weight = 5
 let difficulty = 0.5
-let device: Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
+let device: CTS500 | Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
 
 /**
  * Sets up the device selection functionality and event listeners for streaming, tare, and download actions.
@@ -18,6 +27,8 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
 
     if (selectedDevice === "climbro") {
       device = new Climbro()
+    } else if (selectedDevice === "cts500") {
+      device = new CTS500()
     } else if (selectedDevice === "entralpi") {
       device = new Entralpi()
     } else if (selectedDevice === "forceboard") {
@@ -40,7 +51,12 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
     await device.connect(
       async () => {
         await requestWakeLock()
-        if (device instanceof ForceBoard || device instanceof Motherboard || device instanceof Progressor) {
+        if (
+          device instanceof CTS500 ||
+          device instanceof ForceBoard ||
+          device instanceof Motherboard ||
+          device instanceof Progressor
+        ) {
           // Request notifications
           await device.stream()
         }

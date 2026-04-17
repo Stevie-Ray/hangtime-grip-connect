@@ -22,8 +22,8 @@ hero:
 
 A TypeScript client for the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) that
 talks to force-sensing climbing hardware: **Griptonite Motherboard**, **Tindeq Progressor**, **PitchSix Force Board**,
-**Kilter Board**, **Entralpi**, **Climbro**, **mySmartBoard**, **WH-C06**, **Frez Dyno**, and more. Use it to stream
-force data, drive games, or build training apps on web, Capacitor, React Native, or the CLI.
+**Jlyscales CTS500**, **Kilter Board**, **Entralpi**, **Climbro**, **mySmartBoard**, **Weiheng WH-C06**, **Frez Dyno**,
+and more. Use it to stream force data, drive games, or build training apps on web, Capacitor, React Native, or the CLI.
 
 ::: tip Browser support
 

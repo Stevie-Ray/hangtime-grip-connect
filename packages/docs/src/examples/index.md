@@ -9,7 +9,7 @@ optional `active` and `download`.
 - **Force Measurement App** - Connect, stream, and plot force data in real time; good first project.
 - **Flappy Bird / Pong** - Map `notify()` data to game input (force → flap or paddle).
 - **Kilter Board** - Use `KilterBoard` and `led()` to display routes on an LED board.
-- **Runtime** - Use the CLI package in Node for scripting and data logging.
+- **Runtime** - Use the Runtime package in Node, Bun, or Deno for scripting and data logging.
 - **Capacitor** - Hybrid app: pick a device, connect over BLE, stream force. Web or native iOS/Android.
 - **React Native** - Expo app with training modes (peak force, endurance, timed hangs). Native iOS/Android.
 

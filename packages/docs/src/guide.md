@@ -18,8 +18,8 @@ import { Motherboard } from "@hangtime/grip-connect"
 const device = new Motherboard()
 ```
 
-For other devices, swap the import: `Progressor`, `ForceBoard`, `KilterBoard`, `Entralpi`, `Climbro`, `mySmartBoard`,
-`SmartBoardPro`, `WHC06`, `PB700BT`. See [Devices](/devices/) for the full list.
+For other devices, swap the import: `Progressor`, `ForceBoard`, `CTS500`, `KilterBoard`, `Entralpi`, `Climbro`,
+`mySmartBoard`, `SmartBoardPro`, `WHC06`, `PB700BT`. See [Devices](/devices/) for the full list.
 
 ## 2. Optional: handle real-time data
 

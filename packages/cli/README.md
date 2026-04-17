@@ -59,7 +59,7 @@ npx @hangtime/cli entralpi info
 # Export session data
 npx @hangtime/cli forceboard download --format csv --output ./exports
 
-# Run tare (zero) calibration. For stream devices (Progressor, ForceBoard, Motherboard),
+# Run tare (zero) calibration. For stream devices (Progressor, ForceBoard, CTS500, Motherboard),
 # tare automatically starts a stream first since tare requires live data.
 npx @hangtime/cli motherboard tare --duration 5000
 
