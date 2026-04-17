@@ -1,5 +1,11 @@
 # @hangtime/grip-connect
 
+## 0.13.0
+
+### Minor Changes
+
+- aacc937: Add CTS500 by jlyscales across core, docs, and the example app registration.
+
 ## 0.12.0
 
 ### Minor Changes

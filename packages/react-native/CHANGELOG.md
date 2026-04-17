@@ -1,5 +1,17 @@
 # @hangtime/grip-connect-react-native
 
+## 0.13.0
+
+### Minor Changes
+
+- 71d401e: Add CTS500 support to the runtime, Capacitor, and React Native packages, and expose it through the CLI device
+  registry.
+
+### Patch Changes
+
+- Updated dependencies [aacc937]
+  - @hangtime/grip-connect@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
