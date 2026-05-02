@@ -11,7 +11,7 @@ boards.
 ## Supported by
 
 - [Motherboard](/devices/motherboard) - simple color
-- [Aurora LED boards](/devices/kilterboard) - array of placements
+- [Aurora LED boards](/devices/aurora) - array of placements
 
 ---
 
