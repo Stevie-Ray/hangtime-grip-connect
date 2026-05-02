@@ -5,7 +5,6 @@ export type {
   ICTS500,
   IEntralpi,
   IForceBoard,
-  IKilterBoard,
   IMotherboard,
   ImySmartBoard,
   IProgressor,

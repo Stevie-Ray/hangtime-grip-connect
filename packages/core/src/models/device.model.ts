@@ -577,6 +577,13 @@ export abstract class Device extends BaseModel implements IDevice {
         })
       }
 
+      if (!this.bluetooth) {
+        throw new Error("Bluetooth device is not available")
+      }
+
+      // Hook for when a device has been selected.
+      this.onBluetoothDeviceSelected(this.bluetooth)
+
       if (!this.bluetooth.gatt) {
         throw new Error("GATT is not available on this device")
       }
@@ -828,6 +835,14 @@ export abstract class Device extends BaseModel implements IDevice {
     }
     // If none of the above conditions are met, throw an error.
     throw new Error("Bluetooth not available.")
+  }
+
+  /**
+   * Hook for device-specific setup after a Bluetooth device has been selected.
+   */
+  protected onBluetoothDeviceSelected(device: BluetoothDevice): void {
+    void device
+    return
   }
 
   /**

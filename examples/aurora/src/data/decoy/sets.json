@@ -1,0 +1,22 @@
+[
+  { "id": 1, "name": "All Holds", "hsm": 1 },
+  { "id": 2, "name": "Foundation", "hsm": 1 },
+  { "id": 3, "name": "Footholds 1", "hsm": 2 },
+  { "id": 4, "name": "Footholds 2", "hsm": 4 },
+  { "id": 6, "name": "Pacos", "hsm": 16 },
+  { "id": 7, "name": "Schist", "hsm": 32 },
+  { "id": 8, "name": "Incuts", "hsm": 64 },
+  { "id": 9, "name": "Sams", "hsm": 128 },
+  { "id": 10, "name": "Flat Edge", "hsm": 256 },
+  { "id": 11, "name": "Pinches", "hsm": 512 },
+  { "id": 5, "name": "Rollies", "hsm": 8 },
+  { "id": 12, "name": "Limestone", "hsm": 1024 },
+  { "id": 13, "name": "Limestone Feet", "hsm": 2048 },
+  { "id": 14, "name": "Limestone Feet 12x12", "hsm": 4096 },
+  { "id": 15, "name": "Foundation 12x12", "hsm": 8192 },
+  { "id": 16, "name": "Pacos 12x12", "hsm": 16384 },
+  { "id": 17, "name": "Rollies 12x12", "hsm": 32768 },
+  { "id": 18, "name": "Sams 12x12", "hsm": 65536 },
+  { "id": 19, "name": "Schist 12x12", "hsm": 131072 },
+  { "id": 20, "name": "Foundation Feet 12x12", "hsm": 262144 }
+]

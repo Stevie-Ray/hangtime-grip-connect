@@ -58,7 +58,7 @@ examples/                      # Sample applications and demos
   capacitor/                   # Capacitor demo app (Vite)
   react-native/                # Expo React Native demo app
   app/                         # Force Measurement App example
-  kilter-board/                # LED system board demo
+  aurora/                      # LED system board demo
   flappy-bird/                 # Physics/game demo
   pong/                        # Minimal game loop demo
   runtime/                     # Node runtime example

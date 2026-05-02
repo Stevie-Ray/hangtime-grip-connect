@@ -16,37 +16,46 @@ Everything below is exported from the main entry. Import from `@hangtime/grip-co
 
 Use to instantiate and connect to a device. Example: `new Motherboard()` or `new Progressor()`.
 
-| Class           | Device                                   |
-| --------------- | ---------------------------------------- |
-| `Motherboard`   | Griptonite Motherboard                   |
-| `Progressor`    | Tindeq Progressor                        |
-| `ForceBoard`    | PitchSix Force Board                     |
-| `KilterBoard`   | Kilter Board (and compatible LED boards) |
-| `Entralpi`      | Entralpi / Lefu / Unique CW275           |
-| `Climbro`       | Climbro                                  |
-| `CTS500`        | Jlyscales CTS500                         |
-| `mySmartBoard`  | mySmartBoard                             |
-| `SmartBoardPro` | SmartBoard Pro                           |
-| `WHC06`         | Weiheng WH-C06                           |
-| `PB700BT`       | NSD PB-700BT                             |
+| Class           | Device                         |
+| --------------- | ------------------------------ |
+| `Motherboard`   | Griptonite Motherboard         |
+| `Progressor`    | Tindeq Progressor              |
+| `ForceBoard`    | PitchSix Force Board           |
+| `Entralpi`      | Entralpi / Lefu / Unique CW275 |
+| `Climbro`       | Climbro                        |
+| `CTS500`        | Jlyscales CTS500               |
+| `mySmartBoard`  | mySmartBoard                   |
+| `SmartBoardPro` | SmartBoard Pro                 |
+| `WHC06`         | Weiheng WH-C06                 |
+| `PB700BT`       | NSD PB-700BT                   |
+
+#### Aurora
+
+| Class              | Device            |
+| ------------------ | ----------------- |
+| `KilterBoard`      | Kilter Board      |
+| `TensionBoard`     | Tension Board     |
+| `DecoyBoard`       | Decoy Board       |
+| `SoiLLBoard`       | So iLL Board      |
+| `TouchstoneBoard`  | Touchstone Board  |
+| `GrasshopperBoard` | Grasshopper Board |
 
 ### Device interfaces
 
 Use for TypeScript types when typing variables, parameters, or return values. Example:
 `const device: IMotherboard = new Motherboard()`.
 
-| Type             | Device                                   |
-| ---------------- | ---------------------------------------- |
-| `IClimbro`       | Climbro                                  |
-| `ICTS500`        | Jlyscales CTS500                         |
-| `IEntralpi`      | Entralpi / Lefu / Unique CW275           |
-| `IForceBoard`    | PitchSix Force Board                     |
-| `IKilterBoard`   | Kilter Board (and compatible LED boards) |
-| `IMotherboard`   | Griptonite Motherboard                   |
-| `ImySmartBoard`  | mySmartBoard                             |
-| `IProgressor`    | Tindeq Progressor                        |
-| `ISmartBoardPro` | SmartBoard Pro                           |
-| `IWHC06`         | Weiheng WH-C06                           |
+| Type             | Device                         |
+| ---------------- | ------------------------------ |
+| `IClimbro`       | Climbro                        |
+| `ICTS500`        | Jlyscales CTS500               |
+| `IEntralpi`      | Entralpi / Lefu / Unique CW275 |
+| `IForceBoard`    | PitchSix Force Board           |
+| `IMotherboard`   | Griptonite Motherboard         |
+| `ImySmartBoard`  | mySmartBoard                   |
+| `IProgressor`    | Tindeq Progressor              |
+| `ISmartBoardPro` | SmartBoard Pro                 |
+| `IWHC06`         | Weiheng WH-C06                 |
 
 ### Usage
 

@@ -1,0 +1,8 @@
+[
+  { "id": 8, "name": "Set A", "hsm": 1 },
+  { "id": 9, "name": "Set B", "hsm": 2 },
+  { "id": 10, "name": "Set C", "hsm": 4 },
+  { "id": 11, "name": "Foot Set", "hsm": 8 },
+  { "id": 12, "name": "Wood", "hsm": 1 },
+  { "id": 13, "name": "Plastic", "hsm": 2 }
+]

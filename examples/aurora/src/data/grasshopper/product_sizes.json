@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "product_id": 1,
+    "edge_left": -68,
+    "edge_right": 68,
+    "edge_bottom": 0,
+    "edge_top": 144,
+    "name": "GrandMaster",
+    "description": "12 x 12",
+    "image_filename": "product_sizes/1_v2.png",
+    "position": 3,
+    "is_listed": 0
+  },
+  {
+    "id": 2,
+    "product_id": 1,
+    "edge_left": -44,
+    "edge_right": 44,
+    "edge_bottom": 0,
+    "edge_top": 144,
+    "name": "Master",
+    "description": "8 x 12",
+    "image_filename": "product_sizes/2.png",
+    "position": 4,
+    "is_listed": 1
+  },
+  {
+    "id": 3,
+    "product_id": 1,
+    "edge_left": -44,
+    "edge_right": 44,
+    "edge_bottom": 0,
+    "edge_top": 120,
+    "name": "Ninja",
+    "description": "8 x 10",
+    "image_filename": "product_sizes/3.png",
+    "position": 5,
+    "is_listed": 1
+  },
+  {
+    "id": 4,
+    "product_id": 1,
+    "edge_left": -68,
+    "edge_right": 68,
+    "edge_bottom": 0,
+    "edge_top": 144,
+    "name": "GrandMaster",
+    "description": "12 x 12 with Tweeners",
+    "image_filename": "product_sizes/1_v2.png",
+    "position": 0,
+    "is_listed": 1
+  },
+  {
+    "id": 5,
+    "product_id": 1,
+    "edge_left": -44,
+    "edge_right": 44,
+    "edge_bottom": 0,
+    "edge_top": 144,
+    "name": "Master",
+    "description": "8 x 12 with Tweeners",
+    "image_filename": "product_sizes/2.png",
+    "position": 1,
+    "is_listed": 1
+  },
+  {
+    "id": 6,
+    "product_id": 1,
+    "edge_left": -44,
+    "edge_right": 44,
+    "edge_bottom": 0,
+    "edge_top": 120,
+    "name": "Ninja",
+    "description": "8 x 10 with Tweeners",
+    "image_filename": "product_sizes/3.png",
+    "position": 2,
+    "is_listed": 1
+  }
+]

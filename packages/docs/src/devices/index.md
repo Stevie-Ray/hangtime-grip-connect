@@ -46,25 +46,26 @@ examples.
 
 - **Hangboards** - Motherboard, Climbro, mySmartBoard, SmartBoard Pro (force streaming, optional LED).
 - **Dynamometers / force plates** - Progressor, ForceBoard, WH-C06, Entralpi, CTS500 (force measurement, tare, stream).
-- **LED system boards** - Kilter Board (and compatible Aurora boards): route display via `led()`.
+- **LED system boards** - Aurora-compatible boards such as Kilter, Tension, Decoy, Touchstone, and Grasshopper: route
+  display via `led()`.
 - **Other** - PB-700BT (gyroscopic hand exerciser); Dyno (upcoming).
 
 ## Device classes
 
-| Class                                    | Device                                   | Typical use                                        |
-| ---------------------------------------- | ---------------------------------------- | -------------------------------------------------- |
-| [Motherboard](/devices/motherboard)      | Griptonite Motherboard                   | Hangboard, LED (green/red/orange), stream, battery |
-| [Progressor](/devices/progressor)        | Tindeq Progressor                        | Dynamometer, stream, battery, tare                 |
-| [ForceBoard](/devices/forceboard)        | PitchSix Force Board                     | Portable force plate, quick measure                |
-| [KilterBoard](/devices/kilterboard)      | Kilter Board (and compatible LED boards) | LED route display                                  |
-| [Entralpi](/devices/entralpi)            | Entralpi / Lefu / Unique CW275           | Scale (force plate), stream                        |
-| [Climbro](/devices/climbro)              | Climbro                                  | Hangboard                                          |
-| [CTS500](/devices/cts500)                | CTS500                                   | Dynamometer, stream, battery, tare                 |
-| [mySmartBoard](/devices/mysmartboard)    | mySmartBoard                             | Hangboard                                          |
-| [SmartBoardPro](/devices/smartboard-pro) | SmartBoard Pro                           | Hangboard                                          |
-| [WHC06](/devices/wh-c06)                 | Weiheng WH-C06                           | Dynamometer, stream                                |
-| [PB700BT](/devices/pb-700bt)             | NSD PB-700BT                             | Gyroscopic hand exerciser                          |
-| [Dyno](/devices/dyno)                    | Frez Dyno                                | Dynamometer (upcoming)                             |
+| Class                                    | Device                         | Typical use                                        |
+| ---------------------------------------- | ------------------------------ | -------------------------------------------------- |
+| [Motherboard](/devices/motherboard)      | Griptonite Motherboard         | Hangboard, LED (green/red/orange), stream, battery |
+| [Progressor](/devices/progressor)        | Tindeq Progressor              | Dynamometer, stream, battery, tare                 |
+| [ForceBoard](/devices/forceboard)        | PitchSix Force Board           | Portable force plate, quick measure                |
+| [Aurora](/devices/aurora)                | Aurora-compatible LED boards   | LED route display                                  |
+| [Entralpi](/devices/entralpi)            | Entralpi / Lefu / Unique CW275 | Scale (force plate), stream                        |
+| [Climbro](/devices/climbro)              | Climbro                        | Hangboard                                          |
+| [CTS500](/devices/cts500)                | CTS500                         | Dynamometer, stream, battery, tare                 |
+| [mySmartBoard](/devices/mysmartboard)    | mySmartBoard                   | Hangboard                                          |
+| [SmartBoardPro](/devices/smartboard-pro) | SmartBoard Pro                 | Hangboard                                          |
+| [WHC06](/devices/wh-c06)                 | Weiheng WH-C06                 | Dynamometer, stream                                |
+| [PB700BT](/devices/pb-700bt)             | NSD PB-700BT                   | Gyroscopic hand exerciser                          |
+| [Dyno](/devices/dyno)                    | Frez Dyno                      | Dynamometer (upcoming)                             |
 
 ## Device-specific methods
 
@@ -74,7 +75,8 @@ Many devices add methods on top of the shared interface:
   omit for continuous stream; call `stop()` to end. Data is delivered to the callback set with `notify()`.
 - **Battery**: Where supported: `await device.battery()` after connect.
 - **Tare**: Uses the shared `tare(duration?)`; support varies by device.
-- **LED**: Where supported (e.g. Motherboard, Kilter Board): `await device.led("red")` or `device.led()` to turn off.
+- **LED**: Where supported (e.g. Motherboard, Aurora LED boards): `await device.led("red")` or `device.led()` to turn
+  off.
 - **Download**: Uses the shared `download(format?)` to export session data.
 
 See the [API](/api/) for the full interface and [Methods](/api/methods/) for payloads and callbacks.

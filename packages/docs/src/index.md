@@ -22,8 +22,9 @@ hero:
 
 A TypeScript client for the [Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) that
 talks to force-sensing climbing hardware: **Griptonite Motherboard**, **Tindeq Progressor**, **PitchSix Force Board**,
-**Jlyscales CTS500**, **Kilter Board**, **Entralpi**, **Climbro**, **mySmartBoard**, **Weiheng WH-C06**, **Frez Dyno**,
-and more. Use it to stream force data, drive games, or build training apps on web, Capacitor, React Native, or the CLI.
+**Jlyscales CTS500**, **Kilter/Tension/Decoy/Touchstone/SoiLL/Grasshopper LED boards**, **Entralpi**, **Climbro**,
+**mySmartBoard**, **Weiheng WH-C06**, **Frez Dyno**, and more. Use it to stream force data, drive games, or build
+training apps on web, Capacitor, React Native, or the CLI.
 
 ::: tip Browser support
 
@@ -75,12 +76,12 @@ Web package requires Chrome, Edge, or Opera (Web Bluetooth). See [Browser suppor
 
 ### Live demos
 
-| Demo                                                          | Description                                                                                                                      |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| [Force Measurement App](https://grip-connect.vercel.app/)     | Stream force from your device and watch it plotted live. Ideal for testing connection and seeing mass/force values in real time. |
-| [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/)   | Pull on your hangboard to fly the bird; pull strength controls altitude. Game and workout in one.                                |
-| [Kilter Board](https://grip-connect-kilter-board.vercel.app/) | Send a route from the browser. Your Kilter or compatible LED board lights up the problem on the wall.                            |
-| [Pong](https://hangtime-grip-connect-pong.vercel.app/)        | Move the paddle by applying force to your device. Minimal game loop that shows streamed force as input.                          |
+| Demo                                                         | Description                                                                                                                      |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| [Force Measurement App](https://grip-connect.vercel.app/)    | Stream force from your device and watch it plotted live. Ideal for testing connection and seeing mass/force values in real time. |
+| [Flappy Bird](https://grip-connect-flappy-bird.vercel.app/)  | Pull on your hangboard to fly the bird; pull strength controls altitude. Game and workout in one.                                |
+| [Aurora LED Boards](https://grip-connect-aurora.vercel.app/) | Send a route from the browser. Your Aurora-compatible LED board lights up the problem on the wall.                               |
+| [Pong](https://hangtime-grip-connect-pong.vercel.app/)       | Move the paddle by applying force to your device. Minimal game loop that shows streamed force as input.                          |
 
 ### Built with it
 

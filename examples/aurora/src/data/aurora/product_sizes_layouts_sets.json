@@ -1,0 +1,194 @@
+[
+  {
+    "id": 1,
+    "product_size_id": 1,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-96W-144H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 2,
+    "product_size_id": 2,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-96W-168H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 3,
+    "product_size_id": 3,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-96W-192H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 4,
+    "product_size_id": 4,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-120W-144H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 5,
+    "product_size_id": 5,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-120W-168H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 6,
+    "product_size_id": 6,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-120W-192H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 7,
+    "product_size_id": 7,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-144W-144H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 8,
+    "product_size_id": 8,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-144W-168H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 9,
+    "product_size_id": 9,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-144W-192H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 10,
+    "product_size_id": 10,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-168W-144H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 11,
+    "product_size_id": 11,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-168W-168H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 12,
+    "product_size_id": 12,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-168W-192H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 13,
+    "product_size_id": 13,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-192W-144H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 14,
+    "product_size_id": 14,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-192W-168H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 15,
+    "product_size_id": 15,
+    "layout_id": 1,
+    "set_id": 4,
+    "image_filename": "product_sizes_layouts_sets/AB-192W-192H-12K-blank.png",
+    "is_listed": 1
+  },
+  {
+    "id": 16,
+    "product_size_id": 16,
+    "layout_id": 2,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/boulderhouse55-2019-light.png",
+    "is_listed": 1
+  },
+  {
+    "id": 17,
+    "product_size_id": 17,
+    "layout_id": 3,
+    "set_id": 2,
+    "image_filename": "product_sizes_layouts_sets/17.png",
+    "is_listed": 1
+  },
+  {
+    "id": 18,
+    "product_size_id": 18,
+    "layout_id": 4,
+    "set_id": 3,
+    "image_filename": "product_sizes_layouts_sets/18.png",
+    "is_listed": 1
+  },
+  {
+    "id": 19,
+    "product_size_id": 19,
+    "layout_id": 5,
+    "set_id": 5,
+    "image_filename": "product_sizes_layouts_sets/19.png",
+    "is_listed": 1
+  },
+  {
+    "id": 20,
+    "product_size_id": 17,
+    "layout_id": 6,
+    "set_id": 2,
+    "image_filename": "product_sizes_layouts_sets/20.png",
+    "is_listed": 1
+  },
+  {
+    "id": 21,
+    "product_size_id": 20,
+    "layout_id": 7,
+    "set_id": 6,
+    "image_filename": "product_sizes_layouts_sets/21.png",
+    "is_listed": 1
+  },
+  {
+    "id": 24,
+    "product_size_id": 22,
+    "layout_id": 10,
+    "set_id": 8,
+    "image_filename": "product_sizes_layouts_sets/crg-cambridge.png",
+    "is_listed": 1
+  },
+  {
+    "id": 22,
+    "product_size_id": 21,
+    "layout_id": 8,
+    "set_id": 7,
+    "image_filename": "product_sizes_layouts_sets/treehouse-left-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 23,
+    "product_size_id": 21,
+    "layout_id": 9,
+    "set_id": 7,
+    "image_filename": "product_sizes_layouts_sets/treehouse-right-1.png",
+    "is_listed": 1
+  }
+]

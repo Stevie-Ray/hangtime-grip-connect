@@ -8,7 +8,7 @@ optional `active` and `download`.
 
 - **Force Measurement App** - Connect, stream, and plot force data in real time; good first project.
 - **Flappy Bird / Pong** - Map `notify()` data to game input (force → flap or paddle).
-- **Kilter Board** - Use `KilterBoard` and `led()` to display routes on an LED board.
+- **Aurora LED Boards** - Use Aurora-compatible board classes and `led()` to display routes on an LED board.
 - **Runtime** - Use the Runtime package in Node, Bun, or Deno for scripting and data logging.
 - **Capacitor** - Hybrid app: pick a device, connect over BLE, stream force. Web or native iOS/Android.
 - **React Native** - Expo app with training modes (peak force, endurance, timed hangs). Native iOS/Android.
@@ -19,7 +19,7 @@ optional `active` and `download`.
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | **Force Measurement App** | Stream force from your device and watch it plotted live. Ideal for testing connection and seeing mass/force values in real time. | [grip-connect.vercel.app](https://grip-connect.vercel.app/)                             |
 | **Flappy Bird**           | Pull on your hangboard to fly the bird; pull strength controls altitude. Game and workout in one.                                | [grip-connect-flappy-bird.vercel.app](https://grip-connect-flappy-bird.vercel.app/)     |
-| **Kilter Board**          | Send a route from the browser. Your Kilter or compatible LED board lights up the problem on the wall.                            | [grip-connect-kilter-board.vercel.app](https://grip-connect-kilter-board.vercel.app/)   |
+| **Aurora LED Boards**     | Send a route from the browser. Your Aurora-compatible LED board lights up the problem on the wall.                               | [grip-connect-aurora.vercel.app](https://grip-connect-aurora.vercel.app/)               |
 | **Pong**                  | Move the paddle by applying force to your device. Minimal game loop that shows streamed force as input.                          | [hangtime-grip-connect-pong.vercel.app](https://hangtime-grip-connect-pong.vercel.app/) |
 | **Capacitor**             | Hybrid app: pick a device, connect over BLE, stream force. Run in the browser or as a native iOS/Android build.                  | [grip-connect-capacitor.vercel.app](https://grip-connect-capacitor.vercel.app/)         |
 | **React Native**          | Expo app with training modes (peak force, endurance, timed hangs). Native iOS/Android only; run from the repo (no web demo).     | N/A                                                                                     |
@@ -37,7 +37,7 @@ optional `active` and `download`.
 | ------------------------- | ----------------------- | --------------------------------------------------------------------- |
 | **Force Measurement App** | `examples/app`          | [Force Measurement App](/examples/app): includes StackBlitz embed.    |
 | **Flappy Bird**           | `examples/flappy-bird`  | [Flappy Bird](/examples/flappy-bird)                                  |
-| **Kilter Board**          | `examples/kilter-board` | [Kilter Board](/examples/kilter-board)                                |
+| **Aurora LED Boards**     | `examples/aurora`       | [Aurora LED Boards](/examples/aurora)                                 |
 | **Pong**                  | `examples/pong`         | [Pong](/examples/pong)                                                |
 | **Runtime**               | `examples/runtime`      | [Runtime](/examples/runtime): Node, Deno, Bun usage.                  |
 | **Capacitor**             | `examples/capacitor`    | [Capacitor](/examples/capacitor): hybrid app, device picker, BLE.     |
@@ -52,5 +52,5 @@ npm install
 npm run dev:examples:app
 ```
 
-Replace `app` with `flappy-bird`, `kilter-board`, `pong`, or `capacitor` (or `react-native`) as needed. For Runtime
-(Node), use `npm run start --workspace ./examples/runtime`. See each example’s doc page for run instructions.
+Replace `app` with `flappy-bird`, `aurora`, `pong`, or `capacitor` (or `react-native`) as needed. For Runtime (Node),
+use `npm run start --workspace ./examples/runtime`. See each example’s doc page for run instructions.

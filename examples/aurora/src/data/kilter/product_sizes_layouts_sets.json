@@ -1,0 +1,330 @@
+[
+  {
+    "id": 47,
+    "product_size_id": 11,
+    "layout_id": 2,
+    "set_id": 21,
+    "image_filename": "product_sizes_layouts_sets/47.png",
+    "is_listed": 1
+  },
+  {
+    "id": 48,
+    "product_size_id": 12,
+    "layout_id": 3,
+    "set_id": 22,
+    "image_filename": "product_sizes_layouts_sets/48.png",
+    "is_listed": 1
+  },
+  {
+    "id": 49,
+    "product_size_id": 13,
+    "layout_id": 4,
+    "set_id": 23,
+    "image_filename": "product_sizes_layouts_sets/49.png",
+    "is_listed": 1
+  },
+  {
+    "id": 52,
+    "product_size_id": 15,
+    "layout_id": 5,
+    "set_id": 24,
+    "image_filename": "product_sizes_layouts_sets/15_5_24.png",
+    "is_listed": 1
+  },
+  {
+    "id": 53,
+    "product_size_id": 16,
+    "layout_id": 6,
+    "set_id": 25,
+    "image_filename": "product_sizes_layouts_sets/53.png",
+    "is_listed": 1
+  },
+  {
+    "id": 54,
+    "product_size_id": 16,
+    "layout_id": 7,
+    "set_id": 25,
+    "image_filename": "product_sizes_layouts_sets/54.png",
+    "is_listed": 1
+  },
+  {
+    "id": 55,
+    "product_size_id": 17,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/55-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 56,
+    "product_size_id": 17,
+    "layout_id": 8,
+    "set_id": 27,
+    "image_filename": "product_sizes_layouts_sets/56-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 57,
+    "product_size_id": 18,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/55-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 58,
+    "product_size_id": 19,
+    "layout_id": 8,
+    "set_id": 27,
+    "image_filename": "product_sizes_layouts_sets/56-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 59,
+    "product_size_id": 20,
+    "layout_id": 4,
+    "set_id": 23,
+    "image_filename": "product_sizes_layouts_sets/59.png",
+    "is_listed": 1
+  },
+  {
+    "id": 65,
+    "product_size_id": 23,
+    "layout_id": 8,
+    "set_id": 28,
+    "image_filename": "product_sizes_layouts_sets/65-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 66,
+    "product_size_id": 23,
+    "layout_id": 8,
+    "set_id": 29,
+    "image_filename": "product_sizes_layouts_sets/66-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 68,
+    "product_size_id": 24,
+    "layout_id": 8,
+    "set_id": 28,
+    "image_filename": "product_sizes_layouts_sets/65-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 69,
+    "product_size_id": 24,
+    "layout_id": 8,
+    "set_id": 29,
+    "image_filename": "product_sizes_layouts_sets/66-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 72,
+    "product_size_id": 25,
+    "layout_id": 8,
+    "set_id": 28,
+    "image_filename": "product_sizes_layouts_sets/72.png",
+    "is_listed": 1
+  },
+  {
+    "id": 73,
+    "product_size_id": 25,
+    "layout_id": 8,
+    "set_id": 29,
+    "image_filename": "product_sizes_layouts_sets/73.png",
+    "is_listed": 1
+  },
+  {
+    "id": 75,
+    "product_size_id": 26,
+    "layout_id": 8,
+    "set_id": 28,
+    "image_filename": "product_sizes_layouts_sets/72.png",
+    "is_listed": 1
+  },
+  {
+    "id": 76,
+    "product_size_id": 26,
+    "layout_id": 8,
+    "set_id": 29,
+    "image_filename": "product_sizes_layouts_sets/73.png",
+    "is_listed": 1
+  },
+  {
+    "id": 36,
+    "product_size_id": 7,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/36-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 38,
+    "product_size_id": 7,
+    "layout_id": 1,
+    "set_id": 20,
+    "image_filename": "product_sizes_layouts_sets/38-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 39,
+    "product_size_id": 8,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/39-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 41,
+    "product_size_id": 8,
+    "layout_id": 1,
+    "set_id": 20,
+    "image_filename": "product_sizes_layouts_sets/41-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 45,
+    "product_size_id": 10,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/45-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 46,
+    "product_size_id": 10,
+    "layout_id": 1,
+    "set_id": 20,
+    "image_filename": "product_sizes_layouts_sets/46-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 50,
+    "product_size_id": 14,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/50-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 51,
+    "product_size_id": 14,
+    "layout_id": 1,
+    "set_id": 20,
+    "image_filename": "product_sizes_layouts_sets/51-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 77,
+    "product_size_id": 27,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/77-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 78,
+    "product_size_id": 27,
+    "layout_id": 1,
+    "set_id": 20,
+    "image_filename": "product_sizes_layouts_sets/78-1.png",
+    "is_listed": 1
+  },
+  {
+    "id": 60,
+    "product_size_id": 21,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/60-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 62,
+    "product_size_id": 22,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/60-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 63,
+    "product_size_id": 23,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/63-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 67,
+    "product_size_id": 24,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/63-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 70,
+    "product_size_id": 25,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/70-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 74,
+    "product_size_id": 26,
+    "layout_id": 8,
+    "set_id": 26,
+    "image_filename": "product_sizes_layouts_sets/70-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 61,
+    "product_size_id": 21,
+    "layout_id": 8,
+    "set_id": 27,
+    "image_filename": "product_sizes_layouts_sets/61-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 64,
+    "product_size_id": 23,
+    "layout_id": 8,
+    "set_id": 27,
+    "image_filename": "product_sizes_layouts_sets/64-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 71,
+    "product_size_id": 25,
+    "layout_id": 8,
+    "set_id": 27,
+    "image_filename": "product_sizes_layouts_sets/71-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 79,
+    "product_size_id": 28,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/original-16x12-bolt-ons-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 80,
+    "product_size_id": 28,
+    "layout_id": 1,
+    "set_id": 20,
+    "image_filename": "product_sizes_layouts_sets/original-16x12-screw-ons-v2.png",
+    "is_listed": 1
+  },
+  {
+    "id": 81,
+    "product_size_id": 29,
+    "layout_id": 8,
+    "set_id": 27,
+    "image_filename": "product_sizes_layouts_sets/61-v3.png",
+    "is_listed": 1
+  }
+]

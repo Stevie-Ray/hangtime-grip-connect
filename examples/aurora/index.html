@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grip Connect Example - Aurora</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="board-configurator"></div>
+      <svg width="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1170" id="svg"></svg>
+      <p>
+        <strong>Bluetooth payload:</strong>
+        <code id="active-holds"></code>
+      </p>
+      <div id="image-upload">
+        <input type="file" id="image-input" accept="image/*" />
+      </div>
+      <div id="controller"></div>
+      <footer>
+        <small>
+          <a href="https://hangtime.stevie-ray.nl/" target="_blank">
+            <i class="fa-regular fa-copyright"></i> HangTime:
+          </a>
+          <a href="https://play.google.com/store/apps/details?id=nl.stevie.ray.hangtime" target="_blank">
+            <i class="fab fa-android"></i> Android </a
+          ><a href="https://apps.apple.com/us/app/hangtime-hangboard-training/id1631706818" target="_blank">
+            <i class="fab fa-apple"></i> iOS </a
+          >|
+          <a href="https://github.com/Stevie-Ray/hangtime-grip-connect" target="_blank">
+            <i class="fab fa-github"></i> Github </a
+          >|
+          <a href="https://stevie-ray.github.io/hangtime-grip-connect/" target="_blank">
+            <i class="fa-solid fa-book"></i> Docs </a
+          >|
+          <a href="https://caniuse.com/web-bluetooth" target="_blank">
+            <i class="fa-solid fa-globe"></i> Browser Support </a
+          >|
+          <a href="https://grip-connect-pong.vercel.app/" target="_blank"> <i class="fa-solid fa-gamepad"></i> Pong </a
+          >|
+          <a href="https://grip-connect-flappy-bird.vercel.app/" target="_blank">
+            <i class="fa-solid fa-gamepad"></i> Flappy Bird
+          </a>
+        </small>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

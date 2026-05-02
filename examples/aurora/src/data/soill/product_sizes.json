@@ -1,0 +1,28 @@
+[
+  {
+    "id": 2,
+    "product_id": 1,
+    "edge_left": -72,
+    "edge_right": 72,
+    "edge_bottom": -16,
+    "edge_top": 144,
+    "name": "12 x 12",
+    "description": "20 rows, 17 columns",
+    "image_filename": "product_sizes/2.png",
+    "position": 1,
+    "is_listed": 1
+  },
+  {
+    "id": 1,
+    "product_id": 1,
+    "edge_left": -48,
+    "edge_right": 48,
+    "edge_bottom": -16,
+    "edge_top": 144,
+    "name": "8 x 12",
+    "description": "20 rows, 11 columns",
+    "image_filename": "product_sizes/1.png",
+    "position": 0,
+    "is_listed": 1
+  }
+]

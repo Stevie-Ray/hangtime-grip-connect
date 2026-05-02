@@ -1,0 +1,8 @@
+[
+  { "id": 1, "name": "Engage", "hsm": 1 },
+  { "id": 2, "name": "Flow", "hsm": 2 },
+  { "id": 3, "name": "Power", "hsm": 4 },
+  { "id": 4, "name": "Gradient", "hsm": 8 },
+  { "id": 5, "name": "Dimension", "hsm": 16 },
+  { "id": 6, "name": "Tweeners", "hsm": 32 }
+]

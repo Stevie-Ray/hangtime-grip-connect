@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "product_size_id": 1,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/1-v3.png",
+    "is_listed": 1
+  },
+  {
+    "id": 2,
+    "product_size_id": 2,
+    "layout_id": 1,
+    "set_id": 1,
+    "image_filename": "product_sizes_layouts_sets/2-v2.png",
+    "is_listed": 1
+  }
+]

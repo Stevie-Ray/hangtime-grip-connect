@@ -8,8 +8,6 @@ export { ForceBoard } from "./device/forceboard.model.js"
 
 export { NordicDfuDevice, createNordicDfuService } from "./nordic.model.js"
 
-export { KilterBoard, KilterBoardPlacementRoles } from "./device/kilterboard.model.js"
-
 export { Motherboard } from "./device/motherboard.model.js"
 
 export { mySmartBoard } from "./device/mysmartboard.model.js"
@@ -21,3 +19,13 @@ export { Progressor } from "./device/progressor.model.js"
 export { SmartBoardPro } from "./device/smartboard-pro.model.js"
 
 export { WHC06 } from "./device/wh-c06.model.js"
+
+export {
+  AuroraBoard,
+  DecoyBoard,
+  GrasshopperBoard,
+  KilterBoard,
+  SoiLLBoard,
+  TensionBoard,
+  TouchstoneBoard,
+} from "./device/aurora.model.js"

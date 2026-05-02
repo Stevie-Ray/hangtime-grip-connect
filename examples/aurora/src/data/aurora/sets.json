@@ -1,0 +1,10 @@
+[
+  { "id": 1, "name": "All Holds", "hsm": 1 },
+  { "id": 2, "name": "Volume 1 All", "hsm": 1 },
+  { "id": 3, "name": "Aaron All", "hsm": 1 },
+  { "id": 4, "name": "Aurora Holds", "hsm": 1 },
+  { "id": 5, "name": "Diego All", "hsm": 1 },
+  { "id": 6, "name": "FLOW All", "hsm": 1 },
+  { "id": 7, "name": "TreeHouse Holds", "hsm": 1 },
+  { "id": 8, "name": "CGR Cambridge", "hsm": 1 }
+]

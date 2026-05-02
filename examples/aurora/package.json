@@ -1,0 +1,29 @@
+{
+  "name": "@grip-connect/aurora",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.2.0",
+    "@fortawesome/free-brands-svg-icons": "^7.2.0",
+    "@fortawesome/free-regular-svg-icons": "^7.2.0",
+    "@fortawesome/free-solid-svg-icons": "^7.2.0",
+    "@hangtime/grip-connect": "^0.13.0"
+  },
+  "devDependencies": {
+    "@types/w3c-web-serial": "^1.0.8",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10"
+  },
+  "workspaces": [
+    "examples"
+  ],
+  "directories": {
+    "example": "examples"
+  }
+}

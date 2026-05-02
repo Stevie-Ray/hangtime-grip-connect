@@ -1,9 +1,10 @@
 export type {
+  AuroraLedPlacement,
+  IAurora,
   IClimbro,
   ICTS500,
   IEntralpi,
   IForceBoard,
-  IKilterBoard,
   IMotherboard,
   ImySmartBoard,
   IProgressor,
@@ -20,16 +21,21 @@ export type {
 } from "./interfaces/callback.interface.js"
 
 export {
+  AuroraBoard,
   Climbro,
   CTS500,
+  DecoyBoard,
   Entralpi,
   ForceBoard,
+  GrasshopperBoard,
   KilterBoard,
-  KilterBoardPlacementRoles,
   Motherboard,
   mySmartBoard,
   PB700BT,
   Progressor,
+  SoiLLBoard,
   SmartBoardPro,
+  TensionBoard,
+  TouchstoneBoard,
   WHC06,
 } from "./models/index.js"

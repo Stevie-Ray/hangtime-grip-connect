@@ -21,7 +21,7 @@
     "@react-navigation/bottom-tabs": "7.15.5",
     "@react-navigation/elements": "2.9.5",
     "@react-navigation/native": "7.1.33",
-    "expo": "^55.0.18",
+    "expo": "^55.0.19",
     "expo-blur": "~55.0.14",
     "expo-constants": "~55.0.15",
     "expo-dev-client": "~55.0.28",
@@ -54,7 +54,7 @@
     "@babel/core": "^7.29.0",
     "@react-native-community/cli": "20.0.2",
     "@types/react": "~19.2.14",
-    "eslint": "^10.2.1",
+    "eslint": "^10.3.0",
     "eslint-config-expo": "~55.0.0",
     "typescript": "5.9.2"
   },

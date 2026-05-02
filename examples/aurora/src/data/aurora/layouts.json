@@ -1,0 +1,102 @@
+[
+  {
+    "id": 2,
+    "product_id": 2,
+    "name": "BoulderHouse 55",
+    "instagram_caption": "",
+    "is_mirrored": 0,
+    "is_listed": 1,
+    "password": "senditnow",
+    "created_at": "2019-02-13 23:43:51.190243"
+  },
+  {
+    "id": 4,
+    "product_id": 4,
+    "name": "Aaron 2019",
+    "instagram_caption": "",
+    "is_mirrored": 1,
+    "is_listed": 1,
+    "password": "Nomini#13#13",
+    "created_at": "2019-11-09 04:38:43.454999"
+  },
+  {
+    "id": 5,
+    "product_id": 5,
+    "name": "Wall-E",
+    "instagram_caption": "",
+    "is_mirrored": 0,
+    "is_listed": 1,
+    "password": "whitehallhomewall7",
+    "created_at": "2021-01-22 05:29:45.402916"
+  },
+  {
+    "id": 1,
+    "product_id": 1,
+    "name": "Aurora Shop 2018",
+    "instagram_caption": "A custom Aurora Board.",
+    "is_mirrored": 0,
+    "is_listed": 0,
+    "password": "letmein",
+    "created_at": "2018-11-26 22:58:49.000000"
+  },
+  {
+    "id": 3,
+    "product_id": 3,
+    "name": "Volume 1 Climbing 2020",
+    "instagram_caption": "",
+    "is_mirrored": 1,
+    "is_listed": 0,
+    "password": "Volume1",
+    "created_at": "2019-11-09 01:28:49.039159"
+  },
+  {
+    "id": 6,
+    "product_id": 3,
+    "name": "Volume 1 Climbing 2024",
+    "instagram_caption": "",
+    "is_mirrored": 0,
+    "is_listed": 1,
+    "password": "Volume1",
+    "created_at": "2023-12-15 16:30:13.209264"
+  },
+  {
+    "id": 7,
+    "product_id": 6,
+    "name": "FLOW 2024",
+    "instagram_caption": "",
+    "is_mirrored": 1,
+    "is_listed": 1,
+    "password": "toprope",
+    "created_at": "2024-01-11 23:35:12.297998"
+  },
+  {
+    "id": 8,
+    "product_id": 7,
+    "name": "TreeHouse Left",
+    "instagram_caption": "",
+    "is_mirrored": 0,
+    "is_listed": 1,
+    "password": "lightup!",
+    "created_at": "2024-11-15 03:21:20.348467"
+  },
+  {
+    "id": 9,
+    "product_id": 7,
+    "name": "TreeHouse Right",
+    "instagram_caption": "",
+    "is_mirrored": 0,
+    "is_listed": 1,
+    "password": "lightup!",
+    "created_at": "2024-11-15 03:24:09.796197"
+  },
+  {
+    "id": 10,
+    "product_id": 8,
+    "name": "CRG Cambridge",
+    "instagram_caption": "",
+    "is_mirrored": 0,
+    "is_listed": 1,
+    "password": null,
+    "created_at": "2025-08-04 20:38:31.900407"
+  }
+]

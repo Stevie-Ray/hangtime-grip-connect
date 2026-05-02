@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "product_id": 1,
+    "edge_left": -68,
+    "edge_right": 68,
+    "edge_bottom": 0,
+    "edge_top": 144,
+    "name": "12 x 12",
+    "description": "",
+    "image_filename": "product_sizes/1.png",
+    "position": 3,
+    "is_listed": 1
+  },
+  {
+    "id": 2,
+    "product_id": 1,
+    "edge_left": -44,
+    "edge_right": 44,
+    "edge_bottom": 0,
+    "edge_top": 144,
+    "name": "8 x 12",
+    "description": "",
+    "image_filename": "product_sizes/2.png",
+    "position": 2,
+    "is_listed": 1
+  },
+  {
+    "id": 3,
+    "product_id": 1,
+    "edge_left": -44,
+    "edge_right": 44,
+    "edge_bottom": 0,
+    "edge_top": 120,
+    "name": "8 x 10",
+    "description": "",
+    "image_filename": "product_sizes/3.png",
+    "position": 1,
+    "is_listed": 1
+  }
+]

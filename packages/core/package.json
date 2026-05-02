@@ -24,9 +24,9 @@
       "types": "./src/interfaces/callback.interface.ts",
       "import": "./src/interfaces/callback.interface.ts"
     },
-    "./src/models/device/kilterboard.model.js": {
-      "types": "./src/models/device/kilterboard.model.ts",
-      "import": "./src/models/device/kilterboard.model.ts"
+    "./src/models/device/aurora.model.js": {
+      "types": "./src/models/device/aurora.model.ts",
+      "import": "./src/models/device/aurora.model.ts"
     }
   },
   "scripts": {
