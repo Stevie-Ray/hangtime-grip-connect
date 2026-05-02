@@ -19,7 +19,7 @@
     "@grip-connect/capacitor",
     "@grip-connect/app",
     "@grip-connect/flappy-bird",
-    "@grip-connect/kilter-board",
+    "@grip-connect/aurora",
     "@grip-connect/pong",
     "@grip-connect/react-native",
     "@grip-connect/runtime"
