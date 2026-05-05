@@ -18,12 +18,14 @@ import {
   getKilterImageUrl,
   getKilterLayouts,
   getKilterLedPlacements,
+  getKilterPlacementRoles,
   getKilterSets,
   getKilterSizes,
   isAuroraBoardName,
   resolveKilterConfig,
   type AuroraBoardName,
   type KilterConfig,
+  type PlacementRoleData,
 } from "./kilter-config.js"
 
 interface ActiveHold {
@@ -38,12 +40,6 @@ interface BoardDeviceOption {
   create: () => IAurora
 }
 
-interface RoutePlacementRole {
-  id: number
-  led_color: string
-  screen_color: string
-}
-
 const BOARD_DEVICE_OPTIONS: BoardDeviceOption[] = [
   { key: "kilter", label: "Kilter Board", create: () => new KilterBoard() },
   { key: "aurora", label: "Aurora Board", create: () => new AuroraBoard() },
@@ -52,43 +48,6 @@ const BOARD_DEVICE_OPTIONS: BoardDeviceOption[] = [
   { key: "decoy", label: "Decoy Board", create: () => new DecoyBoard() },
   { key: "grasshopper", label: "Grasshopper Board", create: () => new GrasshopperBoard() },
   { key: "touchstone", label: "Touchstone Board", create: () => new TouchstoneBoard() },
-]
-
-const ROUTE_ROLE_CYCLE: RoutePlacementRole[] = [
-  { id: 12, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 13, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 14, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 15, led_color: "FFB600", screen_color: "FFA500" },
-]
-
-const ROUTE_ROLE_LOOKUP: RoutePlacementRole[] = [
-  ...ROUTE_ROLE_CYCLE,
-  { id: 20, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 21, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 22, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 23, led_color: "FFA500", screen_color: "FFA500" },
-  { id: 24, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 25, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 26, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 27, led_color: "FFA500", screen_color: "FFA500" },
-  { id: 28, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 29, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 30, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 31, led_color: "FFA500", screen_color: "FFA500" },
-  { id: 32, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 33, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 34, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 35, led_color: "FFA500", screen_color: "FFA500" },
-  { id: 36, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 37, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 38, led_color: "FFFF00", screen_color: "FFFF00" },
-  { id: 39, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 40, led_color: "FF0000", screen_color: "FF0000" },
-  { id: 41, led_color: "0000FF", screen_color: "0000FF" },
-  { id: 42, led_color: "00FF00", screen_color: "00DD00" },
-  { id: 43, led_color: "00FFFF", screen_color: "00FFFF" },
-  { id: 44, led_color: "FF00FF", screen_color: "FF00FF" },
-  { id: 45, led_color: "FFA500", screen_color: "FFA500" },
 ]
 
 function getBoardDeviceOption(key: AuroraBoardName): BoardDeviceOption {
@@ -115,6 +74,20 @@ function setSelectedDeviceBoard(boardName: AuroraBoardName): void {
   updateConnectButton()
 }
 
+function getRouteRoleCycle(): PlacementRoleData[] {
+  return getKilterPlacementRoles(currentConfig.boardName, currentConfig.layoutId)
+}
+
+function getRouteRoleLookup(): PlacementRoleData[] {
+  return getKilterPlacementRoles(currentConfig.boardName)
+}
+
+function getPlacementRoleById(roleId: number): PlacementRoleData | undefined {
+  return (
+    getRouteRoleCycle().find((role) => role.id === roleId) ?? getRouteRoleLookup().find((role) => role.id === roleId)
+  )
+}
+
 function updateConnectButton(): void {
   if (!deviceConnectButton) {
     return
@@ -128,9 +101,9 @@ const svg = document.querySelector<SVGSVGElement>("#svg")
 const configuratorElement = document.querySelector<HTMLDivElement>("#board-configurator")
 
 let currentDeviceOption = getBoardDeviceOption("kilter")
+let currentConfig = getDefaultKilterConfig(currentDeviceOption.key)
 let device = currentDeviceOption.create()
 let deviceConnectButton: HTMLButtonElement | null = null
-let currentConfig = getDefaultKilterConfig(currentDeviceOption.key)
 let currentBoardDetails: BoardDetails | null = null
 let currentBoardDetailsPromise: Promise<BoardDetails> | null = null
 let currentLedPlacements = getKilterLedPlacements(currentConfig)
@@ -480,13 +453,12 @@ function createHoldCircle(hold: HoldRenderData) {
   circle.setAttribute("fill-opacity", "0")
 
   circle.addEventListener("click", () => {
+    const routeRoleCycle = getRouteRoleCycle()
     const currentHold = activeHolds.find((entry) => entry.placement_id === hold.id)
-    const currentStroke = currentHold?.role_id
-      ? ROUTE_ROLE_LOOKUP.find((role) => role.id === currentHold.role_id)?.screen_color
-      : undefined
-    const currentRoleIndex = ROUTE_ROLE_CYCLE.findIndex((role) => role.screen_color === currentStroke)
+    const currentStroke = currentHold?.role_id ? getPlacementRoleById(currentHold.role_id)?.screen_color : undefined
+    const currentRoleIndex = routeRoleCycle.findIndex((role) => role.screen_color === currentStroke)
     const nextRoleIndex = currentRoleIndex + 1
-    const nextRole = ROUTE_ROLE_CYCLE[nextRoleIndex] || null
+    const nextRole = routeRoleCycle[nextRoleIndex] || null
 
     if (nextRole) {
       upsertActiveHold({
@@ -543,7 +515,7 @@ function getPayloadPlacements(): AuroraLedPlacement[] {
     }
 
     if (typeof activeHold.role_id === "number") {
-      const role = ROUTE_ROLE_LOOKUP.find((entry) => entry.id === activeHold.role_id)
+      const role = getPlacementRoleById(activeHold.role_id)
       if (role) {
         payloadPlacements.push({
           position,
@@ -616,7 +588,7 @@ function updateSVG() {
     if (hold.color) {
       color = hold.color
     } else if (hold.role_id) {
-      const role = ROUTE_ROLE_LOOKUP.find((entry) => entry.id === hold.role_id)
+      const role = getPlacementRoleById(hold.role_id)
       color = role?.screen_color ?? null
     }
 
@@ -843,7 +815,7 @@ function parseCurrentPacketToActiveHolds() {
     for (let index = startIndex; index < currentPacketLength - 1; index += 3) {
       const position = (currentPacket[index + 1] << 8) + currentPacket[index]
       const colorPacked = scaledColorToFullColorV3(currentPacket[index + 2])
-      const roleId = ROUTE_ROLE_LOOKUP.find((role) => role.led_color === colorPacked)?.id
+      const roleId = getRouteRoleCycle().find((role) => role.led_color === colorPacked)?.id
       const placementId = currentPlacementByLedPosition.get(position)
 
       if (placementId === undefined) {

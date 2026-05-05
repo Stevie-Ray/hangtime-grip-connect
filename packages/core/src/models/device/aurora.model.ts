@@ -3,16 +3,6 @@ import type { AuroraLedPlacement, IAurora } from "../../interfaces/device/aurora
 
 type AuroraApiLevel = 2 | 3
 
-export interface AuroraPlacementRole {
-  id: number
-  product_id: number
-  position: number
-  name: string
-  full_name: string
-  led_color: string
-  screen_color: string
-}
-
 interface AuroraPacketMarkers {
   middle: AuroraPacket
   first: AuroraPacket
@@ -47,11 +37,6 @@ export enum AuroraPacket {
   /** If this packet is the only packet in the message, the byte gets set to 84 (T). Note that this takes priority over the other conditions. */
   V3_ONLY,
 }
-
-/**
- * Board specific placement roles, extracted from placement_roles database table.
- */
-export const AuroraPlacementRoles: AuroraPlacementRole[] = []
 
 /**
  * Represents a Aurora Climbing device.
@@ -122,10 +107,6 @@ export class Aurora extends Device implements IAurora {
     })
 
     this.apiLevel = 2
-  }
-
-  protected get placementRoles(): readonly AuroraPlacementRole[] {
-    return AuroraPlacementRoles
   }
 
   /**
@@ -310,39 +291,21 @@ export class Aurora extends Device implements IAurora {
 
   /**
    * Resolves placements into LED positions and concrete hex colors.
-   * @param climbPlacementList - The list of climb placements containing position and either role ID or color.
+   * @param climbPlacementList - The list of climb placements containing position and color.
    * @returns The resolved placements ready for API-level encoding.
    */
   private resolvePlacements(climbPlacementList: AuroraLedPlacement[]): AuroraResolvedPlacement[] {
     return climbPlacementList.flatMap((climbPlacement) => {
-      const hasColor = climbPlacement.color != null && climbPlacement.color.trim() !== ""
-      const hasRoleId = typeof climbPlacement.role_id === "number" && !isNaN(climbPlacement.role_id)
+      const color = climbPlacement.color?.trim() ?? ""
 
-      if (!hasColor && !hasRoleId) {
+      if (color === "") {
         return []
-      }
-
-      if (hasColor && climbPlacement.color !== undefined) {
-        return [
-          {
-            position: climbPlacement.position,
-            colorHex: this.normalizeColor(climbPlacement.color),
-          },
-        ]
-      }
-
-      const role = this.placementRoles.find((placement) => placement.id === climbPlacement.role_id)
-
-      if (!role) {
-        throw new Error(
-          `Role with id ${climbPlacement.role_id} not found in placement_roles for ${this.constructor.name}`,
-        )
       }
 
       return [
         {
           position: climbPlacement.position,
-          colorHex: role.led_color,
+          colorHex: this.normalizeColor(color),
         },
       ]
     })
@@ -386,7 +349,7 @@ export class Aurora extends Device implements IAurora {
 
   /**
    * Prepares API level 2 byte arrays for transmission based on a list of climb placements.
-   * @param climbPlacementList - The list of climb placements containing position and either role ID or color.
+   * @param climbPlacementList - The list of climb placements containing position and color.
    * @returns The final byte array ready for transmission.
    */
   private prepBytesV2(climbPlacementList: AuroraLedPlacement[]): number[] {
@@ -405,7 +368,7 @@ export class Aurora extends Device implements IAurora {
 
   /**
    * Prepares API level 3 byte arrays for transmission based on a list of climb placements.
-   * @param climbPlacementList - The list of climb placements containing position and either role ID or color.
+   * @param climbPlacementList - The list of climb placements containing position and color.
    * @returns The final byte array ready for transmission.
    */
   private prepBytesV3(climbPlacementList: AuroraLedPlacement[]): number[] {
@@ -466,7 +429,7 @@ export class Aurora extends Device implements IAurora {
 
   /**
    * Configures the LEDs based on an array of climb placements.
-   * @param config - Array of climb placements for the LEDs. Either role_id or color (hex string) must be provided.
+   * @param config - Array of climb placements for the LEDs. Each placement must include a color hex string.
    * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Aurora board if LED settings were applied, or `undefined` if no action was taken.
    */
   led = async (config: AuroraLedPlacement[] = []): Promise<number[] | undefined> => {
@@ -487,849 +450,40 @@ export class Aurora extends Device implements IAurora {
  * Aurora Board (Aurora Board, BoulderHouse 55, Volume 1 Board, Aaron's Board, Wall-E, FLOW, TreeHouse, CRG Cambridge)
  * {@link https://auroraboardapp.com}
  */
-export class AuroraBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 1,
-        product_id: 1,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 2,
-        product_id: 1,
-        position: 2,
-        name: "middle",
-        full_name: "Any",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 3,
-        product_id: 1,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 4,
-        product_id: 2,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 5,
-        product_id: 2,
-        position: 2,
-        name: "middle",
-        full_name: "Any",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 6,
-        product_id: 2,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 7,
-        product_id: 2,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 8,
-        product_id: 3,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 9,
-        product_id: 3,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 10,
-        product_id: 3,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 11,
-        product_id: 3,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 12,
-        product_id: 4,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 13,
-        product_id: 4,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 14,
-        product_id: 4,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 15,
-        product_id: 4,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 16,
-        product_id: 5,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 17,
-        product_id: 5,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 18,
-        product_id: 5,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 19,
-        product_id: 5,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 20,
-        product_id: 6,
-        position: 0,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 21,
-        product_id: 6,
-        position: 1,
-        name: "middle",
-        full_name: "Any",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 22,
-        product_id: 6,
-        position: 2,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 23,
-        product_id: 6,
-        position: 3,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 24,
-        product_id: 6,
-        position: 4,
-        name: "aux",
-        full_name: "Aux",
-        led_color: "FFFF00",
-        screen_color: "FFFF00",
-      },
-      {
-        id: 25,
-        product_id: 7,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 26,
-        product_id: 7,
-        position: 2,
-        name: "middle",
-        full_name: "Any",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 27,
-        product_id: 7,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 28,
-        product_id: 7,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 29,
-        product_id: 8,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 30,
-        product_id: 8,
-        position: 2,
-        name: "middle",
-        full_name: "Any",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 31,
-        product_id: 8,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 32,
-        product_id: 8,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-    ]
-  }
-}
+export class AuroraBoard extends Aurora implements IAurora {}
 
 /**
  * Decoy Board
  * {@link https://decoyboardapp.com/}
  */
-export class DecoyBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 1,
-        product_id: 1,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 2,
-        product_id: 1,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 3,
-        product_id: 1,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 4,
-        product_id: 1,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-    ]
-  }
-}
+export class DecoyBoard extends Aurora implements IAurora {}
 
 /**
  * Grasshopper Board
  * {@link https://grasshopperboardapp.com/}
  */
-export class GrasshopperBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 1,
-        product_id: 1,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 3,
-        product_id: 1,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 4,
-        product_id: 1,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 2,
-        product_id: 1,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "4455FF",
-      },
-    ]
-  }
-}
+export class GrasshopperBoard extends Aurora implements IAurora {}
 
 /**
  * Kilter Board (Kilter Board Original, Kilter Board Homewall, JUUL, Demo Board, BKB Board, Tycho, Spire)
  * {@link https://kilterclimbing.com}
  */
-export class KilterBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 12,
-        product_id: 1,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 13,
-        product_id: 1,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 14,
-        product_id: 1,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 15,
-        product_id: 1,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FFB600",
-        screen_color: "FFA500",
-      },
-      {
-        id: 20,
-        product_id: 2,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 21,
-        product_id: 2,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 22,
-        product_id: 2,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 23,
-        product_id: 2,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FFA500",
-        screen_color: "FFA500",
-      },
-      {
-        id: 24,
-        product_id: 3,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 25,
-        product_id: 3,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 26,
-        product_id: 3,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 27,
-        product_id: 3,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FFA500",
-        screen_color: "FFA500",
-      },
-      {
-        id: 28,
-        product_id: 4,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 29,
-        product_id: 4,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 30,
-        product_id: 4,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 31,
-        product_id: 4,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FFA500",
-        screen_color: "FFA500",
-      },
-      {
-        id: 32,
-        product_id: 5,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 33,
-        product_id: 5,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 34,
-        product_id: 5,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 35,
-        product_id: 5,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FFA500",
-        screen_color: "FFA500",
-      },
-      {
-        id: 36,
-        product_id: 6,
-        position: 1,
-        name: "cyan",
-        full_name: "Cyan",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 37,
-        product_id: 6,
-        position: 2,
-        name: "magenta",
-        full_name: "Magenta",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 38,
-        product_id: 6,
-        position: 3,
-        name: "yellow",
-        full_name: "Yellow",
-        led_color: "FFFF00",
-        screen_color: "FFFF00",
-      },
-      {
-        id: 39,
-        product_id: 6,
-        position: 4,
-        name: "green",
-        full_name: "Green",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 40,
-        product_id: 6,
-        position: 5,
-        name: "red",
-        full_name: "Red",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 41,
-        product_id: 6,
-        position: 6,
-        name: "blue",
-        full_name: "Blue",
-        led_color: "0000FF",
-        screen_color: "0000FF",
-      },
-      {
-        id: 42,
-        product_id: 7,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 43,
-        product_id: 7,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-      {
-        id: 44,
-        product_id: 7,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 45,
-        product_id: 7,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FFA500",
-        screen_color: "FFA500",
-      },
-    ]
-  }
-}
+export class KilterBoard extends Aurora implements IAurora {}
 
 /**
  * So iLL Board
  * {@link https://soillboardapp.com/}
  */
-export class SoiLLBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 1,
-        product_id: 1,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 2,
-        product_id: 1,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 3,
-        product_id: 1,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FFFFFF",
-        screen_color: "7F7F7F",
-      },
-      {
-        id: 4,
-        product_id: 1,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "00FFFF",
-        screen_color: "00FFFF",
-      },
-    ]
-  }
-}
+export class SoiLLBoard extends Aurora implements IAurora {}
 
 /**
  * Tension Board (Tension Board, Tension Board 2)
  * {@link https://tensionboardapp2.com/}
  */
-export class TensionBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 1,
-        product_id: 4,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 3,
-        product_id: 4,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 4,
-        product_id: 4,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 5,
-        product_id: 5,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 7,
-        product_id: 5,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 8,
-        product_id: 5,
-        position: 4,
-        name: "foot",
-        full_name: "Foot Only",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 2,
-        product_id: 4,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "0066FF",
-      },
-      {
-        id: 6,
-        product_id: 5,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "0066FF",
-      },
-    ]
-  }
-}
+export class TensionBoard extends Aurora implements IAurora {}
 
 /**
  * Touchstone Board
  * {@link https://touchstoneboardapp.com/}
  */
-export class TouchstoneBoard extends Aurora implements IAurora {
-  protected override get placementRoles(): readonly AuroraPlacementRole[] {
-    return [
-      {
-        id: 1,
-        product_id: 1,
-        position: 1,
-        name: "start",
-        full_name: "Start",
-        led_color: "00FF00",
-        screen_color: "00DD00",
-      },
-      {
-        id: 3,
-        product_id: 1,
-        position: 3,
-        name: "finish",
-        full_name: "Finish",
-        led_color: "FF0000",
-        screen_color: "FF0000",
-      },
-      {
-        id: 4,
-        product_id: 1,
-        position: 4,
-        name: "foot",
-        full_name: "Foot",
-        led_color: "FF00FF",
-        screen_color: "FF00FF",
-      },
-      {
-        id: 2,
-        product_id: 1,
-        position: 2,
-        name: "middle",
-        full_name: "Middle",
-        led_color: "0000FF",
-        screen_color: "4444FF",
-      },
-    ]
-  }
-}
+export class TouchstoneBoard extends Aurora implements IAurora {}

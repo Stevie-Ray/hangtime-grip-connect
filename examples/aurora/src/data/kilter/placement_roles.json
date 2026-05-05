@@ -1,0 +1,272 @@
+[
+  {
+    "id": 12,
+    "product_id": 1,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 13,
+    "product_id": 1,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 14,
+    "product_id": 1,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 15,
+    "product_id": 1,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FFA500",
+    "screen_color": "FFA500"
+  },
+  {
+    "id": 20,
+    "product_id": 2,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 21,
+    "product_id": 2,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 22,
+    "product_id": 2,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 23,
+    "product_id": 2,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FFA500",
+    "screen_color": "FFA500"
+  },
+  {
+    "id": 24,
+    "product_id": 3,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 25,
+    "product_id": 3,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 26,
+    "product_id": 3,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 27,
+    "product_id": 3,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FFA500",
+    "screen_color": "FFA500"
+  },
+  {
+    "id": 28,
+    "product_id": 4,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 29,
+    "product_id": 4,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 30,
+    "product_id": 4,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 31,
+    "product_id": 4,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FFA500",
+    "screen_color": "FFA500"
+  },
+  {
+    "id": 32,
+    "product_id": 5,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 33,
+    "product_id": 5,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 34,
+    "product_id": 5,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 35,
+    "product_id": 5,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FFA500",
+    "screen_color": "FFA500"
+  },
+  {
+    "id": 36,
+    "product_id": 6,
+    "position": 1,
+    "name": "cyan",
+    "full_name": "Cyan",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 37,
+    "product_id": 6,
+    "position": 2,
+    "name": "magenta",
+    "full_name": "Magenta",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 38,
+    "product_id": 6,
+    "position": 3,
+    "name": "yellow",
+    "full_name": "Yellow",
+    "led_color": "FFFF00",
+    "screen_color": "FFFF00"
+  },
+  {
+    "id": 39,
+    "product_id": 6,
+    "position": 4,
+    "name": "green",
+    "full_name": "Green",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 40,
+    "product_id": 6,
+    "position": 5,
+    "name": "red",
+    "full_name": "Red",
+    "led_color": "FF0000",
+    "screen_color": "FF0000"
+  },
+  {
+    "id": 41,
+    "product_id": 6,
+    "position": 6,
+    "name": "blue",
+    "full_name": "Blue",
+    "led_color": "0000FF",
+    "screen_color": "0000FF"
+  },
+  {
+    "id": 42,
+    "product_id": 7,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 43,
+    "product_id": 7,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "00FFFF",
+    "screen_color": "00FFFF"
+  },
+  {
+    "id": 44,
+    "product_id": 7,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  },
+  {
+    "id": 45,
+    "product_id": 7,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FFA500",
+    "screen_color": "FFA500"
+  }
+]

@@ -13,15 +13,15 @@ you connect and send LED config via `led()`.
 
 1. **Connect** – Create an Aurora board device class such as `KilterBoard` or `TensionBoard`, then call
    `connect(onSuccess?, onError?)`. Requires a user gesture and secure context.
-2. **Map holds to LED positions** – The board expects an array of `{ position, role_id }` or `{ position, color }`. Each
-   `position` is the **LED index** for that hold on the board (0-based). These indices are fixed per board model; you
-   must get them from board data (see [Getting correct positions](#getting-correct-positions-for-a-board) below).
+2. **Map holds to LED positions** – The board expects an array of `{ position, color }`. Each `position` is the **LED
+   index** for that hold on the board (0-based). These indices are fixed per board model; you must get them from board
+   data (see [Getting correct positions](#getting-correct-positions-for-a-board) below).
 3. **Send LED config** – In the connect success callback, call `await device.led(placement)` with an array of
-   `{ position: number, role_id?: number, color?: string }`. Use `role_id` for shipped Kilter route colors or `color`
-   for a custom/non-Kilter Aurora board hex color (e.g. `"00FF00"`). Empty array or `device.led()` turns LEDs off.
+   `{ position: number, color: string }`. If your route data uses `role_id`, resolve it through your board
+   `placement_roles` table first, then pass the resulting `led_color`. Empty array or `device.led()` turns LEDs off.
 
 ```ts
-import { KilterBoard, KilterBoardPlacementRoles } from "@hangtime/grip-connect"
+import { KilterBoard } from "@hangtime/grip-connect"
 
 const device = new KilterBoard()
 
@@ -29,13 +29,12 @@ await device.connect(
   async () => {
     // Positions must come from your board's LED mapping (see below). These are illustrative only.
     const placement = [
-      { position: 161, role_id: 12 }, // start (green) at LED index 161
-      { position: 162, role_id: 13 }, // middle (cyan)
-      { position: 163, role_id: 14 }, // finish (magenta)
-      { position: 164, role_id: 15 }, // foot (orange)
+      { position: 161, color: "00FF00" }, // start (green) at LED index 161
+      { position: 162, color: "00FFFF" }, // middle (cyan)
+      { position: 163, color: "FF00FF" }, // finish (magenta)
+      { position: 164, color: "FFB600" }, // foot (orange)
     ]
     await device.led(placement)
-    // Or use custom color: { position: 161, color: "FF0000" }
     // Turn off: await device.led([]) or device.led()
   },
   (err) => console.error(err),
@@ -45,16 +44,18 @@ await device.connect(
 ## Supported classes
 
 All Aurora board classes use the same BLE transport and automatically detect API level 2 or 3 from the connected board
-name. The subclasses differ by their bundled `role_id` color map.
+name. The subclasses select the board family naming used by your app; LED payloads use the same `{ position, color }`
+shape for every Aurora-compatible board.
 
-| Class              | Role map export                  | Notes                                     |
-| ------------------ | -------------------------------- | ----------------------------------------- |
-| `Aurora`           | `AuroraPlacementRoles`           | Generic 1/2/3/4 start/middle/finish/foot. |
-| `KilterBoard`      | `KilterBoardPlacementRoles`      | Kilter product role IDs, including 12-45. |
-| `TensionBoard`     | `TensionBoardPlacementRoles`     | Tension role IDs 1-8.                     |
-| `DecoyBoard`       | `DecoyBoardPlacementRoles`       | Decoy role IDs 1-4.                       |
-| `TouchstoneBoard`  | `TouchstoneBoardPlacementRoles`  | Touchstone role IDs 1-4.                  |
-| `GrasshopperBoard` | `GrasshopperBoardPlacementRoles` | Grasshopper role IDs 1-4.                 |
+| Class              | Notes                     |
+| ------------------ | ------------------------- |
+| `AuroraBoard`      | Aurora Board family.      |
+| `KilterBoard`      | Kilter Board family.      |
+| `TensionBoard`     | Tension Board family.     |
+| `DecoyBoard`       | Decoy Board family.       |
+| `TouchstoneBoard`  | Touchstone Board family.  |
+| `GrasshopperBoard` | Grasshopper Board family. |
+| `SoiLLBoard`       | So iLL Board family.      |
 
 ### API level detection
 
@@ -104,9 +105,9 @@ Ways to get correct positions:
 
 ## role_id and placement roles
 
-Aurora apps use a **placement_roles** table to define standard hold roles and their LED colors. Each board subclass
-ships the role map for that board. Use the board-specific class when you have route layouts with `role_id`; pass `color`
-directly when you already resolved the role color yourself.
+Aurora apps use a **placement_roles** table to define standard hold roles and their LED colors. Grip Connect keeps the
+Bluetooth encoder separate from the board database: `role_id` is app/database data, while `led()` takes the concrete
+`color` that should be sent over Bluetooth.
 
 | role_id | name   | full_name | led_color | Meaning            |
 | ------- | ------ | --------- | --------- | ------------------ |
@@ -115,11 +116,16 @@ directly when you already resolved the role color yourself.
 | 14      | finish | Finish    | FF00FF    | Finish (magenta)   |
 | 15      | foot   | Foot Only | FFB600    | Foot only (orange) |
 
-When you pass `role_id` to `led()`, the board uses the corresponding `led_color` from that class's role map. You can
-also pass `color` (hex string) for custom colors; API level 2 supports 64 colors and API level 3 supports 256 colors.
+Resolve route roles before calling `led()`. API level 2 supports 64 colors and API level 3 supports 256 colors.
 
 ```ts
-import { KilterBoardPlacementRoles, TensionBoardPlacementRoles } from "@hangtime/grip-connect"
+const role = placementRoles.find((entry) => entry.id === routeRoleId)
+
+if (!role) {
+  throw new Error(`Unknown route role: ${routeRoleId}`)
+}
+
+await board.led([{ position, color: role.led_color }])
 ```
 
 ## Methods
@@ -129,9 +135,9 @@ active, read, write, download). See [Device interface](/api/device-interface) fo
 
 ### Device-specific
 
-| Method        | Returns                          | Description                                                                         |
-| ------------- | -------------------------------- | ----------------------------------------------------------------------------------- |
-| `led(config)` | `Promise<number[] \| undefined>` | Set LEDs from an array of `{ position: number; role_id?: number; color?: string }`. |
+| Method        | Returns                          | Description                                                      |
+| ------------- | -------------------------------- | ---------------------------------------------------------------- |
+| `led(config)` | `Promise<number[] \| undefined>` | Set LEDs from an array of `{ position: number; color: string }`. |
 
 ## Resources
 

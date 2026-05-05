@@ -1,6 +1,7 @@
 import auroraHolesRaw from "./data/aurora/holes.json" with { type: "json" }
 import auroraLayoutsRaw from "./data/aurora/layouts.json" with { type: "json" }
 import auroraLedsRaw from "./data/aurora/leds.json" with { type: "json" }
+import auroraPlacementRolesRaw from "./data/aurora/placement_roles.json" with { type: "json" }
 import auroraPlacementsRaw from "./data/aurora/placements.json" with { type: "json" }
 import auroraProductSizesRaw from "./data/aurora/product_sizes.json" with { type: "json" }
 import auroraProductSizesLayoutsSetsRaw from "./data/aurora/product_sizes_layouts_sets.json" with { type: "json" }
@@ -8,6 +9,7 @@ import auroraSetsRaw from "./data/aurora/sets.json" with { type: "json" }
 import decoyHolesRaw from "./data/decoy/holes.json" with { type: "json" }
 import decoyLayoutsRaw from "./data/decoy/layouts.json" with { type: "json" }
 import decoyLedsRaw from "./data/decoy/leds.json" with { type: "json" }
+import decoyPlacementRolesRaw from "./data/decoy/placement_roles.json" with { type: "json" }
 import decoyPlacementsRaw from "./data/decoy/placements.json" with { type: "json" }
 import decoyProductSizesRaw from "./data/decoy/product_sizes.json" with { type: "json" }
 import decoyProductSizesLayoutsSetsRaw from "./data/decoy/product_sizes_layouts_sets.json" with { type: "json" }
@@ -15,6 +17,7 @@ import decoySetsRaw from "./data/decoy/sets.json" with { type: "json" }
 import grasshopperHolesRaw from "./data/grasshopper/holes.json" with { type: "json" }
 import grasshopperLayoutsRaw from "./data/grasshopper/layouts.json" with { type: "json" }
 import grasshopperLedsRaw from "./data/grasshopper/leds.json" with { type: "json" }
+import grasshopperPlacementRolesRaw from "./data/grasshopper/placement_roles.json" with { type: "json" }
 import grasshopperPlacementsRaw from "./data/grasshopper/placements.json" with { type: "json" }
 import grasshopperProductSizesRaw from "./data/grasshopper/product_sizes.json" with { type: "json" }
 import grasshopperProductSizesLayoutsSetsRaw from "./data/grasshopper/product_sizes_layouts_sets.json" with { type: "json" }
@@ -22,6 +25,7 @@ import grasshopperSetsRaw from "./data/grasshopper/sets.json" with { type: "json
 import kilterHolesRaw from "./data/kilter/holes.json" with { type: "json" }
 import kilterLayoutsRaw from "./data/kilter/layouts.json" with { type: "json" }
 import kilterLedsRaw from "./data/kilter/leds.json" with { type: "json" }
+import kilterPlacementRolesRaw from "./data/kilter/placement_roles.json" with { type: "json" }
 import kilterPlacementsRaw from "./data/kilter/placements.json" with { type: "json" }
 import kilterProductSizesRaw from "./data/kilter/product_sizes.json" with { type: "json" }
 import kilterProductSizesLayoutsSetsRaw from "./data/kilter/product_sizes_layouts_sets.json" with { type: "json" }
@@ -29,6 +33,7 @@ import kilterSetsRaw from "./data/kilter/sets.json" with { type: "json" }
 import soillHolesRaw from "./data/soill/holes.json" with { type: "json" }
 import soillLayoutsRaw from "./data/soill/layouts.json" with { type: "json" }
 import soillLedsRaw from "./data/soill/leds.json" with { type: "json" }
+import soillPlacementRolesRaw from "./data/soill/placement_roles.json" with { type: "json" }
 import soillPlacementsRaw from "./data/soill/placements.json" with { type: "json" }
 import soillProductSizesRaw from "./data/soill/product_sizes.json" with { type: "json" }
 import soillProductSizesLayoutsSetsRaw from "./data/soill/product_sizes_layouts_sets.json" with { type: "json" }
@@ -36,6 +41,7 @@ import soillSetsRaw from "./data/soill/sets.json" with { type: "json" }
 import tensionHolesRaw from "./data/tension/holes.json" with { type: "json" }
 import tensionLayoutsRaw from "./data/tension/layouts.json" with { type: "json" }
 import tensionLedsRaw from "./data/tension/leds.json" with { type: "json" }
+import tensionPlacementRolesRaw from "./data/tension/placement_roles.json" with { type: "json" }
 import tensionPlacementsRaw from "./data/tension/placements.json" with { type: "json" }
 import tensionProductSizesRaw from "./data/tension/product_sizes.json" with { type: "json" }
 import tensionProductSizesLayoutsSetsRaw from "./data/tension/product_sizes_layouts_sets.json" with { type: "json" }
@@ -43,6 +49,7 @@ import tensionSetsRaw from "./data/tension/sets.json" with { type: "json" }
 import touchstoneHolesRaw from "./data/touchstone/holes.json" with { type: "json" }
 import touchstoneLayoutsRaw from "./data/touchstone/layouts.json" with { type: "json" }
 import touchstoneLedsRaw from "./data/touchstone/leds.json" with { type: "json" }
+import touchstonePlacementRolesRaw from "./data/touchstone/placement_roles.json" with { type: "json" }
 import touchstonePlacementsRaw from "./data/touchstone/placements.json" with { type: "json" }
 import touchstoneProductSizesRaw from "./data/touchstone/product_sizes.json" with { type: "json" }
 import touchstoneProductSizesLayoutsSetsRaw from "./data/touchstone/product_sizes_layouts_sets.json" with { type: "json" }
@@ -95,6 +102,16 @@ interface PlacementRow {
   hole_id: number
   set_id: number
   default_placement_role_id: number | null
+}
+
+export interface PlacementRoleData {
+  id: number
+  product_id: number
+  position: number
+  name: string
+  full_name: string
+  led_color: string
+  screen_color: string
 }
 
 interface HoleRow {
@@ -150,6 +167,7 @@ interface BoardDataset {
   sets: SetRow[]
   productSizesLayoutsSets: ProductSizeLayoutSetRow[]
   placements: PlacementRow[]
+  placementRoles: PlacementRoleData[]
   holes: HoleRow[]
   leds: { id: number; product_size_id: number; hole_id: number; position: number }[]
 }
@@ -167,6 +185,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: kilterHolesRaw,
     layouts: kilterLayoutsRaw,
     leds: kilterLedsRaw,
+    placementRoles: kilterPlacementRolesRaw,
     placements: kilterPlacementsRaw,
     productSizes: kilterProductSizesRaw,
     productSizesLayoutsSets: kilterProductSizesLayoutsSetsRaw,
@@ -176,6 +195,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: auroraHolesRaw,
     layouts: auroraLayoutsRaw,
     leds: auroraLedsRaw,
+    placementRoles: auroraPlacementRolesRaw,
     placements: auroraPlacementsRaw,
     productSizes: auroraProductSizesRaw,
     productSizesLayoutsSets: auroraProductSizesLayoutsSetsRaw,
@@ -185,6 +205,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: soillHolesRaw,
     layouts: soillLayoutsRaw,
     leds: soillLedsRaw,
+    placementRoles: soillPlacementRolesRaw,
     placements: soillPlacementsRaw,
     productSizes: soillProductSizesRaw,
     productSizesLayoutsSets: soillProductSizesLayoutsSetsRaw,
@@ -194,6 +215,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: tensionHolesRaw,
     layouts: tensionLayoutsRaw,
     leds: tensionLedsRaw,
+    placementRoles: tensionPlacementRolesRaw,
     placements: tensionPlacementsRaw,
     productSizes: tensionProductSizesRaw,
     productSizesLayoutsSets: tensionProductSizesLayoutsSetsRaw,
@@ -203,6 +225,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: decoyHolesRaw,
     layouts: decoyLayoutsRaw,
     leds: decoyLedsRaw,
+    placementRoles: decoyPlacementRolesRaw,
     placements: decoyPlacementsRaw,
     productSizes: decoyProductSizesRaw,
     productSizesLayoutsSets: decoyProductSizesLayoutsSetsRaw,
@@ -212,6 +235,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: grasshopperHolesRaw,
     layouts: grasshopperLayoutsRaw,
     leds: grasshopperLedsRaw,
+    placementRoles: grasshopperPlacementRolesRaw,
     placements: grasshopperPlacementsRaw,
     productSizes: grasshopperProductSizesRaw,
     productSizesLayoutsSets: grasshopperProductSizesLayoutsSetsRaw,
@@ -221,6 +245,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     holes: touchstoneHolesRaw,
     layouts: touchstoneLayoutsRaw,
     leds: touchstoneLedsRaw,
+    placementRoles: touchstonePlacementRolesRaw,
     placements: touchstonePlacementsRaw,
     productSizes: touchstoneProductSizesRaw,
     productSizesLayoutsSets: touchstoneProductSizesLayoutsSetsRaw,
@@ -236,6 +261,7 @@ function createBoardDataset(
     sets: unknown
     productSizesLayoutsSets: unknown
     placements: unknown
+    placementRoles: unknown
     holes: unknown
     leds: unknown
   },
@@ -247,6 +273,7 @@ function createBoardDataset(
     sets: raw.sets as SetRow[],
     productSizesLayoutsSets: raw.productSizesLayoutsSets as ProductSizeLayoutSetRow[],
     placements: raw.placements as PlacementRow[],
+    placementRoles: raw.placementRoles as PlacementRoleData[],
     holes: raw.holes as HoleRow[],
     leds: raw.leds as { id: number; product_size_id: number; hole_id: number; position: number }[],
   }
@@ -376,6 +403,17 @@ export function getKilterSets(boardName: AuroraBoardName, layoutId: number, size
     .map((row) => dataset.setById.get(row.set_id))
     .filter(isDefined)
     .map(toSetData)
+}
+
+export function getKilterPlacementRoles(boardName: AuroraBoardName, layoutId?: number): PlacementRoleData[] {
+  const dataset = getBoardDataset(boardName)
+  const productId = layoutId !== undefined ? dataset.layoutById.get(layoutId)?.product_id : undefined
+  const roles =
+    productId !== undefined
+      ? dataset.placementRoles.filter((role) => role.product_id === productId)
+      : dataset.placementRoles
+
+  return [...roles].sort((left, right) => left.position - right.position || left.id - right.id)
 }
 
 export function getDefaultKilterConfig(boardName: AuroraBoardName = "kilter", layoutId?: number): KilterConfig {

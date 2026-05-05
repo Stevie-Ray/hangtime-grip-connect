@@ -44,21 +44,19 @@ await device.connect(
 
 ## Aurora LED Boards
 
-Configures LEDs based on an array of climb placements. Each placement needs `position` and either `role_id` or `color`.
-The Aurora API level is detected from the connected Bluetooth device name. Names ending in `@2` use API level 2, names
-ending in `@3` use API level 3, and names without an API suffix use API level 2. Use the board-specific class
-(`KilterBoard`, `TensionBoard`, `DecoyBoard`, `TouchstoneBoard`, or `GrasshopperBoard`) for that board's built-in
-`role_id` map. Use `Aurora` for a generic 1/2/3/4 role map, or pass `color` directly.
+Configures LEDs based on an array of climb placements. Each placement needs `position` and `color`. The Aurora API level
+is detected from the connected Bluetooth device name. Names ending in `@2` use API level 2, names ending in `@3` use API
+level 3, and names without an API suffix use API level 2. If your route data uses `role_id`, resolve it through your
+app's board database before calling `led()`.
 
 ```ts
-led(config?: { position: number; role_id?: number; color?: string }[]): Promise<number[] | undefined>
+led(config?: { position: number; color: string }[]): Promise<number[] | undefined>
 ```
 
-| Property | Type     | Description                                 |
-| -------- | -------- | ------------------------------------------- |
-| position | `number` | LED position on the board.                  |
-| role_id  | `number` | Optional role identifier for the placement. |
-| color    | `string` | Optional hex color (e.g. `"#ff0000"`).      |
+| Property | Type     | Description                   |
+| -------- | -------- | ----------------------------- |
+| position | `number` | LED position on the board.    |
+| color    | `string` | Hex color (e.g. `"#ff0000"`). |
 
 ### Example
 
@@ -71,7 +69,7 @@ await device.connect(
   async () => {
     await device.led([
       { position: 0, color: "#ff0000" },
-      { position: 1, role_id: 12 },
+      { position: 1, color: "00ff00" },
     ])
   },
   (err) => console.error(err),

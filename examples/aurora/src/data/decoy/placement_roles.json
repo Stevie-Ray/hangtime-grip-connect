@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "product_id": 1,
+    "position": 1,
+    "name": "start",
+    "full_name": "Start",
+    "led_color": "00FF00",
+    "screen_color": "00DD00"
+  },
+  {
+    "id": 2,
+    "product_id": 1,
+    "position": 2,
+    "name": "middle",
+    "full_name": "Middle",
+    "led_color": "0000FF",
+    "screen_color": "0000FF"
+  },
+  {
+    "id": 3,
+    "product_id": 1,
+    "position": 3,
+    "name": "finish",
+    "full_name": "Finish",
+    "led_color": "FF0000",
+    "screen_color": "FF0000"
+  },
+  {
+    "id": 4,
+    "product_id": 1,
+    "position": 4,
+    "name": "foot",
+    "full_name": "Foot Only",
+    "led_color": "FF00FF",
+    "screen_color": "FF00FF"
+  }
+]
