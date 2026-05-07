@@ -1,18 +1,17 @@
 ---
 title: Aurora LED Boards
-description: "Kilter, Tension, Decoy, Touchstone, Grasshopper, and compatible Aurora LED boards: route display"
+description: "Aurora-compatible LED boards: route display"
 ---
 
 # Aurora LED Boards
 
-The [Kilter Board](https://kilterboardapp.com/) (Aurora Climbing) and compatible LED system boards (Tension,
-Grasshopper, Decoy, Touchstone, So iLL) display climb routes via LEDs. These boards are **LED-only** in Grip Connect:
-you connect and send LED config via `led()`.
+Aurora-compatible LED boards display climb routes via LEDs. These boards are **LED-only** in Grip Connect: you connect
+and send LED config via `led()`.
 
 ## Basic usage
 
-1. **Connect** – Create an Aurora board device class such as `KilterBoard` or `TensionBoard`, then call
-   `connect(onSuccess?, onError?)`. Requires a user gesture and secure context.
+1. **Connect** – Create an `AuroraBoard`, then call `connect(onSuccess?, onError?)`. Requires a user gesture and secure
+   context.
 2. **Map holds to LED positions** – The board expects an array of `{ position, color }`. Each `position` is the **LED
    index** for that hold on the board (0-based). These indices are fixed per board model; you must get them from board
    data (see [Getting correct positions](#getting-correct-positions-for-a-board) below).
@@ -21,9 +20,9 @@ you connect and send LED config via `led()`.
    `placement_roles` table first, then pass the resulting `led_color`. Empty array or `device.led()` turns LEDs off.
 
 ```ts
-import { KilterBoard } from "@hangtime/grip-connect"
+import { AuroraBoard } from "@hangtime/grip-connect"
 
-const device = new KilterBoard()
+const device = new AuroraBoard()
 
 await device.connect(
   async () => {
@@ -43,19 +42,12 @@ await device.connect(
 
 ## Supported classes
 
-All Aurora board classes use the same BLE transport and automatically detect API level 2 or 3 from the connected board
-name. The subclasses select the board family naming used by your app; LED payloads use the same `{ position, color }`
-shape for every Aurora-compatible board.
+The Aurora board class uses the BLE transport and automatically detects API level 2 or 3 from the connected board name.
+LED payloads use the `{ position, color }` shape.
 
-| Class              | Notes                     |
-| ------------------ | ------------------------- |
-| `AuroraBoard`      | Aurora Board family.      |
-| `KilterBoard`      | Kilter Board family.      |
-| `TensionBoard`     | Tension Board family.     |
-| `DecoyBoard`       | Decoy Board family.       |
-| `TouchstoneBoard`  | Touchstone Board family.  |
-| `GrasshopperBoard` | Grasshopper Board family. |
-| `SoiLLBoard`       | So iLL Board family.      |
+| Class         | Notes                               |
+| ------------- | ----------------------------------- |
+| `AuroraBoard` | Aurora-compatible LED board family. |
 
 ### API level detection
 
@@ -65,12 +57,12 @@ the connected Bluetooth device name. Names ending in `@2` use API level 2, names
 names without an API suffix follow the Aurora app behavior and use API level 2.
 
 Aurora board names use this shape: alphanumeric name, optional `#` serial number, optional `@` API level. Examples:
-`mykilterboard#2353@3`, `mykilterboard@2`, `mykilterboard`, and `mykilterboard#83727`.
+`myauroraboard#2353@3`, `myauroraboard@2`, `myauroraboard`, and `myauroraboard#83727`.
 
 ```ts
-import { KilterBoard } from "@hangtime/grip-connect"
+import { AuroraBoard } from "@hangtime/grip-connect"
 
-const device = new KilterBoard()
+const device = new AuroraBoard()
 
 await device.connect(async () => {
   await device.led([{ position: 161, color: "FF00FF" }])
@@ -83,7 +75,7 @@ The `position` in each `led()` entry is the **LED index** for that physical hold
 each board model has a fixed mapping from physical holes to LED indices. Using wrong positions will light the wrong
 holds or do nothing.
 
-The Kilter Board app gets this mapping from its backend. The app stores a local SQLite database with tables such as
+The Aurora app gets this mapping from its backend. The app stores a local SQLite database with tables such as
 **`holes`** (hole coordinates and id), **`leds`** (maps hole_id to the LED **position** used in the Bluetooth protocol),
 **`placements`** (placement_id to hole_id), and **`placement_roles`** (role_id to LED color). Route layouts in the app
 use a string format like `p1083r15p1117r15p1164r12...` (placement_id `p` + role_id `r`). To send a route to the board
@@ -93,15 +85,15 @@ Ways to get correct positions:
 
 1. **BoardLib** – [BoardLib](https://github.com/lemeryfertitta/BoardLib) is a Python package that downloads and syncs
    the board’s SQLite database (holes, leds, placements, placement_roles, climbs, etc.) for Aurora Climbing boards
-   (Kilter, Tension, and compatible boards). Install with `pip install boardlib`, then run
+   (Aurora boards). Install with `pip install boardlib`, then run
    `boardlib database <board_name> <database_path> --username <board_username>` to download and sync the database; use
    the `leds` table (hole_id → position) and `placements` / `holes` as needed. The database contains the same shared
    public data the app uses. See the [BoardLib README](https://github.com/lemeryfertitta/BoardLib) for database,
    logbook, and image commands.
-2. **Board data from the app** – Sync or export from the Kilter Board app (e.g. SQLite at
-   `/data/data/com.auroraclimbing.kilterboard/` on Android, or via the app’s sync API). Use the `leds` table (hole_id →
-   position) and `placements` / `holes` as needed. See [KilterBoard](https://bazun.me/blog/kiterboard/) (Philipp Bazun)
-   for the database schema and Bluetooth protocol.
+2. **Board data from the app** – Sync or export from the Aurora app data (for example, via the app’s sync API). Use the
+   `leds` table (hole_id → position) and `placements` / `holes` as needed. See
+   [Aurora board database notes](https://bazun.me/blog/kiterboard/) (Philipp Bazun) for the database schema and
+   Bluetooth protocol.
 
 ## role_id and placement roles
 
@@ -142,13 +134,12 @@ active, read, write, download). See [Device interface](/api/device-interface) fo
 ## Resources
 
 - [BoardLib](https://github.com/lemeryfertitta/BoardLib) (Python): Utilities for climbing board APIs. Download and sync
-  the Kilter (and other Aurora) board SQLite database with
-  `boardlib database <board_name> <path> --username <username>`; use the database for holes, leds, placements, and
-  placement_roles. Also supports logbooks and images.
-- [A web based Kilterboard application](https://tim.wants.coffee/posts/kilterboard-app/) (Tim / georift): Blog post on
-  building [kilterboard.app](https://kilterboard.app), reverse engineering the Bluetooth protocol, and re-implementing
-  with the Web Bluetooth API.
-- [Kilterboard](https://www.bazun.me/blog/kiterboard/) (bazun.me): Database schema, sync API, and Bluetooth protocol for
-  the Kilter Board app.
+  the Aurora board SQLite database with `boardlib database <board_name> <path> --username <username>`; use the database
+  for holes, leds, placements, and placement_roles. Also supports logbooks and images.
+- [A web based Aurora board application](https://tim.wants.coffee/posts/kilterboard-app/) (Tim / georift): Blog post on
+  building an Aurora board app, reverse engineering the Bluetooth protocol, and re-implementing with the Web Bluetooth
+  API.
+- [Aurora board database notes](https://www.bazun.me/blog/kiterboard/) (bazun.me): Database schema, sync API, and
+  Bluetooth protocol for Aurora LED boards.
 
 See [Examples: Aurora LED Boards](/examples/aurora) for a full demo and [API](/api/) for the shared interface.

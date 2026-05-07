@@ -1,11 +1,11 @@
 ---
 title: Aurora LED Boards
-description: Display LED routes on a Kilter Board or compatible Aurora Climbing LED board.
+description: Display LED routes on Aurora-compatible LED boards.
 ---
 
 # Aurora LED Boards example
 
-Display LED routes on a Kilter Board (or compatible Aurora Climbing LED board).
+Display LED routes on Aurora-compatible LED boards.
 
 ## Live demo
 
@@ -22,8 +22,8 @@ Display LED routes on a Kilter Board (or compatible Aurora Climbing LED board).
 
 ## Pattern
 
-1. Connect to the Kilter Board via `KilterBoard` from `@hangtime/grip-connect`, or use the matching Aurora subclass for
-   another board (`TensionBoard`, `DecoyBoard`, `TouchstoneBoard`, or `GrasshopperBoard`).
+1. Connect with `AuroraBoard` from `@hangtime/grip-connect`; board selection changes the data/images used for LED
+   mapping.
 2. Parse route data (e.g. from URL or app state), then resolve each placement to `{ position, color }` with the board
    data tables.
 3. Call `device.led(config)` with that array to light the holds.
@@ -61,6 +61,6 @@ Bluetooth package independent from the bundled BoardLib data while preserving ro
 
 ## Resources
 
-- [A web based Kilterboard application](https://tim.wants.coffee/posts/kilterboard-app/) (Tim / georift): Building
-  kilterboard.app, reverse engineering the Bluetooth protocol, Web Bluetooth API.
-- [Kilterboard](https://www.bazun.me/blog/kiterboard/) (bazun.me): Building for the Kilter Board.
+- [A web based Aurora board application](https://tim.wants.coffee/posts/kilterboard-app/) (Tim / georift): Building an
+  Aurora board app, reverse engineering the Bluetooth protocol, Web Bluetooth API.
+- [Aurora board database notes](https://www.bazun.me/blog/kiterboard/) (bazun.me): Building for Aurora LED boards.

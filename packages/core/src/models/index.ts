@@ -20,12 +20,4 @@ export { SmartBoardPro } from "./device/smartboard-pro.model.js"
 
 export { WHC06 } from "./device/wh-c06.model.js"
 
-export {
-  AuroraBoard,
-  DecoyBoard,
-  GrasshopperBoard,
-  KilterBoard,
-  SoiLLBoard,
-  TensionBoard,
-  TouchstoneBoard,
-} from "./device/aurora.model.js"
+export { AuroraBoard } from "./device/aurora.model.js"

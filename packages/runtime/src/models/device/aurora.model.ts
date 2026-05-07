@@ -1,14 +1,14 @@
-import { KilterBoard as KilterBoardBase } from "@hangtime/grip-connect"
+import { AuroraBoard as AuroraBoardBase } from "@hangtime/grip-connect"
 import process from "node:process"
 import { bluetooth } from "webbluetooth"
 import { writeDownloadFile } from "../../download.js"
 
 /**
  * Represents a Aurora Climbing device.
- * Kilter Board, Tension Board, Decoy Board, Touchstone Board, Grasshopper Board, Aurora Board, So iLL Board
+ * Aurora Board
  * {@link https://auroraclimbing.com}
  */
-export class KilterBoard extends KilterBoardBase {
+export class AuroraBoard extends AuroraBoardBase {
   override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
     let content = ""
 

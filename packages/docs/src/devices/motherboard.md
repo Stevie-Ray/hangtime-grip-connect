@@ -35,17 +35,17 @@ read, write, tare, download). See [Device interface](/api/device-interface) for 
 
 ### Device-specific
 
-| Method              | Returns                          | Description                                                                                                          |
-| ------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `battery()`         | `Promise<string \| undefined>`   | Battery or voltage information.                                                                                      |
-| `calibration()`     | `Promise<void>`                  | Request calibration data from the device.                                                                            |
-| `firmware()`        | `Promise<string \| undefined>`   | Firmware version.                                                                                                    |
-| `hardware()`        | `Promise<string \| undefined>`   | Hardware version.                                                                                                    |
-| `led(config?)`      | `Promise<number[] \| undefined>` | Set LED color. `"green"` \| `"red"` \| `"orange"`; omit to turn off. Returns payload for Kilter Board compatibility. |
-| `manufacturer()`    | `Promise<string \| undefined>`   | Manufacturer info.                                                                                                   |
-| `serial()`          | `Promise<string \| undefined>`   | Serial number.                                                                                                       |
-| `stop()`            | `Promise<void>`                  | Stop an ongoing stream.                                                                                              |
-| `stream(duration?)` | `Promise<void>`                  | Start force stream. `duration` in ms; `0` or omit for continuous.                                                    |
+| Method              | Returns                          | Description                                                                                                              |
+| ------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `battery()`         | `Promise<string \| undefined>`   | Battery or voltage information.                                                                                          |
+| `calibration()`     | `Promise<void>`                  | Request calibration data from the device.                                                                                |
+| `firmware()`        | `Promise<string \| undefined>`   | Firmware version.                                                                                                        |
+| `hardware()`        | `Promise<string \| undefined>`   | Hardware version.                                                                                                        |
+| `led(config?)`      | `Promise<number[] \| undefined>` | Set LED color. `"green"` \| `"red"` \| `"orange"`; omit to turn off. Returns payload for Aurora-compatible LED payloads. |
+| `manufacturer()`    | `Promise<string \| undefined>`   | Manufacturer info.                                                                                                       |
+| `serial()`          | `Promise<string \| undefined>`   | Serial number.                                                                                                           |
+| `stop()`            | `Promise<void>`                  | Stop an ongoing stream.                                                                                                  |
+| `stream(duration?)` | `Promise<void>`                  | Start force stream. `duration` in ms; `0` or omit for continuous.                                                        |
 
 ## Example with LED
 

@@ -7,7 +7,7 @@ const pkg = require("@hangtime/grip-connect/package.json")
 export default defineConfig({
   title: "Grip Connect",
   description:
-    "Web Bluetooth client for force-sensing hangboards, dynamometers, and LED system boards. Connect to Griptonite, Tindeq, PitchSix, Kilter Board, and more.",
+    "Web Bluetooth client for force-sensing hangboards, dynamometers, and LED system boards. Connect to Griptonite, Tindeq, PitchSix, Aurora Board, and more.",
   base: "/hangtime-grip-connect/",
   lang: "en-US",
   lastUpdated: false,
@@ -118,7 +118,7 @@ export default defineConfig({
           items: [
             { text: "Force Measurement App", link: "/examples/app" },
             { text: "Flappy Bird", link: "/examples/flappy-bird" },
-            { text: "Kilter Board", link: "/examples/kilter-board" },
+            { text: "Aurora Board", link: "/examples/aurora" },
             { text: "Pong", link: "/examples/pong" },
             { text: "Runtime", link: "/examples/runtime" },
             { text: "Capacitor", link: "/examples/capacitor" },
@@ -134,7 +134,7 @@ export default defineConfig({
             { text: "Dyno", link: "/devices/dyno" },
             { text: "Entralpi", link: "/devices/entralpi" },
             { text: "Force Board", link: "/devices/forceboard" },
-            { text: "Kilter Board", link: "/devices/kilterboard" },
+            { text: "Aurora Board", link: "/devices/aurora" },
             { text: "MotherBoard", link: "/devices/motherboard" },
             { text: "mySmartBoard", link: "/devices/mysmartboard" },
             { text: "PB-700BT", link: "/devices/pb-700bt" },

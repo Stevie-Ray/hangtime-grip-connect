@@ -12,7 +12,7 @@ These devices are publicly shipped by Grip Connect:
 | Climbro        | Standard device flow                                                             |
 | Entralpi       | Standard device flow                                                             |
 | ForceBoard     | Standard device flow                                                             |
-| KilterBoard    | LED board workflows                                                              |
+| AuroraBoard    | LED board workflows                                                              |
 | Motherboard    | Common example device                                                            |
 | mySmartBoard   | Check device-specific methods before promising `battery()`, `tare()`, or `led()` |
 | PB700BT        | Gyroscopic hand exerciser                                                        |
@@ -44,7 +44,7 @@ Confirmed from the exported device implementations:
 | Climbro        | yes         | no         | no       | no      |
 | Entralpi       | yes         | no         | no       | no      |
 | ForceBoard     | yes         | yes        | yes      | no      |
-| KilterBoard    | no          | no         | no       | yes     |
+| AuroraBoard    | no          | no         | no       | yes     |
 | Motherboard    | yes         | yes        | yes      | yes     |
 | mySmartBoard   | no          | no         | no       | no      |
 | PB700BT        | yes         | no         | no       | no      |

@@ -54,7 +54,7 @@ import touchstonePlacementsRaw from "./data/touchstone/placements.json" with { t
 import touchstoneProductSizesRaw from "./data/touchstone/product_sizes.json" with { type: "json" }
 import touchstoneProductSizesLayoutsSetsRaw from "./data/touchstone/product_sizes_layouts_sets.json" with { type: "json" }
 import touchstoneSetsRaw from "./data/touchstone/sets.json" with { type: "json" }
-import type { BoardDetails } from "./kilter-types.js"
+import type { BoardDetails } from "./aurora-types.js"
 
 interface LayoutRow {
   id: number
@@ -146,7 +146,7 @@ export interface SetData {
   name: string
 }
 
-export interface KilterConfig {
+export interface AuroraConfig {
   boardName: AuroraBoardName
   layoutId: number
   sizeId: number
@@ -158,7 +158,12 @@ export interface AuroraBoardOption {
   label: string
 }
 
-export type AuroraBoardName = "kilter" | "aurora" | "soill" | "tension" | "decoy" | "grasshopper" | "touchstone"
+export type AuroraBoardName = "aurora" | "kilter" | "soill" | "tension" | "decoy" | "grasshopper" | "touchstone"
+
+const DEFAULT_BOARD_NAME: AuroraBoardName = "kilter"
+const DEFAULT_KILTER_LAYOUT_ID = 1
+const DEFAULT_KILTER_SIZE_ID = 10
+const DEFAULT_KILTER_SET_IDS = [1, 20]
 
 interface BoardDataset {
   label: string
@@ -191,26 +196,7 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     productSizesLayoutsSets: kilterProductSizesLayoutsSetsRaw,
     sets: kilterSetsRaw,
   }),
-  aurora: createBoardDataset("Aurora Board", {
-    holes: auroraHolesRaw,
-    layouts: auroraLayoutsRaw,
-    leds: auroraLedsRaw,
-    placementRoles: auroraPlacementRolesRaw,
-    placements: auroraPlacementsRaw,
-    productSizes: auroraProductSizesRaw,
-    productSizesLayoutsSets: auroraProductSizesLayoutsSetsRaw,
-    sets: auroraSetsRaw,
-  }),
-  soill: createBoardDataset("So iLL Board", {
-    holes: soillHolesRaw,
-    layouts: soillLayoutsRaw,
-    leds: soillLedsRaw,
-    placementRoles: soillPlacementRolesRaw,
-    placements: soillPlacementsRaw,
-    productSizes: soillProductSizesRaw,
-    productSizesLayoutsSets: soillProductSizesLayoutsSetsRaw,
-    sets: soillSetsRaw,
-  }),
+
   tension: createBoardDataset("Tension Board", {
     holes: tensionHolesRaw,
     layouts: tensionLayoutsRaw,
@@ -220,16 +206,6 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     productSizes: tensionProductSizesRaw,
     productSizesLayoutsSets: tensionProductSizesLayoutsSetsRaw,
     sets: tensionSetsRaw,
-  }),
-  decoy: createBoardDataset("Decoy Board", {
-    holes: decoyHolesRaw,
-    layouts: decoyLayoutsRaw,
-    leds: decoyLedsRaw,
-    placementRoles: decoyPlacementRolesRaw,
-    placements: decoyPlacementsRaw,
-    productSizes: decoyProductSizesRaw,
-    productSizesLayoutsSets: decoyProductSizesLayoutsSetsRaw,
-    sets: decoySetsRaw,
   }),
   grasshopper: createBoardDataset("Grasshopper Board", {
     holes: grasshopperHolesRaw,
@@ -250,6 +226,36 @@ const BOARD_DATASETS: Record<AuroraBoardName, BoardDataset> = {
     productSizes: touchstoneProductSizesRaw,
     productSizesLayoutsSets: touchstoneProductSizesLayoutsSetsRaw,
     sets: touchstoneSetsRaw,
+  }),
+  decoy: createBoardDataset("Decoy Board", {
+    holes: decoyHolesRaw,
+    layouts: decoyLayoutsRaw,
+    leds: decoyLedsRaw,
+    placementRoles: decoyPlacementRolesRaw,
+    placements: decoyPlacementsRaw,
+    productSizes: decoyProductSizesRaw,
+    productSizesLayoutsSets: decoyProductSizesLayoutsSetsRaw,
+    sets: decoySetsRaw,
+  }),
+  soill: createBoardDataset("So iLL Board", {
+    holes: soillHolesRaw,
+    layouts: soillLayoutsRaw,
+    leds: soillLedsRaw,
+    placementRoles: soillPlacementRolesRaw,
+    placements: soillPlacementsRaw,
+    productSizes: soillProductSizesRaw,
+    productSizesLayoutsSets: soillProductSizesLayoutsSetsRaw,
+    sets: soillSetsRaw,
+  }),
+  aurora: createBoardDataset("Aurora Board", {
+    holes: auroraHolesRaw,
+    layouts: auroraLayoutsRaw,
+    leds: auroraLedsRaw,
+    placementRoles: auroraPlacementRolesRaw,
+    placements: auroraPlacementsRaw,
+    productSizes: auroraProductSizesRaw,
+    productSizesLayoutsSets: auroraProductSizesLayoutsSetsRaw,
+    sets: auroraSetsRaw,
   }),
 }
 
@@ -336,7 +342,7 @@ export function isAuroraBoardName(value: string): value is AuroraBoardName {
   return value in BOARD_DATASETS
 }
 
-function getKilterImageFilename(
+function getAuroraImageFilename(
   dataset: ResolvedBoardDataset,
   layoutId: number,
   sizeId: number,
@@ -350,7 +356,7 @@ function getKilterImageFilename(
   )
 }
 
-function getKilterHolePlacements(
+function getAuroraHolePlacements(
   dataset: ResolvedBoardDataset,
   layoutId: number,
   setId: number,
@@ -373,7 +379,7 @@ function getKilterHolePlacements(
     .filter(isDefined)
 }
 
-export function getKilterLayouts(boardName: AuroraBoardName): LayoutData[] {
+export function getAuroraLayouts(boardName: AuroraBoardName): LayoutData[] {
   const dataset = getBoardDataset(boardName)
   const renderableLayoutIds = new Set(dataset.productSizesLayoutsSets.map((row) => row.layout_id))
 
@@ -383,7 +389,7 @@ export function getKilterLayouts(boardName: AuroraBoardName): LayoutData[] {
     .map(toLayoutData)
 }
 
-export function getKilterSizes(boardName: AuroraBoardName, layoutId: number): ProductSizeData[] {
+export function getAuroraSizes(boardName: AuroraBoardName, layoutId: number): ProductSizeData[] {
   const dataset = getBoardDataset(boardName)
   const layout = dataset.layoutById.get(layoutId)
   if (!layout) {
@@ -396,7 +402,7 @@ export function getKilterSizes(boardName: AuroraBoardName, layoutId: number): Pr
     .map(toProductSizeData)
 }
 
-export function getKilterSets(boardName: AuroraBoardName, layoutId: number, sizeId: number): SetData[] {
+export function getAuroraSets(boardName: AuroraBoardName, layoutId: number, sizeId: number): SetData[] {
   const dataset = getBoardDataset(boardName)
   return dataset.productSizesLayoutsSets
     .filter((row) => row.layout_id === layoutId && row.product_size_id === sizeId && row.is_listed === 1)
@@ -405,7 +411,7 @@ export function getKilterSets(boardName: AuroraBoardName, layoutId: number, size
     .map(toSetData)
 }
 
-export function getKilterPlacementRoles(boardName: AuroraBoardName, layoutId?: number): PlacementRoleData[] {
+export function getAuroraPlacementRoles(boardName: AuroraBoardName, layoutId?: number): PlacementRoleData[] {
   const dataset = getBoardDataset(boardName)
   const productId = layoutId !== undefined ? dataset.layoutById.get(layoutId)?.product_id : undefined
   const roles =
@@ -416,10 +422,22 @@ export function getKilterPlacementRoles(boardName: AuroraBoardName, layoutId?: n
   return [...roles].sort((left, right) => left.position - right.position || left.id - right.id)
 }
 
-export function getDefaultKilterConfig(boardName: AuroraBoardName = "kilter", layoutId?: number): KilterConfig {
-  const selectedLayoutId = layoutId ?? getKilterLayouts(boardName)[0]?.id ?? 1
-  const sizeId = getKilterSizes(boardName, selectedLayoutId)[0]?.id ?? 1
-  const setIds = getKilterSets(boardName, selectedLayoutId, sizeId)
+export function getDefaultAuroraConfig(
+  boardName: AuroraBoardName = DEFAULT_BOARD_NAME,
+  layoutId?: number,
+): AuroraConfig {
+  if (boardName === DEFAULT_BOARD_NAME && layoutId === undefined) {
+    return {
+      boardName,
+      layoutId: DEFAULT_KILTER_LAYOUT_ID,
+      sizeId: DEFAULT_KILTER_SIZE_ID,
+      setIds: DEFAULT_KILTER_SET_IDS,
+    }
+  }
+
+  const selectedLayoutId = layoutId ?? getAuroraLayouts(boardName)[0]?.id ?? 1
+  const sizeId = getAuroraSizes(boardName, selectedLayoutId)[0]?.id ?? 1
+  const setIds = getAuroraSets(boardName, selectedLayoutId, sizeId)
     .map((set) => set.id)
     .sort((a, b) => a - b)
 
@@ -431,22 +449,22 @@ export function getDefaultKilterConfig(boardName: AuroraBoardName = "kilter", la
   }
 }
 
-export function resolveKilterConfig(partial: Partial<KilterConfig>): KilterConfig {
-  const boardName = partial.boardName ?? "kilter"
-  const fallback = getDefaultKilterConfig(boardName, partial.layoutId)
-  const availableLayouts = getKilterLayouts(boardName)
+export function resolveAuroraConfig(partial: Partial<AuroraConfig>): AuroraConfig {
+  const boardName = partial.boardName ?? DEFAULT_BOARD_NAME
+  const fallback = getDefaultAuroraConfig(boardName, partial.layoutId)
+  const availableLayouts = getAuroraLayouts(boardName)
   const layoutId =
     partial.layoutId !== undefined && availableLayouts.some((layout) => layout.id === partial.layoutId)
       ? partial.layoutId
       : fallback.layoutId
 
-  const availableSizes = getKilterSizes(boardName, layoutId)
+  const availableSizes = getAuroraSizes(boardName, layoutId)
   const sizeId =
     partial.sizeId !== undefined && availableSizes.some((size) => size.id === partial.sizeId)
       ? partial.sizeId
-      : getDefaultKilterConfig(boardName, layoutId).sizeId
+      : fallback.sizeId
 
-  const availableSetIds = getKilterSets(boardName, layoutId, sizeId)
+  const availableSetIds = getAuroraSets(boardName, layoutId, sizeId)
     .map((set) => set.id)
     .sort((a, b) => a - b)
 
@@ -462,7 +480,7 @@ export function resolveKilterConfig(partial: Partial<KilterConfig>): KilterConfi
   }
 }
 
-export async function getKilterBoardDetails(config: KilterConfig): Promise<BoardDetails> {
+export async function getAuroraBoardDetails(config: AuroraConfig): Promise<BoardDetails> {
   const dataset = getBoardDataset(config.boardName)
   const size = dataset.productSizes.find((entry) => entry.id === config.sizeId)
   if (!size) {
@@ -470,18 +488,18 @@ export async function getKilterBoardDetails(config: KilterConfig): Promise<Board
   }
 
   const layout = dataset.layoutById.get(config.layoutId)
-  const sets = getKilterSets(config.boardName, config.layoutId, config.sizeId)
+  const sets = getAuroraSets(config.boardName, config.layoutId, config.sizeId)
 
   const imagesToHolds: Record<string, [number, number | null, number, number][]> = {}
   for (const setId of config.setIds) {
-    const imageFilename = getKilterImageFilename(dataset, config.layoutId, config.sizeId, setId)
+    const imageFilename = getAuroraImageFilename(dataset, config.layoutId, config.sizeId, setId)
     if (!imageFilename) {
       throw new Error(
         `Could not find image for set_id ${setId} for layout_id: ${config.layoutId} and size_id: ${config.sizeId}`,
       )
     }
 
-    imagesToHolds[imageFilename] = getKilterHolePlacements(dataset, config.layoutId, setId)
+    imagesToHolds[imageFilename] = getAuroraHolePlacements(dataset, config.layoutId, setId)
   }
 
   const edge_left = size.edge_left
@@ -531,7 +549,7 @@ export async function getKilterBoardDetails(config: KilterConfig): Promise<Board
   }
 }
 
-export function getKilterLedPlacements(config: KilterConfig): Record<number, number> {
+export function getAuroraLedPlacements(config: AuroraConfig): Record<number, number> {
   const dataset = getBoardDataset(config.boardName)
   const ledPlacements: Record<number, number> = {}
 
@@ -549,7 +567,7 @@ export function getKilterLedPlacements(config: KilterConfig): Record<number, num
   return ledPlacements
 }
 
-export function getKilterImageUrl(boardName: AuroraBoardName, imagePath: string): string {
+export function getAuroraImageUrl(boardName: AuroraBoardName, imagePath: string): string {
   return `/img/${boardName}/${imagePath}`
 }
 
@@ -567,7 +585,7 @@ function getFallbackDimensions(size: ProductSizeRow): { width: number; height: n
 }
 
 function getImageDimensions(boardName: AuroraBoardName, imagePath: string): Promise<{ width: number; height: number }> {
-  const imageUrl = getKilterImageUrl(boardName, imagePath)
+  const imageUrl = getAuroraImageUrl(boardName, imagePath)
   const cachedDimensions = imageDimensionsByUrl.get(imageUrl)
   if (cachedDimensions) {
     return cachedDimensions

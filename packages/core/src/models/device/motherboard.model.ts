@@ -359,7 +359,7 @@ export class Motherboard extends Device implements IMotherboard {
   /**
    * Sets the LED color based on a single color option. Defaults to turning the LEDs off if no configuration is provided.
    * @param {"green" | "red" | "orange"} [config] - Optional color or array of climb placements for the LEDs. Ignored if placements are provided.
-   * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied, or `undefined` if no action was taken or for the Motherboard.
+   * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for Aurora-compatible LED settings, or `undefined` if no action was taken or for the Motherboard.
    */
   led = async (config?: "green" | "red" | "orange"): Promise<number[] | undefined> => {
     if (this.isConnected()) {

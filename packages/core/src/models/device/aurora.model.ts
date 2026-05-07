@@ -40,7 +40,7 @@ export enum AuroraPacket {
 
 /**
  * Represents a Aurora Climbing device.
- * Kilter Board, Tension Board, Decoy Board, Touchstone Board, Grasshopper Board, Aurora Board, So iLL Board
+ * Aurora Board
  * {@link https://auroraclimbing.com}
  */
 export class Aurora extends Device implements IAurora {
@@ -447,43 +447,7 @@ export class Aurora extends Device implements IAurora {
 }
 
 /**
- * Aurora Board (Aurora Board, BoulderHouse 55, Volume 1 Board, Aaron's Board, Wall-E, FLOW, TreeHouse, CRG Cambridge)
+ * Aurora Board
  * {@link https://auroraboardapp.com}
  */
 export class AuroraBoard extends Aurora implements IAurora {}
-
-/**
- * Decoy Board
- * {@link https://decoyboardapp.com/}
- */
-export class DecoyBoard extends Aurora implements IAurora {}
-
-/**
- * Grasshopper Board
- * {@link https://grasshopperboardapp.com/}
- */
-export class GrasshopperBoard extends Aurora implements IAurora {}
-
-/**
- * Kilter Board (Kilter Board Original, Kilter Board Homewall, JUUL, Demo Board, BKB Board, Tycho, Spire)
- * {@link https://kilterclimbing.com}
- */
-export class KilterBoard extends Aurora implements IAurora {}
-
-/**
- * So iLL Board
- * {@link https://soillboardapp.com/}
- */
-export class SoiLLBoard extends Aurora implements IAurora {}
-
-/**
- * Tension Board (Tension Board, Tension Board 2)
- * {@link https://tensionboardapp2.com/}
- */
-export class TensionBoard extends Aurora implements IAurora {}
-
-/**
- * Touchstone Board
- * {@link https://touchstoneboardapp.com/}
- */
-export class TouchstoneBoard extends Aurora implements IAurora {}

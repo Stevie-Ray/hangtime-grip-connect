@@ -6,7 +6,7 @@ export { Entralpi } from "./device/entralpi.model.js"
 
 export { ForceBoard } from "./device/forceboard.model.js"
 
-export { KilterBoard } from "./device/kilterboard.model.js"
+export { AuroraBoard } from "./device/aurora.model.js"
 
 export { Motherboard } from "./device/motherboard.model.js"
 

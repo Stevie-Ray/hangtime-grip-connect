@@ -12,12 +12,12 @@ the [Griptonite Motherboard](https://griptonite.io/shop/motherboard/),
 [Frez Dyno](https://shop.frez.app/products/pre-order-frez-dyno), [Entralpi](https://entralpi.com/),
 [Climbro](https://climbro.com/), or [mySmartBoard](https://www.smartboard-climbing.com/)
 
-And LED system boards from [Aurora Climbing](https://auroraclimbing.com/) like the
-[Kilter Board](https://settercloset.com/pages/the-kilter-board),
-[Tension Board](https://tensionclimbing.com/product/tension-board-2/),
+And LED system boards with a controller box from [Aurora Climbing](https://auroraclimbing.com/) like the
+[Kilter Board](https://kilterboard.io/), [Tension Board](https://tensionclimbing.com/product/tension-board-2/),
 [Grasshopper Board](https://grasshopperclimbing.com/products/),
-[Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/) and
-[So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082).
+[Decoy Board](https://decoy-holds.com/pages/decoy-board),
+[Touchstone Board](https://touchstoneclimbing.com/team-training-center/training-center-boards/) and
+[So iLL Board](https://soillholds.com/products/connect-board).
 
 And gyroscopic hand exercisers, such as the [NSD PB-700BT](https://www.nsd.com.tw/).
 
@@ -151,7 +151,7 @@ document.querySelector("#motherboard").addEventListener("click", async () => {
   - By default [watchAdvertisements](https://chromestatus.com/feature/5180688812736512) isn't supported . For Chrome,
     enable it at `chrome://flags/#enable-experimental-web-platform-features`.
 - ✅ [CTS500](https://stevie-ray.github.io/hangtime-grip-connect/devices/cts500.html)
-- ✅ [Kilter Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/kilterboard.html)
+- ✅ [Aurora Boards](https://stevie-ray.github.io/hangtime-grip-connect/devices/aurora.html)
 - ✅ [Entralpi](https://stevie-ray.github.io/hangtime-grip-connect/devices/entralpi.html) / Lefu / Unique CW275 Scale
 - ✅ [PitchSix - Force Board](https://stevie-ray.github.io/hangtime-grip-connect/devices/forceboard.html)
 - ✅ [Climbro](https://stevie-ray.github.io/hangtime-grip-connect/devices/climbro.html)
@@ -193,8 +193,8 @@ A special thank you to:
 - [@StuartLittlefair](https://github.com/StuartLittlefair) for his
   [PyTindeq](https://github.com/StuartLittlefair/PyTindeq) implementation.
 - [@Phil9l](https://github.com/phil9l) for his research and providing a [blog post](https://bazun.me/blog/kiterboard/)
-  on how to connect with the Kilter Board.
-- [@1-max-1](https://github.com/1-max-1) for the docs on his Kilter Board
+  on how to connect with Aurora LED boards.
+- [@1-max-1](https://github.com/1-max-1) for the docs on his Aurora board
   [simulator](https://github.com/1-max-1/fake_kilter_board) that I converted to
   [hangtime-arduino-kilterboard](https://github.com/Stevie-Ray/hangtime-arduino-kilterboard).
 - [@sebws](https://github.com/sebws) for a [code sample](https://github.com/sebws/Crane) of the Weiheng WH-C06 App.

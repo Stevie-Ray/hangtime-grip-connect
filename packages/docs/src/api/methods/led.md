@@ -61,9 +61,9 @@ led(config?: { position: number; color: string }[]): Promise<number[] | undefine
 ### Example
 
 ```ts
-import { KilterBoard } from "@hangtime/grip-connect"
+import { AuroraBoard } from "@hangtime/grip-connect"
 
-const device = new KilterBoard()
+const device = new AuroraBoard()
 
 await device.connect(
   async () => {

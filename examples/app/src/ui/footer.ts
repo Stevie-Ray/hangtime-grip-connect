@@ -28,7 +28,7 @@ export function setupFooter(): string {
           href="https://grip-connect-aurora.vercel.app/?route=p1083r15p1117r15p1164r12p1185r12p1233r13p1282r13p1303r13p1372r13p1392r14p1505r15"
           target="_blank"
         >
-          <i class="fa-solid fa-chess-board"></i> Kilter Board
+          <i class="fa-solid fa-chess-board"></i> Aurora Board
         </a>
         |
         <a href="https://grip-connect-flappy-bird.vercel.app/" target="_blank">

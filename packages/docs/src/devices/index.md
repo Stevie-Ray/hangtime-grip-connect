@@ -46,8 +46,7 @@ examples.
 
 - **Hangboards** - Motherboard, Climbro, mySmartBoard, SmartBoard Pro (force streaming, optional LED).
 - **Dynamometers / force plates** - Progressor, ForceBoard, WH-C06, Entralpi, CTS500 (force measurement, tare, stream).
-- **LED system boards** - Aurora-compatible boards such as Kilter, Tension, Decoy, Touchstone, and Grasshopper: route
-  display via `led()`.
+- **LED system boards** - Aurora-compatible boards: route display via `led()`.
 - **Other** - PB-700BT (gyroscopic hand exerciser); Dyno (upcoming).
 
 ## Device classes

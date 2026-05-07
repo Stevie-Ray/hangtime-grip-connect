@@ -1,32 +1,24 @@
 /// <reference types="w3c-web-serial" />
-import {
-  AuroraBoard,
-  DecoyBoard,
-  GrasshopperBoard,
-  KilterBoard,
-  SoiLLBoard,
-  TensionBoard,
-  TouchstoneBoard,
-} from "@hangtime/grip-connect"
+import { AuroraBoard } from "@hangtime/grip-connect"
 import type { AuroraLedPlacement, IAurora } from "@hangtime/grip-connect"
 
-import type { BoardDetails, HoldRenderData } from "./kilter-types.js"
+import type { BoardDetails, HoldRenderData } from "./aurora-types.js"
 import {
   getAuroraBoardOptions,
-  getDefaultKilterConfig,
-  getKilterBoardDetails,
-  getKilterImageUrl,
-  getKilterLayouts,
-  getKilterLedPlacements,
-  getKilterPlacementRoles,
-  getKilterSets,
-  getKilterSizes,
+  getDefaultAuroraConfig,
+  getAuroraBoardDetails,
+  getAuroraImageUrl,
+  getAuroraLayouts,
+  getAuroraLedPlacements,
+  getAuroraPlacementRoles,
+  getAuroraSets,
+  getAuroraSizes,
   isAuroraBoardName,
-  resolveKilterConfig,
+  resolveAuroraConfig,
   type AuroraBoardName,
-  type KilterConfig,
+  type AuroraConfig,
   type PlacementRoleData,
-} from "./kilter-config.js"
+} from "./aurora-config.js"
 
 interface ActiveHold {
   placement_id: number
@@ -40,15 +32,11 @@ interface BoardDeviceOption {
   create: () => IAurora
 }
 
-const BOARD_DEVICE_OPTIONS: BoardDeviceOption[] = [
-  { key: "kilter", label: "Kilter Board", create: () => new KilterBoard() },
-  { key: "aurora", label: "Aurora Board", create: () => new AuroraBoard() },
-  { key: "soill", label: "So iLL Board", create: () => new SoiLLBoard() },
-  { key: "tension", label: "Tension Board", create: () => new TensionBoard() },
-  { key: "decoy", label: "Decoy Board", create: () => new DecoyBoard() },
-  { key: "grasshopper", label: "Grasshopper Board", create: () => new GrasshopperBoard() },
-  { key: "touchstone", label: "Touchstone Board", create: () => new TouchstoneBoard() },
-]
+const BOARD_DEVICE_OPTIONS: BoardDeviceOption[] = getAuroraBoardOptions().map((board) => ({
+  key: board.name,
+  label: board.label,
+  create: () => new AuroraBoard(),
+}))
 
 function getBoardDeviceOption(key: AuroraBoardName): BoardDeviceOption {
   const fallbackOption = BOARD_DEVICE_OPTIONS[0]
@@ -75,11 +63,11 @@ function setSelectedDeviceBoard(boardName: AuroraBoardName): void {
 }
 
 function getRouteRoleCycle(): PlacementRoleData[] {
-  return getKilterPlacementRoles(currentConfig.boardName, currentConfig.layoutId)
+  return getAuroraPlacementRoles(currentConfig.boardName, currentConfig.layoutId)
 }
 
 function getRouteRoleLookup(): PlacementRoleData[] {
-  return getKilterPlacementRoles(currentConfig.boardName)
+  return getAuroraPlacementRoles(currentConfig.boardName)
 }
 
 function getPlacementRoleById(roleId: number): PlacementRoleData | undefined {
@@ -101,12 +89,12 @@ const svg = document.querySelector<SVGSVGElement>("#svg")
 const configuratorElement = document.querySelector<HTMLDivElement>("#board-configurator")
 
 let currentDeviceOption = getBoardDeviceOption("kilter")
-let currentConfig = getDefaultKilterConfig(currentDeviceOption.key)
+let currentConfig = getDefaultAuroraConfig(currentDeviceOption.key)
 let device = currentDeviceOption.create()
 let deviceConnectButton: HTMLButtonElement | null = null
 let currentBoardDetails: BoardDetails | null = null
 let currentBoardDetailsPromise: Promise<BoardDetails> | null = null
-let currentLedPlacements = getKilterLedPlacements(currentConfig)
+let currentLedPlacements = getAuroraLedPlacements(currentConfig)
 let currentPlacementByLedPosition = new Map<number, number>()
 let circlesByPlacementId = new Map<number, SVGCircleElement[]>()
 let activeHolds: ActiveHold[] = []
@@ -216,7 +204,7 @@ async function processImageToHolds(imageFile: File): Promise<void> {
 
           activeHolds.push({
             placement_id: hold.id,
-            color: findClosestKilterboardColor(r, g, b),
+            color: findClosestAuroraBoardColor(r, g, b),
           })
         }
 
@@ -238,7 +226,7 @@ async function processImageToHolds(imageFile: File): Promise<void> {
   })
 }
 
-function getConfigFromUrl(): KilterConfig {
+function getConfigFromUrl(): AuroraConfig {
   const searchParams = new URL(globalThis.location.href).searchParams
   const board = searchParams.get("board") ?? ""
   const layoutId = Number.parseInt(searchParams.get("layout_id") ?? "", 10)
@@ -248,7 +236,7 @@ function getConfigFromUrl(): KilterConfig {
     .map((value) => Number.parseInt(value, 10))
     .filter((value) => Number.isFinite(value))
 
-  const partialConfig: Partial<KilterConfig> = { setIds }
+  const partialConfig: Partial<AuroraConfig> = { setIds }
 
   if (isAuroraBoardName(board)) {
     partialConfig.boardName = board
@@ -262,16 +250,16 @@ function getConfigFromUrl(): KilterConfig {
     partialConfig.sizeId = sizeId
   }
 
-  return resolveKilterConfig(partialConfig)
+  return resolveAuroraConfig(partialConfig)
 }
 
-async function applyConfig(nextConfig: KilterConfig, preserveRoute = false, updateHistory = true): Promise<void> {
+async function applyConfig(nextConfig: AuroraConfig, preserveRoute = false, updateHistory = true): Promise<void> {
   const requestId = ++boardStateRequestId
-  currentConfig = resolveKilterConfig(nextConfig)
+  currentConfig = resolveAuroraConfig(nextConfig)
   setSelectedDeviceBoard(currentConfig.boardName)
-  currentLedPlacements = getKilterLedPlacements(currentConfig)
+  currentLedPlacements = getAuroraLedPlacements(currentConfig)
   currentPlacementByLedPosition = buildPlacementByLedPosition(currentLedPlacements)
-  currentBoardDetailsPromise = getKilterBoardDetails(currentConfig)
+  currentBoardDetailsPromise = getAuroraBoardDetails(currentConfig)
   const nextBoardDetails = await currentBoardDetailsPromise
 
   if (requestId !== boardStateRequestId) {
@@ -299,9 +287,9 @@ function renderConfigurator() {
   }
 
   const boardOptions = getAuroraBoardOptions()
-  const layoutOptions = getKilterLayouts(currentConfig.boardName)
-  const sizeOptions = getKilterSizes(currentConfig.boardName, currentConfig.layoutId)
-  const setOptions = getKilterSets(currentConfig.boardName, currentConfig.layoutId, currentConfig.sizeId)
+  const layoutOptions = getAuroraLayouts(currentConfig.boardName)
+  const sizeOptions = getAuroraSizes(currentConfig.boardName, currentConfig.layoutId)
+  const setOptions = getAuroraSets(currentConfig.boardName, currentConfig.layoutId, currentConfig.sizeId)
 
   configuratorElement.innerHTML = `
       <fieldset id="layout-options">
@@ -365,17 +353,17 @@ function renderConfigurator() {
       return
     }
 
-    applyConfig(getDefaultKilterConfig(boardSelect.value))
+    applyConfig(getDefaultAuroraConfig(boardSelect.value))
   })
 
   layoutSelect?.addEventListener("change", () => {
     const layoutId = Number.parseInt(layoutSelect.value, 10)
-    applyConfig(getDefaultKilterConfig(currentConfig.boardName, layoutId))
+    applyConfig(getDefaultAuroraConfig(currentConfig.boardName, layoutId))
   })
 
   sizeSelect?.addEventListener("change", () => {
     const sizeId = Number.parseInt(sizeSelect.value, 10)
-    const setIds = getKilterSets(currentConfig.boardName, currentConfig.layoutId, sizeId)
+    const setIds = getAuroraSets(currentConfig.boardName, currentConfig.layoutId, sizeId)
       .map((set) => set.id)
       .sort((a, b) => a - b)
 
@@ -423,7 +411,7 @@ function renderBoard() {
 
   Object.keys(boardDetails.images_to_holds).forEach((imagePath) => {
     const image = document.createElementNS("http://www.w3.org/2000/svg", "image")
-    image.setAttribute("href", getKilterImageUrl(currentConfig.boardName, imagePath))
+    image.setAttribute("href", getAuroraImageUrl(currentConfig.boardName, imagePath))
     image.setAttribute("width", boardDetails.boardWidth.toString())
     image.setAttribute("height", boardDetails.boardHeight.toString())
     svg.appendChild(image)
@@ -628,7 +616,7 @@ function getFrames() {
 
 /**
  * Parse a route string from the URL and set up activeHolds.
- * Uses placement IDs so it works across all Kilter layouts and sizes.
+ * Uses placement IDs so it works across all Aurora layouts and sizes.
  */
 function setFrames(routeParam: string) {
   const roleMatches = routeParam.match(/p(\d+)r(\d+)/g)
@@ -667,10 +655,10 @@ function zfill(input: string, number: number) {
 }
 
 /**
- * Generate all 256 colors the Kilterboard can display.
+ * Generate all 256 colors the Aurora board can display.
  * The board uses 3 bits for red (0-7), 3 bits for green (0-7), and 2 bits for blue (0-3).
  */
-function generateKilterboardColors(): string[] {
+function generateAuroraBoardColors(): string[] {
   const colors: string[] = []
 
   for (let rBits = 0; rBits < 8; rBits++) {
@@ -694,13 +682,13 @@ function generateKilterboardColors(): string[] {
   return colors
 }
 
-const KILTERBOARD_COLORS = generateKilterboardColors()
+const AURORA_BOARD_COLORS = generateAuroraBoardColors()
 
-function findClosestKilterboardColor(r: number, g: number, b: number): string {
+function findClosestAuroraBoardColor(r: number, g: number, b: number): string {
   let minDistance = Infinity
   let closestColor = "000000"
 
-  for (const colorHex of KILTERBOARD_COLORS) {
+  for (const colorHex of AURORA_BOARD_COLORS) {
     const colorR = Number.parseInt(colorHex.substring(0, 2), 16)
     const colorG = Number.parseInt(colorHex.substring(2, 4), 16)
     const colorB = Number.parseInt(colorHex.substring(4, 6), 16)

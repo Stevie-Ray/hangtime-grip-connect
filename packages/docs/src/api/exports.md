@@ -31,14 +31,9 @@ Use to instantiate and connect to a device. Example: `new Motherboard()` or `new
 
 #### Aurora
 
-| Class              | Device            |
-| ------------------ | ----------------- |
-| `KilterBoard`      | Kilter Board      |
-| `TensionBoard`     | Tension Board     |
-| `DecoyBoard`       | Decoy Board       |
-| `SoiLLBoard`       | So iLL Board      |
-| `TouchstoneBoard`  | Touchstone Board  |
-| `GrasshopperBoard` | Grasshopper Board |
+| Class         | Device       |
+| ------------- | ------------ |
+| `AuroraBoard` | Aurora Board |
 
 ### Device interfaces
 

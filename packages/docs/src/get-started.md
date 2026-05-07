@@ -22,8 +22,7 @@ hangboards, dynamometers, plates, and LED system boards used by climbers. It sup
   [Weiheng WH-C06](https://weihengmanufacturer.com/products/wh-c06-bluetooth-300kg-hanging-scale/),
   [Jlyscales CTS500](https://www.alibaba.com/product-detail/Mini-Climbing-Training-Scale-CTS500-Aluminum_1601637814595.html)
 - **Scales / force plates:** [Entralpi](https://entralpi.com/)
-- **LED system boards:** [Kilter Board](https://settercloset.com/pages/the-kilter-board),
-  [Tension Board](https://tensionclimbing.com/product/tension-board-2/),
+- **LED system boards:** Aurora Board, [Tension Board](https://tensionclimbing.com/product/tension-board-2/),
   [Grasshopper Board](https://grasshopperclimbing.com/products/),
   [Decoy Board](https://decoy-holds.com/pages/decoy-board), [Touchstone Board](https://touchstoneboardapp.com/),
   [So iLL Board](https://apps.apple.com/us/app/so-ill-board/id1358056082)

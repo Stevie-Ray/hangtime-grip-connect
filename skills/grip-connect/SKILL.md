@@ -16,7 +16,7 @@ debugging connection and setup issues.
 Identify these three things before proposing code:
 
 - target platform: web, Capacitor, React Native, runtime, or CLI
-- target device: Motherboard, Progressor, ForceBoard, KilterBoard, Entralpi, Climbro, mySmartBoard, SmartBoard Pro,
+- target device: Motherboard, Progressor, ForceBoard, AuroraBoard, Entralpi, Climbro, mySmartBoard, SmartBoard Pro,
   WH-C06, or PB-700BT
 - desired outcome: connect and stream, export data, build an app feature, script a workflow, or support custom hardware
 

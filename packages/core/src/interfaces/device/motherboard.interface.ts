@@ -31,7 +31,7 @@ export interface IMotherboard extends IDevice {
   /**
    * Sets the LED color based on a single color option.
    * @param {"green" | "red" | "orange"} [config] - Optional color for the LEDs.
-   * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for the Kilter Board if LED settings were applied.
+   * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for Aurora-compatible LED settings if LEDs were applied.
    */
   led(config?: "green" | "red" | "orange"): Promise<number[] | undefined>
 

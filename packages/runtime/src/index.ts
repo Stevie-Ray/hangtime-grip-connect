@@ -17,7 +17,7 @@ export {
   CTS500,
   Entralpi,
   ForceBoard,
-  KilterBoard,
+  AuroraBoard,
   Motherboard,
   mySmartBoard,
   PB700BT,
