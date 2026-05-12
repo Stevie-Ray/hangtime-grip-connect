@@ -44,6 +44,7 @@
     "build:examples:aurora": "npm run build && npm run build --workspace ./examples/aurora",
     "build:examples:pong": "npm run build && npm run build --workspace ./examples/pong",
     "build:examples:react-native": "npm run build && npm run build --workspace ./examples/react-native",
+    "test:core": "npm run test --workspace ./packages/core",
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:version:ci": "changeset version && npm run sync:deno-versions",
