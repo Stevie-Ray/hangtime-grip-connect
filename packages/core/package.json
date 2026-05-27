@@ -21,16 +21,18 @@
     },
     "./package.json": "./package.json",
     "./src/interfaces/callback.interface.js": {
-      "types": "./src/interfaces/callback.interface.ts",
-      "import": "./src/interfaces/callback.interface.ts"
+      "types": "./dist/interfaces/callback.interface.d.ts",
+      "import": "./dist/interfaces/callback.interface.js",
+      "require": "./dist/cjs/interfaces/callback.interface.js"
     },
     "./src/models/device/aurora.model.js": {
-      "types": "./src/models/device/aurora.model.ts",
-      "import": "./src/models/device/aurora.model.ts"
+      "types": "./dist/models/device/aurora.model.d.ts",
+      "import": "./dist/models/device/aurora.model.js",
+      "require": "./dist/cjs/models/device/aurora.model.js"
     }
   },
   "scripts": {
-    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && node ../../scripts/write-cjs-package-json.mjs",
     "build:esm": "tsc -p tsconfig.json",
     "build": "npm run build:cjs && npm run build:esm",
     "test": "npm run build && node --test test/*.test.mjs"

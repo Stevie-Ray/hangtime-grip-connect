@@ -9,6 +9,22 @@ export function dataView(bytes) {
   return new DataView(array.buffer, array.byteOffset, array.byteLength)
 }
 
+export function offsetDataView(bytes, prefix = [0]) {
+  const source =
+    bytes instanceof DataView
+      ? new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+      : bytes instanceof Uint8Array
+        ? bytes
+        : Uint8Array.from(bytes)
+  const prefixBytes = Uint8Array.from(prefix)
+  const backing = new Uint8Array(prefixBytes.byteLength + source.byteLength)
+
+  backing.set(prefixBytes)
+  backing.set(source, prefixBytes.byteLength)
+
+  return new DataView(backing.buffer, prefixBytes.byteLength, source.byteLength)
+}
+
 export function textView(text) {
   return dataView(new TextEncoder().encode(text))
 }

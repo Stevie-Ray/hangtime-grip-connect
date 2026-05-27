@@ -183,7 +183,7 @@ export class Climbro extends Device implements IClimbro {
     if (value) {
       this.updateTimestamp()
       if (value.buffer) {
-        const buffer = new Uint8Array(value.buffer)
+        const buffer = new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
         const byteCount = buffer.length
 
         let flagSynchro = this.flagSynchro

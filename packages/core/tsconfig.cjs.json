@@ -10,7 +10,8 @@
     "types": ["node", "web-bluetooth"],
     "verbatimModuleSyntax": false,
     "isolatedModules": false,
-    "moduleDetection": "auto"
+    "moduleDetection": "auto",
+    "tsBuildInfoFile": "./.tsbuildinfo/cjs.tsbuildinfo"
   },
   "include": ["src"]
 }

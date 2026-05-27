@@ -182,7 +182,7 @@ export class ForceBoard extends NordicDfuDevice implements IForceBoard {
       this.updateTimestamp()
       if (value.buffer) {
         const receivedTime: number = Date.now()
-        const dataArray = new Uint8Array(value.buffer)
+        const dataArray = new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
 
         const numSamples = (dataArray[0] << 8) | dataArray[1]
         this.currentSamplesPerPacket = numSamples
@@ -255,6 +255,9 @@ export class ForceBoard extends NordicDfuDevice implements IForceBoard {
   stream = async (duration = 0): Promise<void> => {
     this.resetPacketTracking()
     await this.write("weight", "tx", this.commands.START_WEIGHT_MEAS, duration)
+    if (duration !== 0) {
+      await this.stop()
+    }
   }
 
   /**

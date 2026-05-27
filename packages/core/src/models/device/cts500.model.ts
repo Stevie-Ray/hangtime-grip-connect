@@ -291,15 +291,21 @@ export class CTS500 extends Device implements ICTS500 {
     this.resetPacketTracking()
     this.isStreaming = true
     const command = this.commands.START_WEIGHT_MEAS as Uint8Array
-    await this.queryFrame(
-      command,
-      (frame) =>
-        // The device can start auto-uploading before it echoes the start command, so the first weight frame also confirms success.
-        this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) || this.isWeightFrame(frame),
-    )
+    try {
+      await this.queryFrame(
+        command,
+        (frame) =>
+          // The device can start auto-uploading before it echoes the start command, so the first weight frame also confirms success.
+          this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) || this.isWeightFrame(frame),
+      )
+    } catch (error) {
+      this.isStreaming = false
+      throw error
+    }
 
     if (duration > 0) {
       await new Promise((resolve) => setTimeout(resolve, duration))
+      await this.stop()
     }
   }
 

@@ -284,6 +284,8 @@ export abstract class Device extends BaseModel implements IDevice {
    */
   private notificationListeners = new Map<string, EventListener>()
 
+  private activeCheckPending: { target: boolean; timeout: ReturnType<typeof setTimeout> } | undefined = undefined
+
   constructor(device: Partial<IDevice>) {
     super(device)
 
@@ -515,14 +517,32 @@ export abstract class Device extends BaseModel implements IDevice {
    * await device.activityCheck(5.0);
    */
   protected activityCheck = async (input: number): Promise<void> => {
-    const startValue = input
     const { threshold, duration } = this.activeConfig
-    // After waiting for `duration`, check if still active.
-    await new Promise((resolve) => setTimeout(resolve, duration))
-    const activeNow = startValue > threshold
-    if (this.isActive !== activeNow) {
-      this.isActive = activeNow
-      this.activeCallback?.(activeNow)
+    const activeNow = input > threshold
+
+    if (activeNow === this.isActive) {
+      if (this.activeCheckPending) {
+        clearTimeout(this.activeCheckPending.timeout)
+        this.activeCheckPending = undefined
+      }
+      return
+    }
+
+    if (this.activeCheckPending?.target === activeNow) {
+      return
+    }
+
+    if (this.activeCheckPending) {
+      clearTimeout(this.activeCheckPending.timeout)
+    }
+
+    this.activeCheckPending = {
+      target: activeNow,
+      timeout: setTimeout(() => {
+        this.isActive = activeNow
+        this.activeCallback(activeNow)
+        this.activeCheckPending = undefined
+      }, duration),
     }
   }
 
@@ -592,10 +612,13 @@ export abstract class Device extends BaseModel implements IDevice {
 
       this.server = this.bluetooth.gatt.connected ? this.bluetooth.gatt : await this.bluetooth.gatt.connect()
 
-      if (this.server.connected) {
-        await this.onConnected(onSuccess)
+      if (!this.server.connected) {
+        throw new Error("GATT server did not connect")
       }
+
+      await this.onConnected(onSuccess)
     } catch (error) {
+      this.disconnect()
       onError(error as Error)
     }
   }
@@ -646,6 +669,15 @@ export abstract class Device extends BaseModel implements IDevice {
     this.server = undefined
     this.writeLast = null
     this.isActive = false
+    if (this.activeCheckPending) {
+      clearTimeout(this.activeCheckPending.timeout)
+      this.activeCheckPending = undefined
+    }
+    this.onDisconnectCleanup()
+  }
+
+  protected onDisconnectCleanup(): void {
+    return
   }
 
   /**
@@ -949,7 +981,7 @@ export abstract class Device extends BaseModel implements IDevice {
               // Look for our default notify characteristic id that accepts notifications
               if (descriptor.id === this.notifyCharacteristicId) {
                 // Start receiving notifications for changes on this characteristic
-                matchingCharacteristic.startNotifications()
+                await matchingCharacteristic.startNotifications()
                 // Triggered when the characteristic's value changes
                 const listener = (event: Event) => {
                   // Cast the event's target to a BluetoothRemoteGATTCharacteristic to access its properties
@@ -958,6 +990,10 @@ export abstract class Device extends BaseModel implements IDevice {
                     // Delegate the data to handleNotifications method
                     this.handleNotifications(target.value)
                   }
+                }
+                const existingListener = this.notificationListeners.get(descriptor.uuid)
+                if (existingListener) {
+                  matchingCharacteristic.removeEventListener("characteristicvaluechanged", existingListener)
                 }
                 // Attach the event listener to listen for changes in the characteristic's value
                 matchingCharacteristic.addEventListener("characteristicvaluechanged", listener)

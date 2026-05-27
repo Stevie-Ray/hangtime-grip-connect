@@ -20,6 +20,7 @@ import {
   forceBoardPacket,
   int16LePacket,
   muteConsole,
+  offsetDataView,
   progressorWeightPacket,
   textView,
   uint32BePacket,
@@ -43,6 +44,16 @@ describe("device notification parsers", () => {
     assert.equal(notifications[2].performance.packetIndex, 1)
     assert.equal(notifications[2].performance.sampleIndex, 3)
     assert.equal(notifications[2].performance.samplesPerPacket, 3)
+  })
+
+  it("parses Climbro packets from DataView slices without reading prefix bytes", () => {
+    const device = new Climbro()
+    const notifications = captureNotifications(device)
+
+    device.handleNotifications(offsetDataView([0xf5, 10], [0xf5, 99]))
+
+    assert.equal(notifications.length, 1)
+    assert.equal(notifications[0].current, 10)
   })
 
   it("parses Entralpi weight notifications", () => {
@@ -77,6 +88,16 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.packetIndex, 1)
     assert.equal(notifications[1].performance.sampleIndex, 2)
     assert.equal(notifications[1].performance.samplesPerPacket, 2)
+  })
+
+  it("parses ForceBoard packets from DataView slices without reading prefix bytes", () => {
+    const device = new ForceBoard()
+    const notifications = captureNotifications(device, "lbs")
+
+    device.handleNotifications(offsetDataView(forceBoardPacket([42]), [99, 99]))
+
+    assert.equal(notifications.length, 1)
+    assert.equal(notifications[0].current, 42)
   })
 
   it("parses SmartBoard Pro little-endian samples", (t) => {

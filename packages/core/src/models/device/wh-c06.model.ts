@@ -41,6 +41,45 @@ export class WHC06 extends Device implements IWHC06 {
    */
   private readonly advertisementTimeoutTime: number = 10
 
+  private readonly onAdvertisementReceived = (event: BluetoothAdvertisingEvent): void => {
+    const data = event.manufacturerData.get(WHC06.manufacturerId)
+    if (data) {
+      this.currentSamplesPerPacket = 1
+      this.recordPacketReceived()
+      const weight = (data.getUint8(WHC06.weightOffset) << 8) | data.getUint8(WHC06.weightOffset + 1)
+      // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
+      // const unit = data.getUint8(STABLE_OFFSET) & 0x0f
+      const receivedTime: number = Date.now()
+      const receivedData = weight / 100
+
+      const numericData = receivedData - this.applyTare(receivedData)
+      const currentMassTotal = Math.max(-1000, numericData)
+
+      // Update session stats before building packet
+      this.peak = Math.max(this.peak, numericData)
+      this.min = Math.min(this.min, Math.max(-1000, numericData))
+      this.sum += currentMassTotal
+      this.dataPointCount++
+      this.mean = this.sum / this.dataPointCount
+
+      // Add data to downloadable Array
+      this.downloadPackets.push(
+        this.buildDownloadPacket(currentMassTotal, [numericData], {
+          timestamp: receivedTime,
+          sampleIndex: this.dataPointCount,
+        }),
+      )
+
+      // Check if device is being used
+      this.activityCheck(numericData)
+
+      // Notify with weight data
+      this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
+    }
+    // Reset "still advertising" counter
+    this.resetAdvertisementTimeout()
+  }
+
   // /**
   //  * Offset for the byte location in the manufacturer data to determine weight stability.
   //  * @type {number}
@@ -93,47 +132,7 @@ export class WHC06 extends Device implements IWHC06 {
       // Update timestamp
       this.updateTimestamp()
 
-      // Device has no services / characteristics, so we directly call onSuccess
-      onSuccess()
-
-      this.bluetooth.addEventListener("advertisementreceived", (event) => {
-        const data = event.manufacturerData.get(WHC06.manufacturerId)
-        if (data) {
-          this.currentSamplesPerPacket = 1
-          this.recordPacketReceived()
-          const weight = (data.getUint8(WHC06.weightOffset) << 8) | data.getUint8(WHC06.weightOffset + 1)
-          // const stable = (data.getUint8(STABLE_OFFSET) & 0xf0) >> 4
-          // const unit = data.getUint8(STABLE_OFFSET) & 0x0f
-          const receivedTime: number = Date.now()
-          const receivedData = weight / 100
-
-          const numericData = receivedData - this.applyTare(receivedData) * -1
-          const currentMassTotal = Math.max(-1000, numericData)
-
-          // Update session stats before building packet
-          this.peak = Math.max(this.peak, numericData)
-          this.min = Math.min(this.min, Math.max(-1000, numericData))
-          this.sum += currentMassTotal
-          this.dataPointCount++
-          this.mean = this.sum / this.dataPointCount
-
-          // Add data to downloadable Array
-          this.downloadPackets.push(
-            this.buildDownloadPacket(currentMassTotal, [numericData], {
-              timestamp: receivedTime,
-              sampleIndex: this.dataPointCount,
-            }),
-          )
-
-          // Check if device is being used
-          this.activityCheck(numericData)
-
-          // Notify with weight data
-          this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
-        }
-        // Reset "still advertising" counter
-        this.resetAdvertisementTimeout()
-      })
+      this.bluetooth.addEventListener("advertisementreceived", this.onAdvertisementReceived)
 
       // When the companyIdentifier is provided we want to get manufacturerData using watchAdvertisements.
       if (optionalManufacturerData.length) {
@@ -148,7 +147,11 @@ export class WHC06 extends Device implements IWHC06 {
           )
         }
       }
+
+      // Device has no services / characteristics, so success means advertisement watching is ready.
+      onSuccess()
     } catch (error) {
+      this.disconnect()
       onError(error as Error)
     }
   }
@@ -167,7 +170,7 @@ export class WHC06 extends Device implements IWHC06 {
    */
   private resetAdvertisementTimeout = (): void => {
     // Clear the previous timeout
-    if (this.advertisementTimeout) {
+    if (this.advertisementTimeout !== null) {
       clearTimeout(this.advertisementTimeout)
     }
 
@@ -183,5 +186,14 @@ export class WHC06 extends Device implements IWHC06 {
       console.error(`No advertisement received for ${this.advertisementTimeoutTime} seconds, stopping tracking..`)
       this.onDisconnected(disconnectedEvent)
     }, this.advertisementTimeoutTime * 1000) // 10 seconds
+  }
+
+  protected override onDisconnectCleanup(): void {
+    if (this.advertisementTimeout !== null) {
+      clearTimeout(this.advertisementTimeout)
+      this.advertisementTimeout = null
+    }
+    this.bluetooth?.removeEventListener("advertisementreceived", this.onAdvertisementReceived)
+    delete this.bluetooth
   }
 }
