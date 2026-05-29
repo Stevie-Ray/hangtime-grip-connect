@@ -26,11 +26,29 @@ interface ActiveHold {
   color?: string
 }
 
+interface BoardCanvasRenderer {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+}
+
+interface BoardAnimationFrame {
+  activeHolds: ActiveHold[]
+  durationMs: number
+}
+
+interface ImageAnimationState {
+  frames: BoardAnimationFrame[]
+  nextFrameIndex: number
+  timerId: number | null
+}
+
 interface BoardDeviceOption {
   key: AuroraBoardName
   label: string
   create: () => IAurora
 }
+
+const DEFAULT_GIF_FRAME_DURATION_MS = 100
 
 const BOARD_DEVICE_OPTIONS: BoardDeviceOption[] = getAuroraBoardOptions().map((board) => ({
   key: board.name,
@@ -99,6 +117,8 @@ let currentPlacementByLedPosition = new Map<number, number>()
 let circlesByPlacementId = new Map<number, SVGCircleElement[]>()
 let activeHolds: ActiveHold[] = []
 let boardStateRequestId = 0
+let imageUploadRequestId = 0
+let imageAnimationState: ImageAnimationState | null = null
 
 export async function initializeBoardDemo() {
   currentConfig = getConfigFromUrl()
@@ -138,92 +158,376 @@ export function setupArduino(element: HTMLButtonElement) {
   })
 }
 
-/**
- * Take an uploaded image and figure out which holds should light up based on pixel colors.
- */
-async function processImageToHolds(imageFile: File): Promise<void> {
+/** Take an uploaded image and figure out which holds should light up based on pixel colors. */
+export async function processImageToHolds(imageFile: File): Promise<void> {
+  const requestId = imageUploadRequestId + 1
+  imageUploadRequestId = requestId
+  stopCurrentImageAnimation(false)
+
+  if (isGifFile(imageFile)) {
+    await processGifImageToHolds(imageFile, requestId)
+    return
+  }
+
+  await processStaticImageToHolds(imageFile, {
+    requestId,
+    updateHistory: true,
+  })
+}
+
+async function processStaticImageToHolds(
+  imageFile: File,
+  options: { requestId: number; updateHistory: boolean },
+): Promise<void> {
   const boardDetails = currentBoardDetails ?? (currentBoardDetailsPromise ? await currentBoardDetailsPromise : null)
   if (!boardDetails) {
     throw new Error("Board details are not loaded yet")
   }
 
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d")
-
-    if (!ctx) {
-      reject(new Error("Could not get canvas context"))
+  const objectUrl = URL.createObjectURL(imageFile)
+  try {
+    const image = await loadImageFromUrl(objectUrl)
+    if (!isCurrentImageUpload(options.requestId)) {
       return
     }
 
-    img.onload = async () => {
+    const renderer = createBoardCanvasRenderer(boardDetails)
+    const activeImageHolds = sampleImageSourceToHolds(
+      renderer,
+      boardDetails,
+      image,
+      image.naturalWidth || image.width,
+      image.naturalHeight || image.height,
+    )
+
+    await applyActiveHolds(activeImageHolds, { updateHistory: options.updateHistory })
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
+
+async function processGifImageToHolds(imageFile: File, requestId: number): Promise<void> {
+  if (!(await canDecodeGifNatively())) {
+    console.warn("Animated GIF decoding is not supported in this browser. Showing the first frame.")
+    await processStaticImageToHolds(imageFile, {
+      requestId,
+      updateHistory: false,
+    })
+    return
+  }
+
+  const boardDetails = currentBoardDetails ?? (currentBoardDetailsPromise ? await currentBoardDetailsPromise : null)
+  if (!boardDetails) {
+    throw new Error("Board details are not loaded yet")
+  }
+
+  let frames: BoardAnimationFrame[]
+  try {
+    frames = await decodeGifToAnimationFrames(imageFile, boardDetails, requestId)
+  } catch (error) {
+    if (!isCurrentImageUpload(requestId)) {
+      return
+    }
+
+    console.error("Error decoding GIF:", error)
+
+    await processStaticImageToHolds(imageFile, {
+      requestId,
+      updateHistory: false,
+    })
+    return
+  }
+
+  if (!isCurrentImageUpload(requestId)) {
+    return
+  }
+
+  if (frames.length === 0) {
+    throw new Error("GIF did not contain any decodable frames")
+  }
+
+  if (frames.length === 1) {
+    await applyActiveHolds(frames[0].activeHolds, { updateHistory: false })
+    return
+  }
+
+  startImageAnimation(frames)
+}
+
+async function decodeGifToAnimationFrames(
+  imageFile: File,
+  boardDetails: BoardDetails,
+  requestId: number,
+): Promise<BoardAnimationFrame[]> {
+  const decoder = new ImageDecoder({
+    data: await imageFile.arrayBuffer(),
+    type: "image/gif",
+    preferAnimation: true,
+  })
+
+  try {
+    await decoder.tracks.ready
+
+    const selectedTrack = decoder.tracks.selectedTrack ?? decoder.tracks[0]
+    if (!selectedTrack) {
+      throw new Error("GIF does not contain an image track")
+    }
+
+    selectedTrack.selected = true
+
+    const renderer = createBoardCanvasRenderer(boardDetails)
+    const frames: BoardAnimationFrame[] = []
+
+    for (let frameIndex = 0; frameIndex < selectedTrack.frameCount; frameIndex += 1) {
+      if (!isCurrentImageUpload(requestId)) {
+        return []
+      }
+
+      const { image } = await decoder.decode({ frameIndex, completeFramesOnly: true })
       try {
-        const { boardWidth, boardHeight, holdsData } = boardDetails
-
-        canvas.width = boardWidth
-        canvas.height = boardHeight
-
-        const imgAspect = img.width / img.height
-        const boardAspect = boardWidth / boardHeight
-
-        let drawWidth = boardWidth
-        let drawHeight = boardHeight
-        let drawX = 0
-        let drawY = 0
-
-        if (imgAspect > boardAspect) {
-          drawHeight = boardWidth / imgAspect
-          drawY = (boardHeight - drawHeight) / 2
-        } else {
-          drawWidth = boardHeight * imgAspect
-          drawX = (boardWidth - drawWidth) / 2
-        }
-
-        ctx.fillStyle = "#000000"
-        ctx.fillRect(0, 0, boardWidth, boardHeight)
-        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
-
-        const imageData = ctx.getImageData(0, 0, boardWidth, boardHeight)
-
-        activeHolds = []
-
-        for (const hold of holdsData) {
-          const pixelX = Math.floor(Math.max(0, Math.min(boardWidth - 1, hold.cx)))
-          const pixelY = Math.floor(Math.max(0, Math.min(boardHeight - 1, hold.cy)))
-          const pixelIndex = (pixelY * boardWidth + pixelX) * 4
-
-          const r = imageData.data[pixelIndex]
-          const g = imageData.data[pixelIndex + 1]
-          const b = imageData.data[pixelIndex + 2]
-          const a = imageData.data[pixelIndex + 3]
-
-          if (a < 128 || (r < 10 && g < 10 && b < 10)) {
-            continue
-          }
-
-          activeHolds.push({
-            placement_id: hold.id,
-            color: findClosestAuroraBoardColor(r, g, b),
-          })
-        }
-
-        updateSVG()
-        await updatePayload()
-        updateURL()
-
-        resolve()
-      } catch (error) {
-        reject(error)
+        frames.push({
+          activeHolds: sampleImageSourceToHolds(renderer, boardDetails, image, image.displayWidth, image.displayHeight),
+          durationMs: image.duration === null ? DEFAULT_GIF_FRAME_DURATION_MS : Math.max(0, image.duration / 1000),
+        })
+      } finally {
+        image.close()
       }
     }
 
-    img.onerror = () => {
+    return frames
+  } finally {
+    decoder.close()
+  }
+}
+
+function isGifFile(imageFile: File): boolean {
+  return imageFile.type === "image/gif" || imageFile.name.toLowerCase().endsWith(".gif")
+}
+
+async function canDecodeGifNatively(): Promise<boolean> {
+  if (!("ImageDecoder" in globalThis)) {
+    return false
+  }
+
+  try {
+    return await ImageDecoder.isTypeSupported("image/gif")
+  } catch {
+    return false
+  }
+}
+
+function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => {
+      resolve(image)
+    }
+    image.onerror = () => {
       reject(new Error("Failed to load image"))
     }
-
-    img.src = URL.createObjectURL(imageFile)
+    image.src = url
   })
+}
+
+function createBoardCanvasRenderer(boardDetails: BoardDetails): BoardCanvasRenderer {
+  const canvas = document.createElement("canvas")
+  const ctx = canvas.getContext("2d")
+
+  if (!ctx) {
+    throw new Error("Could not get canvas context")
+  }
+
+  canvas.width = boardDetails.boardWidth
+  canvas.height = boardDetails.boardHeight
+
+  return { canvas, ctx }
+}
+
+function sampleImageSourceToHolds(
+  renderer: BoardCanvasRenderer,
+  boardDetails: BoardDetails,
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+): ActiveHold[] {
+  const imageData = drawImageSourceToBoardImageData(renderer, boardDetails, source, sourceWidth, sourceHeight)
+
+  return sampleImageDataToHolds(imageData, boardDetails)
+}
+
+function drawImageSourceToBoardImageData(
+  renderer: BoardCanvasRenderer,
+  boardDetails: BoardDetails,
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+): ImageData {
+  if (sourceWidth <= 0 || sourceHeight <= 0) {
+    throw new Error("Image dimensions are not available")
+  }
+
+  const { boardWidth, boardHeight } = boardDetails
+  const imageAspect = sourceWidth / sourceHeight
+  const boardAspect = boardWidth / boardHeight
+
+  let drawWidth = boardWidth
+  let drawHeight = boardHeight
+  let drawX = 0
+  let drawY = 0
+
+  if (imageAspect > boardAspect) {
+    drawHeight = boardWidth / imageAspect
+    drawY = (boardHeight - drawHeight) / 2
+  } else {
+    drawWidth = boardHeight * imageAspect
+    drawX = (boardWidth - drawWidth) / 2
+  }
+
+  renderer.ctx.fillStyle = "#000000"
+  renderer.ctx.fillRect(0, 0, boardWidth, boardHeight)
+  renderer.ctx.drawImage(source, drawX, drawY, drawWidth, drawHeight)
+
+  return renderer.ctx.getImageData(0, 0, boardWidth, boardHeight)
+}
+
+function sampleImageDataToHolds(imageData: ImageData, boardDetails: BoardDetails): ActiveHold[] {
+  const { boardWidth, boardHeight, holdsData } = boardDetails
+  const activeImageHolds: ActiveHold[] = []
+
+  for (const hold of holdsData) {
+    const pixelX = Math.floor(Math.max(0, Math.min(boardWidth - 1, hold.cx)))
+    const pixelY = Math.floor(Math.max(0, Math.min(boardHeight - 1, hold.cy)))
+    const pixelIndex = (pixelY * boardWidth + pixelX) * 4
+
+    const r = imageData.data[pixelIndex]
+    const g = imageData.data[pixelIndex + 1]
+    const b = imageData.data[pixelIndex + 2]
+    const a = imageData.data[pixelIndex + 3]
+
+    if (a < 128 || (r < 10 && g < 10 && b < 10)) {
+      continue
+    }
+
+    activeImageHolds.push({
+      placement_id: hold.id,
+      color: findClosestAuroraBoardColor(r, g, b),
+    })
+  }
+
+  return activeImageHolds
+}
+
+async function applyActiveHolds(nextActiveHolds: ActiveHold[], options: { updateHistory: boolean }): Promise<void> {
+  activeHolds = nextActiveHolds
+  updateSVG()
+  await updatePayload()
+
+  if (options.updateHistory) {
+    updateURL()
+  }
+}
+
+async function applyAnimationFrameHolds(nextActiveHolds: ActiveHold[]): Promise<void> {
+  activeHolds = nextActiveHolds
+  await updatePayload()
+  updateSVG()
+}
+
+function isCurrentImageUpload(requestId: number): boolean {
+  return requestId === imageUploadRequestId
+}
+
+function startImageAnimation(frames: BoardAnimationFrame[]): void {
+  stopCurrentImageAnimation(false)
+
+  const timeline = buildImageAnimationTimeline(frames)
+  imageAnimationState = {
+    frames: timeline.frames,
+    nextFrameIndex: 0,
+    timerId: null,
+  }
+
+  scheduleImageAnimationTick(0)
+}
+
+function stopCurrentImageAnimation(clearHolds: boolean): void {
+  const state = imageAnimationState
+  if (state) {
+    clearImageAnimationTimer(state)
+  }
+
+  imageAnimationState = null
+
+  if (!clearHolds) {
+    return
+  }
+
+  activeHolds = []
+  updateSVG()
+  void updatePayload().catch((error: unknown) => {
+    console.error("Error clearing GIF playback:", error)
+  })
+}
+
+function buildImageAnimationTimeline(frames: BoardAnimationFrame[]): {
+  frames: BoardAnimationFrame[]
+} {
+  const totalDurationMs = frames.reduce((total, frame) => total + frame.durationMs, 0)
+
+  return {
+    frames:
+      totalDurationMs > 0
+        ? frames
+        : frames.map((frame) => ({
+            ...frame,
+            durationMs: DEFAULT_GIF_FRAME_DURATION_MS,
+          })),
+  }
+}
+
+function scheduleImageAnimationTick(delayMs: number): void {
+  const state = imageAnimationState
+  if (!state) {
+    return
+  }
+
+  clearImageAnimationTimer(state)
+  state.timerId = globalThis.setTimeout(
+    () => {
+      void runImageAnimationTick(state)
+    },
+    Math.max(0, delayMs),
+  )
+}
+
+async function runImageAnimationTick(state: ImageAnimationState): Promise<void> {
+  if (imageAnimationState !== state) {
+    return
+  }
+
+  state.timerId = null
+
+  const frame = state.frames[state.nextFrameIndex]
+  state.nextFrameIndex = (state.nextFrameIndex + 1) % state.frames.length
+
+  if (frame) {
+    await applyAnimationFrameHolds(frame.activeHolds)
+  }
+
+  if (imageAnimationState !== state) {
+    return
+  }
+
+  scheduleImageAnimationTick(frame?.durationMs ?? DEFAULT_GIF_FRAME_DURATION_MS)
+}
+
+function clearImageAnimationTimer(state: ImageAnimationState): void {
+  if (state.timerId === null) {
+    return
+  }
+
+  globalThis.clearTimeout(state.timerId)
+  state.timerId = null
 }
 
 function getConfigFromUrl(): AuroraConfig {
@@ -254,6 +558,9 @@ function getConfigFromUrl(): AuroraConfig {
 }
 
 async function applyConfig(nextConfig: AuroraConfig, preserveRoute = false, updateHistory = true): Promise<void> {
+  imageUploadRequestId += 1
+  stopCurrentImageAnimation(false)
+
   const requestId = ++boardStateRequestId
   currentConfig = resolveAuroraConfig(nextConfig)
   setSelectedDeviceBoard(currentConfig.boardName)
@@ -538,6 +845,8 @@ function updateURL() {
 /** Update the payload display with the hex data we're sending */
 async function updatePayload() {
   const activeHoldsHtml = document.querySelector("#active-holds")
+  const placement = getPayloadPlacements()
+  const payload = await device.led(placement)
 
   if (activeHolds.length === 0) {
     if (activeHoldsHtml) {
@@ -545,9 +854,6 @@ async function updatePayload() {
     }
     return
   }
-
-  const placement = getPayloadPlacements()
-  const payload = await device.led(placement)
 
   if (activeHoldsHtml !== null && payload) {
     const payloadHex = payload.map((value: number) => zfill(value.toString(16), 2)).join("")
@@ -930,5 +1236,3 @@ async function openPort() {
     console.error("Failed to open the port: ", error)
   }
 }
-
-export { processImageToHolds }
