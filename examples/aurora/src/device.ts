@@ -211,7 +211,7 @@ async function processGifImageToHolds(imageFile: File, requestId: number): Promi
     console.warn("Animated GIF decoding is not supported in this browser. Showing the first frame.")
     await processStaticImageToHolds(imageFile, {
       requestId,
-      updateHistory: false,
+      updateHistory: true,
     })
     return
   }
@@ -233,7 +233,7 @@ async function processGifImageToHolds(imageFile: File, requestId: number): Promi
 
     await processStaticImageToHolds(imageFile, {
       requestId,
-      updateHistory: false,
+      updateHistory: true,
     })
     return
   }
@@ -247,7 +247,7 @@ async function processGifImageToHolds(imageFile: File, requestId: number): Promi
   }
 
   if (frames.length === 1) {
-    await applyActiveHolds(frames[0].activeHolds, { updateHistory: false })
+    await applyActiveHolds(frames[0].activeHolds, { updateHistory: true })
     return
   }
 
@@ -431,6 +431,7 @@ async function applyAnimationFrameHolds(nextActiveHolds: ActiveHold[]): Promise<
   activeHolds = nextActiveHolds
   await updatePayload()
   updateSVG()
+  updateURL()
 }
 
 function isCurrentImageUpload(requestId: number): boolean {
