@@ -422,9 +422,41 @@ export class Aurora extends Device implements IAurora {
    * Sends a series of messages to a device.
    */
   private async writeMessageSeries(messages: Uint8Array[]) {
-    for (const message of messages) {
-      await this.write("uart", "tx", message)
+    const characteristic = this.services
+      .find((service) => service.id === "uart")
+      ?.characteristics.find((char) => char.id === "tx")?.characteristic
+
+    if (!characteristic) {
+      throw new Error('Characteristic "tx" not found in service "uart"')
     }
+
+    for (let index = 0; index < messages.length; index += 1) {
+      const message = messages[index]
+      if (!message) {
+        continue
+      }
+
+      await this.writeMessageChunk(characteristic, message, index === messages.length - 1)
+    }
+  }
+
+  private async writeMessageChunk(
+    characteristic: BluetoothRemoteGATTCharacteristic,
+    message: Uint8Array,
+    isLastChunk: boolean,
+  ): Promise<void> {
+    this.updateTimestamp()
+    const valueToWrite = new Uint8Array(message)
+
+    if (!isLastChunk && characteristic.properties.writeWithoutResponse) {
+      await characteristic.writeValueWithoutResponse(valueToWrite)
+    } else if (characteristic.properties.write) {
+      await characteristic.writeValueWithResponse(valueToWrite)
+    } else {
+      await characteristic.writeValue(valueToWrite)
+    }
+
+    this.writeLast = message
   }
 
   /**

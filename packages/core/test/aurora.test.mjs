@@ -77,8 +77,18 @@ describe("Aurora LED payloads", () => {
 
     board.isConnected = () => true
     board.services[0].characteristics[0].characteristic = {
+      properties: {
+        write: true,
+        writeWithoutResponse: true,
+      },
+      writeValueWithoutResponse: async (value) => {
+        writes.push({ mode: "without-response", value: [...value] })
+      },
+      writeValueWithResponse: async (value) => {
+        writes.push({ mode: "with-response", value: [...value] })
+      },
       writeValue: async (value) => {
-        writes.push([...value])
+        writes.push({ mode: "legacy", value: [...value] })
       },
     }
 
@@ -90,8 +100,13 @@ describe("Aurora LED payloads", () => {
     )
 
     assert.ok(writes.length > 1)
-    assert.ok(writes.every((write) => write.length <= 20))
-    assert.deepEqual(writes.flat(), payload)
+    assert.ok(writes.every((write) => write.value.length <= 20))
+    assert.ok(writes.slice(0, -1).every((write) => write.mode === "without-response"))
+    assert.equal(writes[writes.length - 1].mode, "with-response")
+    assert.deepEqual(
+      writes.flatMap((write) => write.value),
+      payload,
+    )
   })
 })
 
