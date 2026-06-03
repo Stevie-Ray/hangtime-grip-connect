@@ -331,7 +331,7 @@ function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
 
 function createBoardCanvasRenderer(boardDetails: BoardDetails): BoardCanvasRenderer {
   const canvas = document.createElement("canvas")
-  const ctx = canvas.getContext("2d")
+  const ctx = canvas.getContext("2d", { willReadFrequently: true })
 
   if (!ctx) {
     throw new Error("Could not get canvas context")
@@ -512,7 +512,13 @@ async function runImageAnimationTick(state: ImageAnimationState): Promise<void> 
   state.nextFrameIndex = (state.nextFrameIndex + 1) % state.frames.length
 
   if (frame) {
-    await applyAnimationFrameHolds(frame.activeHolds)
+    try {
+      await applyAnimationFrameHolds(frame.activeHolds)
+    } catch (error) {
+      console.error("Error updating GIF playback:", error)
+      stopCurrentImageAnimation(false)
+      return
+    }
   }
 
   if (imageAnimationState !== state) {

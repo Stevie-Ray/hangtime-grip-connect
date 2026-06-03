@@ -107,6 +107,16 @@ describe("Aurora LED payloads", () => {
       payload,
     )
   })
+
+  it("still returns payloads when a connected board is missing the UART tx characteristic", async () => {
+    const board = new AuroraBoard()
+
+    board.isConnected = () => true
+
+    const payload = await board.led([{ position: 513, color: "#ffffff" }])
+
+    assert.deepEqual(payload, [1, 3, 176, 2, 80, 1, 254, 3])
+  })
 })
 
 function checksum(bytes) {

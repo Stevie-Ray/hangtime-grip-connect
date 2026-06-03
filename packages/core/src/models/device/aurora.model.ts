@@ -418,18 +418,15 @@ export class Aurora extends Device implements IAurora {
   private splitMessages = (buffer: number[]) =>
     this.splitEvery(Aurora.maxBluetoothMessageSize, buffer).map((arr) => new Uint8Array(arr))
 
+  private getWriteCharacteristic(): BluetoothRemoteGATTCharacteristic | undefined {
+    return this.services.find((service) => service.id === "uart")?.characteristics.find((char) => char.id === "tx")
+      ?.characteristic
+  }
+
   /**
    * Sends a series of messages to a device.
    */
-  private async writeMessageSeries(messages: Uint8Array[]) {
-    const characteristic = this.services
-      .find((service) => service.id === "uart")
-      ?.characteristics.find((char) => char.id === "tx")?.characteristic
-
-    if (!characteristic) {
-      throw new Error('Characteristic "tx" not found in service "uart"')
-    }
-
+  private async writeMessageSeries(characteristic: BluetoothRemoteGATTCharacteristic, messages: Uint8Array[]) {
     for (let index = 0; index < messages.length; index += 1) {
       const message = messages[index]
       if (!message) {
@@ -475,7 +472,10 @@ export class Aurora extends Device implements IAurora {
       // Prepares byte arrays for transmission based on a list of climb placements.
       const payload = this.prepBytes(config, this.apiLevel)
       if (this.isConnected()) {
-        await this.writeMessageSeries(this.splitMessages(payload))
+        const characteristic = this.getWriteCharacteristic()
+        if (characteristic) {
+          await this.writeMessageSeries(characteristic, this.splitMessages(payload))
+        }
       }
       return payload
     }
