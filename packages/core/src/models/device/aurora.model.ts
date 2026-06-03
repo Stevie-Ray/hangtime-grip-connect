@@ -448,15 +448,20 @@ export class Aurora extends Device implements IAurora {
     this.updateTimestamp()
     const valueToWrite = new Uint8Array(message)
 
-    if (!isLastChunk && characteristic.properties.writeWithoutResponse) {
+    if (!isLastChunk && this.canWriteWithoutResponse(characteristic)) {
       await characteristic.writeValueWithoutResponse(valueToWrite)
-    } else if (characteristic.properties.write) {
-      await characteristic.writeValueWithResponse(valueToWrite)
     } else {
       await characteristic.writeValue(valueToWrite)
     }
 
     this.writeLast = message
+  }
+
+  private canWriteWithoutResponse(characteristic: BluetoothRemoteGATTCharacteristic): boolean {
+    return (
+      characteristic.properties.writeWithoutResponse !== false &&
+      typeof characteristic.writeValueWithoutResponse === "function"
+    )
   }
 
   /**

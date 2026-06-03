@@ -79,13 +79,12 @@ describe("Aurora LED payloads", () => {
     board.services[0].characteristics[0].characteristic = {
       properties: {
         write: true,
-        writeWithoutResponse: true,
       },
       writeValueWithoutResponse: async (value) => {
         writes.push({ mode: "without-response", value: [...value] })
       },
       writeValueWithResponse: async (value) => {
-        writes.push({ mode: "with-response", value: [...value] })
+        throw new Error(`writeValueWithResponse should not be used for Aurora chunks: ${[...value].join(",")}`)
       },
       writeValue: async (value) => {
         writes.push({ mode: "legacy", value: [...value] })
@@ -102,7 +101,7 @@ describe("Aurora LED payloads", () => {
     assert.ok(writes.length > 1)
     assert.ok(writes.every((write) => write.value.length <= 20))
     assert.ok(writes.slice(0, -1).every((write) => write.mode === "without-response"))
-    assert.equal(writes[writes.length - 1].mode, "with-response")
+    assert.equal(writes[writes.length - 1].mode, "legacy")
     assert.deepEqual(
       writes.flatMap((write) => write.value),
       payload,
