@@ -78,6 +78,8 @@ export class Aurora extends Device implements IAurora {
 
   private apiLevel: AuroraApiLevel
 
+  private writeQueue: Promise<void> = Promise.resolve()
+
   constructor() {
     super({
       filters: [
@@ -427,25 +429,30 @@ export class Aurora extends Device implements IAurora {
    * Sends a series of messages to a device.
    */
   private async writeMessageSeries(characteristic: BluetoothRemoteGATTCharacteristic, messages: Uint8Array[]) {
-    for (let index = 0; index < messages.length; index += 1) {
-      const message = messages[index]
+    for (const message of messages) {
       if (!message) {
         continue
       }
 
-      await this.writeMessageChunk(characteristic, message, index === messages.length - 1)
+      await this.writeMessageChunk(characteristic, message)
     }
+  }
+
+  private async queueWrite(operation: () => Promise<void>): Promise<void> {
+    const queuedOperation = this.writeQueue.catch(() => undefined).then(operation)
+    this.writeQueue = queuedOperation.catch(() => undefined)
+
+    await queuedOperation
   }
 
   private async writeMessageChunk(
     characteristic: BluetoothRemoteGATTCharacteristic,
     message: Uint8Array,
-    isLastChunk: boolean,
   ): Promise<void> {
     this.updateTimestamp()
     const valueToWrite = new Uint8Array(message)
 
-    if (!isLastChunk && this.canWriteWithoutResponse(characteristic)) {
+    if (this.canWriteWithoutResponse(characteristic)) {
       await characteristic.writeValueWithoutResponse(valueToWrite)
     } else {
       await characteristic.writeValue(valueToWrite)
@@ -474,7 +481,7 @@ export class Aurora extends Device implements IAurora {
       if (this.isConnected()) {
         const characteristic = this.getWriteCharacteristic()
         if (characteristic) {
-          await this.writeMessageSeries(characteristic, this.splitMessages(payload))
+          await this.queueWrite(() => this.writeMessageSeries(characteristic, this.splitMessages(payload)))
         }
       }
       return payload

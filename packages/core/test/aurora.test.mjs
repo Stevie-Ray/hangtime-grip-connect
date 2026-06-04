@@ -87,7 +87,9 @@ describe("Aurora LED payloads", () => {
         throw new Error(`writeValueWithResponse should not be used for Aurora chunks: ${[...value].join(",")}`)
       },
       writeValue: async (value) => {
-        writes.push({ mode: "legacy", value: [...value] })
+        throw new Error(
+          `writeValue should not be used when writeValueWithoutResponse is available: ${[...value].join(",")}`,
+        )
       },
     }
 
@@ -100,12 +102,71 @@ describe("Aurora LED payloads", () => {
 
     assert.ok(writes.length > 1)
     assert.ok(writes.every((write) => write.value.length <= 20))
-    assert.ok(writes.slice(0, -1).every((write) => write.mode === "without-response"))
-    assert.equal(writes[writes.length - 1].mode, "legacy")
+    assert.ok(writes.every((write) => write.mode === "without-response"))
     assert.deepEqual(
       writes.flatMap((write) => write.value),
       payload,
     )
+  })
+
+  it("serializes concurrent connected board writes", async () => {
+    const board = new AuroraBoard()
+    const writes = []
+    let activeWrites = 0
+    let maxActiveWrites = 0
+
+    const write = async (value) => {
+      activeWrites += 1
+      maxActiveWrites = Math.max(maxActiveWrites, activeWrites)
+
+      if (activeWrites > 1) {
+        throw new Error("GATT operation already in progress.")
+      }
+
+      await delay(5)
+      writes.push([...value])
+      activeWrites -= 1
+    }
+
+    board.isConnected = () => true
+    board.services[0].characteristics[0].characteristic = {
+      properties: {
+        write: true,
+      },
+      writeValueWithoutResponse: write,
+      writeValue: write,
+    }
+
+    const [firstPayload, secondPayload] = await Promise.all([
+      board.led([{ position: 1, color: "#ffffff" }]),
+      board.led([{ position: 2, color: "#ffffff" }]),
+    ])
+
+    assert.equal(maxActiveWrites, 1)
+    assert.deepEqual(writes, [firstPayload, secondPayload])
+  })
+
+  it("falls back to writeValue when writeValueWithoutResponse is unavailable", async () => {
+    const board = new AuroraBoard()
+    const writes = []
+
+    board.isConnected = () => true
+    board.services[0].characteristics[0].characteristic = {
+      properties: {
+        writeWithoutResponse: false,
+        write: true,
+      },
+      writeValueWithoutResponse: async (value) => {
+        throw new Error(`writeValueWithoutResponse should not be used: ${[...value].join(",")}`)
+      },
+      writeValue: async (value) => {
+        writes.push([...value])
+      },
+    }
+
+    const payload = await board.led([{ position: 1, color: "#ffffff" }])
+
+    assert.deepEqual(writes, [payload])
   })
 
   it("still returns payloads when a connected board is missing the UART tx characteristic", async () => {
@@ -121,4 +182,10 @@ describe("Aurora LED payloads", () => {
 
 function checksum(bytes) {
   return bytes.reduce((sum, byte) => (sum + byte) & 255, 0) ^ 255
+}
+
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
 }

@@ -48,8 +48,6 @@ interface BoardDeviceOption {
   create: () => IAurora
 }
 
-const DEFAULT_GIF_FRAME_DURATION_MS = 100
-
 const BOARD_DEVICE_OPTIONS: BoardDeviceOption[] = getAuroraBoardOptions().map((board) => ({
   key: board.name,
   label: board.label,
@@ -287,7 +285,7 @@ async function decodeGifToAnimationFrames(
       try {
         frames.push({
           activeHolds: sampleImageSourceToHolds(renderer, boardDetails, image, image.displayWidth, image.displayHeight),
-          durationMs: image.duration === null ? DEFAULT_GIF_FRAME_DURATION_MS : Math.max(0, image.duration / 1000),
+          durationMs: image.duration === null ? 0 : Math.max(0, image.duration / 1000),
         })
       } finally {
         image.close()
@@ -429,9 +427,9 @@ async function applyActiveHolds(nextActiveHolds: ActiveHold[], options: { update
 
 async function applyAnimationFrameHolds(nextActiveHolds: ActiveHold[]): Promise<void> {
   activeHolds = nextActiveHolds
-  await updatePayload()
   updateSVG()
   updateURL()
+  await updatePayload()
 }
 
 function isCurrentImageUpload(requestId: number): boolean {
@@ -473,16 +471,11 @@ function stopCurrentImageAnimation(clearHolds: boolean): void {
 function buildImageAnimationTimeline(frames: BoardAnimationFrame[]): {
   frames: BoardAnimationFrame[]
 } {
-  const totalDurationMs = frames.reduce((total, frame) => total + frame.durationMs, 0)
-
   return {
-    frames:
-      totalDurationMs > 0
-        ? frames
-        : frames.map((frame) => ({
-            ...frame,
-            durationMs: DEFAULT_GIF_FRAME_DURATION_MS,
-          })),
+    frames: frames.map((frame) => ({
+      ...frame,
+      durationMs: Math.max(0, frame.durationMs),
+    })),
   }
 }
 
@@ -525,7 +518,7 @@ async function runImageAnimationTick(state: ImageAnimationState): Promise<void> 
     return
   }
 
-  scheduleImageAnimationTick(frame?.durationMs ?? DEFAULT_GIF_FRAME_DURATION_MS)
+  scheduleImageAnimationTick(frame?.durationMs ?? 0)
 }
 
 function clearImageAnimationTimer(state: ImageAnimationState): void {
