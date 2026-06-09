@@ -2,17 +2,41 @@
   "name": "@hangtime/grip-connect",
   "version": "0.13.0",
   "description": "Griptonite Motherboard, Tindeq Progressor, PitchSix Force Board, CTS500, WHC-06, Entralpi, Climbro, mySmartBoard: Bluetooth API Force-Sensing strength analysis for climbers",
-  "type": "module",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/index.js",
-  "types": "dist/index.d.ts",
-  "publishConfig": {
-    "access": "public"
+  "keywords": [
+    "auroraboard",
+    "beastmaker",
+    "bluetooth",
+    "climbing",
+    "cts500",
+    "entralpi",
+    "forceboard",
+    "griptonite",
+    "hangboard",
+    "hangboarding",
+    "motherboard",
+    "pitchsix",
+    "progressor",
+    "tindeq",
+    "wh-c06"
+  ],
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/",
+  "bugs": {
+    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
+  },
+  "license": "BSD-2-Clause",
+  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
   },
   "files": [
     "dist",
     "src"
   ],
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -31,6 +55,9 @@
       "require": "./dist/cjs/models/device/aurora.model.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:cjs": "tsc -p tsconfig.cjs.json && node ../../scripts/write-cjs-package-json.mjs",
     "build:esm": "tsc -p tsconfig.json",
@@ -39,32 +66,5 @@
   },
   "devDependencies": {
     "typescript": "^6.0.3"
-  },
-  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
-  "license": "BSD-2-Clause",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
-  },
-  "keywords": [
-    "climbing",
-    "bluetooth",
-    "griptonite",
-    "hangboard",
-    "hangboarding",
-    "beastmaker",
-    "motherboard",
-    "tindeq",
-    "progressor",
-    "pitchsix",
-    "forceboard",
-    "cts500",
-    "entralpi",
-    "wh-c06",
-    "auroraboard"
-  ],
-  "bugs": {
-    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
-  },
-  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
+  }
 }

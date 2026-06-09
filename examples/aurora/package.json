@@ -1,7 +1,13 @@
 {
   "name": "@grip-connect/aurora",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "directories": {
+    "example": "examples"
+  },
+  "workspaces": [
+    "examples"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,11 +25,5 @@
     "@types/w3c-web-serial": "^1.0.8",
     "typescript": "^6.0.3",
     "vite": "^8.0.16"
-  },
-  "workspaces": [
-    "examples"
-  ],
-  "directories": {
-    "example": "examples"
   }
 }

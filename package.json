@@ -1,20 +1,21 @@
 {
   "name": "grip-connect",
   "private": true,
+  "license": "BSD-2-Clause",
+  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
   "repository": {
     "type": "git"
   },
-  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
-  "license": "BSD-2-Clause",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "type": "module",
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
-    "lint": "npm run lint:check -- --fix",
-    "lint:check": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --list-different .",
+    "lint": "oxlint --fix",
+    "lint:check": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "dev:cli": "npm run dev --workspace ./packages/cli",
     "dev:docs": "npm run docs:dev --workspace ./packages/docs",
     "dev:examples:capacitor": "npm run start --workspace ./examples/capacitor",
@@ -53,21 +54,16 @@
     "check:deno-versions": "node scripts/check-deno-versions.mjs",
     "prepare": "husky"
   },
-  "workspaces": [
-    "packages/*",
-    "examples/*"
-  ],
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
-    "@eslint/js": "^10.0.1",
-    "@types/node": "^22.19.19",
+    "@types/node": "^22.19.20",
     "@types/web-bluetooth": "^0.0.21",
-    "eslint": "^10.4.1",
-    "globals": "^17.6.0",
     "husky": "^9.1.7",
-    "jiti": "^2.7.0",
-    "prettier": "^3.8.3",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.60.1"
+    "oxfmt": "^0.54.0",
+    "oxlint": "^1.69.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

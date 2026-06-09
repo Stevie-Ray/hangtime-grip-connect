@@ -2,21 +2,48 @@
   "name": "@hangtime/grip-connect-react-native",
   "version": "0.13.0",
   "description": "React Native module for Grip Connect devices",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "publishConfig": {
-    "access": "public"
+  "keywords": [
+    "auroraboard",
+    "beastmaker",
+    "bluetooth",
+    "climbing",
+    "cts500",
+    "entralpi",
+    "forceboard",
+    "griptonite",
+    "hangboard",
+    "hangboarding",
+    "motherboard",
+    "pitchsix",
+    "progressor",
+    "tindeq",
+    "wh-c06"
+  ],
+  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/",
+  "bugs": {
+    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
+  },
+  "license": "BSD-2-Clause",
+  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
   },
   "files": [
     "dist",
     "src"
   ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsc --build"
@@ -27,32 +54,5 @@
   },
   "devDependencies": {
     "typescript": "^6.0.3"
-  },
-  "author": "Stevie-Ray Hartog <mail@stevie-ray.nl>",
-  "license": "BSD-2-Clause",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Stevie-Ray/hangtime-grip-connect.git"
-  },
-  "keywords": [
-    "climbing",
-    "bluetooth",
-    "griptonite",
-    "hangboard",
-    "hangboarding",
-    "beastmaker",
-    "motherboard",
-    "tindeq",
-    "progressor",
-    "pitchsix",
-    "forceboard",
-    "cts500",
-    "entralpi",
-    "wh-c06",
-    "auroraboard"
-  ],
-  "bugs": {
-    "url": "https://github.com/Stevie-Ray/hangtime-grip-connect/issues"
-  },
-  "homepage": "https://stevie-ray.github.io/hangtime-grip-connect/"
+  }
 }

@@ -1,8 +1,9 @@
 {
   "name": "@grip-connect/react-native",
-  "main": "expo-router/entry",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "prebuild": "expo prebuild",
@@ -54,6 +55,5 @@
     "eslint": "^10.4.1",
     "eslint-config-expo": "~56.0.4",
     "typescript": "~6.0.3"
-  },
-  "private": true
+  }
 }

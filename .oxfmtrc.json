@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "bracketSpacing": true,
+  "jsxSingleQuote": false,
+  "printWidth": 120,
+  "proseWrap": "always",
+  "semi": false,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "sortPackageJson": true,
+  "ignorePatterns": ["*.d.ts", "*.js", "build/", "cache/", "android/", "ios/"]
+}

@@ -14,8 +14,8 @@ analyzing data from hangboards, dynamometers, and LED system boards.
 - **CLI**: Node.js, Deno and Bun execution
 - **Documentation**: VitePress
 - **Versioning**: Changesets (monorepo releases)
-- **Linting**: ESLint with TypeScript ESLint
-- **Formatting**: Prettier
+- **Linting**: Oxlint
+- **Formatting**: Oxfmt
 
 ## 4. Environment Setup
 
@@ -102,11 +102,11 @@ examples/                      # Sample applications and demos
 - Use TypeScript with strict type checking
 - Prefer **named exports**
 - Keep files and directories lowercase with dashes
-- Format with Prettier (`npm run format`)
+- Format with Oxfmt (`npm run format`)
 
 ### Linting & Testing
 
-- Run ESLint before committing (`npm run lint`)
+- Run Oxlint before committing (`npm run lint`)
 - Build packages with the TypeScript compiler (`npm run build`)
 
 ### Versioning & Releases

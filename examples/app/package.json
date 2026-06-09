@@ -1,8 +1,8 @@
 {
   "name": "@grip-connect/app",
-  "description": "Grip Connect | Force Measurement App",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "Grip Connect | Force Measurement App",
   "type": "module",
   "scripts": {
     "dev": "vite",
