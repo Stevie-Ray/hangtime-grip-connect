@@ -48,7 +48,7 @@
     "test:core": "npm run test --workspace ./packages/core",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:version:ci": "changeset version && npm run sync:deno-versions",
+    "changeset:version:ci": "changeset version && npm run sync:deno-versions && npm run format",
     "changeset:publish": "changeset publish",
     "sync:deno-versions": "node scripts/sync-deno-versions.mjs",
     "check:deno-versions": "node scripts/check-deno-versions.mjs",
