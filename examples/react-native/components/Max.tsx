@@ -103,22 +103,25 @@ export default function Max({ finishWorkout }: MaxProps) {
   }
 
   const changeHands = () => {
-    setCurrentHand((prevHand) => {
-      switch (prevHand) {
-        case Hands.BOTH:
-          maxBothRef.current = currentMax
-          setCurrentMax(maxRightRef.current)
-          return Hands.RIGHT
-        case Hands.RIGHT:
-          maxRightRef.current = currentMax
-          setCurrentMax(maxLeftRef.current)
-          return Hands.LEFT
-        case Hands.LEFT:
-          maxLeftRef.current = currentMax
-          setCurrentMax(maxBothRef.current)
-          return Hands.BOTH
-      }
-    })
+    // State updaters must stay pure: store the current max and pick the next
+    // hand outside of setState so StrictMode double-invocation is safe.
+    switch (currentHand) {
+      case Hands.BOTH:
+        maxBothRef.current = currentMax
+        setCurrentMax(maxRightRef.current)
+        setCurrentHand(Hands.RIGHT)
+        break
+      case Hands.RIGHT:
+        maxRightRef.current = currentMax
+        setCurrentMax(maxLeftRef.current)
+        setCurrentHand(Hands.LEFT)
+        break
+      case Hands.LEFT:
+        maxLeftRef.current = currentMax
+        setCurrentMax(maxBothRef.current)
+        setCurrentHand(Hands.BOTH)
+        break
+    }
   }
 
   return (

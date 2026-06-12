@@ -7,6 +7,7 @@ import {
   ForceBoard,
   Motherboard,
   mySmartBoard,
+  PB700BT,
   Progressor,
   WHC06,
 } from "@hangtime/grip-connect-react-native"
@@ -14,7 +15,17 @@ import { Platform } from "react-native"
 import { DeviceType } from "@/components/DevicePicker"
 
 let bleManager: BleManager | null = null
-let device: WHC06 | Climbro | CTS500 | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | null = null
+let device:
+  | WHC06
+  | Climbro
+  | CTS500
+  | Entralpi
+  | ForceBoard
+  | Motherboard
+  | mySmartBoard
+  | PB700BT
+  | Progressor
+  | null = null
 
 if (Platform.OS !== "web") {
   bleManager = new BleManager()
@@ -38,6 +49,8 @@ const createDevice = (deviceType: DeviceType) => {
       return new Motherboard()
     case "mysmartboard":
       return new mySmartBoard()
+    case "pb700bt":
+      return new PB700BT()
     case "progressor":
       return new Progressor()
     default:

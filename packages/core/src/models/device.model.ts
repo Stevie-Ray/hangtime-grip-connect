@@ -314,19 +314,20 @@ export abstract class Device extends BaseModel implements IDevice {
   /**
    * Builds a ForceMeasurement for a single zone (e.g. left/center/right).
    * With one argument, current/peak/mean are all set to that value.
-   * With three arguments, uses the given current, peak, and mean for the zone.
+   * With three or four arguments, uses the given current, peak, mean, and min for the zone.
    * @param valueOrCurrent - Force value, or current force for this zone
    * @param peak - Optional peak for this zone (required if mean is provided)
    * @param mean - Optional mean for this zone
+   * @param min - Optional session minimum for this zone
    * @returns ForceMeasurement (no nested distribution)
    * @protected
    */
-  protected buildZoneMeasurement(valueOrCurrent: number, peak?: number, mean?: number): ForceMeasurement {
+  protected buildZoneMeasurement(valueOrCurrent: number, peak?: number, mean?: number, min?: number): ForceMeasurement {
     const useFullStats = peak !== undefined && mean !== undefined
     const current = valueOrCurrent
     const zonePeak = useFullStats ? (peak === 0 && current < 0 ? current : peak) : valueOrCurrent
     const zoneMean = useFullStats ? mean : valueOrCurrent
-    const zoneMin = useFullStats ? Math.min(zonePeak, current) : current
+    const zoneMin = useFullStats ? (min ?? Math.min(zonePeak, current)) : current
     return {
       unit: this.unit,
       timestamp: Date.now(),
@@ -504,6 +505,21 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
+   * Resets per-session measurement state: the download buffer and force statistics.
+   * Device models call this at the start of a new streaming session so stats from a
+   * previous session do not leak into the next one.
+   * @protected
+   */
+  protected resetSessionData(): void {
+    this.downloadPackets.length = 0
+    this.peak = Number.NEGATIVE_INFINITY
+    this.min = Number.POSITIVE_INFINITY
+    this.mean = 0
+    this.sum = 0
+    this.dataPointCount = 0
+  }
+
+  /**
    * Checks if a dynamic value is active based on a threshold and duration.
    *
    * This function assesses whether a given dynamic value surpasses a specified threshold
@@ -511,12 +527,11 @@ export abstract class Device extends BaseModel implements IDevice {
    * the previous state, the callback function is called with the updated activity status.
    *
    * @param {number} input - The dynamic value to check for activity status.
-   * @returns {Promise<void>} A promise that resolves once the activity check is complete.
    *
    * @example
-   * await device.activityCheck(5.0);
+   * device.activityCheck(5.0);
    */
-  protected activityCheck = async (input: number): Promise<void> => {
+  protected activityCheck = (input: number): void => {
     const { threshold, duration } = this.activeConfig
     const activeNow = input > threshold
 

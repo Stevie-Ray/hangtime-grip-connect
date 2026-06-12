@@ -246,4 +246,87 @@ describe("device notification parsers", () => {
     assertAlmostEqual(notifications[0].distribution.center.current, 20)
     assertAlmostEqual(notifications[0].distribution.right.current, 30)
   })
+
+  it("tracks Motherboard per-zone session minimums across packets", () => {
+    const device = new Motherboard()
+    const notifications = captureNotifications(device)
+
+    device.calibrationData = [
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+    ]
+
+    // left: 10 -> 5 -> 20, center: 20 -> 10 -> 40, right: 30 -> 15 -> 60
+    device.handleNotifications(textView("01002C010A0000ECFFFFE2FFFF000000\n"))
+    device.handleNotifications(textView("02002C01050000F6FFFFF1FFFF000000\n"))
+    device.handleNotifications(textView("03002C01140000D8FFFFC4FFFF000000\n"))
+
+    assert.equal(notifications.length, 3)
+    const left = notifications[2].distribution.left
+    assertAlmostEqual(left.current, 20)
+    assertAlmostEqual(left.peak, 20)
+    // The minimum was seen in the second packet, not the latest one
+    assertAlmostEqual(left.min, 5)
+    assertAlmostEqual(left.mean, (10 + 5 + 20) / 3)
+
+    const center = notifications[2].distribution.center
+    assertAlmostEqual(center.peak, 40)
+    assertAlmostEqual(center.min, 10)
+  })
+
+  it("resets Motherboard session stats when a new stream starts", async () => {
+    const device = new Motherboard()
+    const notifications = captureNotifications(device)
+
+    device.calibrationData = [
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+      [
+        [0, 0, 0],
+        [1, 100, 100],
+      ],
+    ]
+
+    device.handleNotifications(textView("01002C01140000D8FFFFC4FFFF000000\n"))
+    assert.equal(notifications[0].peak, 120)
+
+    // Start a new streaming session without reconnecting
+    device.write = async () => undefined
+    await device.stream()
+
+    device.handleNotifications(textView("01002C010A0000ECFFFFE2FFFF000000\n"))
+
+    const measurement = notifications[1]
+    // Stats from the previous session must not leak into the new one
+    assert.equal(measurement.current, 60)
+    assert.equal(measurement.peak, 60)
+    assert.equal(measurement.mean, 60)
+    assert.equal(measurement.min, 60)
+    assertAlmostEqual(measurement.distribution.left.peak, 10)
+    assertAlmostEqual(measurement.distribution.left.min, 10)
+  })
 })

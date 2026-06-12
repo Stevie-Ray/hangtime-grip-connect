@@ -40,10 +40,13 @@ export class Motherboard extends Device implements IMotherboard {
 
   /** Per-zone peak and running sum for left/center/right (used for distribution stats). */
   private leftPeak = Number.NEGATIVE_INFINITY
+  private leftMin = Number.POSITIVE_INFINITY
   private leftSum = 0
   private centerPeak = Number.NEGATIVE_INFINITY
+  private centerMin = Number.POSITIVE_INFINITY
   private centerSum = 0
   private rightPeak = Number.NEGATIVE_INFINITY
+  private rightMin = Number.POSITIVE_INFINITY
   private rightSum = 0
 
   constructor() {
@@ -295,12 +298,15 @@ export class Motherboard extends Device implements IMotherboard {
             this.dataPointCount++
             this.mean = this.sum / this.dataPointCount
 
-            // Per-zone peak and sum for distribution
+            // Per-zone peak, min and sum for distribution
             this.leftPeak = Math.max(this.leftPeak, leftClamped)
+            this.leftMin = Math.min(this.leftMin, leftClamped)
             this.leftSum += leftClamped
             this.centerPeak = Math.max(this.centerPeak, centerClamped)
+            this.centerMin = Math.min(this.centerMin, centerClamped)
             this.centerSum += centerClamped
             this.rightPeak = Math.max(this.rightPeak, rightClamped)
+            this.rightMin = Math.min(this.rightMin, rightClamped)
             this.rightSum += rightClamped
 
             // Add data to downloadable Array (distribution = per-zone measurements)
@@ -310,13 +316,24 @@ export class Motherboard extends Device implements IMotherboard {
                 battRaw: packet.battRaw,
                 sampleIndex: packet.sampleIndex,
                 distribution: {
-                  left: this.buildZoneMeasurement(leftClamped, this.leftPeak, this.leftSum / this.dataPointCount),
+                  left: this.buildZoneMeasurement(
+                    leftClamped,
+                    this.leftPeak,
+                    this.leftSum / this.dataPointCount,
+                    this.leftMin,
+                  ),
                   center: this.buildZoneMeasurement(
                     centerClamped,
                     this.centerPeak,
                     this.centerSum / this.dataPointCount,
+                    this.centerMin,
                   ),
-                  right: this.buildZoneMeasurement(rightClamped, this.rightPeak, this.rightSum / this.dataPointCount),
+                  right: this.buildZoneMeasurement(
+                    rightClamped,
+                    this.rightPeak,
+                    this.rightSum / this.dataPointCount,
+                    this.rightMin,
+                  ),
                 },
               }),
             )
@@ -324,12 +341,27 @@ export class Motherboard extends Device implements IMotherboard {
             // Check if device is being used
             this.activityCheck(center)
 
-            // Notify with weight data (distribution zones have proper peak/mean per zone)
+            // Notify with weight data (distribution zones have proper peak/mean/min per zone)
             this.notifyCallback(
               this.buildForceMeasurement(totalCurrent, {
-                left: this.buildZoneMeasurement(leftClamped, this.leftPeak, this.leftSum / this.dataPointCount),
-                center: this.buildZoneMeasurement(centerClamped, this.centerPeak, this.centerSum / this.dataPointCount),
-                right: this.buildZoneMeasurement(rightClamped, this.rightPeak, this.rightSum / this.dataPointCount),
+                left: this.buildZoneMeasurement(
+                  leftClamped,
+                  this.leftPeak,
+                  this.leftSum / this.dataPointCount,
+                  this.leftMin,
+                ),
+                center: this.buildZoneMeasurement(
+                  centerClamped,
+                  this.centerPeak,
+                  this.centerSum / this.dataPointCount,
+                  this.centerMin,
+                ),
+                right: this.buildZoneMeasurement(
+                  rightClamped,
+                  this.rightPeak,
+                  this.rightSum / this.dataPointCount,
+                  this.rightMin,
+                ),
               }),
             )
           } else if (this.writeLast === this.commands.GET_CALIBRATION) {
@@ -413,7 +445,17 @@ export class Motherboard extends Device implements IMotherboard {
    */
   stream = async (duration = 0): Promise<void> => {
     this.resetPacketTracking()
-    this.downloadPackets.length = 0
+    this.resetSessionData()
+    // Reset per-zone session stats for the distribution measurements
+    this.leftPeak = Number.NEGATIVE_INFINITY
+    this.leftMin = Number.POSITIVE_INFINITY
+    this.leftSum = 0
+    this.centerPeak = Number.NEGATIVE_INFINITY
+    this.centerMin = Number.POSITIVE_INFINITY
+    this.centerSum = 0
+    this.rightPeak = Number.NEGATIVE_INFINITY
+    this.rightMin = Number.POSITIVE_INFINITY
+    this.rightSum = 0
     // Read calibration data if not already available
     if (!this.calibrationData[0].length) {
       await this.calibration()

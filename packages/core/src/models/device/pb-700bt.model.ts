@@ -1,10 +1,11 @@
 import { Device } from "../device.model.js"
+import type { IPB700BT } from "../../interfaces/device/pb-700bt.interface.js"
 
 /**
  * Represents a NSD PB-700BT device.
  * {@link https://www.nsd.com.tw/}
  */
-export class PB700BT extends Device {
+export class PB700BT extends Device implements IPB700BT {
   constructor() {
     super({
       filters: [{ name: "NSD Workout" }],

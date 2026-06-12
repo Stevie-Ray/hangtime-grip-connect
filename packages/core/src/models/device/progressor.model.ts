@@ -456,12 +456,7 @@ export class Progressor extends NordicDfuDevice implements IProgressor {
    */
   stream = async (duration = 0): Promise<void> => {
     // Reset download packets and session stats for fresh measurement
-    this.downloadPackets.length = 0
-    this.peak = Number.NEGATIVE_INFINITY
-    this.mean = 0
-    this.sum = 0
-    this.dataPointCount = 0
-    this.min = Number.POSITIVE_INFINITY
+    this.resetSessionData()
     this.resetPacketTracking()
     this.recentSampleTimestamps = []
     // Start streaming data

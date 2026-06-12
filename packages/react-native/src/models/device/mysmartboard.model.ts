@@ -82,7 +82,7 @@ export class mySmartBoard extends mySmartBoardBase {
               }
               if (characteristic?.value) {
                 const buffer = Buffer.from(characteristic.value, "base64")
-                const dataView = new DataView(buffer.buffer)
+                const dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength)
                 this.handleNotifications(dataView)
               }
             })

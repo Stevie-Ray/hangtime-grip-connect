@@ -22,7 +22,7 @@ function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "motherboard") return new Motherboard()
   if (deviceKey === "pb700bt") return new PB700BT()
   if (deviceKey === "progressor") return new Progressor()
-  if (deviceKey === "smartboard") return new SmartBoardPro()
+  if (deviceKey === "smartboardpro") return new SmartBoardPro()
   if (deviceKey === "whc06") return new WHC06()
   return null
 }

@@ -52,9 +52,9 @@ export function setupDeviceList(isConnected = false) {
       url: "https://climbro.com/",
     },
     {
-      key: "smartboard",
-      name: "SmartBoard Climbing mySmartBoard",
-      shortDescription: "Force sensor for Beastmaker/YYVertical hangboards",
+      key: "smartboardpro",
+      name: "SmartBoard Climbing SmartBoard Pro",
+      shortDescription: "Force-sensing hangboard with companion app",
       url: "https://www.smartboard-climbing.com/",
     },
     {

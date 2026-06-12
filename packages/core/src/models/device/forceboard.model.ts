@@ -72,7 +72,7 @@ export class ForceBoard extends NordicDfuDevice implements IForceBoard {
           ],
         },
         {
-          name: "Temperature Serivce",
+          name: "Temperature Service",
           id: "temperature",
           uuid: "3a90328c-c266-4c76-b05a-6af6104a0b13",
           characteristics: [
@@ -254,6 +254,7 @@ export class ForceBoard extends NordicDfuDevice implements IForceBoard {
    */
   stream = async (duration = 0): Promise<void> => {
     this.resetPacketTracking()
+    this.resetSessionData()
     await this.write("weight", "tx", this.commands.START_WEIGHT_MEAS, duration)
     if (duration !== 0) {
       await this.stop()

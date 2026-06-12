@@ -14,6 +14,8 @@ export type { ImySmartBoard } from "./device/mysmartboard.interface.js"
 
 export type { INordicDfuDevice } from "./nordic.interface.js"
 
+export type { IPB700BT } from "./device/pb-700bt.interface.js"
+
 export type { IProgressor } from "./device/progressor.interface.js"
 
 export type { ISmartBoardPro } from "./device/smartboard-pro.interface.js"

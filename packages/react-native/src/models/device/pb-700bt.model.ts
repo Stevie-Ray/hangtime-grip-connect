@@ -81,7 +81,7 @@ export class PB700BT extends PB700BTBase {
               }
               if (characteristic?.value) {
                 const buffer = Buffer.from(characteristic.value, "base64")
-                const dataView = new DataView(buffer.buffer)
+                const dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength)
                 this.handleNotifications(dataView)
               }
             })

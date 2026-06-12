@@ -289,6 +289,7 @@ export class CTS500 extends Device implements ICTS500 {
    */
   stream = async (duration = 0): Promise<void> => {
     this.resetPacketTracking()
+    this.resetSessionData()
     this.isStreaming = true
     const command = this.commands.START_WEIGHT_MEAS as Uint8Array
     try {
@@ -646,7 +647,7 @@ export class CTS500 extends Device implements ICTS500 {
     )
 
     if (this.isStreaming) {
-      void this.activityCheck(numericData)
+      this.activityCheck(numericData)
     }
 
     this.notifyCallback(this.buildForceMeasurement(currentMassTotal))

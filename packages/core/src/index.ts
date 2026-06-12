@@ -7,6 +7,7 @@ export type {
   IForceBoard,
   IMotherboard,
   ImySmartBoard,
+  IPB700BT,
   IProgressor,
   ISmartBoardPro,
   IWHC06,
