@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@hangtime/grip-connect": "^0.13.0",
+    "buffer": "^6.0.3",
     "react-native-ble-plx": "^3.5.1"
   },
   "devDependencies": {
