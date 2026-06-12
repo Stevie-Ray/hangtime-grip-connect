@@ -1,5 +1,17 @@
 # @hangtime/grip-connect-runtime
 
+## 0.13.1
+
+### Patch Changes
+
+- 68791aa: Export the missing `AuroraLedPlacement`, `IAurora`, and `IPB700BT` types (Capacitor previously exported no
+  types at all), and harden React Native notification parsing by constructing `DataView`s with the Buffer's
+  `byteOffset`/`byteLength`.
+- Updated dependencies [034f0a9]
+- Updated dependencies [68791aa]
+- Updated dependencies [f671de3]
+  - @hangtime/grip-connect@0.13.1
+
 ## 0.13.0
 
 ### Minor Changes

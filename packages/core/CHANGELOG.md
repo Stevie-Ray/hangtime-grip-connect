@@ -1,5 +1,17 @@
 # @hangtime/grip-connect
 
+## 0.13.1
+
+### Patch Changes
+
+- 034f0a9: Add Aurora LED board classes with color-based LED payload encoding, API level 2 support, and automatic V2/V3
+  selection from the connected board name.
+- 68791aa: Fix session statistics correctness: track real per-zone minimums for Motherboard distribution measurements
+  instead of deriving them from peak/current, reset session stats (peak/min/mean/sum) when Motherboard, ForceBoard, and
+  CTS500 start a new stream, make `activityCheck` synchronous, add the missing `IPB700BT` interface, and fix a
+  service-name typo in ForceBoard.
+- f671de3: Speed up Aurora LED board frame updates by writing intermediate BLE chunks without response.
+
 ## 0.13.0
 
 ### Minor Changes

@@ -15,7 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.13.0"
+    "@hangtime/grip-connect": "^0.13.1"
   },
   "devDependencies": {
     "typescript": "^6.0.3",
