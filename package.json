@@ -56,11 +56,11 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
-    "@types/node": "^22.19.21",
+    "@types/node": "^22.20.0",
     "@types/web-bluetooth": "^0.0.21",
     "husky": "^9.1.7",
     "oxfmt": "^0.54.0",
-    "oxlint": "^1.69.0",
+    "oxlint": "^1.70.0",
     "typescript": "^6.0.3"
   },
   "engines": {

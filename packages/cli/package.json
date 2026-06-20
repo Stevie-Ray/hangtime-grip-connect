@@ -54,7 +54,7 @@
     "dev": "tsx src/index.ts"
   },
   "dependencies": {
-    "@hangtime/grip-connect-runtime": "^0.13.0",
+    "@hangtime/grip-connect-runtime": "^0.13.1",
     "@inquirer/input": "^5.1.2",
     "@inquirer/select": "^5.2.1",
     "asciichart": "^1.5.25",
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@types/asciichart": "^1.5.8",
-    "@types/node": "^22.19.21",
+    "@types/node": "^22.20.0",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },

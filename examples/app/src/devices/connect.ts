@@ -3,6 +3,7 @@ import {
   CTS500,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   Motherboard,
   PB700BT,
   Progressor,
@@ -19,6 +20,7 @@ function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "cts500") return new CTS500()
   if (deviceKey === "entralpi") return new Entralpi()
   if (deviceKey === "forceboard") return new ForceBoard()
+  if (deviceKey === "dyno") return new FrezDyno()
   if (deviceKey === "motherboard") return new Motherboard()
   if (deviceKey === "pb700bt") return new PB700BT()
   if (deviceKey === "progressor") return new Progressor()

@@ -8,6 +8,8 @@ export type { IEntralpi } from "./device/entralpi.interface.js"
 
 export type { IForceBoard } from "./device/forceboard.interface.js"
 
+export type { IFrezDyno } from "./device/frez-dyno.interface.js"
+
 export type { IMotherboard } from "./device/motherboard.interface.js"
 
 export type { ImySmartBoard } from "./device/mysmartboard.interface.js"

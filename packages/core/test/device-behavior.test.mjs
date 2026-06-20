@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { setTimeout as delay } from "node:timers/promises"
 import { describe, it } from "node:test"
 
-import { CTS500, ForceBoard } from "../dist/index.js"
+import { CTS500, ForceBoard, FrezDyno } from "../dist/index.js"
 
 describe("device behavior", () => {
   it("requires activity to remain above or below threshold for the configured duration", async () => {
@@ -36,6 +36,19 @@ describe("device behavior", () => {
 
   it("stops ForceBoard finite-duration streams", async () => {
     const device = new ForceBoard()
+    const writes = []
+
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+
+    await device.stream(10)
+
+    assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS, device.commands.STOP_WEIGHT_MEAS])
+  })
+
+  it("stops Frez Dyno finite-duration streams", async () => {
+    const device = new FrezDyno()
     const writes = []
 
     device.write = async (_serviceId, _characteristicId, message) => {

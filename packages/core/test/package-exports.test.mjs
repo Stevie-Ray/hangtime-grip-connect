@@ -17,13 +17,15 @@ describe("package exports", () => {
   it("supports package self-reference through ESM and CommonJS", () => {
     assert.equal(
       runNode(
-        "import('@hangtime/grip-connect').then((grip) => console.log(typeof grip.Progressor)).catch((error) => { console.error(error); process.exit(1) })",
+        "import('@hangtime/grip-connect').then((grip) => console.log(`${typeof grip.Progressor}:${typeof grip.FrezDyno}`)).catch((error) => { console.error(error); process.exit(1) })",
       ),
-      "function",
+      "function:function",
     )
     assert.equal(
-      runNode("const grip = require('@hangtime/grip-connect'); console.log(typeof grip.Progressor)"),
-      "function",
+      runNode(
+        "const grip = require('@hangtime/grip-connect'); console.log(`${typeof grip.Progressor}:${typeof grip.FrezDyno}`)",
+      ),
+      "function:function",
     )
   })
 

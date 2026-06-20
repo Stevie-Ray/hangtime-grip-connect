@@ -18,7 +18,6 @@ export function setupDeviceList(isConnected = false) {
       key: "dyno",
       name: "Frez Dyno",
       shortDescription: "Dynamometer for isometric strength measurement",
-      disabled: true,
       url: "https://shop.frez.app/products/pre-order-frez-dyno",
     },
     {

@@ -6,6 +6,7 @@ import {
   CTS500,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   Motherboard,
   PB700BT,
   Progressor,
@@ -141,6 +142,29 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.samplingRateHz, 2)
   })
 
+  it("parses Frez Dyno weight packets and device-timestamp sampling rate", () => {
+    const device = new FrezDyno()
+    const notifications = captureNotifications(device)
+
+    device.handleNotifications(
+      progressorWeightPacket([
+        { weight: 8, timestampUs: 1000 },
+        { weight: 9.5, timestampUs: 250000 },
+      ]),
+    )
+
+    assert.equal(notifications.length, 2)
+    assert.equal(notifications[0].current, 8)
+    assert.equal(notifications[1].current, 9.5)
+    assert.equal(notifications[1].peak, 9.5)
+    assert.equal(notifications[1].mean, 8.75)
+    assert.equal(notifications[1].min, 8)
+    assert.equal(notifications[1].performance.packetIndex, 1)
+    assert.equal(notifications[1].performance.sampleIndex, 2)
+    assert.equal(notifications[1].performance.samplesPerPacket, 2)
+    assert.equal(notifications[1].performance.samplingRateHz, 2)
+  })
+
   it("routes Progressor command responses through the write callback", () => {
     const device = new Progressor()
     const responses = []
@@ -153,6 +177,20 @@ describe("device notification parsers", () => {
     device.handleNotifications(dataView([0, 3, 0x01, 0x02, 0x03]))
 
     assert.deepEqual(responses, ["030201"])
+  })
+
+  it("routes Frez Dyno command responses through the write callback", () => {
+    const device = new FrezDyno()
+    const responses = []
+
+    device.writeLast = device.commands.GET_BATTERY_VOLTAGE
+    device.writeCallback = (response) => {
+      responses.push(response)
+    }
+
+    device.handleNotifications(dataView([0, 4, 0x34, 0x12, 0, 0]))
+
+    assert.deepEqual(responses, ["4660"])
   })
 
   it("parses CTS500 fragmented weight frames and ignores invalid checksums", () => {

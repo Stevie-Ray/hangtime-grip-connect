@@ -1,7 +1,7 @@
 {
   "name": "@hangtime/grip-connect",
   "version": "0.13.1",
-  "description": "Griptonite Motherboard, Tindeq Progressor, PitchSix Force Board, CTS500, WHC-06, Entralpi, Climbro, mySmartBoard: Bluetooth API Force-Sensing strength analysis for climbers",
+  "description": "Griptonite Motherboard, Tindeq Progressor, Frez Dyno, PitchSix Force Board, CTS500, WHC-06, Entralpi, Climbro, mySmartBoard: Bluetooth API Force-Sensing strength analysis for climbers",
   "keywords": [
     "auroraboard",
     "beastmaker",
@@ -10,6 +10,7 @@
     "cts500",
     "entralpi",
     "forceboard",
+    "frez-dyno",
     "griptonite",
     "hangboard",
     "hangboarding",
