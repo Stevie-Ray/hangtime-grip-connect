@@ -1,9 +1,9 @@
-import type { INordicDfuDevice } from "../nordic.interface.js"
+import type { IDevice } from "../device.interface.js"
 
 /**
  * Interface representing the Frez Dyno device, extending the base Device interface.
  */
-export interface IFrezDyno extends INordicDfuDevice {
+export interface IFrezDyno extends IDevice {
   /**
    * Retrieves battery level from the standard Battery service.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery percentage.
@@ -17,7 +17,7 @@ export interface IFrezDyno extends INordicDfuDevice {
   batteryVoltage(): Promise<string | undefined>
 
   /**
-   * Retrieves firmware version through the Frez Dyno command characteristic.
+   * Retrieves firmware version from the standard Software Revision characteristic.
    * @returns {Promise<string | undefined>} A Promise that resolves with the firmware version.
    */
   firmware(): Promise<string | undefined>

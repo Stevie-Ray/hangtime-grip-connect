@@ -1,7 +1,6 @@
-import { NordicDfuDevice, createNordicDfuService } from "../nordic.model.js"
+import { Device } from "../device.model.js"
 import type { IFrezDyno } from "../../interfaces/device/frez-dyno.interface.js"
 
-const FREZ_DYNO_SERVICE_UUID = "da8a6c41-154b-4b9a-9b00-2f84dfcebfe9"
 const ONE_SECOND_US = 1_000_000
 
 /**
@@ -48,23 +47,18 @@ function toHex(payload: Uint8Array, separator = " "): string {
 /**
  * Represents a Frez Dyno device.
  */
-export class FrezDyno extends NordicDfuDevice implements IFrezDyno {
+export class FrezDyno extends Device implements IFrezDyno {
   /** Device timestamps in microseconds of recent samples (samples in last 1s device time). */
   private recentSampleTimestamps: number[] = []
 
   constructor() {
     super({
-      filters: [
-        { namePrefix: "Frez" },
-        { namePrefix: "FREZ" },
-        { namePrefix: "frez" },
-        { services: [FREZ_DYNO_SERVICE_UUID] },
-      ],
+      filters: [{ namePrefix: "Frez" }, { services: ["da8a6c41-154b-4b9a-9b00-2f84dfcebfe9"] }],
       services: [
         {
           name: "Frez Dyno Service",
           id: "frez-dyno",
-          uuid: FREZ_DYNO_SERVICE_UUID,
+          uuid: "da8a6c41-154b-4b9a-9b00-2f84dfcebfe9",
           characteristics: [
             {
               name: "Notify",
@@ -107,7 +101,6 @@ export class FrezDyno extends NordicDfuDevice implements IFrezDyno {
             },
           ],
         },
-        createNordicDfuService(),
       ],
       commands: {
         TARE_SCALE: "d", // 100 (0x64)
@@ -115,8 +108,6 @@ export class FrezDyno extends NordicDfuDevice implements IFrezDyno {
         STOP_WEIGHT_MEAS: "f", // 102 (0x66)
         START_PEAK_RFD_MEAS: "g", // 103 (0x67)
         START_PEAK_RFD_MEAS_SERIES: "h", // 104 (0x68)
-        GET_FIRMWARE_VERSION: "k", // 107 (0x6b)
-        SLEEP: "n", // 110 (0x6e)
         GET_BATTERY_VOLTAGE: "o", // 111 (0x6f)
       },
     })
@@ -143,15 +134,11 @@ export class FrezDyno extends NordicDfuDevice implements IFrezDyno {
   }
 
   /**
-   * Retrieves firmware version through the Frez Dyno command characteristic.
+   * Retrieves firmware version from the standard Software Revision characteristic.
    * @returns {Promise<string | undefined>} A Promise that resolves with the firmware version.
    */
   firmware = async (): Promise<string | undefined> => {
-    let response: string | undefined = undefined
-    await this.write("frez-dyno", "tx", this.commands.GET_FIRMWARE_VERSION, 250, (data) => {
-      response = data
-    })
-    return response
+    return await this.software()
   }
 
   /**
@@ -178,15 +165,6 @@ export class FrezDyno extends NordicDfuDevice implements IFrezDyno {
     this.clearTareOffset()
     void this.write("frez-dyno", "tx", this.commands.TARE_SCALE, 0)
     return true
-  }
-
-  /**
-   * Puts the device to sleep / shutdown.
-   * @returns {Promise<void>} A Promise that resolves when the command is sent.
-   */
-  sleep = async (): Promise<void> => {
-    const cmd = this.commands.SLEEP
-    await this.write("frez-dyno", "tx", typeof cmd === "string" ? cmd : String(cmd), 0)
   }
 
   /**
@@ -251,8 +229,6 @@ export class FrezDyno extends NordicDfuDevice implements IFrezDyno {
       let output: string
       if (this.writeLast === this.commands.GET_BATTERY_VOLTAGE && payload.length >= 4) {
         output = new DataView(payload.buffer, payload.byteOffset, payload.byteLength).getUint32(0, true).toString()
-      } else if (this.writeLast === this.commands.GET_FIRMWARE_VERSION) {
-        output = new TextDecoder().decode(payload)
       } else {
         output = toHex(payload)
       }

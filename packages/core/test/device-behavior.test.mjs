@@ -60,6 +60,21 @@ describe("device behavior", () => {
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS, device.commands.STOP_WEIGHT_MEAS])
   })
 
+  it("reads Frez Dyno firmware from the Software Revision characteristic", async () => {
+    const device = new FrezDyno()
+    const reads = []
+
+    device.read = async (serviceId, characteristicId, duration) => {
+      reads.push([serviceId, characteristicId, duration])
+      return "1.2.3"
+    }
+
+    assert.equal(await device.firmware(), "1.2.3")
+    assert.deepEqual(reads, [["device", "software", 250]])
+    assert.equal("GET_FIRMWARE_VERSION" in device.commands, false)
+    assert.equal("SLEEP" in device.commands, false)
+  })
+
   it("stops CTS500 finite-duration streams", async () => {
     const device = new CTS500()
     let stopped = false
