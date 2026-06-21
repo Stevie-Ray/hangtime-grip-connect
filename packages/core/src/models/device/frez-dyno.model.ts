@@ -77,11 +77,11 @@ export class FrezDyno extends Device implements IFrezDyno {
           id: "device",
           uuid: "0000180a-0000-1000-8000-00805f9b34fb",
           characteristics: [
-            {
-              name: "Serial Number String",
-              id: "serial",
-              uuid: "00002a25-0000-1000-8000-00805f9b34fb",
-            },
+            // {
+            //   name: "Serial Number String (Blocked)",
+            //   id: "serial",
+            //   uuid: "00002a25-0000-1000-8000-00805f9b34fb",
+            // },
             {
               name: "Software Revision String",
               id: "software",
