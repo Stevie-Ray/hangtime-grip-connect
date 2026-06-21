@@ -3,6 +3,7 @@ import { setTimeout as delay } from "node:timers/promises"
 import { describe, it } from "node:test"
 
 import { CTS500, ForceBoard, FrezDyno } from "../dist/index.js"
+import { captureNotifications, frezRawWeightPacket } from "./helpers.mjs"
 
 describe("device behavior", () => {
   it("requires activity to remain above or below threshold for the configured duration", async () => {
@@ -58,6 +59,34 @@ describe("device behavior", () => {
     await device.stream(10)
 
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS, device.commands.STOP_WEIGHT_MEAS])
+  })
+
+  it("loads Frez Dyno calibration before streaming", async () => {
+    const lookupCalls = []
+    const device = new FrezDyno({
+      calibrationLookup: async (params) => {
+        lookupCalls.push(params)
+        return [
+          { raw: 1000, weight: 0 },
+          { raw: 2000, weight: 10 },
+        ]
+      },
+    })
+    const notifications = captureNotifications(device)
+    const writes = []
+
+    device.bluetooth = { name: "Frez Dyno 123" }
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+
+    await device.stream()
+    device.handleNotifications(frezRawWeightPacket([{ raw: 1500, timestampUs: 1000 }]))
+
+    assert.deepEqual(lookupCalls, [{ deviceName: "Frez Dyno 123" }])
+    assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
+    assert.equal(notifications.length, 1)
+    assert.equal(notifications[0].current, 5)
   })
 
   it("reads Frez Dyno firmware from the Software Revision characteristic", async () => {

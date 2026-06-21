@@ -4,6 +4,7 @@ import {
   Entralpi,
   ForceBoard,
   FrezDyno,
+  lookupFrezDynoRemoteCalibration,
   Motherboard,
   PB700BT,
   Progressor,
@@ -12,6 +13,7 @@ import {
 } from "@hangtime/grip-connect"
 import type { ConnectedDevice } from "./session.js"
 import { setActiveDevice } from "./session.js"
+import { loadFrezDynoCalibrationCache, loadPreferences, saveFrezDynoCalibrationCache } from "../settings/storage.js"
 
 type SupportedDevice = ConnectedDevice
 
@@ -20,7 +22,20 @@ function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "cts500") return new CTS500()
   if (deviceKey === "entralpi") return new Entralpi()
   if (deviceKey === "forceboard") return new ForceBoard()
-  if (deviceKey === "dyno") return new FrezDyno()
+  if (deviceKey === "dyno") {
+    const calibrationPoints = loadPreferences().frezDynoCalibrationPoints
+    return new FrezDyno({
+      ...(calibrationPoints ? { calibrationPoints } : {}),
+      calibrationLookup: async (params) => {
+        const cachedPoints = loadFrezDynoCalibrationCache(params)
+        if (cachedPoints) return cachedPoints
+
+        const remotePoints = await lookupFrezDynoRemoteCalibration(params)
+        if (remotePoints) saveFrezDynoCalibrationCache(params, remotePoints)
+        return remotePoints
+      },
+    })
+  }
   if (deviceKey === "motherboard") return new Motherboard()
   if (deviceKey === "pb700bt") return new PB700BT()
   if (deviceKey === "progressor") return new Progressor()

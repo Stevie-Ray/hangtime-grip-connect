@@ -1,9 +1,65 @@
 import type { IDevice } from "../device.interface.js"
 
+export interface FrezDynoCalibrationPoint {
+  /** Raw sensor count as emitted by the Frez Dyno. */
+  raw: number
+
+  /** Calibrated load in kilograms for the raw sensor count. */
+  weight: number
+}
+
+export type FrezDynoPacketFormat = "auto" | "float" | "raw"
+
+export interface FrezDynoCalibrationLookupParams {
+  deviceId?: string
+  deviceName?: string
+  deviceSerialNumber?: string
+}
+
+export type FrezDynoCalibrationLookup = (
+  params: FrezDynoCalibrationLookupParams,
+) => Promise<FrezDynoCalibrationPoint[] | null>
+
+export interface FrezDynoOptions {
+  /**
+   * Device-specific calibration points used to convert raw sensor counts to kg.
+   * The official Frez app loads these per device before starting measurements.
+   */
+  calibrationPoints?: FrezDynoCalibrationPoint[]
+
+  /**
+   * Optional serial number to use when loading factory calibration.
+   */
+  deviceSerialNumber?: string
+
+  /**
+   * Loads factory calibration by device name/serial. Defaults to the Frez app's
+   * public calibration RPC; pass null to disable automatic lookup.
+   */
+  calibrationLookup?: FrezDynoCalibrationLookup | null
+
+  /**
+   * Notification payload format. "auto" keeps compatibility with float packets
+   * and switches to raw parsing when a packet is clearly raw ADC/count data.
+   */
+  packetFormat?: FrezDynoPacketFormat
+}
+
 /**
  * Interface representing the Frez Dyno device, extending the base Device interface.
  */
 export interface IFrezDyno extends IDevice {
+  /**
+   * Sets calibration points used to convert Frez raw sensor counts to kilograms.
+   * @param {FrezDynoCalibrationPoint[]} points - At least two unique raw/weight points.
+   */
+  setRawCalibration(points: FrezDynoCalibrationPoint[]): void
+
+  /**
+   * Clears Frez raw sensor calibration points.
+   */
+  clearRawCalibration(): void
+
   /**
    * Retrieves battery level from the standard Battery service.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery percentage.
@@ -48,5 +104,5 @@ export interface IFrezDyno extends IDevice {
   stream(duration?: number): Promise<void>
 
   /** True if tare() uses device hardware tare rather than software averaging. */
-  readonly usesHardwareTare: true
+  readonly usesHardwareTare: false
 }

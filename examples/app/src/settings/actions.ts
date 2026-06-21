@@ -1,3 +1,4 @@
+import type { FrezDynoCalibrationPoint } from "@hangtime/grip-connect"
 import type { ConnectedDevice } from "../devices/session.js"
 import { setActiveDevice } from "../devices/session.js"
 import { parseBaudRate, parseSamplingRate } from "./rates.js"
@@ -11,6 +12,7 @@ export type SettingsActionId =
   | "system-info"
   | "calibration-read"
   | "calibration-set"
+  | "frez-raw-calibration-set"
   | "calibration-add-point"
   | "calibration-save"
   | "errors-read"
@@ -36,6 +38,32 @@ function parseCalibrationCurveInput(raw: string): Uint8Array | null {
   })
   if (bytes.some((value) => Number.isNaN(value))) return null
   return new Uint8Array(bytes)
+}
+
+function parseFrezRawCalibrationInput(raw: string): FrezDynoCalibrationPoint[] | null {
+  const parts = raw
+    .trim()
+    .split(/[\n;,]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (parts.length < 2) return null
+
+  const points: FrezDynoCalibrationPoint[] = []
+  for (const part of parts) {
+    const [rawText, weightText, extra] = part.split(/[:=]/)
+    if (extra !== undefined || rawText === undefined || weightText === undefined) return null
+
+    const rawValue = Number(rawText.trim())
+    const weight = Number(weightText.trim())
+    if (!Number.isFinite(rawValue) || !Number.isFinite(weight)) return null
+    points.push({ raw: rawValue, weight })
+  }
+
+  const rawValues = new Set(points.map(({ raw: rawValue }) => rawValue))
+  if (rawValues.size !== points.length) return null
+
+  return points
 }
 
 function formatDeviceDisplayName(device: ConnectedDevice): string {
@@ -344,6 +372,25 @@ export async function runSettingsAction(options: RunSettingsActionOptions): Prom
       }
       await device.setCalibration(curve)
       setFeedback(curve.length === 0 ? "Calibration reset." : "Calibration curve updated.")
+      return
+    }
+
+    if (action === "frez-raw-calibration-set") {
+      if (!device.setRawCalibration) {
+        setFeedback("Frez calibration override is not supported by this device.")
+        return
+      }
+
+      const input = appElement.querySelector<HTMLInputElement>("[data-settings-frez-calibration-input]")
+      const points = parseFrezRawCalibrationInput(input?.value ?? "")
+      if (!points) {
+        setFeedback("Invalid Frez override. Provide at least two raw:kg pairs.")
+        return
+      }
+
+      device.setRawCalibration(points)
+      savePreferences({ frezDynoCalibrationPoints: points })
+      setFeedback("Frez calibration override updated.")
       return
     }
 

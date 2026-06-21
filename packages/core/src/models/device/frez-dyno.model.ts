@@ -1,7 +1,23 @@
 import { Device } from "../device.model.js"
-import type { IFrezDyno } from "../../interfaces/device/frez-dyno.interface.js"
+import type {
+  FrezDynoCalibrationLookup,
+  FrezDynoCalibrationLookupParams,
+  FrezDynoCalibrationPoint,
+  FrezDynoOptions,
+  FrezDynoPacketFormat,
+  IFrezDyno,
+} from "../../interfaces/device/frez-dyno.interface.js"
 
 const ONE_SECOND_US = 1_000_000
+const FREZ_CALIBRATION_RPC = "https://cntqmiyjjjdgvigkzexf.supabase.co/rest/v1/rpc/get_calibration_secure"
+const FREZ_SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNudHFtaXlqampkZ3ZpZ2t6ZXhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NDcxNDAsImV4cCI6MjA0NzMyMzE0MH0.2kZau5xe2WMcYyVvUbd9qHMpYKvafQYK1Y7iJh40Amg"
+
+interface FrezDynoWeightSample {
+  raw: number
+  timestampUs: number
+  weight: number
+}
 
 /**
  * Frez Dyno responses.
@@ -44,14 +60,114 @@ function toHex(payload: Uint8Array, separator = " "): string {
     .join(separator)
 }
 
+function parseJsonMaybe(value: unknown): unknown {
+  if (typeof value !== "string") return value
+
+  try {
+    return JSON.parse(value) as unknown
+  } catch {
+    return value
+  }
+}
+
+function objectRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  return value as Record<string, unknown>
+}
+
+function readNumber(record: Record<string, unknown>, keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = record[key]
+    if (value == null) continue
+    const numericValue = Number(value)
+    if (Number.isFinite(numericValue)) return numericValue
+  }
+
+  return undefined
+}
+
+function parseRemoteCalibrationPoint(value: unknown): FrezDynoCalibrationPoint | null {
+  const record = objectRecord(value)
+  if (!record) return null
+
+  const raw = readNumber(record, ["raw", "rawValue", "raw_value", "adcValue", "adc_value", "adc", "value"])
+  const weight = readNumber(record, ["weight", "targetWeight", "target_weight", "kg", "load"])
+  if (raw === undefined || weight === undefined) return null
+
+  return { raw, weight }
+}
+
+function parseRemoteCalibrationPoints(payload: unknown): FrezDynoCalibrationPoint[] | null {
+  const normalizedPayload = parseJsonMaybe(payload)
+
+  if (Array.isArray(normalizedPayload)) {
+    const points = normalizedPayload.map(parseRemoteCalibrationPoint)
+    if (points.length >= 2 && points.every((point) => point !== null)) {
+      return points
+    }
+
+    for (const item of normalizedPayload) {
+      const nestedPoints = parseRemoteCalibrationPoints(item)
+      if (nestedPoints) return nestedPoints
+    }
+
+    return null
+  }
+
+  const record = objectRecord(normalizedPayload)
+  if (!record) return null
+
+  for (const key of ["calibration_points", "calibrationPoints", "points", "data"]) {
+    const points = parseRemoteCalibrationPoints(record[key])
+    if (points) return points
+  }
+
+  return null
+}
+
+export async function lookupFrezDynoRemoteCalibration(
+  params: FrezDynoCalibrationLookupParams,
+): Promise<FrezDynoCalibrationPoint[] | null> {
+  if (typeof fetch !== "function") return null
+  if (!params.deviceName && !params.deviceSerialNumber) return null
+
+  const response = await fetch(FREZ_CALIBRATION_RPC, {
+    method: "POST",
+    headers: {
+      apikey: FREZ_SUPABASE_ANON_KEY,
+      authorization: `Bearer ${FREZ_SUPABASE_ANON_KEY}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      p_device_name: params.deviceName ?? null,
+      p_device_serial_number: params.deviceSerialNumber ?? null,
+    }),
+  })
+
+  if (!response.ok) return null
+
+  const payload: unknown = await response.json()
+  return parseRemoteCalibrationPoints(payload)
+}
+
 /**
  * Represents a Frez Dyno device.
  */
 export class FrezDyno extends Device implements IFrezDyno {
+  private calibrationLookup: FrezDynoCalibrationLookup | null = lookupFrezDynoRemoteCalibration
+
+  private calibrationLookupAttempted = false
+
+  private calibrationPoints: FrezDynoCalibrationPoint[] = []
+
+  private deviceSerialNumber: string | undefined
+
+  private packetFormat: FrezDynoPacketFormat = "auto"
+
   /** Device timestamps in microseconds of recent samples (samples in last 1s device time). */
   private recentSampleTimestamps: number[] = []
 
-  constructor() {
+  constructor(options: FrezDynoOptions = {}) {
     super({
       filters: [{ namePrefix: "Frez" }, { services: ["da8a6c41-154b-4b9a-9b00-2f84dfcebfe9"] }],
       services: [
@@ -111,6 +227,38 @@ export class FrezDyno extends Device implements IFrezDyno {
         GET_BATTERY_VOLTAGE: "o", // 111 (0x6f)
       },
     })
+
+    this.packetFormat = options.packetFormat ?? "auto"
+    this.deviceSerialNumber = options.deviceSerialNumber
+    this.calibrationLookup =
+      options.calibrationLookup === undefined ? lookupFrezDynoRemoteCalibration : options.calibrationLookup
+    if (options.calibrationPoints) this.setRawCalibration(options.calibrationPoints)
+  }
+
+  setRawCalibration(points: FrezDynoCalibrationPoint[]): void {
+    if (points.length < 2) {
+      throw new Error("Frez Dyno calibration requires at least two points.")
+    }
+
+    const normalized = points.map(({ raw, weight }) => {
+      if (!Number.isFinite(raw) || !Number.isFinite(weight)) {
+        throw new Error("Frez Dyno calibration points must use finite raw and weight values.")
+      }
+
+      return { raw, weight }
+    })
+
+    const rawValues = new Set(normalized.map(({ raw }) => raw))
+    if (rawValues.size !== normalized.length) {
+      throw new Error("Frez Dyno calibration points must use unique raw values.")
+    }
+
+    this.calibrationPoints = normalized.sort((a, b) => a.raw - b.raw)
+  }
+
+  clearRawCalibration(): void {
+    this.calibrationPoints = []
+    this.calibrationLookupAttempted = false
   }
 
   /**
@@ -158,13 +306,10 @@ export class FrezDyno extends Device implements IFrezDyno {
   }
 
   /** True if tare() uses device hardware tare rather than software averaging. */
-  readonly usesHardwareTare = true
+  readonly usesHardwareTare = false
 
   override tare(duration = 5000): boolean {
-    void duration
-    this.clearTareOffset()
-    void this.write("frez-dyno", "tx", this.commands.TARE_SCALE, 0)
-    return true
+    return super.tare(duration)
   }
 
   /**
@@ -193,8 +338,7 @@ export class FrezDyno extends Device implements IFrezDyno {
 
       for (let i = 0; i < samplesPerPacket; i++) {
         const offset = 2 + i * 8
-        const weight = value.getFloat32(offset, true)
-        const timestampUs = value.getUint32(offset + 4, true)
+        const { raw, timestampUs, weight } = this.parseWeightSample(value, offset)
         if (Number.isNaN(weight)) continue
 
         const numericData = weight - this.applyTare(weight)
@@ -207,7 +351,7 @@ export class FrezDyno extends Device implements IFrezDyno {
         this.mean = this.sum / this.dataPointCount
 
         this.downloadPackets.push(
-          this.buildDownloadPacket(currentMassTotal, [weight], {
+          this.buildDownloadPacket(currentMassTotal, [raw], {
             timestamp: receivedTime,
             sampleIndex: timestampUs,
           }),
@@ -244,6 +388,102 @@ export class FrezDyno extends Device implements IFrezDyno {
     }
   }
 
+  private parseWeightSample(value: DataView, offset: number): FrezDynoWeightSample {
+    const timestampUs = value.getUint32(offset + 4, true)
+
+    if (this.packetFormat !== "raw") {
+      const weight = value.getFloat32(offset, true)
+      const rawBits = value.getUint32(offset, true)
+      if (this.packetFormat === "float" || this.isPlausibleFloatWeight(weight, rawBits)) {
+        return {
+          raw: weight,
+          timestampUs,
+          weight,
+        }
+      }
+    }
+
+    const rawSigned = value.getInt32(offset, true)
+    const rawUnsigned = value.getUint32(offset, true)
+    const raw = rawSigned >= 0 ? rawSigned : rawUnsigned
+    const weight = this.predictWeight(raw)
+
+    if (weight === undefined) {
+      const lookupStatus = this.calibrationLookupAttempted
+        ? " Automatic calibration lookup did not return usable points."
+        : ""
+      throw new Error(
+        `Frez Dyno sent raw sensor data (${raw}), but no calibration is configured.${lookupStatus} Call setRawCalibration() with at least two device-specific raw/weight points.`,
+      )
+    }
+
+    return {
+      raw,
+      timestampUs,
+      weight,
+    }
+  }
+
+  private isPlausibleFloatWeight(weight: number, rawBits: number): boolean {
+    if (!Number.isFinite(weight)) return false
+    if (Math.abs(weight) > 1000) return false
+
+    // Integer raw counts decode as denormal floats close to zero, which caused
+    // Frez readings to display as 0 when parsed like Progressor packets.
+    return rawBits === 0 || Math.abs(weight) >= 1e-30
+  }
+
+  private predictWeight(raw: number): number | undefined {
+    if (this.calibrationPoints.length < 2) return undefined
+
+    let lower = this.calibrationPoints[0]
+    let upper = this.calibrationPoints[1]
+
+    if (raw <= lower.raw) {
+      upper = this.calibrationPoints[1]
+    } else if (raw >= this.calibrationPoints[this.calibrationPoints.length - 1].raw) {
+      lower = this.calibrationPoints[this.calibrationPoints.length - 2]
+      upper = this.calibrationPoints[this.calibrationPoints.length - 1]
+    } else {
+      for (let i = 0; i < this.calibrationPoints.length - 1; i++) {
+        const current = this.calibrationPoints[i]
+        const next = this.calibrationPoints[i + 1]
+        if (raw >= current.raw && raw <= next.raw) {
+          lower = current
+          upper = next
+          break
+        }
+      }
+    }
+
+    const rawDelta = upper.raw - lower.raw
+    if (rawDelta === 0) return undefined
+
+    const ratio = (raw - lower.raw) / rawDelta
+    return lower.weight + ratio * (upper.weight - lower.weight)
+  }
+
+  private async ensureCalibrationLoaded(): Promise<void> {
+    if (this.calibrationPoints.length >= 2 || this.calibrationLookupAttempted || !this.calibrationLookup) return
+
+    const params: FrezDynoCalibrationLookupParams = {}
+    const deviceId = this.bluetooth?.id?.trim()
+    const deviceName = this.bluetooth?.name?.trim()
+    if (deviceId) params.deviceId = deviceId
+    if (deviceName) params.deviceName = deviceName
+    if (this.deviceSerialNumber) params.deviceSerialNumber = this.deviceSerialNumber
+    if (!params.deviceId && !params.deviceName && !params.deviceSerialNumber) return
+
+    this.calibrationLookupAttempted = true
+    try {
+      const points = await this.calibrationLookup(params)
+      if (points) this.setRawCalibration(points)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(`Frez Dyno calibration lookup failed: ${message}`)
+    }
+  }
+
   /**
    * Stops the data stream on the Frez Dyno.
    * @returns {Promise<void>} A promise that resolves when the stream is stopped.
@@ -261,6 +501,7 @@ export class FrezDyno extends Device implements IFrezDyno {
     this.resetSessionData()
     this.resetPacketTracking()
     this.recentSampleTimestamps = []
+    await this.ensureCalibrationLoaded()
 
     await this.write("frez-dyno", "tx", this.commands.START_WEIGHT_MEAS, duration)
 

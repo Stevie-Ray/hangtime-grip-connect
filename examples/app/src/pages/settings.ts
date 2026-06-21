@@ -37,6 +37,7 @@ interface CapabilityState {
   supportsSystemInfo: boolean
   supportsCalibrationRead: boolean
   supportsCalibrationSet: boolean
+  supportsFrezRawCalibration: boolean
   supportsCalibrationAddPoint: boolean
   supportsCalibrationSave: boolean
   supportsErrorInfo: boolean
@@ -68,6 +69,7 @@ function readCapabilities(): CapabilityState {
     ),
     supportsCalibrationRead: Boolean(device?.calibration),
     supportsCalibrationSet: Boolean(device?.setCalibration),
+    supportsFrezRawCalibration: Boolean(device?.setRawCalibration),
     supportsCalibrationAddPoint: Boolean(device?.addCalibrationPoint),
     supportsCalibrationSave: Boolean(device?.saveCalibration),
     supportsErrorInfo: Boolean(device?.errorInfo),
@@ -101,6 +103,7 @@ function renderSettingsList(): string {
       enabled:
         capabilities.supportsCalibrationRead ||
         capabilities.supportsCalibrationSet ||
+        capabilities.supportsFrezRawCalibration ||
         capabilities.supportsCalibrationAddPoint,
     },
     {
@@ -325,6 +328,11 @@ function renderBaudRatePage(): string {
 
 function renderCalibrationPage(): string {
   const capabilities = readCapabilities()
+  const frezCalibrationValue =
+    loadPreferences()
+      .frezDynoCalibrationPoints?.map(({ raw, weight }) => `${raw}:${weight}`)
+      .join(", ") ?? ""
+
   return `
     <section class="session-page" aria-label="Settings">
       <div class="page-title-row">
@@ -337,6 +345,11 @@ function renderCalibrationPage(): string {
         <input type="text" placeholder="e.g. 00 00 00 00 11 22 33 44 55 66 77 88" data-settings-calibration-input />
       </label>
       <button type="button" data-settings-action="calibration-set" ${!capabilities.supportsCalibrationSet ? "disabled" : ""}>Set Calibration</button>
+      <label>
+        Frez calibration override
+        <input type="text" placeholder="e.g. 1000:0, 3000:20" value="${frezCalibrationValue}" data-settings-frez-calibration-input />
+      </label>
+      <button type="button" data-settings-action="frez-raw-calibration-set" ${!capabilities.supportsFrezRawCalibration ? "disabled" : ""}>Set Frez Override</button>
       <button type="button" data-settings-action="calibration-add-point" ${!capabilities.supportsCalibrationAddPoint ? "disabled" : ""}>Add Calibration Point</button>
       <button type="button" data-settings-action="calibration-save" ${!capabilities.supportsCalibrationSave ? "disabled" : ""}>Save Calibration</button>
       <p id="settings-status">${getActiveDevice() ? "Ready." : "No connected device."}</p>

@@ -19,6 +19,7 @@ import {
   cts500WeightFrameBytes,
   dataView,
   forceBoardPacket,
+  frezRawWeightPacket,
   int16LePacket,
   muteConsole,
   offsetDataView,
@@ -142,7 +143,7 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.samplingRateHz, 2)
   })
 
-  it("parses Frez Dyno weight packets and device-timestamp sampling rate", () => {
+  it("parses Frez Dyno float weight packets and device-timestamp sampling rate", () => {
     const device = new FrezDyno()
     const notifications = captureNotifications(device)
 
@@ -163,6 +164,44 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.sampleIndex, 2)
     assert.equal(notifications[1].performance.samplesPerPacket, 2)
     assert.equal(notifications[1].performance.samplingRateHz, 2)
+  })
+
+  it("parses Frez Dyno raw weight packets with calibration", () => {
+    const device = new FrezDyno({
+      calibrationPoints: [
+        { raw: 1000, weight: 0 },
+        { raw: 3000, weight: 20 },
+      ],
+    })
+    const notifications = captureNotifications(device)
+
+    device.handleNotifications(
+      frezRawWeightPacket([
+        { raw: 1500, timestampUs: 1000 },
+        { raw: 2500, timestampUs: 250000 },
+      ]),
+    )
+
+    assert.equal(notifications.length, 2)
+    assert.equal(notifications[0].current, 5)
+    assert.equal(notifications[1].current, 15)
+    assert.equal(notifications[1].peak, 15)
+    assert.equal(notifications[1].mean, 10)
+    assert.equal(notifications[1].min, 5)
+    assert.equal(notifications[1].performance.packetIndex, 1)
+    assert.equal(notifications[1].performance.sampleIndex, 2)
+    assert.equal(notifications[1].performance.samplesPerPacket, 2)
+    assert.equal(notifications[1].performance.samplingRateHz, 2)
+  })
+
+  it("fails clearly when Frez Dyno raw packets arrive without calibration", () => {
+    const device = new FrezDyno()
+    const notifications = captureNotifications(device)
+
+    assert.throws(() => {
+      device.handleNotifications(frezRawWeightPacket([{ raw: 1500, timestampUs: 1000 }]))
+    }, /raw sensor data/)
+    assert.equal(notifications.length, 0)
   })
 
   it("routes Progressor command responses through the write callback", () => {

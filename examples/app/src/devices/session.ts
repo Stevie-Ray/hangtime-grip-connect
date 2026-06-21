@@ -1,4 +1,4 @@
-import type { ForceMeasurement, ForceUnit } from "@hangtime/grip-connect"
+import type { ForceMeasurement, ForceUnit, FrezDynoCalibrationPoint } from "@hangtime/grip-connect"
 import type { DeviceBaudRate, DeviceSamplingRate } from "../settings/rates.js"
 
 export interface ConnectedDevice {
@@ -15,6 +15,7 @@ export interface ConnectedDevice {
   setSamplingRate?(samplingRate: DeviceSamplingRate): Promise<void>
   calibration?(): Promise<unknown>
   setCalibration?(curve: Uint8Array): Promise<void>
+  setRawCalibration?(points: FrezDynoCalibrationPoint[]): void
   addCalibrationPoint?(): Promise<void>
   saveCalibration?(): Promise<void>
   errorInfo?(): Promise<string | undefined>
