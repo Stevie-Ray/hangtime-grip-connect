@@ -144,7 +144,7 @@ describe("device notification parsers", () => {
   })
 
   it("parses Frez Dyno float weight packets and device-timestamp sampling rate", () => {
-    const device = new FrezDyno()
+    const device = new FrezDyno({ packetFormat: "float" })
     const notifications = captureNotifications(device)
 
     device.handleNotifications(

@@ -97,7 +97,11 @@ export async function renderApp(options: RenderAppOptions): Promise<void> {
     const device = getActiveDevice()
     if (device && !state.isDeviceTared && typeof device.tare === "function") {
       const canStart = await ensureOneTimeTareForSession()
-      if (!canStart) return
+      if (!canStart) {
+        const statusElement = appElement.querySelector<HTMLElement>("#session-status")
+        if (statusElement) statusElement.textContent = "Session cancelled before tare completed."
+        return
+      }
     }
     renderSessionChart(actionId)
   }

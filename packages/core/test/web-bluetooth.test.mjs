@@ -7,6 +7,7 @@ import {
   CTS500,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   Motherboard,
   mySmartBoard,
   PB700BT,
@@ -27,6 +28,12 @@ describe("WebBluetoothMock", () => {
     const devices = [
       new Motherboard(),
       new Progressor(),
+      new FrezDyno({
+        calibrationPoints: [
+          { raw: 1000, weight: 0 },
+          { raw: 2000, weight: 10 },
+        ],
+      }),
       new ForceBoard(),
       new Climbro(),
       new Entralpi(),
@@ -80,10 +87,55 @@ describe("WebBluetoothMock", () => {
 
     await device.write("progressor", "tx", "e")
     assert.deepEqual([...tx.lastWrite], [101])
+    assert.equal(tx.lastWriteMethod, "writeValueWithoutResponse")
 
     rx.emitValueChanged(progressorWeightPacket([{ weight: 12.5, timestampUs: 1000 }]))
     assert.equal(notifications.length, 1)
     assert.equal(notifications[0].current, 12.5)
+  })
+
+  it("falls back to write-with-response when write-without-response is unavailable", async (t) => {
+    const device = new Progressor()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const progressorService = bluetoothDevice.getServiceMock("7e4e1701-1ea6-40c9-9dcc-13d34ffead57")
+    const tx = progressorService.getCharacteristicMock("7e4e1703-1ea6-40c9-9dcc-13d34ffead57")
+    tx.properties.writeWithoutResponse = false
+
+    await device.write("progressor", "tx", "e")
+
+    assert.deepEqual([...tx.lastWrite], [101])
+    assert.equal(tx.lastWriteMethod, "writeValueWithResponse")
+  })
+
+  it("starts Frez Dyno streams with write-without-response", async (t) => {
+    const device = new FrezDyno({
+      calibrationPoints: [
+        { raw: 1000, weight: 0 },
+        { raw: 2000, weight: 10 },
+      ],
+    })
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const frezService = bluetoothDevice.getServiceMock("da8a6c41-154b-4b9a-9b00-2f84dfcebfe9")
+    const tx = frezService.getCharacteristicMock("da8a6c43-154b-4b9a-9b00-2f84dfcebfe9")
+
+    await device.stream()
+
+    assert.deepEqual([...tx.lastWrite], [101])
+    assert.equal(tx.lastWriteMethod, "writeValueWithoutResponse")
   })
 
   it("supports characteristic read values", async (t) => {

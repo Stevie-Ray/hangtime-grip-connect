@@ -12,12 +12,34 @@ async function runFallbackTarePrompt(device: NonNullable<ReturnType<typeof getAc
   )
   if (!confirmed) return false
 
-  const started = device.tare?.(1000)
-  if (!started) return false
-  if (!usesHardwareTare(device)) {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  const hardwareTare = usesHardwareTare(device)
+  const streamForTare = typeof device.stream === "function" ? device.stream.bind(device) : undefined
+  let streamStarted = false
+
+  if (hardwareTare && streamForTare) {
+    try {
+      await streamForTare()
+      streamStarted = true
+    } catch (error: unknown) {
+      window.alert(error instanceof Error ? error.message : "Failed to start stream for tare.")
+      return false
+    }
   }
-  return true
+
+  try {
+    const started = device.tare?.(1000)
+    if (!started) return false
+    await new Promise((resolve) => setTimeout(resolve, hardwareTare ? 250 : 1000))
+    return true
+  } finally {
+    if (streamStarted) {
+      try {
+        await device.stop?.()
+      } catch {
+        // Ignore stop errors during fallback tare cleanup.
+      }
+    }
+  }
 }
 
 async function runGuidedTareDialog(): Promise<boolean> {
@@ -34,13 +56,12 @@ async function runGuidedTareDialog(): Promise<boolean> {
   dialog.className = "tare-dialog"
   dialog.innerHTML = `
     <form method="dialog" class="tare-dialog-form">
-  
       <p>We're now ready, please tare your device before use.</p>
-   
       <p class="tare-dialog-current"><strong data-tare-current>0.0</strong> <span data-tare-unit>kg</span></p>
-    
+      <p class="tare-dialog-status" data-tare-status>Starting live stream...</p>
       <menu class="tare-dialog-actions">
-        <button type="button" value="confirm" data-tare-confirm>Tare</button>
+        <button type="button" value="cancel" data-tare-cancel>Cancel</button>
+        <button type="button" value="confirm" data-tare-confirm disabled>Tare</button>
       </menu>
     </form>
   `
@@ -50,28 +71,18 @@ async function runGuidedTareDialog(): Promise<boolean> {
   const statusElement = dialog.querySelector<HTMLElement>("[data-tare-status]")
   const unitElement = dialog.querySelector<HTMLElement>("[data-tare-unit]")
   const confirmButton = dialog.querySelector<HTMLButtonElement>("[data-tare-confirm]")
+  const cancelButton = dialog.querySelector<HTMLButtonElement>("[data-tare-cancel]")
   const { unit } = loadPreferences()
   if (unitElement) unitElement.textContent = unit
 
   let done = false
+  let streamStarted = false
+  const hardwareTare = usesHardwareTare(device)
+
   const closeDialog = (ok: boolean): void => {
     if (done) return
     done = true
     dialog.close(ok ? "confirm" : "cancel")
-  }
-
-  const streamFn = device.stream
-  if (typeof streamFn === "function") {
-    try {
-      await streamFn()
-      if (statusElement) statusElement.textContent = "Live stream active."
-    } catch (error: unknown) {
-      if (statusElement) {
-        statusElement.textContent = error instanceof Error ? error.message : "Failed to start stream for tare."
-      }
-    }
-  } else if (statusElement) {
-    statusElement.textContent = "Device stream is unavailable. Running tare directly."
   }
 
   device.notify((data) => {
@@ -80,6 +91,28 @@ async function runGuidedTareDialog(): Promise<boolean> {
     currentElement.textContent = current.toFixed(1)
   }, unit)
 
+  const streamForTare = typeof device.stream === "function" ? device.stream.bind(device) : undefined
+  const startStreamForTare = async (): Promise<void> => {
+    if (!streamForTare) {
+      if (statusElement) statusElement.textContent = "Device stream is unavailable. Running tare directly."
+      if (confirmButton && !done) confirmButton.disabled = false
+      return
+    }
+
+    try {
+      await streamForTare()
+      streamStarted = true
+      if (statusElement && !done) {
+        statusElement.textContent = "Live stream active. Keep the device unloaded, then press Tare."
+      }
+      if (confirmButton && !done) confirmButton.disabled = false
+    } catch (error: unknown) {
+      if (statusElement && !done) {
+        statusElement.textContent = error instanceof Error ? error.message : "Failed to start stream for tare."
+      }
+    }
+  }
+
   if (confirmButton) {
     confirmButton.onclick = async () => {
       if (done) return
@@ -87,13 +120,16 @@ async function runGuidedTareDialog(): Promise<boolean> {
       if (statusElement) statusElement.textContent = "Running tare..."
 
       try {
+        if (hardwareTare && streamForTare && !streamStarted) {
+          throw new Error("Cannot tare before the live stream is active.")
+        }
+
         const started = device.tare?.(1000)
         if (!started) {
           throw new Error("Tare could not be started.")
         }
-        if (!usesHardwareTare(device)) {
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        }
+
+        await new Promise((resolve) => setTimeout(resolve, hardwareTare ? 250 : 1000))
         if (statusElement) statusElement.textContent = "Tare complete."
         closeDialog(true)
       } catch (error: unknown) {
@@ -105,13 +141,20 @@ async function runGuidedTareDialog(): Promise<boolean> {
     }
   }
 
+  if (cancelButton) {
+    cancelButton.onclick = () => {
+      closeDialog(false)
+    }
+  }
+
   dialog.addEventListener("cancel", (event) => {
     event.preventDefault()
+    closeDialog(false)
   })
 
   dialog.showModal()
 
-  const result = await new Promise<boolean>((resolve) => {
+  const resultPromise = new Promise<boolean>((resolve) => {
     dialog.addEventListener(
       "close",
       () => {
@@ -120,6 +163,10 @@ async function runGuidedTareDialog(): Promise<boolean> {
       { once: true },
     )
   })
+
+  void startStreamForTare()
+
+  const result = await resultPromise
 
   try {
     await device.stop?.()

@@ -66,6 +66,7 @@ export function createDeviceMockFromGripDevice(device, options = {}) {
 export class CharacteristicMock extends EventTarget {
   value
   lastWrite
+  lastWriteMethod
   properties = {
     authenticatedSignedWrites: false,
     broadcast: false,
@@ -100,16 +101,19 @@ export class CharacteristicMock extends EventTarget {
 
   writeValue(value) {
     this.lastWrite = toUint8Array(value)
+    this.lastWriteMethod = "writeValue"
     return Promise.resolve()
   }
 
   writeValueWithoutResponse(value) {
     this.lastWrite = toUint8Array(value)
+    this.lastWriteMethod = "writeValueWithoutResponse"
     return Promise.resolve()
   }
 
   writeValueWithResponse(value) {
     this.lastWrite = toUint8Array(value)
+    this.lastWriteMethod = "writeValueWithResponse"
     return Promise.resolve()
   }
 

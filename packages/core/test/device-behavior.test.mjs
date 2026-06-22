@@ -49,7 +49,12 @@ describe("device behavior", () => {
   })
 
   it("stops Frez Dyno finite-duration streams", async () => {
-    const device = new FrezDyno()
+    const device = new FrezDyno({
+      calibrationPoints: [
+        { raw: 1000, weight: 0 },
+        { raw: 2000, weight: 10 },
+      ],
+    })
     const writes = []
 
     device.write = async (_serviceId, _characteristicId, message) => {
@@ -59,6 +64,18 @@ describe("device behavior", () => {
     await device.stream(10)
 
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS, device.commands.STOP_WEIGHT_MEAS])
+  })
+
+  it("requires Frez Dyno calibration before default raw streaming", async () => {
+    const device = new FrezDyno({ calibrationLookup: null })
+    const writes = []
+
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+
+    await assert.rejects(device.stream(), /without calibration data/)
+    assert.deepEqual(writes, [])
   })
 
   it("loads Frez Dyno calibration before streaming", async () => {
@@ -87,6 +104,34 @@ describe("device behavior", () => {
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
     assert.equal(notifications.length, 1)
     assert.equal(notifications[0].current, 5)
+  })
+
+  it("tares Frez Dyno with the hardware command after measurement starts", async () => {
+    const device = new FrezDyno({
+      calibrationPoints: [
+        { raw: 1000, weight: 0 },
+        { raw: 2000, weight: 10 },
+      ],
+    })
+    const writes = []
+
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+
+    assert.equal(device.usesHardwareTare, true)
+    const warn = console.warn
+    console.warn = () => undefined
+    try {
+      assert.equal(device.tare(), false)
+    } finally {
+      console.warn = warn
+    }
+    assert.deepEqual(writes, [])
+
+    await device.stream()
+    assert.equal(device.tare(), true)
+    assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS, device.commands.TARE_SCALE])
   })
 
   it("reads Frez Dyno firmware from the Software Revision characteristic", async () => {

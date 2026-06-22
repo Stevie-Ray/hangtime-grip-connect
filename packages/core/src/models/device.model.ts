@@ -1212,15 +1212,42 @@ export abstract class Device extends BaseModel implements IDevice {
     // Convert the message to Uint8Array if it's a string
     const valueToWrite =
       typeof message === "string" ? new Uint8Array(new TextEncoder().encode(message)) : new Uint8Array(message)
-    // Write the value to the characteristic
-    await characteristic.writeValue(valueToWrite)
-    // Update the last written message
+
+    const previousWriteLast = this.writeLast
+    const previousWriteCallback = this.writeCallback
+
+    // Set response routing before writing so fast notification responses are not missed.
     this.writeLast = message
-    // Assign the provided callback to `writeCallback`
     this.writeCallback = callback
+
+    try {
+      if (this.canUseWriteWithoutResponse(characteristic)) {
+        await characteristic.writeValueWithoutResponse(valueToWrite)
+      } else if (this.canUseWriteWithResponse(characteristic)) {
+        await characteristic.writeValueWithResponse(valueToWrite)
+      } else {
+        await characteristic.writeValue(valueToWrite)
+      }
+    } catch (error) {
+      this.writeLast = previousWriteLast
+      this.writeCallback = previousWriteCallback
+      throw error
+    }
+
     // If a duration is specified, resolve the promise after the duration
     if (duration > 0) {
       await new Promise<void>((resolve) => setTimeout(resolve, duration))
     }
+  }
+
+  private canUseWriteWithoutResponse(characteristic: BluetoothRemoteGATTCharacteristic): boolean {
+    return (
+      characteristic.properties.writeWithoutResponse !== false &&
+      typeof characteristic.writeValueWithoutResponse === "function"
+    )
+  }
+
+  private canUseWriteWithResponse(characteristic: BluetoothRemoteGATTCharacteristic): boolean {
+    return characteristic.properties.write !== false && typeof characteristic.writeValueWithResponse === "function"
   }
 }

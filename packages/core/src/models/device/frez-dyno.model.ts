@@ -162,10 +162,14 @@ export class FrezDyno extends Device implements IFrezDyno {
 
   private deviceSerialNumber: string | undefined
 
-  private packetFormat: FrezDynoPacketFormat = "auto"
+  private packetFormat: FrezDynoPacketFormat = "raw"
+
+  private requireCalibration = true
 
   /** Device timestamps in microseconds of recent samples (samples in last 1s device time). */
   private recentSampleTimestamps: number[] = []
+
+  private measurementActive = false
 
   constructor(options: FrezDynoOptions = {}) {
     super({
@@ -228,7 +232,8 @@ export class FrezDyno extends Device implements IFrezDyno {
       },
     })
 
-    this.packetFormat = options.packetFormat ?? "auto"
+    this.packetFormat = options.packetFormat ?? "raw"
+    this.requireCalibration = options.requireCalibration ?? this.packetFormat !== "float"
     this.deviceSerialNumber = options.deviceSerialNumber
     this.calibrationLookup =
       options.calibrationLookup === undefined ? lookupFrezDynoRemoteCalibration : options.calibrationLookup
@@ -306,10 +311,20 @@ export class FrezDyno extends Device implements IFrezDyno {
   }
 
   /** True if tare() uses device hardware tare rather than software averaging. */
-  readonly usesHardwareTare = false
+  readonly usesHardwareTare = true
 
   override tare(duration = 5000): boolean {
-    return super.tare(duration)
+    void duration // Accepted for API compatibility; hardware tare ignores it
+    if (!this.measurementActive) {
+      console.warn("Frez Dyno tare skipped: active measurement required.")
+      return false
+    }
+    this.clearTareOffset()
+    void this.write("frez-dyno", "tx", this.commands.TARE_SCALE, 0).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(`Frez Dyno tare failed: ${message}`)
+    })
+    return true
   }
 
   /**
@@ -484,12 +499,29 @@ export class FrezDyno extends Device implements IFrezDyno {
     }
   }
 
+  private assertCanStartMeasurement(): void {
+    if (!this.requireCalibration || this.calibrationPoints.length >= 2) return
+
+    const lookupStatus = !this.calibrationLookup
+      ? " Automatic calibration lookup is disabled."
+      : this.calibrationLookupAttempted
+        ? " Automatic calibration lookup did not return usable points."
+        : " No device name or serial number was available for automatic calibration lookup."
+    throw new Error(
+      `Cannot start Frez Dyno measurement without calibration data.${lookupStatus} Configure calibrationPoints or call setRawCalibration() with at least two device-specific raw/weight points.`,
+    )
+  }
+
   /**
    * Stops the data stream on the Frez Dyno.
    * @returns {Promise<void>} A promise that resolves when the stream is stopped.
    */
   stop = async (): Promise<void> => {
-    await this.write("frez-dyno", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
+    try {
+      await this.write("frez-dyno", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
+    } finally {
+      this.measurementActive = false
+    }
   }
 
   /**
@@ -498,14 +530,18 @@ export class FrezDyno extends Device implements IFrezDyno {
    * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
    */
   stream = async (duration = 0): Promise<void> => {
+    this.measurementActive = false
     this.resetSessionData()
     this.resetPacketTracking()
     this.recentSampleTimestamps = []
     await this.ensureCalibrationLoaded()
+    this.assertCanStartMeasurement()
 
-    await this.write("frez-dyno", "tx", this.commands.START_WEIGHT_MEAS, duration)
+    await this.write("frez-dyno", "tx", this.commands.START_WEIGHT_MEAS, 0)
+    this.measurementActive = true
 
     if (duration !== 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, duration))
       await this.stop()
     }
   }

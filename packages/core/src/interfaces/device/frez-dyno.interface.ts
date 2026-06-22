@@ -39,10 +39,17 @@ export interface FrezDynoOptions {
   calibrationLookup?: FrezDynoCalibrationLookup | null
 
   /**
-   * Notification payload format. "auto" keeps compatibility with float packets
-   * and switches to raw parsing when a packet is clearly raw ADC/count data.
+   * Notification payload format. Defaults to "raw" because the official Frez
+   * app receives ADC values and converts them with device calibration points.
+   * Use "float" or "auto" only for compatibility experiments.
    */
   packetFormat?: FrezDynoPacketFormat
+
+  /**
+   * Require calibration before stream() starts. Defaults to true except when
+   * packetFormat is explicitly "float".
+   */
+  requireCalibration?: boolean
 }
 
 /**
@@ -104,5 +111,5 @@ export interface IFrezDyno extends IDevice {
   stream(duration?: number): Promise<void>
 
   /** True if tare() uses device hardware tare rather than software averaging. */
-  readonly usesHardwareTare: false
+  readonly usesHardwareTare: true
 }
