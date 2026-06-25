@@ -106,6 +106,38 @@ describe("device behavior", () => {
     assert.equal(notifications[0].current, 5)
   })
 
+  it("uses Frez Dyno serial for calibration lookup before streaming", async () => {
+    const lookupCalls = []
+    const reads = []
+    const writes = []
+    const device = new FrezDyno({
+      calibrationLookup: async (params) => {
+        lookupCalls.push(params)
+        return [
+          { raw: 1000, weight: 0 },
+          { raw: 2000, weight: 10 },
+        ]
+      },
+    })
+
+    device.bluetooth = { id: "opaque-device-id", name: "Frez Dyno 123", gatt: { connected: true } }
+    device.read = async (serviceId, characteristicId, duration) => {
+      reads.push([serviceId, characteristicId, duration])
+      return "SER123"
+    }
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+
+    await device.stream()
+
+    assert.deepEqual(reads, [["device", "serial", 250]])
+    assert.deepEqual(lookupCalls, [
+      { deviceId: "opaque-device-id", deviceName: "Frez Dyno 123", deviceSerialNumber: "SER123" },
+    ])
+    assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
+  })
+
   it("tares Frez Dyno with the hardware command after measurement starts", async () => {
     const device = new FrezDyno({
       calibrationPoints: [

@@ -136,6 +136,17 @@ export function uint32BePacket(values) {
   return view
 }
 
+export function uint32LePacket(values) {
+  const bytes = new Uint8Array(values.length * 4)
+  const view = new DataView(bytes.buffer)
+
+  values.forEach((value, index) => {
+    view.setUint32(index * 4, value, true)
+  })
+
+  return view
+}
+
 function checksum(bytes) {
   return bytes.reduce((sum, byte) => (sum + byte) & 0xff, 0)
 }

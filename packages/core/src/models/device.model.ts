@@ -1016,8 +1016,8 @@ export abstract class Device extends BaseModel implements IDevice {
                 this.notificationListeners.set(descriptor.uuid, listener)
               }
             }
-          } else if (matchingService.id === "dfu") {
-            // App mode exposes buttonless only, bootloader exposes control+packet only.
+          } else if (characteristic.optional || matchingService.id === "dfu") {
+            // Optional characteristics may be absent. DFU exposes different characteristics in app vs bootloader mode.
             delete characteristic.characteristic
             continue
           } else {

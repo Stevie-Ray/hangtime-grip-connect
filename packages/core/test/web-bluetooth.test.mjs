@@ -182,6 +182,44 @@ describe("WebBluetoothMock", () => {
     assert.equal(device.isConnected(), false)
   })
 
+  it("connects Frez Dyno when the optional serial characteristic is hidden", async (t) => {
+    const device = new FrezDyno({
+      calibrationPoints: [
+        { raw: 1000, weight: 0 },
+        { raw: 2000, weight: 10 },
+      ],
+    })
+    const bluetoothDevice = new BluetoothDeviceMock({
+      name: "Frez Dyno Mock",
+      advertisedServices: device.services.map((service) => service.uuid),
+      services: device.services.map((service) =>
+        service.id === "device"
+          ? {
+              ...service,
+              characteristics: service.characteristics.filter((characteristic) => characteristic.id !== "serial"),
+            }
+          : service,
+      ),
+    })
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+    let connected = false
+    let connectionError
+
+    await device.connect(
+      () => {
+        connected = true
+      },
+      (error) => {
+        connectionError = error
+      },
+    )
+
+    assert.equal(connectionError, undefined)
+    assert.equal(connected, true)
+    assert.equal(device.isConnected(), true)
+    assert.equal(await device.serial(), undefined)
+  })
+
   it("cleans up when notification startup fails", async (t) => {
     const device = new Progressor()
     const bluetoothDevice = createDeviceMockFromGripDevice(device)

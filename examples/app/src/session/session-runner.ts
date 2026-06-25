@@ -22,6 +22,7 @@ import { releaseWakeLock } from "../app/core/wake-lock.js"
 
 let sessionChart: Chart | null = null
 let stopActiveSession: (() => Promise<void>) | null = null
+const NO_SAMPLES_WARNING_MS = 3000
 
 type RfdAnalyzeMode = "20-80" | "100" | "150" | "200" | "250" | "300" | "1000"
 
@@ -156,6 +157,16 @@ export function renderSessionChart(actionId: string): void {
     resetChartData(sessionChart)
   }
 
+  const updateSessionStatus = (): void => {
+    const elapsedMs = Date.now() - startedAt
+    if (points.length === 0 && elapsedMs >= NO_SAMPLES_WARNING_MS) {
+      statusElement.textContent = "No samples received from the device yet."
+      return
+    }
+    if (!module.getStatus) return
+    statusElement.textContent = module.getStatus(elapsedMs, config)
+  }
+
   const saveResultWithMetadata = async (result: SessionResult): Promise<boolean> => {
     const metadata = await promptSaveMeasurementInput(module.id)
     if (!metadata) return false
@@ -182,6 +193,24 @@ export function renderSessionChart(actionId: string): void {
     device.notify(() => undefined)
     stopActiveSession = null
     await releaseWakeLock()
+
+    if (points.length === 0) {
+      pendingResult = null
+      statusElement.textContent = options?.statusMessage ?? "No samples recorded."
+      if (resultElement) resultElement.innerHTML = ""
+
+      if (!isLiveData) {
+        stopButton.disabled = true
+        stopButton.hidden = true
+        resetButton.textContent = "Cancel"
+        resetButton.disabled = false
+        resetButton.hidden = false
+        resetButton.onclick = () => {
+          navigateTo("?")
+        }
+      }
+      return
+    }
 
     const result = module.summarize(points, config)
     pendingResult = result
@@ -371,11 +400,7 @@ export function renderSessionChart(actionId: string): void {
         if (finished) return
 
         statusElement.textContent = ""
-        statusTimer = setInterval(() => {
-          if (!module.getStatus) return
-          const elapsedMs = Date.now() - startedAt
-          statusElement.textContent = module.getStatus(elapsedMs, config)
-        }, 100)
+        statusTimer = setInterval(updateSessionStatus, 100)
 
         await streamPromise
         if (durationMs != null) {
@@ -390,11 +415,7 @@ export function renderSessionChart(actionId: string): void {
 
     startedAt = Date.now()
     statusElement.textContent = ""
-    statusTimer = setInterval(() => {
-      if (!module.getStatus) return
-      const elapsedMs = Date.now() - startedAt
-      statusElement.textContent = module.getStatus(elapsedMs, config)
-    }, 100)
+    statusTimer = setInterval(updateSessionStatus, 100)
 
     try {
       try {

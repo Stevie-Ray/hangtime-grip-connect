@@ -12,6 +12,8 @@ interface Characteristic {
   id: string
   /** UUID of the characteristic */
   uuid: string
+  /** Whether this characteristic can be absent without failing connection setup */
+  optional?: boolean
   /** Reference to the characteristic object */
   characteristic?: BluetoothRemoteGATTCharacteristic
 }

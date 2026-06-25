@@ -100,6 +100,14 @@ async function readSystemInfo(device: ConnectedDevice): Promise<string> {
       read: async (deviceRef) => (typeof deviceRef.firmware === "function" ? deviceRef.firmware() : undefined),
     },
     {
+      key: "serial",
+      signature: "serial()",
+      kind: "read",
+      description: "Device serial number.",
+      label: "Serial",
+      read: async (deviceRef) => (typeof deviceRef.serial === "function" ? deviceRef.serial() : undefined),
+    },
+    {
       key: "certification",
       signature: "certification()",
       kind: "read",

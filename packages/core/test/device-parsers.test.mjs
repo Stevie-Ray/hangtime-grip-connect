@@ -26,6 +26,7 @@ import {
   progressorWeightPacket,
   textView,
   uint32BePacket,
+  uint32LePacket,
 } from "./helpers.mjs"
 
 describe("device notification parsers", () => {
@@ -192,6 +193,27 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.sampleIndex, 2)
     assert.equal(notifications[1].performance.samplesPerPacket, 2)
     assert.equal(notifications[1].performance.samplingRateHz, 2)
+  })
+
+  it("parses Frez Dyno unframed raw ADC packets with calibration", () => {
+    const device = new FrezDyno({
+      calibrationPoints: [
+        { raw: 1000, weight: 0 },
+        { raw: 3000, weight: 20 },
+      ],
+    })
+    const notifications = captureNotifications(device)
+
+    device.handleNotifications(uint32LePacket([1500, 2500]))
+
+    assert.equal(notifications.length, 2)
+    assert.equal(notifications[0].current, 5)
+    assert.equal(notifications[1].current, 15)
+    assert.equal(notifications[1].peak, 15)
+    assert.equal(notifications[1].mean, 10)
+    assert.equal(notifications[1].performance.packetIndex, 1)
+    assert.equal(notifications[1].performance.sampleIndex > 0, true)
+    assert.equal(notifications[1].performance.samplesPerPacket, 2)
   })
 
   it("fails clearly when Frez Dyno raw packets arrive without calibration", () => {

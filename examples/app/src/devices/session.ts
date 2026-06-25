@@ -11,6 +11,7 @@ export interface ConnectedDevice {
   tare?(duration?: number): boolean
   battery?(): Promise<string | undefined>
   firmware?(): Promise<string | undefined>
+  serial?(): Promise<string | undefined>
   setBaudRate?(baudRate: DeviceBaudRate): Promise<void>
   setSamplingRate?(samplingRate: DeviceSamplingRate): Promise<void>
   calibration?(): Promise<unknown>

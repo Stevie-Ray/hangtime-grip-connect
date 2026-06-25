@@ -197,11 +197,12 @@ export class FrezDyno extends Device implements IFrezDyno {
           id: "device",
           uuid: "0000180a-0000-1000-8000-00805f9b34fb",
           characteristics: [
-            // {
-            //   name: "Serial Number String (Blocked)",
-            //   id: "serial",
-            //   uuid: "00002a25-0000-1000-8000-00805f9b34fb",
-            // },
+            {
+              name: "Serial Number String",
+              id: "serial",
+              uuid: "00002a25-0000-1000-8000-00805f9b34fb",
+              optional: true,
+            },
             {
               name: "Software Revision String",
               id: "software",
@@ -299,7 +300,29 @@ export class FrezDyno extends Device implements IFrezDyno {
    * @returns {Promise<string | undefined>} A Promise that resolves with the serial number.
    */
   serial = async (): Promise<string | undefined> => {
-    return await this.read("device", "serial", 250)
+    if (this.deviceSerialNumber) return this.deviceSerialNumber
+
+    try {
+      const serial = (await this.read("device", "serial", 250))?.trim()
+      if (serial) this.deviceSerialNumber = serial
+      return serial || undefined
+    } catch (error: unknown) {
+      if (!this.isExpectedSerialReadError(error)) {
+        const message = error instanceof Error ? error.message : String(error)
+        console.warn(`Frez Dyno serial read failed: ${message}`)
+      }
+      return undefined
+    }
+  }
+
+  private isExpectedSerialReadError(error: unknown): boolean {
+    if (!(error instanceof Error)) return false
+    const message = error.message.toLowerCase()
+    return (
+      message.includes("characteristic") &&
+      (message.includes('"serial"') || message.includes("00002a25-0000-1000-8000-00805f9b34fb")) &&
+      (message.includes("not found") || message.includes("not supported") || message.includes("not permitted"))
+    )
   }
 
   /**
@@ -333,55 +356,68 @@ export class FrezDyno extends Device implements IFrezDyno {
    * @param {DataView} value - The notification event.
    */
   override handleNotifications = (value: DataView): void => {
-    if (!value?.buffer || value.byteLength < 2) return
+    if (!value?.buffer || value.byteLength === 0) return
 
     this.updateTimestamp()
 
     const receivedTime = Date.now()
+    const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+    const framedKind = this.getFramedResponseKind(value)
+
+    if (framedKind !== undefined) {
+      this.handleFramedNotification(value, bytes, framedKind, receivedTime)
+      return
+    }
+
+    const samples = this.parseUnframedWeightSamples(value, receivedTime)
+    if (samples) {
+      this.emitWeightSamples(samples, receivedTime)
+      return
+    }
+
+    this.warnUnsupportedNotification(bytes, "unrecognized packet format")
+  }
+
+  private getFramedResponseKind(value: DataView): FrezDynoResponses | undefined {
+    if (value.byteLength < 2) return undefined
+
     const kind = value.getUint8(0)
     const payloadLength = value.getUint8(1)
-    if (payloadLength > value.byteLength - 2) return
+    if (payloadLength !== value.byteLength - 2) return undefined
 
-    const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+    if (kind === FrezDynoResponses.RESPONSE_COMMAND && this.writeLast) return kind
+    if (kind === FrezDynoResponses.RESPONSE_WEIGHT_MEASUREMENT && payloadLength > 0 && payloadLength % 8 === 0) {
+      return kind
+    }
+    if (
+      kind === FrezDynoResponses.RESPONSE_RFD_PEAK ||
+      kind === FrezDynoResponses.RESPONSE_RFD_PEAK_SERIES ||
+      kind === FrezDynoResponses.RESPONSE_LOW_POWER_WARNING
+    ) {
+      return kind
+    }
+
+    return undefined
+  }
+
+  private handleFramedNotification(
+    value: DataView,
+    bytes: Uint8Array,
+    kind: FrezDynoResponses,
+    receivedTime: number,
+  ): void {
+    const payloadLength = value.getUint8(1)
     const payload = bytes.slice(2, 2 + payloadLength)
 
     if (kind === FrezDynoResponses.RESPONSE_WEIGHT_MEASUREMENT) {
-      if (payloadLength % 8 !== 0) return
       const samplesPerPacket = payloadLength / 8
-      this.currentSamplesPerPacket = samplesPerPacket
-      this.recordPacketReceived()
+      const samples: FrezDynoWeightSample[] = []
 
       for (let i = 0; i < samplesPerPacket; i++) {
         const offset = 2 + i * 8
-        const { raw, timestampUs, weight } = this.parseWeightSample(value, offset)
-        if (Number.isNaN(weight)) continue
-
-        const numericData = weight - this.applyTare(weight)
-        const currentMassTotal = Math.max(-1000, Number(numericData))
-
-        this.peak = Math.max(this.peak, currentMassTotal)
-        this.min = Math.min(this.min, currentMassTotal)
-        this.sum += currentMassTotal
-        this.dataPointCount++
-        this.mean = this.sum / this.dataPointCount
-
-        this.downloadPackets.push(
-          this.buildDownloadPacket(currentMassTotal, [raw], {
-            timestamp: receivedTime,
-            sampleIndex: timestampUs,
-          }),
-        )
-        this.activityCheck(currentMassTotal)
-
-        this.recentSampleTimestamps.push(timestampUs)
-        const latestUs = this.recentSampleTimestamps[this.recentSampleTimestamps.length - 1] ?? 0
-        this.recentSampleTimestamps = this.recentSampleTimestamps.filter((ts) => latestUs - ts <= ONE_SECOND_US)
-        const samplingRateHz = this.recentSampleTimestamps.length
-
-        const measurement = this.buildForceMeasurement(currentMassTotal)
-        if (measurement.performance) measurement.performance.samplingRateHz = samplingRateHz
-        this.notifyCallback(measurement)
+        samples.push(this.parseWeightSample(value, offset))
       }
+      this.emitWeightSamples(samples, receivedTime)
     } else if (kind === FrezDynoResponses.RESPONSE_COMMAND) {
       if (!this.writeLast) return
 
@@ -399,8 +435,95 @@ export class FrezDyno extends Device implements IFrezDyno {
     } else if (kind === FrezDynoResponses.RESPONSE_LOW_POWER_WARNING) {
       console.warn("Frez Dyno low power warning received.")
     } else {
-      throw new Error(`Unknown Frez Dyno message kind detected: ${kind}`)
+      this.warnUnsupportedNotification(bytes, `unknown message kind ${kind}`)
     }
+  }
+
+  private emitWeightSamples(samples: FrezDynoWeightSample[], receivedTime: number): void {
+    const validSamples = samples.filter((sample) => !Number.isNaN(sample.weight))
+    if (validSamples.length === 0) return
+
+    this.currentSamplesPerPacket = validSamples.length
+    this.recordPacketReceived()
+
+    for (const { raw, timestampUs, weight } of validSamples) {
+      const numericData = weight - this.applyTare(weight)
+      const currentMassTotal = Math.max(-1000, Number(numericData))
+
+      this.peak = Math.max(this.peak, currentMassTotal)
+      this.min = Math.min(this.min, currentMassTotal)
+      this.sum += currentMassTotal
+      this.dataPointCount++
+      this.mean = this.sum / this.dataPointCount
+
+      this.downloadPackets.push(
+        this.buildDownloadPacket(currentMassTotal, [raw], {
+          timestamp: receivedTime,
+          sampleIndex: timestampUs,
+        }),
+      )
+      this.activityCheck(currentMassTotal)
+
+      this.recentSampleTimestamps.push(timestampUs)
+      const latestUs = this.recentSampleTimestamps[this.recentSampleTimestamps.length - 1] ?? 0
+      this.recentSampleTimestamps = this.recentSampleTimestamps.filter((ts) => latestUs - ts <= ONE_SECOND_US)
+      const samplingRateHz = this.recentSampleTimestamps.length
+
+      const measurement = this.buildForceMeasurement(currentMassTotal)
+      if (measurement.performance) measurement.performance.samplingRateHz = samplingRateHz
+      this.notifyCallback(measurement)
+    }
+  }
+
+  private parseUnframedWeightSamples(value: DataView, receivedTime: number): FrezDynoWeightSample[] | null {
+    if (this.isClearlyTimestampedRawPacket(value)) {
+      const samples: FrezDynoWeightSample[] = []
+      for (let offset = 0; offset < value.byteLength; offset += 8) {
+        samples.push(this.parseRawWeightSample(value.getUint32(offset, true), value.getUint32(offset + 4, true)))
+      }
+      return samples
+    }
+
+    const sampleByteLength = value.byteLength % 4 === 0 ? 4 : value.byteLength % 2 === 0 ? 2 : 0
+    if (sampleByteLength === 0) return null
+
+    const samples: FrezDynoWeightSample[] = []
+    for (let offset = 0; offset < value.byteLength; offset += sampleByteLength) {
+      const sampleIndex = offset / sampleByteLength
+      const raw = sampleByteLength === 4 ? value.getUint32(offset, true) : value.getUint16(offset, true)
+      samples.push(this.parseRawWeightSample(raw, this.syntheticTimestampUs(receivedTime, sampleIndex)))
+    }
+
+    return samples
+  }
+
+  private isClearlyTimestampedRawPacket(value: DataView): boolean {
+    if (value.byteLength < 8 || value.byteLength % 8 !== 0) return false
+
+    let previousTimestamp: number | undefined = undefined
+    for (let offset = 0; offset < value.byteLength; offset += 8) {
+      const raw = value.getUint32(offset, true)
+      const timestampUs = value.getUint32(offset + 4, true)
+      if (!this.isLikelyRawAdcValue(raw) || this.isLikelyRawAdcValue(timestampUs)) return false
+      if (previousTimestamp !== undefined && timestampUs <= previousTimestamp) return false
+      previousTimestamp = timestampUs
+    }
+
+    return true
+  }
+
+  private isLikelyRawAdcValue(raw: number): boolean {
+    if (!Number.isFinite(raw) || raw < 0) return false
+    if (this.calibrationPoints.length < 2) return raw <= 0x00ffffff
+
+    const minRaw = this.calibrationPoints[0].raw
+    const maxRaw = this.calibrationPoints[this.calibrationPoints.length - 1].raw
+    const span = Math.max(1, maxRaw - minRaw)
+    return raw >= Math.max(0, minRaw - span * 2) && raw <= maxRaw + span * 2
+  }
+
+  private syntheticTimestampUs(receivedTime: number, sampleIndex: number): number {
+    return receivedTime * 1000 + sampleIndex
   }
 
   private parseWeightSample(value: DataView, offset: number): FrezDynoWeightSample {
@@ -421,6 +544,10 @@ export class FrezDyno extends Device implements IFrezDyno {
     const rawSigned = value.getInt32(offset, true)
     const rawUnsigned = value.getUint32(offset, true)
     const raw = rawSigned >= 0 ? rawSigned : rawUnsigned
+    return this.parseRawWeightSample(raw, timestampUs)
+  }
+
+  private parseRawWeightSample(raw: number, timestampUs: number): FrezDynoWeightSample {
     const weight = this.predictWeight(raw)
 
     if (weight === undefined) {
@@ -478,8 +605,21 @@ export class FrezDyno extends Device implements IFrezDyno {
     return lower.weight + ratio * (upper.weight - lower.weight)
   }
 
+  private async ensureDeviceSerialNumber(): Promise<void> {
+    if (this.deviceSerialNumber || !this.isConnected()) return
+
+    try {
+      await this.serial()
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.warn(`Frez Dyno serial read failed: ${message}`)
+    }
+  }
+
   private async ensureCalibrationLoaded(): Promise<void> {
     if (this.calibrationPoints.length >= 2 || this.calibrationLookupAttempted || !this.calibrationLookup) return
+
+    await this.ensureDeviceSerialNumber()
 
     const params: FrezDynoCalibrationLookupParams = {}
     const deviceId = this.bluetooth?.id?.trim()
@@ -497,6 +637,13 @@ export class FrezDyno extends Device implements IFrezDyno {
       const message = error instanceof Error ? error.message : String(error)
       console.warn(`Frez Dyno calibration lookup failed: ${message}`)
     }
+  }
+
+  private warnUnsupportedNotification(bytes: Uint8Array, reason: string): void {
+    const previewLength = 16
+    const preview = toHex(bytes.slice(0, previewLength))
+    const suffix = bytes.length > previewLength ? " ..." : ""
+    console.warn(`Frez Dyno ignored notification (${reason}): ${preview}${suffix}`)
   }
 
   private assertCanStartMeasurement(): void {
