@@ -190,7 +190,7 @@ describe("WebBluetoothMock", () => {
       ],
     })
     const bluetoothDevice = new BluetoothDeviceMock({
-      name: "Frez Dyno Mock",
+      name: "FrezDyno Mock",
       advertisedServices: device.services.map((service) => service.uuid),
       services: device.services.map((service) =>
         service.id === "device"

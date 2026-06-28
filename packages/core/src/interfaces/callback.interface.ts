@@ -67,6 +67,12 @@ export interface ForceMeasurement extends ForceStats {
 export type NotifyCallback = (data: ForceMeasurement) => void
 
 /**
+ * Defines the callback for Motherboard pull-up detection.
+ * The callback receives the running pull-up count.
+ */
+export type PullupCallback = (index: number) => void
+
+/**
  * Defines the type for a callback function that handles write operations to the device.
  * The callback receives the data string written to the device.
  * @callback WriteCallback

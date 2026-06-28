@@ -1,4 +1,4 @@
-import type { ForceMeasurement, ForceUnit, FrezDynoCalibrationPoint } from "@hangtime/grip-connect"
+import type { ForceMeasurement, ForceUnit, FrezDynoCalibrationPoint, PullupCallback } from "@hangtime/grip-connect"
 import type { DeviceBaudRate, DeviceSamplingRate } from "../settings/rates.js"
 
 export interface ConnectedDevice {
@@ -6,6 +6,7 @@ export interface ConnectedDevice {
   disconnect?(): void | Promise<void>
   isConnected?(): boolean
   notify(callback: (data: ForceMeasurement) => void, unit?: ForceUnit): void
+  pullup?(callback: PullupCallback): void
   stream?(duration?: number): Promise<void>
   stop?(): Promise<void>
   tare?(duration?: number): boolean

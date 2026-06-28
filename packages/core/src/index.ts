@@ -23,6 +23,7 @@ export type {
   ForceUnit,
   ForceMeasurement,
   NotifyCallback,
+  PullupCallback,
   WriteCallback,
   ActiveCallback,
 } from "./interfaces/callback.interface.js"

@@ -2,12 +2,30 @@ import type { ForceMeasurement } from "@hangtime/grip-connect"
 
 const deviceMassData: Record<string, ForceMeasurement> = {}
 
+interface MassPanelMetric {
+  id?: string
+  label: string
+  valueText: string
+}
+
+function renderMetricRow({ id, label, valueText }: MassPanelMetric): HTMLDivElement {
+  const row = document.createElement("div")
+  if (id) row.dataset["metricId"] = id
+  const labelElement = document.createElement("label")
+  labelElement.textContent = label
+  const strongElement = document.createElement("strong")
+  strongElement.textContent = valueText
+  row.appendChild(labelElement)
+  row.appendChild(strongElement)
+  return row
+}
+
 export function addMassHTML(
   id: string | undefined,
   data: ForceMeasurement,
   massesElement: HTMLElement | null,
   elapsedMs: number,
-  options?: { peakOnly?: boolean },
+  options?: { peakOnly?: boolean; extraMetrics?: MassPanelMetric[] },
 ): void {
   if (!id || !massesElement) return
   deviceMassData[id] = data
@@ -22,7 +40,7 @@ export function addMassHTML(
     deviceDiv.innerHTML = ""
   }
 
-  const rows: { label: string; valueText: string }[] = options?.peakOnly
+  const rows: MassPanelMetric[] = options?.peakOnly
     ? [{ label: "Max", valueText: `${data.peak.toFixed(2)} ${data.unit}` }]
     : [
         { label: "Current", valueText: `${data.current.toFixed(2)} ${data.unit}` },
@@ -40,14 +58,33 @@ export function addMassHTML(
       rows.push({ label: "Right", valueText: `${data.distribution.right.current.toFixed(2)} ${data.unit}` })
   }
 
-  for (const { label, valueText } of rows) {
-    const row = document.createElement("div")
-    const labelElement = document.createElement("label")
-    labelElement.textContent = label
-    const strongElement = document.createElement("strong")
-    strongElement.textContent = valueText
-    row.appendChild(labelElement)
-    row.appendChild(strongElement)
-    deviceDiv.appendChild(row)
+  if (options?.extraMetrics) {
+    rows.push(...options.extraMetrics)
+  }
+
+  for (const row of rows) {
+    deviceDiv.appendChild(renderMetricRow(row))
+  }
+}
+
+export function setDeviceMetricHTML(
+  deviceId: string | undefined,
+  metricId: string,
+  label: string,
+  valueText: string,
+): void {
+  if (!deviceId) return
+  const deviceDiv = document.getElementById(`device-${deviceId}`)
+  if (!deviceDiv) return
+
+  const existingRow = Array.from(deviceDiv.querySelectorAll<HTMLElement>("[data-metric-id]")).find(
+    (row) => row.dataset["metricId"] === metricId,
+  )
+  const nextRow = renderMetricRow({ id: metricId, label, valueText })
+
+  if (existingRow) {
+    existingRow.replaceWith(nextRow)
+  } else {
+    deviceDiv.appendChild(nextRow)
   }
 }

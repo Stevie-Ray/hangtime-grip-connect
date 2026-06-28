@@ -9,7 +9,7 @@ import { loadConfig, saveMeasurement } from "../protocols/storage.js"
 import type { ForcePoint } from "../protocols/types.js"
 import type { SessionResult } from "../protocols/types.js"
 import { addTargetDatasets, createSessionChart, resetChartData, trimChartWindow } from "./chart-instance.js"
-import { addMassHTML } from "./mass-panel.js"
+import { addMassHTML, setDeviceMetricHTML } from "./mass-panel.js"
 import { promptSaveMeasurementInput } from "./save-measurement-dialog.js"
 import {
   getEnduranceTargetZoneAtElapsedSeconds,
@@ -108,6 +108,8 @@ export function renderSessionChart(actionId: string): void {
   let finished = false
   let statusTimer: ReturnType<typeof setInterval> | null = null
   let pendingResult: SessionResult | null = null
+  let pullupTrackingEnabled = false
+  let pullupCount: number | null = null
 
   const navigateTo = (search: string): void => {
     history.pushState({}, "", search)
@@ -125,15 +127,42 @@ export function renderSessionChart(actionId: string): void {
     } catch {
       // Ignore stop errors during cancel.
     }
+    pullupTrackingEnabled = false
     device.notify(() => undefined)
     stopActiveSession = null
     await releaseWakeLock()
     navigateTo("?")
   }
 
+  const setPullupCount = (index: number): void => {
+    pullupCount = index
+    setDeviceMetricHTML("active", "pullups", "Pull-ups", String(index))
+  }
+
+  const massPanelOptions = (): {
+    peakOnly?: boolean
+    extraMetrics?: { id: string; label: string; valueText: string }[]
+  } => ({
+    peakOnly: isPeakForceMvc,
+    ...(pullupCount == null
+      ? {}
+      : { extraMetrics: [{ id: "pullups", label: "Pull-ups", valueText: String(pullupCount) }] }),
+  })
+
+  const registerPullupDetection = (): void => {
+    if (typeof device.pullup !== "function") return
+    pullupTrackingEnabled = true
+    setPullupCount(0)
+    device.pullup((index) => {
+      if (!pullupTrackingEnabled) return
+      setPullupCount(index)
+    })
+  }
+
   const resetSessionState = (): void => {
     startedAt = Date.now()
     points.length = 0
+    pullupCount = null
     if (resultElement) {
       resultElement.innerHTML = ""
     }
@@ -150,11 +179,12 @@ export function renderSessionChart(actionId: string): void {
       },
       massesElement,
       0,
-      { peakOnly: isPeakForceMvc },
+      massPanelOptions(),
     )
 
     if (!sessionChart) return
     resetChartData(sessionChart)
+    registerPullupDetection()
   }
 
   const updateSessionStatus = (): void => {
@@ -190,6 +220,7 @@ export function renderSessionChart(actionId: string): void {
       // Ignore stop errors on teardown.
     }
 
+    pullupTrackingEnabled = false
     device.notify(() => undefined)
     stopActiveSession = null
     await releaseWakeLock()
@@ -291,7 +322,7 @@ export function renderSessionChart(actionId: string): void {
 
   const notifyCb = (data: ForceMeasurement) => {
     const timeMs = Date.now() - startedAt
-    addMassHTML("active", data, massesElement, timeMs, { peakOnly: isPeakForceMvc })
+    addMassHTML("active", data, massesElement, timeMs, massPanelOptions())
     points.push({ timeMs, current: data.current, mean: data.mean, peak: data.peak, unit: data.unit })
 
     const label = `${(timeMs / 1000).toFixed(1)}s`

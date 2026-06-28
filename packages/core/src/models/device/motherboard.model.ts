@@ -1,5 +1,7 @@
 import { Device } from "../device.model.js"
 import type { IMotherboard } from "../../interfaces/device/motherboard.interface.js"
+import type { ForceMeasurement, PullupCallback } from "../../interfaces/callback.interface.js"
+import { PullupDetector } from "../../analysis/pullup-detector.js"
 
 /**
  * Represents a Griptonite Motherboard device.
@@ -48,6 +50,8 @@ export class Motherboard extends Device implements IMotherboard {
   private rightPeak = Number.NEGATIVE_INFINITY
   private rightMin = Number.POSITIVE_INFINITY
   private rightSum = 0
+  private pullupDetector: PullupDetector | undefined
+  private pullupCallback: PullupCallback | undefined
 
   constructor() {
     super({
@@ -208,6 +212,31 @@ export class Motherboard extends Device implements IMotherboard {
   }
 
   /**
+   * Registers a callback that runs whenever a pull-up is detected from the live force stream.
+   * The callback receives the running pull-up count.
+   */
+  pullup = (callback: PullupCallback): void => {
+    this.pullupCallback = callback
+    this.pullupDetector = new PullupDetector()
+  }
+
+  private updatePullupDetection(measurement: ForceMeasurement): void {
+    if (!this.pullupDetector || !this.pullupCallback) return
+    const update = this.pullupDetector.update(measurement)
+    if (update.newRep) {
+      this.pullupCallback(update.newRep.index)
+    }
+  }
+
+  private finalizePullupDetection(): void {
+    if (!this.pullupDetector || !this.pullupCallback) return
+    const update = this.pullupDetector.finalize()
+    if (update.newRep) {
+      this.pullupCallback(update.newRep.index)
+    }
+  }
+
+  /**
    * Handles data received from the Motherboard device. Processes hex-encoded streaming packets
    * to extract samples, calibrate masses, and update running averages of mass data.
    * If the received data is not a valid hex packet, it returns the unprocessed data.
@@ -341,29 +370,30 @@ export class Motherboard extends Device implements IMotherboard {
             // Check if device is being used
             this.activityCheck(center)
 
+            const measurement = this.buildForceMeasurement(totalCurrent, {
+              left: this.buildZoneMeasurement(
+                leftClamped,
+                this.leftPeak,
+                this.leftSum / this.dataPointCount,
+                this.leftMin,
+              ),
+              center: this.buildZoneMeasurement(
+                centerClamped,
+                this.centerPeak,
+                this.centerSum / this.dataPointCount,
+                this.centerMin,
+              ),
+              right: this.buildZoneMeasurement(
+                rightClamped,
+                this.rightPeak,
+                this.rightSum / this.dataPointCount,
+                this.rightMin,
+              ),
+            })
+
+            this.updatePullupDetection(measurement)
             // Notify with weight data (distribution zones have proper peak/mean/min per zone)
-            this.notifyCallback(
-              this.buildForceMeasurement(totalCurrent, {
-                left: this.buildZoneMeasurement(
-                  leftClamped,
-                  this.leftPeak,
-                  this.leftSum / this.dataPointCount,
-                  this.leftMin,
-                ),
-                center: this.buildZoneMeasurement(
-                  centerClamped,
-                  this.centerPeak,
-                  this.centerSum / this.dataPointCount,
-                  this.centerMin,
-                ),
-                right: this.buildZoneMeasurement(
-                  rightClamped,
-                  this.rightPeak,
-                  this.rightSum / this.dataPointCount,
-                  this.rightMin,
-                ),
-              }),
-            )
+            this.notifyCallback(measurement)
           } else if (this.writeLast === this.commands.GET_CALIBRATION) {
             // check data integrity
             if ((receivedData.match(/,/g) || []).length === 3) {
@@ -436,6 +466,7 @@ export class Motherboard extends Device implements IMotherboard {
    */
   stop = async (): Promise<void> => {
     await this.write("uart", "tx", this.commands.STOP_WEIGHT_MEAS, 0)
+    this.finalizePullupDetection()
   }
 
   /**
@@ -456,6 +487,7 @@ export class Motherboard extends Device implements IMotherboard {
     this.rightPeak = Number.NEGATIVE_INFINITY
     this.rightMin = Number.POSITIVE_INFINITY
     this.rightSum = 0
+    this.pullupDetector?.reset()
     // Read calibration data if not already available
     if (!this.calibrationData[0].length) {
       await this.calibration()

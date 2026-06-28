@@ -29,6 +29,55 @@ import {
   uint32LePacket,
 } from "./helpers.mjs"
 
+function segmentPullupTrace(points, startMs, endMs, startForce, endForce, stepMs = 80) {
+  const duration = Math.max(stepMs, endMs - startMs)
+  for (let elapsedMs = startMs; elapsedMs <= endMs; elapsedMs += stepMs) {
+    const progress = Math.min(1, Math.max(0, (elapsedMs - startMs) / duration))
+    const eased = 0.5 - Math.cos(progress * Math.PI) / 2
+    const ripple = Math.sin(elapsedMs / 61) * 0.6
+    points.push({ elapsedMs, force: startForce + (endForce - startForce) * eased + ripple })
+  }
+}
+
+function threeRepPullupTrace({ unloadTail = true } = {}) {
+  const points = []
+  segmentPullupTrace(points, 0, 2000, 2, 2)
+  segmentPullupTrace(points, 2000, 3500, 2, 105)
+  segmentPullupTrace(points, 3500, 4700, 105, 58)
+  segmentPullupTrace(points, 4700, 6200, 58, 112)
+  segmentPullupTrace(points, 6200, 7400, 112, 60)
+  segmentPullupTrace(points, 7400, 9000, 60, 108)
+  segmentPullupTrace(points, 9000, 10300, 108, 2)
+  if (unloadTail) {
+    segmentPullupTrace(points, 10300, 11600, 2, 2)
+  }
+  return points
+}
+
+function motherboardPacket(sampleIndex, force) {
+  const bytes = new Uint8Array(16)
+  const view = new DataView(bytes.buffer)
+  view.setUint16(0, sampleIndex, true)
+  view.setUint16(2, 0x012c, true)
+  view.setUint8(13, 0)
+  view.setUint8(14, 0)
+  view.setUint8(15, 0)
+  setInt24Le(bytes, 4, Math.round(force))
+  setInt24Le(bytes, 7, 0)
+  setInt24Le(bytes, 10, 0)
+  return `${Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase()}\n`
+}
+
+function setInt24Le(bytes, offset, value) {
+  let raw = value
+  if (raw < 0) raw += 0x1000000
+  bytes[offset] = raw & 0xff
+  bytes[offset + 1] = (raw >> 8) & 0xff
+  bytes[offset + 2] = (raw >> 16) & 0xff
+}
+
 describe("device notification parsers", () => {
   it("parses Climbro battery and sensor packets", async () => {
     const device = new Climbro()
@@ -427,5 +476,98 @@ describe("device notification parsers", () => {
     assert.equal(measurement.min, 60)
     assertAlmostEqual(measurement.distribution.left.peak, 10)
     assertAlmostEqual(measurement.distribution.left.min, 10)
+  })
+
+  it("runs Motherboard pull-up callbacks from live force packets", (t) => {
+    const device = new Motherboard()
+    const notifications = captureNotifications(device)
+    const pullups = []
+    const trace = threeRepPullupTrace()
+    const startedAt = 1_000_000
+    let now = startedAt
+
+    t.mock.method(Date, "now", () => now)
+
+    device.calibrationData = [
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+    ]
+
+    device.pullup((index) => {
+      pullups.push(index)
+    })
+
+    trace.forEach((sample, index) => {
+      now = startedAt + sample.elapsedMs
+      device.handleNotifications(textView(motherboardPacket(index + 1, sample.force)))
+    })
+
+    assert.equal(pullups.length, 3)
+    assert.deepEqual(pullups, [1, 2, 3])
+    assert.equal(notifications.length, trace.length)
+  })
+
+  it("finalizes a pending Motherboard pull-up callback when streaming stops", async (t) => {
+    const device = new Motherboard()
+    captureNotifications(device)
+    const pullups = []
+    const trace = threeRepPullupTrace({ unloadTail: false })
+    const writes = []
+    const startedAt = 2_000_000
+    let now = startedAt
+
+    t.mock.method(Date, "now", () => now)
+
+    device.calibrationData = [
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1000, 1000],
+      ],
+    ]
+
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+    device.pullup((index) => {
+      pullups.push(index)
+    })
+
+    trace.forEach((sample, index) => {
+      now = startedAt + sample.elapsedMs
+      device.handleNotifications(textView(motherboardPacket(index + 1, sample.force)))
+    })
+
+    assert.equal(pullups.length, 2)
+
+    await device.stop()
+
+    assert.deepEqual(writes, [device.commands.STOP_WEIGHT_MEAS])
+    assert.deepEqual(pullups, [1, 2, 3])
   })
 })

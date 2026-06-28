@@ -1,4 +1,5 @@
 import type { IDevice } from "../device.interface.js"
+import type { PullupCallback } from "../callback.interface.js"
 
 /**
  * Interface representing the Griptonite Motherboard device, extending the base Device interface.
@@ -34,6 +35,12 @@ export interface IMotherboard extends IDevice {
    * @returns {Promise<number[] | undefined>} A promise that resolves with the payload array for Aurora-compatible LED settings if LEDs were applied.
    */
   led(config?: "green" | "red" | "orange"): Promise<number[] | undefined>
+
+  /**
+   * Registers a callback that runs whenever a pull-up is detected from the live force stream.
+   * Call before or during stream(); detection resets when a new stream starts.
+   */
+  pullup(callback: PullupCallback): void
 
   /**
    * Retrieves manufacturer information from the device.
