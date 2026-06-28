@@ -52,7 +52,7 @@
     "@babel/core": "^7.29.7",
     "@react-native-community/cli": "20.0.2",
     "@types/react": "~19.2.14",
-    "eslint": "^10.5.0",
+    "eslint": "^10.6.0",
     "eslint-config-expo": "~56.0.4",
     "typescript": "~6.0.3"
   }

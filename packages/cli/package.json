@@ -59,7 +59,7 @@
     "@inquirer/select": "^5.2.1",
     "asciichart": "^1.5.25",
     "commander": "^15.0.0",
-    "ora": "^9.4.0",
+    "ora": "^9.4.1",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {

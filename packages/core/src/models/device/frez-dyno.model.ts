@@ -173,7 +173,7 @@ export class FrezDyno extends Device implements IFrezDyno {
 
   constructor(options: FrezDynoOptions = {}) {
     super({
-      filters: [{ namePrefix: "Frez" }, { services: ["da8a6c41-154b-4b9a-9b00-2f84dfcebfe9"] }],
+      filters: [{ namePrefix: "FrezDyno" }],
       services: [
         {
           name: "Frez Dyno Service",
