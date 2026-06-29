@@ -139,8 +139,8 @@ export async function lookupFrezDynoRemoteCalibration(
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      p_device_name: params.deviceName ?? null,
-      p_device_serial_number: params.deviceSerialNumber ?? null,
+      p_device_name: params.deviceName ?? "",
+      p_device_serial_number: params.deviceSerialNumber ?? "",
     }),
   })
 

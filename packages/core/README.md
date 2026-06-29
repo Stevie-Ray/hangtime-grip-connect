@@ -108,6 +108,11 @@ motherboard.active(
   { threshold: 2.5, duration: 1000 },
 )
 
+// Experimental: Motherboard Pullup detection
+motherboard.pullup((index) => {
+  console.log(`You did ${index} pullup(s)`)
+})
+
 document.querySelector("#motherboard").addEventListener("click", async () => {
   // Connect to device
   await motherboard.connect(

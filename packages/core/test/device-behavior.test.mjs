@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { setTimeout as delay } from "node:timers/promises"
 import { describe, it } from "node:test"
 
-import { CTS500, ForceBoard, FrezDyno } from "../dist/index.js"
+import { CTS500, ForceBoard, FrezDyno, lookupFrezDynoRemoteCalibration } from "../dist/index.js"
 import { captureNotifications, frezRawWeightPacket } from "./helpers.mjs"
 
 describe("device behavior", () => {
@@ -76,6 +76,36 @@ describe("device behavior", () => {
 
     await assert.rejects(device.stream(), /without calibration data/)
     assert.deepEqual(writes, [])
+  })
+
+  it("does not send null identifiers to the Frez Dyno calibration RPC", async () => {
+    const originalFetch = globalThis.fetch
+    const requestBodies = []
+
+    globalThis.fetch = async (_url, init) => {
+      requestBodies.push(JSON.parse(init.body))
+      return new Response("null", {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })
+    }
+
+    try {
+      assert.equal(await lookupFrezDynoRemoteCalibration({ deviceName: "FrezDyno-002318" }), null)
+      assert.equal(await lookupFrezDynoRemoteCalibration({ deviceSerialNumber: "002318" }), null)
+      assert.deepEqual(requestBodies, [
+        {
+          p_device_name: "FrezDyno-002318",
+          p_device_serial_number: "",
+        },
+        {
+          p_device_name: "",
+          p_device_serial_number: "002318",
+        },
+      ])
+    } finally {
+      globalThis.fetch = originalFetch
+    }
   })
 
   it("loads Frez Dyno calibration before streaming", async () => {

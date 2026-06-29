@@ -1,4 +1,5 @@
 import { getActiveDevice } from "../../devices/session.js"
+import { formatDeviceIdentifiers, readDeviceIdentifiers } from "../../devices/diagnostics.js"
 import { loadPreferences } from "../../settings/storage.js"
 import type { AppState } from "../core/state.js"
 
@@ -59,6 +60,7 @@ async function runGuidedTareDialog(): Promise<boolean> {
       <p>We're now ready, please tare your device before use.</p>
       <p class="tare-dialog-current"><strong data-tare-current>0.0</strong> <span data-tare-unit>kg</span></p>
       <p class="tare-dialog-status" data-tare-status>Starting live stream...</p>
+      <pre class="tare-dialog-device-identifiers" data-tare-device-identifiers hidden></pre>
       <menu class="tare-dialog-actions">
         <button type="button" value="cancel" data-tare-cancel>Cancel</button>
         <button type="button" value="confirm" data-tare-confirm disabled>Tare</button>
@@ -69,6 +71,7 @@ async function runGuidedTareDialog(): Promise<boolean> {
 
   const currentElement = dialog.querySelector<HTMLElement>("[data-tare-current]")
   const statusElement = dialog.querySelector<HTMLElement>("[data-tare-status]")
+  const identifiersElement = dialog.querySelector<HTMLElement>("[data-tare-device-identifiers]")
   const unitElement = dialog.querySelector<HTMLElement>("[data-tare-unit]")
   const confirmButton = dialog.querySelector<HTMLButtonElement>("[data-tare-confirm]")
   const cancelButton = dialog.querySelector<HTMLButtonElement>("[data-tare-cancel]")
@@ -83,6 +86,14 @@ async function runGuidedTareDialog(): Promise<boolean> {
     if (done) return
     done = true
     dialog.close(ok ? "confirm" : "cancel")
+  }
+
+  const showDeviceIdentifiers = async (): Promise<void> => {
+    if (!identifiersElement || done) return
+    const identifiers = await readDeviceIdentifiers(device)
+    if (done) return
+    identifiersElement.textContent = formatDeviceIdentifiers(identifiers)
+    identifiersElement.hidden = false
   }
 
   device.notify((data) => {
@@ -110,6 +121,7 @@ async function runGuidedTareDialog(): Promise<boolean> {
       if (statusElement && !done) {
         statusElement.textContent = error instanceof Error ? error.message : "Failed to start stream for tare."
       }
+      await showDeviceIdentifiers()
     }
   }
 

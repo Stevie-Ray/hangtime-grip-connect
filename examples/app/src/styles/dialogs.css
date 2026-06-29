@@ -38,11 +38,27 @@ dialog menu {
 }
 
 .tare-dialog-current,
-.tare-dialog-status {
+.tare-dialog-status,
+.tare-dialog-device-identifiers {
   border: 1px solid #4a4a4a;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   background: rgba(255, 255, 255, 0.03);
+}
+
+.tare-dialog-device-identifiers {
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font:
+    0.85rem/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    "Courier New",
+    monospace;
 }
 
 .tare-dialog-actions {
