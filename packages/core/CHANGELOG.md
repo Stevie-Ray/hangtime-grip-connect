@@ -1,5 +1,14 @@
 # @hangtime/grip-connect
 
+## 0.13.2
+
+### Patch Changes
+
+- a68278e: Improve pull-up detection with force-phase output, bodyweight-normalized impulse metrics, and better
+  unloaded-noise and dismount filtering.
+- 1910e0e: Avoid sending null Frez Dyno serial numbers to the remote calibration lookup.
+- 3b54f27: Add a Motherboard pull-up callback helper that reports the running rep count from live force streams.
+
 ## 0.13.1
 
 ### Patch Changes
