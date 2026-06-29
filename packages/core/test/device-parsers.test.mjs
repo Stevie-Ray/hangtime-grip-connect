@@ -29,7 +29,7 @@ import {
   uint32LePacket,
 } from "./helpers.mjs"
 
-function segmentPullupTrace(points, startMs, endMs, startForce, endForce, stepMs = 80) {
+function segmentPullupTrace(points, startMs, endMs, startForce, endForce, stepMs = 40) {
   const duration = Math.max(stepMs, endMs - startMs)
   for (let elapsedMs = startMs; elapsedMs <= endMs; elapsedMs += stepMs) {
     const progress = Math.min(1, Math.max(0, (elapsedMs - startMs) / duration))
@@ -47,9 +47,11 @@ function threeRepPullupTrace({ unloadTail = true } = {}) {
   segmentPullupTrace(points, 4700, 6200, 58, 112)
   segmentPullupTrace(points, 6200, 7400, 112, 60)
   segmentPullupTrace(points, 7400, 9000, 60, 108)
-  segmentPullupTrace(points, 9000, 10300, 108, 2)
   if (unloadTail) {
+    segmentPullupTrace(points, 9000, 10300, 108, 2)
     segmentPullupTrace(points, 10300, 11600, 2, 2)
+  } else {
+    segmentPullupTrace(points, 9000, 9950, 108, 72)
   }
   return points
 }
