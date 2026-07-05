@@ -59,7 +59,7 @@
     "@types/node": "^22.20.0",
     "@types/web-bluetooth": "^0.0.21",
     "husky": "^9.1.7",
-    "oxfmt": "^0.56.0",
+    "oxfmt": "^0.57.0",
     "oxlint": "^1.72.0",
     "typescript": "^6.0.3"
   },
