@@ -5,7 +5,15 @@ updates:
     directories:
       - "/"
       - "/packages/*"
-      - "/examples/*"
+      - "/examples/app"
+      - "/examples/aurora"
+      - "/examples/capacitor"
+      - "/examples/flappy-bird"
+      - "/examples/pong"
+      - "/examples/runtime"
+    exclude-paths:
+      # Expo SDK: Manually updated with `npx expo install --fix`
+      - "examples/react-native/**"
     schedule:
       interval: "weekly"
     groups:
