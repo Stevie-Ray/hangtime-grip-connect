@@ -42,53 +42,61 @@ export class WHC06 extends WHC06Base {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      this.manager.startDeviceScan(null, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
-        if (error) {
-          onError(error)
-          return
-        }
+      // allowDuplicates is required on iOS: without it CoreBluetooth coalesces
+      // repeated advertisements, and since the WH-C06 is broadcast-only (weight
+      // lives in manufacturerData), the stream freezes after the first packet.
+      // scanMode/callbackType are Android-only; each platform ignores the other's keys.
+      this.manager.startDeviceScan(
+        null,
+        { allowDuplicates: true, scanMode: 2, callbackType: 1 },
+        (error, scannedDevice) => {
+          if (error) {
+            onError(error)
+            return
+          }
 
-        if (scannedDevice && (scannedDevice.localName === "IF_B7" || scannedDevice.name === "IF_B7")) {
-          // Update timestamp
-          this.updateTimestamp()
+          if (scannedDevice && (scannedDevice.localName === "IF_B7" || scannedDevice.name === "IF_B7")) {
+            // Update timestamp
+            this.updateTimestamp()
 
-          // Device has no services / characteristics, so we directly call onSuccess
-          onSuccess()
+            // Device has no services / characteristics, so we directly call onSuccess
+            onSuccess()
 
-          const manufacturerData = scannedDevice.manufacturerData
+            const manufacturerData = scannedDevice.manufacturerData
 
-          // Handle received data
-          this.currentSamplesPerPacket = 1
-          this.recordPacketReceived()
-          const receivedTime: number = Date.now()
-          const receivedData = this.parseWeightData(manufacturerData)
+            // Handle received data
+            this.currentSamplesPerPacket = 1
+            this.recordPacketReceived()
+            const receivedTime: number = Date.now()
+            const receivedData = this.parseWeightData(manufacturerData)
 
-          // Tare correction
-          const numericData = receivedData - this.applyTare(receivedData) * -1
-          const currentMassTotal = Math.max(-1000, numericData)
+            // Tare correction
+            const numericData = receivedData - this.applyTare(receivedData) * -1
+            const currentMassTotal = Math.max(-1000, numericData)
 
-          // Update session stats before building packet
-          this.peak = Math.max(this.peak, numericData)
-          this.min = Math.min(this.min, Math.max(-1000, numericData))
-          this.sum += currentMassTotal
-          this.dataPointCount++
-          this.mean = this.sum / this.dataPointCount
+            // Update session stats before building packet
+            this.peak = Math.max(this.peak, numericData)
+            this.min = Math.min(this.min, Math.max(-1000, numericData))
+            this.sum += currentMassTotal
+            this.dataPointCount++
+            this.mean = this.sum / this.dataPointCount
 
-          // Add data to downloadable Array
-          this.downloadPackets.push(
-            this.buildDownloadPacket(currentMassTotal, [numericData], {
-              timestamp: receivedTime,
-              sampleIndex: this.dataPointCount,
-            }),
-          )
+            // Add data to downloadable Array
+            this.downloadPackets.push(
+              this.buildDownloadPacket(currentMassTotal, [numericData], {
+                timestamp: receivedTime,
+                sampleIndex: this.dataPointCount,
+              }),
+            )
 
-          // Check if device is being used
-          this.activityCheck(numericData)
+            // Check if device is being used
+            this.activityCheck(numericData)
 
-          // Notify with weight data
-          this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
-        }
-      })
+            // Notify with weight data
+            this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
+          }
+        },
+      )
     } catch (error) {
       onError(error as Error)
     }
