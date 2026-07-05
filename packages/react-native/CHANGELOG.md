@@ -1,5 +1,12 @@
 # @hangtime/grip-connect-react-native
 
+## 0.13.3
+
+### Patch Changes
+
+- badbfa8: Enable duplicate WH-C06 advertisement scanning in React Native and only report connection success after
+  manufacturer data is received.
+
 ## 0.13.1
 
 ### Patch Changes
@@ -51,6 +58,7 @@
 ### Patch Changes
 
 - Release 0.10.7
+
   - Core: Add RFD interface (`RfdMode`, `RfdOptions`, `RFD_TIME_WINDOWS`)
   - Core: RFD callback fields and device model updates
   - CLI: RFD and stream/live refinements
