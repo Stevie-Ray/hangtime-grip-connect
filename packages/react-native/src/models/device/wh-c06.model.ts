@@ -42,20 +42,38 @@ export class WHC06 extends WHC06Base {
     onError: (error: Error) => void = (error) => console.error(error),
   ): Promise<void> => {
     try {
-      this.manager.startDeviceScan(null, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
-        if (error) {
-          onError(error)
-          return
-        }
+      let hasReportedSuccess = false
+      this.manager.startDeviceScan(
+        null,
+        {
+          allowDuplicates: true, // By allowing duplicates scanning records are received more frequently [iOS only]
+          scanMode: 2, // Scan mode for Bluetooth LE scan [Android only]
+          callbackType: 1, //  Scan callback type for Bluetooth LE scan [Android only]
+        },
+        (error, scannedDevice) => {
+          if (error) {
+            onError(error)
+            return
+          }
 
-        if (scannedDevice && (scannedDevice.localName === "IF_B7" || scannedDevice.name === "IF_B7")) {
+          if (!scannedDevice || (scannedDevice.localName !== "IF_B7" && scannedDevice.name !== "IF_B7")) {
+            return
+          }
+
+          // Check if we received data
+          const manufacturerData = scannedDevice.manufacturerData
+          if (!manufacturerData) {
+            return
+          }
+
           // Update timestamp
           this.updateTimestamp()
 
           // Device has no services / characteristics, so we directly call onSuccess
-          onSuccess()
-
-          const manufacturerData = scannedDevice.manufacturerData
+          if (!hasReportedSuccess) {
+            hasReportedSuccess = true
+            onSuccess()
+          }
 
           // Handle received data
           this.currentSamplesPerPacket = 1
@@ -87,8 +105,8 @@ export class WHC06 extends WHC06Base {
 
           // Notify with weight data
           this.notifyCallback(this.buildForceMeasurement(currentMassTotal))
-        }
-      })
+        },
+      )
     } catch (error) {
       onError(error as Error)
     }

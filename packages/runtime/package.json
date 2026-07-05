@@ -50,7 +50,7 @@
     "build": "npm run clean && tsc --build"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.13.1",
+    "@hangtime/grip-connect": "^0.13.2",
     "webbluetooth": "^3.7.0"
   },
   "devDependencies": {

@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.4.1",
-    "vite": "^8.1.0"
+    "vite": "^8.1.3"
   }
 }

@@ -60,7 +60,7 @@
     "@types/web-bluetooth": "^0.0.21",
     "husky": "^9.1.7",
     "oxfmt": "^0.56.0",
-    "oxlint": "^1.71.0",
+    "oxlint": "^1.72.0",
     "typescript": "^6.0.3"
   },
   "engines": {
