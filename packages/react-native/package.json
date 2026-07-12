@@ -54,6 +54,6 @@
     "react-native-ble-plx": "^3.5.1"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
