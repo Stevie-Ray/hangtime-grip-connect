@@ -201,8 +201,8 @@ describe("device notification parsers", () => {
 
     device.handleNotifications(
       progressorWeightPacket([
-        { weight: 8, timestampUs: 1000 },
-        { weight: 9.5, timestampUs: 250000 },
+        { weight: 8, timestampUs: 1 },
+        { weight: 9.5, timestampUs: 250 },
       ]),
     )
 
@@ -229,8 +229,8 @@ describe("device notification parsers", () => {
 
     device.handleNotifications(
       frezRawWeightPacket([
-        { raw: 1500, timestampUs: 1000 },
-        { raw: 2500, timestampUs: 250000 },
+        { raw: 1500, timestampUs: 1 },
+        { raw: 2500, timestampUs: 250 },
       ]),
     )
 
@@ -246,7 +246,7 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.samplingRateHz, 2)
   })
 
-  it("parses Frez Dyno unframed raw ADC packets with calibration", () => {
+  it("ignores Frez Dyno data without the app's two-byte measurement header", () => {
     const device = new FrezDyno({
       calibrationPoints: [
         { raw: 1000, weight: 0 },
@@ -257,14 +257,7 @@ describe("device notification parsers", () => {
 
     device.handleNotifications(uint32LePacket([1500, 2500]))
 
-    assert.equal(notifications.length, 2)
-    assert.equal(notifications[0].current, 5)
-    assert.equal(notifications[1].current, 15)
-    assert.equal(notifications[1].peak, 15)
-    assert.equal(notifications[1].mean, 10)
-    assert.equal(notifications[1].performance.packetIndex, 1)
-    assert.equal(notifications[1].performance.sampleIndex > 0, true)
-    assert.equal(notifications[1].performance.samplesPerPacket, 2)
+    assert.equal(notifications.length, 0)
   })
 
   it("fails clearly when Frez Dyno raw packets arrive without calibration", () => {
@@ -291,18 +284,17 @@ describe("device notification parsers", () => {
     assert.deepEqual(responses, ["030201"])
   })
 
-  it("routes Frez Dyno command responses through the write callback", () => {
+  it("ignores non-measurement Frez Dyno notifications", () => {
     const device = new FrezDyno()
     const responses = []
 
-    device.writeLast = device.commands.GET_BATTERY_VOLTAGE
     device.writeCallback = (response) => {
       responses.push(response)
     }
 
     device.handleNotifications(dataView([0, 4, 0x34, 0x12, 0, 0]))
 
-    assert.deepEqual(responses, ["4660"])
+    assert.deepEqual(responses, [])
   })
 
   it("parses CTS500 fragmented weight frames and ignores invalid checksums", () => {

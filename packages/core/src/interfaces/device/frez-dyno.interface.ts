@@ -8,6 +8,12 @@ export interface FrezDynoCalibrationPoint {
   weight: number
 }
 
+export interface FrezDynoCalibrationData {
+  points: FrezDynoCalibrationPoint[]
+  actualSampleRate?: number
+  zeroOffset?: number
+}
+
 export type FrezDynoPacketFormat = "auto" | "float" | "raw"
 
 export interface FrezDynoCalibrationLookupParams {
@@ -18,7 +24,7 @@ export interface FrezDynoCalibrationLookupParams {
 
 export type FrezDynoCalibrationLookup = (
   params: FrezDynoCalibrationLookupParams,
-) => Promise<FrezDynoCalibrationPoint[] | null>
+) => Promise<FrezDynoCalibrationPoint[] | FrezDynoCalibrationData | null>
 
 export interface FrezDynoOptions {
   /**
@@ -50,6 +56,12 @@ export interface FrezDynoOptions {
    * packetFormat is explicitly "float".
    */
   requireCalibration?: boolean
+
+  /**
+   * Actual device sample rate used to scale Frez packet counters to time.
+   * Defaults to the native app's 250 Hz fallback.
+   */
+  actualSampleRate?: number
 }
 
 /**
@@ -68,14 +80,21 @@ export interface IFrezDyno extends IDevice {
   clearRawCalibration(): void
 
   /**
+   * Sets an explicit serial number for factory-calibration lookup.
+   * This is needed on Web Bluetooth, which blocks the standard serial characteristic.
+   * Changing the serial invalidates factory-loaded calibration while preserving manual calibration points.
+   */
+  setDeviceSerialNumber(serialNumber: string | undefined): void
+
+  /**
    * Retrieves battery level from the standard Battery service.
    * @returns {Promise<string | undefined>} A Promise that resolves with the battery percentage.
    */
   battery(): Promise<string | undefined>
 
   /**
-   * Retrieves battery voltage through the Frez Dyno command characteristic.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the battery voltage response.
+   * Compatibility alias for the standard Battery Level characteristic.
+   * The Frez app does not send a battery-voltage command.
    */
   batteryVoltage(): Promise<string | undefined>
 
@@ -86,7 +105,7 @@ export interface IFrezDyno extends IDevice {
   firmware(): Promise<string | undefined>
 
   /**
-   * Retrieves serial number from the standard Device Information service.
+   * Retrieves the serial number from the standard Device Information service.
    * @returns {Promise<string | undefined>} A Promise that resolves with the serial number.
    */
   serial(): Promise<string | undefined>
@@ -110,6 +129,6 @@ export interface IFrezDyno extends IDevice {
    */
   stream(duration?: number): Promise<void>
 
-  /** True if tare() uses device hardware tare rather than software averaging. */
-  readonly usesHardwareTare: true
+  /** False because the Frez app tares in software during an active measurement. */
+  readonly usesHardwareTare: false
 }

@@ -9,6 +9,7 @@ export type DeviceType =
   | "cts500"
   | "entralpi"
   | "forceboard"
+  | "frezdyno"
   | "motherboard"
   | "mysmartboard"
   | "pb700bt"
@@ -36,6 +37,7 @@ export default function DevicePicker({ selectedDevice, onDeviceChange }: DeviceP
           <Picker.Item label="CTS500" value="cts500" />
           <Picker.Item label="Entralpi" value="entralpi" />
           <Picker.Item label="Force Board" value="forceboard" />
+          <Picker.Item label="Frez Dyno" value="frezdyno" />
           <Picker.Item label="Motherboard" value="motherboard" />
           <Picker.Item label="mySmartBoard" value="mysmartboard" enabled={false} />
           <Picker.Item label="PB-700BT" value="pb700bt" />

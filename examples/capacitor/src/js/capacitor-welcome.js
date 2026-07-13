@@ -5,6 +5,7 @@ import {
   CTS500,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   Motherboard,
   PB700BT,
   Progressor,
@@ -139,6 +140,7 @@ globalThis.customElements.define(
             <option value="cts500">CTS500</option>
             <option value="entralpi">Entralpi</option>
             <option value="forceboard">Force Board</option>
+            <option value="frezdyno">Frez Dyno</option>
             <option value="motherboard">Motherboard</option>
             <option value="pb700bt">PB-700BT</option>
             <option value="progressor">Progressor</option>
@@ -187,6 +189,9 @@ globalThis.customElements.define(
               break
             case "forceboard":
               device = new ForceBoard()
+              break
+            case "frezdyno":
+              device = new FrezDyno()
               break
             case "motherboard":
               device = new Motherboard()

@@ -23,10 +23,15 @@ function cleanIdentifier(value: unknown): string | null {
   return trimmed || null
 }
 
+export function getBluetoothDeviceId(device: ConnectedDevice | null | undefined): string | null {
+  if (!device) return null
+  return cleanIdentifier((device as DeviceWithBluetooth).bluetooth?.id)
+}
+
 export async function readDeviceIdentifiers(device: ConnectedDevice): Promise<DeviceIdentifiers> {
   const bluetooth = (device as DeviceWithBluetooth).bluetooth
   const identifiers: DeviceIdentifiers = {
-    browserId: cleanIdentifier(bluetooth?.id),
+    browserId: getBluetoothDeviceId(device),
     name: cleanIdentifier(bluetooth?.name),
     serial: null,
     serialError: null,

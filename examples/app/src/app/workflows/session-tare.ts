@@ -1,6 +1,11 @@
 import { getActiveDevice } from "../../devices/session.js"
-import { formatDeviceIdentifiers, readDeviceIdentifiers } from "../../devices/diagnostics.js"
-import { loadPreferences } from "../../settings/storage.js"
+import { formatDeviceIdentifiers, getBluetoothDeviceId, readDeviceIdentifiers } from "../../devices/diagnostics.js"
+import {
+  loadFrezDynoSerialNumber,
+  loadPreferences,
+  parseFrezDynoSerialNumber,
+  saveFrezDynoSerialNumber,
+} from "../../settings/storage.js"
 import type { AppState } from "../core/state.js"
 
 function usesHardwareTare(device: NonNullable<ReturnType<typeof getActiveDevice>>): boolean {
@@ -17,7 +22,7 @@ async function runFallbackTarePrompt(device: NonNullable<ReturnType<typeof getAc
   const streamForTare = typeof device.stream === "function" ? device.stream.bind(device) : undefined
   let streamStarted = false
 
-  if (hardwareTare && streamForTare) {
+  if (streamForTare) {
     try {
       await streamForTare()
       streamStarted = true
@@ -61,6 +66,15 @@ async function runGuidedTareDialog(): Promise<boolean> {
       <p class="tare-dialog-current"><strong data-tare-current>0.0</strong> <span data-tare-unit>kg</span></p>
       <p class="tare-dialog-status" data-tare-status>Starting live stream...</p>
       <pre class="tare-dialog-device-identifiers" data-tare-device-identifiers hidden></pre>
+      <div class="tare-dialog-frez-recovery" data-tare-frez-recovery hidden>
+        <p>Chrome could not read this Frez Dyno's serial number, so its factory calibration could not be found.</p>
+        <label>
+          Actual Frez serial number
+          <input type="text" autocomplete="off" placeholder="Serial from the device label or Frez app" data-tare-frez-serial />
+        </label>
+        <button type="button" data-tare-frez-retry>Save serial and retry</button>
+        <p>Alternatively, cancel and open Settings &gt; Calibration to enter device-specific raw/weight points.</p>
+      </div>
       <menu class="tare-dialog-actions">
         <button type="button" value="cancel" data-tare-cancel>Cancel</button>
         <button type="button" value="confirm" data-tare-confirm disabled>Tare</button>
@@ -72,11 +86,17 @@ async function runGuidedTareDialog(): Promise<boolean> {
   const currentElement = dialog.querySelector<HTMLElement>("[data-tare-current]")
   const statusElement = dialog.querySelector<HTMLElement>("[data-tare-status]")
   const identifiersElement = dialog.querySelector<HTMLElement>("[data-tare-device-identifiers]")
+  const frezRecoveryElement = dialog.querySelector<HTMLElement>("[data-tare-frez-recovery]")
+  const frezSerialInput = dialog.querySelector<HTMLInputElement>("[data-tare-frez-serial]")
+  const frezRetryButton = dialog.querySelector<HTMLButtonElement>("[data-tare-frez-retry]")
   const unitElement = dialog.querySelector<HTMLElement>("[data-tare-unit]")
   const confirmButton = dialog.querySelector<HTMLButtonElement>("[data-tare-confirm]")
   const cancelButton = dialog.querySelector<HTMLButtonElement>("[data-tare-cancel]")
   const { unit } = loadPreferences()
+  const frezDynoDeviceId = getBluetoothDeviceId(device)
+  const frezDynoSerialNumber = loadFrezDynoSerialNumber(frezDynoDeviceId)
   if (unitElement) unitElement.textContent = unit
+  if (frezSerialInput && frezDynoSerialNumber) frezSerialInput.value = frezDynoSerialNumber
 
   let done = false
   let streamStarted = false
@@ -118,10 +138,46 @@ async function runGuidedTareDialog(): Promise<boolean> {
       }
       if (confirmButton && !done) confirmButton.disabled = false
     } catch (error: unknown) {
+      const canRecoverFrezCalibration =
+        typeof device.setDeviceSerialNumber === "function" &&
+        error instanceof Error &&
+        error.message.includes("Frez Dyno") &&
+        error.message.toLowerCase().includes("calibration")
       if (statusElement && !done) {
-        statusElement.textContent = error instanceof Error ? error.message : "Failed to start stream for tare."
+        statusElement.textContent = canRecoverFrezCalibration
+          ? "Factory calibration not found. Enter the actual Frez serial number below and retry."
+          : error instanceof Error
+            ? error.message
+            : "Failed to start stream for tare."
       }
       await showDeviceIdentifiers()
+      if (canRecoverFrezCalibration && frezRecoveryElement && !done) {
+        frezRecoveryElement.hidden = false
+        frezSerialInput?.focus()
+      }
+    }
+  }
+
+  if (frezRetryButton) {
+    frezRetryButton.onclick = async () => {
+      if (done || typeof device.setDeviceSerialNumber !== "function") return
+
+      const rawSerialNumber = frezSerialInput?.value.trim() ?? ""
+      const serialNumber = parseFrezDynoSerialNumber(rawSerialNumber)
+      if (!serialNumber) {
+        if (statusElement) statusElement.textContent = "Enter a valid Frez serial number before retrying."
+        frezSerialInput?.focus()
+        return
+      }
+
+      frezRetryButton.disabled = true
+      if (frezRecoveryElement) frezRecoveryElement.hidden = true
+      if (identifiersElement) identifiersElement.hidden = true
+      if (statusElement) statusElement.textContent = "Retrying factory calibration lookup..."
+      device.setDeviceSerialNumber(serialNumber)
+      saveFrezDynoSerialNumber(frezDynoDeviceId, serialNumber)
+      await startStreamForTare()
+      if (!streamStarted && !done) frezRetryButton.disabled = false
     }
   }
 

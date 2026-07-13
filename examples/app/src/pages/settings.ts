@@ -1,6 +1,7 @@
 import { getActiveDevice } from "../devices/session.js"
+import { getBluetoothDeviceId } from "../devices/diagnostics.js"
 import { BAUD_RATE_OPTIONS, SAMPLING_RATE_OPTIONS } from "../settings/rates.js"
-import { loadPreferences } from "../settings/storage.js"
+import { loadFrezDynoSerialNumber, loadPreferences } from "../settings/storage.js"
 
 export type SettingsPageId =
   | "unit"
@@ -37,6 +38,7 @@ interface CapabilityState {
   supportsSystemInfo: boolean
   supportsCalibrationRead: boolean
   supportsCalibrationSet: boolean
+  supportsFrezSerial: boolean
   supportsFrezRawCalibration: boolean
   supportsCalibrationAddPoint: boolean
   supportsCalibrationSave: boolean
@@ -69,6 +71,7 @@ function readCapabilities(): CapabilityState {
     ),
     supportsCalibrationRead: Boolean(device?.calibration),
     supportsCalibrationSet: Boolean(device?.setCalibration),
+    supportsFrezSerial: Boolean(device?.setDeviceSerialNumber),
     supportsFrezRawCalibration: Boolean(device?.setRawCalibration),
     supportsCalibrationAddPoint: Boolean(device?.addCalibrationPoint),
     supportsCalibrationSave: Boolean(device?.saveCalibration),
@@ -103,6 +106,7 @@ function renderSettingsList(): string {
       enabled:
         capabilities.supportsCalibrationRead ||
         capabilities.supportsCalibrationSet ||
+        capabilities.supportsFrezSerial ||
         capabilities.supportsFrezRawCalibration ||
         capabilities.supportsCalibrationAddPoint,
     },
@@ -328,10 +332,10 @@ function renderBaudRatePage(): string {
 
 function renderCalibrationPage(): string {
   const capabilities = readCapabilities()
+  const preferences = loadPreferences()
+  const frezDynoSerialNumber = loadFrezDynoSerialNumber(getBluetoothDeviceId(getActiveDevice()))
   const frezCalibrationValue =
-    loadPreferences()
-      .frezDynoCalibrationPoints?.map(({ raw, weight }) => `${raw}:${weight}`)
-      .join(", ") ?? ""
+    preferences.frezDynoCalibrationPoints?.map(({ raw, weight }) => `${raw}:${weight}`).join(", ") ?? ""
 
   return `
     <section class="session-page" aria-label="Settings">
@@ -345,6 +349,12 @@ function renderCalibrationPage(): string {
         <input type="text" placeholder="e.g. 00 00 00 00 11 22 33 44 55 66 77 88" data-settings-calibration-input />
       </label>
       <button type="button" data-settings-action="calibration-set" ${!capabilities.supportsCalibrationSet ? "disabled" : ""}>Set Calibration</button>
+      <label>
+        Frez serial number
+        <input type="text" placeholder="Actual device serial (not the name suffix)" value="${frezDynoSerialNumber ?? ""}" data-settings-frez-serial-input />
+      </label>
+      <p>Chrome blocks the BLE serial characteristic. Enter the actual device serial to load its factory calibration.</p>
+      <button type="button" data-settings-action="frez-serial-set" ${!capabilities.supportsFrezSerial ? "disabled" : ""}>Set Frez Serial</button>
       <label>
         Frez calibration override
         <input type="text" placeholder="e.g. 1000:0, 3000:20" value="${frezCalibrationValue}" data-settings-frez-calibration-input />

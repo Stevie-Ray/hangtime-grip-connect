@@ -17,6 +17,7 @@ export interface ConnectedDevice {
   setSamplingRate?(samplingRate: DeviceSamplingRate): Promise<void>
   calibration?(): Promise<unknown>
   setCalibration?(curve: Uint8Array): Promise<void>
+  setDeviceSerialNumber?(serialNumber: string | undefined): void
   setRawCalibration?(points: FrezDynoCalibrationPoint[]): void
   addCalibrationPoint?(): Promise<void>
   saveCalibration?(): Promise<void>

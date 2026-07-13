@@ -60,6 +60,9 @@ export abstract class Device extends BaseModel implements IDevice {
    * @protected
    */
   protected writeLast: string | Uint8Array | null = null
+
+  /** Prefer acknowledged GATT writes when both write modes are available. */
+  protected preferWriteWithResponse = false
   /**
    * Indicates whether the device is currently active.
    * @type {boolean}
@@ -1221,7 +1224,9 @@ export abstract class Device extends BaseModel implements IDevice {
     this.writeCallback = callback
 
     try {
-      if (this.canUseWriteWithoutResponse(characteristic)) {
+      if (this.preferWriteWithResponse && this.canUseWriteWithResponse(characteristic)) {
+        await characteristic.writeValueWithResponse(valueToWrite)
+      } else if (this.canUseWriteWithoutResponse(characteristic)) {
         await characteristic.writeValueWithoutResponse(valueToWrite)
       } else if (this.canUseWriteWithResponse(characteristic)) {
         await characteristic.writeValueWithResponse(valueToWrite)

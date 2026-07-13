@@ -5,6 +5,7 @@ import {
   CTS500,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   Motherboard,
   mySmartBoard,
   PB700BT,
@@ -21,6 +22,7 @@ let device:
   | CTS500
   | Entralpi
   | ForceBoard
+  | FrezDyno
   | Motherboard
   | mySmartBoard
   | PB700BT
@@ -45,6 +47,8 @@ const createDevice = (deviceType: DeviceType) => {
       return new Entralpi()
     case "forceboard":
       return new ForceBoard()
+    case "frezdyno":
+      return new FrezDyno()
     case "motherboard":
       return new Motherboard()
     case "mysmartboard":

@@ -114,7 +114,7 @@ describe("WebBluetoothMock", () => {
     assert.equal(tx.lastWriteMethod, "writeValueWithResponse")
   })
 
-  it("starts Frez Dyno streams with write-without-response", async (t) => {
+  it("starts Frez Dyno streams with the app's acknowledged 0x01 write", async (t) => {
     const device = new FrezDyno({
       calibrationPoints: [
         { raw: 1000, weight: 0 },
@@ -134,8 +134,8 @@ describe("WebBluetoothMock", () => {
 
     await device.stream()
 
-    assert.deepEqual([...tx.lastWrite], [101])
-    assert.equal(tx.lastWriteMethod, "writeValueWithoutResponse")
+    assert.deepEqual([...tx.lastWrite], [0x01])
+    assert.equal(tx.lastWriteMethod, "writeValueWithResponse")
   })
 
   it("supports characteristic read values", async (t) => {

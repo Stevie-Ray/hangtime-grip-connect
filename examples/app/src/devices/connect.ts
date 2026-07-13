@@ -4,7 +4,7 @@ import {
   Entralpi,
   ForceBoard,
   FrezDyno,
-  lookupFrezDynoRemoteCalibration,
+  lookupFrezDynoRemoteCalibrationData,
   Motherboard,
   PB700BT,
   Progressor,
@@ -13,9 +13,21 @@ import {
 } from "@hangtime/grip-connect"
 import type { ConnectedDevice } from "./session.js"
 import { setActiveDevice } from "./session.js"
-import { loadFrezDynoCalibrationCache, loadPreferences, saveFrezDynoCalibrationCache } from "../settings/storage.js"
+import { getBluetoothDeviceId } from "./diagnostics.js"
+import {
+  loadFrezDynoCalibrationCache,
+  loadFrezDynoSerialNumber,
+  loadPreferences,
+  saveFrezDynoCalibrationCache,
+} from "../settings/storage.js"
 
 type SupportedDevice = ConnectedDevice
+
+function applySavedFrezDynoSerial(device: SupportedDevice): void {
+  if (!device.setDeviceSerialNumber) return
+  const serialNumber = loadFrezDynoSerialNumber(getBluetoothDeviceId(device))
+  if (serialNumber) device.setDeviceSerialNumber(serialNumber)
+}
 
 function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "climbro") return new Climbro()
@@ -23,16 +35,17 @@ function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "entralpi") return new Entralpi()
   if (deviceKey === "forceboard") return new ForceBoard()
   if (deviceKey === "dyno") {
-    const calibrationPoints = loadPreferences().frezDynoCalibrationPoints
+    const preferences = loadPreferences()
+    const calibrationPoints = preferences.frezDynoCalibrationPoints
     return new FrezDyno({
       ...(calibrationPoints ? { calibrationPoints } : {}),
       calibrationLookup: async (params) => {
-        const cachedPoints = loadFrezDynoCalibrationCache(params)
-        if (cachedPoints) return cachedPoints
+        const cachedCalibration = loadFrezDynoCalibrationCache(params)
+        if (cachedCalibration) return cachedCalibration
 
-        const remotePoints = await lookupFrezDynoRemoteCalibration(params)
-        if (remotePoints) saveFrezDynoCalibrationCache(params, remotePoints)
-        return remotePoints
+        const remoteCalibration = await lookupFrezDynoRemoteCalibrationData(params)
+        if (remoteCalibration) saveFrezDynoCalibrationCache(params, remoteCalibration)
+        return remoteCalibration
       },
     })
   }
@@ -61,7 +74,8 @@ export async function connectSelectedDevice(
   let connectError: Error | null = null
   try {
     await device.connect(
-      async () => {
+      () => {
+        applySavedFrezDynoSerial(device)
         connected = true
         setActiveDevice(device, deviceKey)
         if (statusElement) statusElement.textContent = `Connected to ${deviceName}.`
@@ -72,6 +86,7 @@ export async function connectSelectedDevice(
       },
     )
     if (!connected && !connectError && device.isConnected?.()) {
+      applySavedFrezDynoSerial(device)
       connected = true
       setActiveDevice(device, deviceKey)
       if (statusElement) statusElement.textContent = `Connected to ${deviceName}.`

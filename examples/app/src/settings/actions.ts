@@ -1,8 +1,9 @@
 import type { FrezDynoCalibrationPoint } from "@hangtime/grip-connect"
 import type { ConnectedDevice } from "../devices/session.js"
+import { getBluetoothDeviceId } from "../devices/diagnostics.js"
 import { setActiveDevice } from "../devices/session.js"
 import { parseBaudRate, parseSamplingRate } from "./rates.js"
-import { savePreferences } from "./storage.js"
+import { parseFrezDynoSerialNumber, saveFrezDynoSerialNumber, savePreferences } from "./storage.js"
 import { loadNordicDfuPackage } from "./nordic-dfu-package.js"
 
 export type SettingsActionId =
@@ -12,6 +13,7 @@ export type SettingsActionId =
   | "system-info"
   | "calibration-read"
   | "calibration-set"
+  | "frez-serial-set"
   | "frez-raw-calibration-set"
   | "calibration-add-point"
   | "calibration-save"
@@ -380,6 +382,32 @@ export async function runSettingsAction(options: RunSettingsActionOptions): Prom
       }
       await device.setCalibration(curve)
       setFeedback(curve.length === 0 ? "Calibration reset." : "Calibration curve updated.")
+      return
+    }
+
+    if (action === "frez-serial-set") {
+      if (!device.setDeviceSerialNumber) {
+        setFeedback("Frez serial override is not supported by this device.")
+        return
+      }
+
+      const input = appElement.querySelector<HTMLInputElement>("[data-settings-frez-serial-input]")
+      const rawSerialNumber = input?.value.trim() ?? ""
+      const serialNumber = parseFrezDynoSerialNumber(rawSerialNumber)
+      if (rawSerialNumber && !serialNumber) {
+        setFeedback("Invalid Frez serial number.")
+        return
+      }
+
+      const deviceId = getBluetoothDeviceId(device)
+      if (!deviceId) {
+        setFeedback("Cannot save the Frez serial without a Bluetooth device ID.")
+        return
+      }
+
+      device.setDeviceSerialNumber(serialNumber ?? undefined)
+      saveFrezDynoSerialNumber(deviceId, serialNumber)
+      setFeedback(serialNumber ? "Frez serial override updated." : "Frez serial override cleared.")
       return
     }
 
