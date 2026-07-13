@@ -58,10 +58,11 @@
     "@changesets/cli": "^2.31.0",
     "@types/node": "^22.20.0",
     "@types/web-bluetooth": "^0.0.21",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "husky": "^9.1.7",
     "oxfmt": "^0.57.0",
     "oxlint": "^1.72.0",
-    "typescript": "^6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {
     "node": ">=22"

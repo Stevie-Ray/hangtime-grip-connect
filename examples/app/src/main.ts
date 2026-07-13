@@ -1,4 +1,5 @@
 import "./style.css"
+import "./pwa.js"
 import { setupFontAwesome } from "./ui/icons.js"
 import { registerAppEvents } from "./app/core/events.js"
 import { renderApp } from "./app/core/render-app.js"
