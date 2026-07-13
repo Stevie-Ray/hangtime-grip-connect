@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-capacitor",
-  "version": "0.13.1",
+  "version": "0.13.4",
   "description": "Capacitor plugin for Grip Connect devices",
   "keywords": [
     "auroraboard",
@@ -51,7 +51,7 @@
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^8.2.0",
     "@capacitor/filesystem": "^8.1.2",
-    "@hangtime/grip-connect": "^0.13.2"
+    "@hangtime/grip-connect": "^0.13.4"
   },
   "devDependencies": {
     "@typescript/native": "npm:typescript@^7.0.2",
