@@ -15,16 +15,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^7.3.0",
-    "@fortawesome/free-brands-svg-icons": "^7.3.0",
-    "@fortawesome/free-regular-svg-icons": "^7.3.0",
-    "@fortawesome/free-solid-svg-icons": "^7.3.0",
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-brands-svg-icons": "^7.3.1",
+    "@fortawesome/free-regular-svg-icons": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@hangtime/grip-connect": "^0.13.4"
   },
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.8",
     "@typescript/native": "npm:typescript@^7.0.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "vite": "^8.1.4"
+    "vite": "^8.1.5"
   }
 }
