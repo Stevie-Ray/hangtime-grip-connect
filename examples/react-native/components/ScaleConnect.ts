@@ -34,6 +34,7 @@ if (Platform.OS !== "web") {
 }
 
 const { requestPermissions } = BluetoothPermissions()
+const frezAccessKey = process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY
 
 const createDevice = (deviceType: DeviceType) => {
   switch (deviceType) {
@@ -48,7 +49,7 @@ const createDevice = (deviceType: DeviceType) => {
     case "forceboard":
       return new ForceBoard()
     case "frezdyno":
-      return new FrezDyno()
+      return new FrezDyno({ accessKey: frezAccessKey })
     case "motherboard":
       return new Motherboard()
     case "mysmartboard":
@@ -105,10 +106,22 @@ const startScan = async (
       setNewWeight(data.current)
     })
 
+    if (device instanceof FrezDyno) {
+      await device.connect(
+        () => undefined,
+        () => undefined,
+      )
+      await device.stream()
+      return
+    }
+
     await device.connect(
       () => {
         if (device && "stream" in device) {
-          device.stream()
+          void device.stream().catch((error: unknown) => {
+            setError(error instanceof Error ? error.message : "Failed to start device stream")
+            console.error(error)
+          })
         }
       },
       (error) => {
@@ -117,14 +130,15 @@ const startScan = async (
         return
       },
     )
-  } catch (err) {
-    setError("An error occurred while scanning")
-    console.error(err)
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") return
+    setError(error instanceof Error ? error.message : "An error occurred while scanning")
+    console.error(error)
   }
 }
 
 export const stopScan = () => {
-  bleManager?.stopDeviceScan()
-  device?.disconnect()
+  device?.manager.stopDeviceScan()
+  void device?.disconnect()
   device = null
 }

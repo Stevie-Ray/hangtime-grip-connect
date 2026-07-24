@@ -3,10 +3,13 @@ import { FrezDyno as FrezDynoBase, type FrezDynoOptions } from "@hangtime/grip-c
 import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
 import { BleManager, type Device as BleDevice, type Subscription } from "react-native-ble-plx"
 
+const SCAN_TIMEOUT_MS = 10_000
+
 /** Represents a Frez Dyno using React Native's native BLE transport. */
 export class FrezDyno extends FrezDynoBase {
   manager: BleManager
   device?: BleDevice
+  private cancelPendingConnection?: () => Promise<void>
   private notificationSubscription: Subscription | undefined
 
   constructor(options: FrezDynoOptions = {}) {
@@ -21,29 +24,44 @@ export class FrezDyno extends FrezDynoBase {
     await new Promise<void>((resolve, reject) => {
       let connecting = false
       let settled = false
+      let scanTimeout: ReturnType<typeof setTimeout> | undefined
       const stopScan = (): void => {
+        if (scanTimeout) {
+          clearTimeout(scanTimeout)
+          scanTimeout = undefined
+        }
         try {
           this.manager.stopDeviceScan()
         } catch {
           // The scan may already have stopped after a native transport error.
         }
       }
-      const fail = (error: Error): void => {
+      const fail = async (error: Error): Promise<void> => {
         if (settled) return
         settled = true
         stopScan()
-        try {
-          onError(error)
-        } catch {
-          // Preserve the transport error as the connect() rejection.
-        }
-        reject(error)
+        delete this.cancelPendingConnection
+        await this.cleanupConnection().finally(() => {
+          try {
+            onError(error)
+          } catch {
+            // Preserve the transport error as the connect() rejection.
+          }
+          reject(error)
+        })
+      }
+      this.cancelPendingConnection = () => {
+        const error = new Error("Frez Dyno connection cancelled")
+        error.name = "AbortError"
+        return fail(error)
       }
 
       try {
+        scanTimeout = setTimeout(() => void fail(new Error("No Frez Dyno found")), SCAN_TIMEOUT_MS)
         this.manager.startDeviceScan(null, { scanMode: 2, callbackType: 1 }, (error, scannedDevice) => {
+          if (settled) return
           if (error) {
-            fail(error)
+            void fail(error)
             return
           }
 
@@ -56,31 +74,41 @@ export class FrezDyno extends FrezDynoBase {
           void scannedDevice
             .connect()
             .then(async (connectedDevice) => {
-              this.device = await connectedDevice.requestMTU(85).catch(() => connectedDevice)
+              if (settled) {
+                await this.manager.cancelDeviceConnection(connectedDevice.id).catch(() => undefined)
+                return
+              }
+
+              const mtuDevice = await connectedDevice.requestMTU(85).catch(() => connectedDevice)
+              if (settled) {
+                await this.manager.cancelDeviceConnection(mtuDevice.id).catch(() => undefined)
+                return
+              }
+
+              this.device = mtuDevice
               console.log(`Connected to device: ${this.device.id}`)
               return this.onConnected(onSuccess)
             })
             .then(() => {
               if (settled) return
               settled = true
+              delete this.cancelPendingConnection
               resolve()
             })
-            .catch((error: unknown) => fail(error instanceof Error ? error : new Error(String(error))))
+            .catch((error: unknown) => void fail(error instanceof Error ? error : new Error(String(error))))
         })
       } catch (error) {
-        fail(error instanceof Error ? error : new Error(String(error)))
+        void fail(error instanceof Error ? error : new Error(String(error)))
       }
     })
   }
 
   override disconnect = async (): Promise<void> => {
-    if (this.device) {
-      await this.stop().catch(() => undefined)
-      this.notificationSubscription?.remove()
-      this.notificationSubscription = undefined
-      await this.manager.cancelDeviceConnection(this.device.id)
+    if (this.cancelPendingConnection) {
+      await this.cancelPendingConnection()
+      return
     }
-    this.onDisconnectCleanup()
+    await this.cleanupConnection()
   }
 
   override download = async (): Promise<void> => {
@@ -128,6 +156,7 @@ export class FrezDyno extends FrezDynoBase {
       (error, characteristic) => {
         if (error) {
           console.error(error)
+          void this.disconnect()
           return
         }
         if (!characteristic?.value) return
@@ -203,5 +232,31 @@ export class FrezDyno extends FrezDynoBase {
 
   protected override getCoefficientDeviceName(): string | undefined {
     return (this.device?.localName ?? this.device?.name)?.trim() || undefined
+  }
+
+  private cleanupConnection = async (): Promise<void> => {
+    try {
+      this.manager.stopDeviceScan()
+    } catch {
+      // The scan may not be active.
+    }
+
+    const device = this.device
+    try {
+      this.notificationSubscription?.remove()
+    } catch {
+      // The subscription may already have ended after a transport error.
+    }
+    this.notificationSubscription = undefined
+
+    try {
+      if (device) {
+        await this.stop().catch(() => undefined)
+        await this.manager.cancelDeviceConnection(device.id).catch(() => undefined)
+      }
+    } finally {
+      delete this.device
+      this.onDisconnectCleanup()
+    }
   }
 }
