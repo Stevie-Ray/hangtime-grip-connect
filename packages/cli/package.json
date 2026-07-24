@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/cli",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "CLI tool for Grip Connect devices",
   "keywords": [
     "auroraboard",
@@ -54,7 +54,7 @@
     "dev": "tsx src/index.ts"
   },
   "dependencies": {
-    "@hangtime/grip-connect-runtime": "^0.13.1",
+    "@hangtime/grip-connect-runtime": "^0.14.0",
     "@inquirer/input": "^5.1.2",
     "@inquirer/select": "^5.2.1",
     "asciichart": "^1.5.25",
