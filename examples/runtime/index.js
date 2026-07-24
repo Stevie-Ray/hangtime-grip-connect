@@ -1,19 +1,19 @@
-import { Progressor } from "@hangtime/cli"
+import { FrezDyno } from "@hangtime/grip-connect-runtime"
 
-const progressor = new Progressor()
+const dyno = new FrezDyno()
 
-progressor.connect(
-  async () => {
-    const batteryLevel = await progressor.battery()
-    console.log(batteryLevel)
+dyno.notify((measurement) => {
+  console.log(measurement.current, measurement.unit, measurement.timestamp)
+})
 
-    const firmwareVersion = await progressor.firmware()
-    console.log(firmwareVersion)
+await new Promise((resolve, reject) => {
+  void dyno.connect(resolve, reject)
+})
 
-    await progressor.stream(5000)
-
-    await progressor.download()
-
-    progressor.disconnect()
-  },
-)
+try {
+  console.log("Serial:", await dyno.serial())
+  await dyno.stream(5000)
+  await dyno.download("json")
+} finally {
+  dyno.disconnect()
+}

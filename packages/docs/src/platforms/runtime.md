@@ -115,6 +115,7 @@ The runtime package re-exports all device classes from the core library with Nod
 | `CTS500`        | Jlyscales CTS500                                                                                                                             |
 | `Entralpi`      | Entralpi                                                                                                                                     |
 | `ForceBoard`    | PitchSix Force Board                                                                                                                         |
+| `FrezDyno`      | Frez Dyno                                                                                                                                    |
 | `AuroraBoard`   | Aurora Board                                                                                                                                 |
 | `Motherboard`   | Griptonite Motherboard                                                                                                                       |
 | `mySmartBoard`  | mySmartBoard                                                                                                                                 |

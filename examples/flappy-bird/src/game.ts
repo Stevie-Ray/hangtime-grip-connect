@@ -3,6 +3,7 @@ import {
   Climbro,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   Motherboard,
   mySmartBoard,
   Progressor,
@@ -14,7 +15,7 @@ import { requestWakeLock } from "./wake-lock.js"
 let mass: number
 let weight = 5
 let difficulty = 2
-let device: CTS500 | Climbro | Entralpi | ForceBoard | Motherboard | mySmartBoard | Progressor | WHC06
+let device: CTS500 | Climbro | Entralpi | ForceBoard | FrezDyno | Motherboard | mySmartBoard | Progressor | WHC06
 
 /**
  * Sets up the device selection functionality and event listeners for streaming, tare, and download actions.
@@ -34,6 +35,8 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
       device = new Entralpi()
     } else if (selectedDevice === "forceboard") {
       device = new ForceBoard()
+    } else if (selectedDevice === "frezdyno") {
+      device = new FrezDyno()
     } else if (selectedDevice === "motherboard") {
       device = new Motherboard()
     } else if (selectedDevice === "smartboard") {
@@ -55,6 +58,7 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
         if (
           device instanceof CTS500 ||
           device instanceof ForceBoard ||
+          device instanceof FrezDyno ||
           device instanceof Motherboard ||
           device instanceof Progressor
         ) {
@@ -114,7 +118,12 @@ async function handleUserInput(): Promise<void> {
     case state.getReady:
       if (device) {
         if (device.isConnected()) {
-          if (device instanceof CTS500 || device instanceof Motherboard || device instanceof Progressor) {
+          if (
+            device instanceof CTS500 ||
+            device instanceof FrezDyno ||
+            device instanceof Motherboard ||
+            device instanceof Progressor
+          ) {
             await device.stream()
           }
           state.curr = state.Play
@@ -125,6 +134,7 @@ async function handleUserInput(): Promise<void> {
             if (
               device instanceof CTS500 ||
               device instanceof ForceBoard ||
+              device instanceof FrezDyno ||
               device instanceof Motherboard ||
               device instanceof Progressor
             ) {
@@ -343,7 +353,7 @@ const bird: {
           if (!SFX.played) {
             SFX.die.play()
             SFX.played = true
-            if (device instanceof Motherboard || device instanceof Progressor) {
+            if (device instanceof FrezDyno || device instanceof Motherboard || device instanceof Progressor) {
               await device.stop()
             }
           }

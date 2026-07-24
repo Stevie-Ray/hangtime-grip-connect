@@ -1,4 +1,13 @@
-export type { ForceUnit, ForceMeasurement, NotifyCallback, WriteCallback, ActiveCallback } from "@hangtime/grip-connect"
+export type {
+  ActiveCallback,
+  ForceMeasurement,
+  ForceUnit,
+  FrezDynoCoefficientLookup,
+  FrezDynoCoefficientLookupParams,
+  FrezDynoOptions,
+  NotifyCallback,
+  WriteCallback,
+} from "@hangtime/grip-connect"
 
 export type {
   AuroraLedPlacement,
@@ -7,6 +16,7 @@ export type {
   ICTS500,
   IEntralpi,
   IForceBoard,
+  IFrezDyno,
   IMotherboard,
   ImySmartBoard,
   IPB700BT,
@@ -20,6 +30,7 @@ export {
   CTS500,
   Entralpi,
   ForceBoard,
+  FrezDyno,
   AuroraBoard,
   Motherboard,
   mySmartBoard,

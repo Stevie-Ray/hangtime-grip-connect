@@ -20,9 +20,9 @@ or [Deno](https://deno.com/) for scripts, data logging, or headless testing.
 
 ## Pattern
 
-1. Import the device class from `@hangtime/grip-connect-runtime`.
+1. Import `FrezDyno` from `@hangtime/grip-connect-runtime`.
 2. Create the device, set `notify()` (and optionally `active()`).
-3. Call `connect(onSuccess, onError)` and inside the success callback use `stream()`, `battery()`, `download()`, etc.
+3. Connect, stream, and call `download()` to save the captured session.
 4. Run the script on a machine with Bluetooth and a paired/supported device.
 
 See [Platforms: Runtime](/platforms/runtime) for install and usage notes, or [Platforms: CLI](/platforms/cli) for the
@@ -34,6 +34,8 @@ From the repo root:
 
 ```sh
 npm install
+cp examples/runtime/.env.example examples/runtime/.env
+# Add FREZ_ACCESS_KEY to .env.
 npm run start --workspace ./examples/runtime
 ```
 

@@ -6,7 +6,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node --env-file=.env index.js"
   },
   "dependencies": {
     "@hangtime/grip-connect-runtime": "^0.14.0"

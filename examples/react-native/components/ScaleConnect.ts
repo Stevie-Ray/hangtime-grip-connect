@@ -35,6 +35,9 @@ if (Platform.OS !== "web") {
 
 const { requestPermissions } = BluetoothPermissions()
 const frezAccessKey = process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY
+if (frezAccessKey?.trim()) {
+  process.env.FREZ_ACCESS_KEY = frezAccessKey
+}
 
 const createDevice = (deviceType: DeviceType) => {
   switch (deviceType) {
@@ -49,7 +52,7 @@ const createDevice = (deviceType: DeviceType) => {
     case "forceboard":
       return new ForceBoard()
     case "frezdyno":
-      return new FrezDyno({ accessKey: frezAccessKey })
+      return new FrezDyno()
     case "motherboard":
       return new Motherboard()
     case "mysmartboard":

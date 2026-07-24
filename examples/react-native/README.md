@@ -17,9 +17,11 @@ This is an [Expo](https://expo.dev) project created with
    npx expo start
    ```
 
-   To connect a Frez Dyno, copy `.env.example` to `.env.local` and set `EXPO_PUBLIC_FREZ_ACCESS_KEY`. Expo embeds
-   `EXPO_PUBLIC_` values in the application bundle, so use this only for the example app and do not distribute a
-   production build with a personal access key.
+   To connect a Frez Dyno, copy `.env.example` to `.env.local` and set `EXPO_PUBLIC_FREZ_ACCESS_KEY`. Expo loads this
+   variable automatically, and the app passes it to Grip Connect so it can use `new FrezDyno()`.
+
+   `EXPO_PUBLIC_` values are included in the compiled app in plain text. Use this only for local development and do not
+   distribute a build containing a personal Frez access key.
 
 In the output, you'll find options to open the app in a
 

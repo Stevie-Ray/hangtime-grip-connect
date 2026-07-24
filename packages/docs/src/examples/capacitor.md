@@ -23,9 +23,9 @@ devices.
 
 ## Usage
 
-The example is a single-page app with a **device picker** (Climbro, CTS500, Entralpi, Force Board, Motherboard,
-PB-700BT, Progressor, Smart Board Pro, WH-C06). After you choose a device type, it instantiates the matching class,
-connects over BLE, and shows connection status and streamed data. Use it as a reference for:
+The example is a single-page app with a **device picker** (Climbro, CTS500, Entralpi, Force Board, Frez Dyno,
+Motherboard, PB-700BT, Progressor, Smart Board Pro, WH-C06). After you choose a device type, it instantiates the
+matching class, connects over BLE, and shows connection status and streamed data. Use it as a reference for:
 
 - Installing and configuring the Capacitor package and Bluetooth LE plugin
 - Creating device instances and calling `connect()`, `notify()`, `stream()` from a Capacitor app
@@ -41,6 +41,8 @@ From the repo root:
 
 ```sh
 npm install
+cp examples/capacitor/.env.example examples/capacitor/.env.local
+# Add FREZ_ACCESS_KEY to .env.local when using Frez Dyno.
 npm run build:examples:capacitor
 
 npx cap open ios

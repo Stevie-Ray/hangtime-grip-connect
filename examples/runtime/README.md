@@ -4,6 +4,14 @@ This example demonstrates how to use Grip Connect in a Node.js, Bun, or Deno env
 
 ## Setup
 
+Copy `.env.example` to `.env` and add your personal, non-commercial Frez Developer Program key:
+
+```dotenv
+FREZ_ACCESS_KEY=your-access-key
+```
+
+Keep this file private. Do not distribute the key or make it available through a public service.
+
 ### Node.js
 
 Install the package using npm:
@@ -52,11 +60,11 @@ To run the example:
 
 ```bash
 # Node.js
-node index.js
+npm start
 
 # Bun
 bun index.js
 
 # Deno
-deno run --allow-env --allow-read --allow-sys --allow-ffi index.js
+deno run --env-file=.env --allow-env --allow-net --allow-read --allow-write --allow-sys --allow-ffi index.js
 ```
