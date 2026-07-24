@@ -28,12 +28,7 @@ describe("WebBluetoothMock", () => {
     const devices = [
       new Motherboard(),
       new Progressor(),
-      new FrezDyno({
-        calibrationPoints: [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ],
-      }),
+      new FrezDyno({ coefficient: 0.01 }),
       new ForceBoard(),
       new Climbro(),
       new Entralpi(),
@@ -114,13 +109,8 @@ describe("WebBluetoothMock", () => {
     assert.equal(tx.lastWriteMethod, "writeValueWithResponse")
   })
 
-  it("starts Frez Dyno streams with the app's acknowledged 0x01 write", async (t) => {
-    const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 2000, weight: 10 },
-      ],
-    })
+  it("starts Frez Dyno streams with the acknowledged two-byte Start frame", async (t) => {
+    const device = new FrezDyno({ coefficient: 0.01 })
     const bluetoothDevice = createDeviceMockFromGripDevice(device)
     installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
 
@@ -134,7 +124,7 @@ describe("WebBluetoothMock", () => {
 
     await device.stream()
 
-    assert.deepEqual([...tx.lastWrite], [0x01])
+    assert.deepEqual([...tx.lastWrite], [0x01, 0x00])
     assert.equal(tx.lastWriteMethod, "writeValueWithResponse")
   })
 
@@ -183,14 +173,9 @@ describe("WebBluetoothMock", () => {
   })
 
   it("connects Frez Dyno when the optional serial characteristic is hidden", async (t) => {
-    const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 2000, weight: 10 },
-      ],
-    })
+    const device = new FrezDyno({ coefficient: 0.01 })
     const bluetoothDevice = new BluetoothDeviceMock({
-      name: "FrezDyno Mock",
+      name: "FrezDyno-000123",
       advertisedServices: device.services.map((service) => service.uuid),
       services: device.services.map((service) =>
         service.id === "device"
@@ -218,6 +203,28 @@ describe("WebBluetoothMock", () => {
     assert.equal(connected, true)
     assert.equal(device.isConnected(), true)
     assert.equal(await device.serial(), undefined)
+  })
+
+  it("rejects Frez Dyno setup when the measurement service is missing", async (t) => {
+    const device = new FrezDyno({ coefficient: 0.01 })
+    const bluetoothDevice = new BluetoothDeviceMock({
+      name: "FrezDyno-000123",
+      advertisedServices: device.services.map((service) => service.uuid),
+      services: device.services.filter((service) => service.id !== "frez-dyno"),
+    })
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+    let connectionError
+
+    await device.connect(
+      () => assert.fail("connect should not succeed without the Frez measurement service"),
+      (error) => {
+        connectionError = error
+      },
+    )
+
+    assert.ok(connectionError instanceof Error)
+    assert.match(connectionError.message, /measurement service is unavailable/)
+    assert.equal(device.isConnected(), false)
   })
 
   it("cleans up when notification startup fails", async (t) => {

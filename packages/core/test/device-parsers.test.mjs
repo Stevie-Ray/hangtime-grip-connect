@@ -26,7 +26,6 @@ import {
   progressorWeightPacket,
   textView,
   uint32BePacket,
-  uint32LePacket,
 } from "./helpers.mjs"
 
 function segmentPullupTrace(points, startMs, endMs, startForce, endForce, stepMs = 40) {
@@ -195,79 +194,57 @@ describe("device notification parsers", () => {
     assert.equal(notifications[1].performance.samplingRateHz, 2)
   })
 
-  it("parses Frez Dyno float weight packets and device-timestamp sampling rate", () => {
-    const device = new FrezDyno({ packetFormat: "float" })
+  it("parses Frez Dyno protocol v1 packets after the 100-sample tare", () => {
+    const device = new FrezDyno({ coefficient: 0.01 })
     const notifications = captureNotifications(device)
 
-    device.handleNotifications(
-      progressorWeightPacket([
-        { weight: 8, timestampUs: 1 },
-        { weight: 9.5, timestampUs: 250 },
-      ]),
-    )
-
-    assert.equal(notifications.length, 2)
-    assert.equal(notifications[0].current, 8)
-    assert.equal(notifications[1].current, 9.5)
-    assert.equal(notifications[1].peak, 9.5)
-    assert.equal(notifications[1].mean, 8.75)
-    assert.equal(notifications[1].min, 8)
-    assert.equal(notifications[1].performance.packetIndex, 1)
-    assert.equal(notifications[1].performance.sampleIndex, 2)
-    assert.equal(notifications[1].performance.samplesPerPacket, 2)
-    assert.equal(notifications[1].performance.samplingRateHz, 2)
-  })
-
-  it("parses Frez Dyno raw weight packets with calibration", () => {
-    const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 3000, weight: 20 },
-      ],
-    })
-    const notifications = captureNotifications(device)
-
+    let elapsedMs = 0
+    for (let packet = 0; packet < 11; packet++) {
+      device.handleNotifications(
+        frezRawWeightPacket(
+          Array.from({ length: 9 }, () => {
+            const sample = { raw: -1000, elapsedMs }
+            elapsedMs += 4
+            return sample
+          }),
+        ),
+      )
+    }
     device.handleNotifications(
       frezRawWeightPacket([
-        { raw: 1500, timestampUs: 1 },
-        { raw: 2500, timestampUs: 250 },
+        { raw: -1000, elapsedMs: elapsedMs },
+        ...Array.from({ length: 8 }, (_, index) => ({ raw: -500 + index * 100, elapsedMs: elapsedMs + 4 + index * 4 })),
       ]),
     )
 
-    assert.equal(notifications.length, 2)
+    assert.equal(notifications.length, 8)
     assert.equal(notifications[0].current, 5)
-    assert.equal(notifications[1].current, 15)
-    assert.equal(notifications[1].peak, 15)
-    assert.equal(notifications[1].mean, 10)
+    assert.equal(notifications[7].current, 12)
+    assert.equal(notifications[7].peak, 12)
+    assert.equal(notifications[7].mean, 8.5)
     assert.equal(notifications[1].min, 5)
-    assert.equal(notifications[1].performance.packetIndex, 1)
-    assert.equal(notifications[1].performance.sampleIndex, 2)
-    assert.equal(notifications[1].performance.samplesPerPacket, 2)
-    assert.equal(notifications[1].performance.samplingRateHz, 2)
+    assert.equal(notifications[7].performance.packetIndex, 12)
+    assert.equal(notifications[7].performance.sampleIndex, 428)
+    assert.equal(notifications[7].performance.samplesPerPacket, 9)
+    assert.equal(notifications[7].performance.samplingRateHz, 8)
   })
 
-  it("ignores Frez Dyno data without the app's two-byte measurement header", () => {
-    const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 3000, weight: 20 },
-      ],
-    })
-    const notifications = captureNotifications(device)
+  it("rejects truncated, malformed, and non-monotonic Frez Dyno packets", () => {
+    const device = new FrezDyno({ coefficient: 0.01 })
+    const validPacket = frezRawWeightPacket(
+      Array.from({ length: 9 }, (_, index) => ({ raw: 1000, elapsedMs: index * 4 })),
+    )
 
-    device.handleNotifications(uint32LePacket([1500, 2500]))
+    assert.throws(() => device.handleNotifications(dataView(new Uint8Array(73))), /expected 74 bytes/)
 
-    assert.equal(notifications.length, 0)
-  })
+    const badReserved = new Uint8Array(validPacket.buffer.slice(0))
+    badReserved[1] = 1
+    assert.throws(() => device.handleNotifications(dataView(badReserved)), /reserved byte/)
 
-  it("fails clearly when Frez Dyno raw packets arrive without calibration", () => {
-    const device = new FrezDyno()
-    const notifications = captureNotifications(device)
-
-    assert.throws(() => {
-      device.handleNotifications(frezRawWeightPacket([{ raw: 1500, timestampUs: 1000 }]))
-    }, /raw sensor data/)
-    assert.equal(notifications.length, 0)
+    const repeatedClock = new Uint8Array(validPacket.buffer.slice(0))
+    const repeatedClockView = new DataView(repeatedClock.buffer)
+    repeatedClockView.setUint32(14, 0, true)
+    assert.throws(() => device.handleNotifications(dataView(repeatedClock)), /clock regressed or repeated/)
   })
 
   it("routes Progressor command responses through the write callback", () => {
@@ -284,17 +261,12 @@ describe("device notification parsers", () => {
     assert.deepEqual(responses, ["030201"])
   })
 
-  it("ignores non-measurement Frez Dyno notifications", () => {
-    const device = new FrezDyno()
-    const responses = []
+  it("rejects Frez Dyno notifications with a non-measurement response code", () => {
+    const device = new FrezDyno({ coefficient: 0.01 })
+    const packet = new Uint8Array(74)
+    packet[0] = 2
 
-    device.writeCallback = (response) => {
-      responses.push(response)
-    }
-
-    device.handleNotifications(dataView([0, 4, 0x34, 0x12, 0, 0]))
-
-    assert.deepEqual(responses, [])
+    assert.throws(() => device.handleNotifications(dataView(packet)), /response code/)
   })
 
   it("parses CTS500 fragmented weight frames and ignores invalid checksums", () => {

@@ -102,13 +102,13 @@ export function progressorWeightPacket(samples) {
 export function frezRawWeightPacket(samples) {
   const bytes = new Uint8Array(2 + samples.length * 8)
   bytes[0] = 1
-  bytes[1] = samples.length * 8
+  bytes[1] = 0
   const view = new DataView(bytes.buffer)
 
-  samples.forEach(({ raw, timestampUs }, index) => {
+  samples.forEach(({ raw, elapsedMs }, index) => {
     const offset = 2 + index * 8
-    view.setUint32(offset, raw, true)
-    view.setUint32(offset + 4, timestampUs, true)
+    view.setInt32(offset, raw, true)
+    view.setUint32(offset + 4, elapsedMs, true)
   })
 
   return view

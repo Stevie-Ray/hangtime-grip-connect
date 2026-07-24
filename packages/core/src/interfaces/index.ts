@@ -9,12 +9,9 @@ export type { IEntralpi } from "./device/entralpi.interface.js"
 export type { IForceBoard } from "./device/forceboard.interface.js"
 
 export type {
-  FrezDynoCalibrationData,
-  FrezDynoCalibrationLookup,
-  FrezDynoCalibrationLookupParams,
-  FrezDynoCalibrationPoint,
+  FrezDynoCoefficientLookup,
+  FrezDynoCoefficientLookupParams,
   FrezDynoOptions,
-  FrezDynoPacketFormat,
   IFrezDyno,
 } from "./device/frez-dyno.interface.js"
 

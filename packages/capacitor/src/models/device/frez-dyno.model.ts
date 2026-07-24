@@ -25,6 +25,8 @@ export class FrezDyno extends FrezDynoBase {
       })
 
       await BleClient.connect(this.device.deviceId, (deviceId) => console.log(deviceId))
+      const mtu = await BleClient.getMtu(this.device.deviceId)
+      if (mtu < 85) throw new Error(`Frez Dyno requires MTU 85; the negotiated MTU is ${mtu}.`)
       await this.onConnected(onSuccess)
     } catch (error) {
       onError(error as Error)
@@ -33,8 +35,19 @@ export class FrezDyno extends FrezDynoBase {
 
   override disconnect = async (): Promise<void> => {
     if (this.device) {
+      await this.stop().catch(() => undefined)
+      const transportService = this.services.find((service) => service.id === "frez-dyno")
+      const notifyCharacteristic = transportService?.characteristics.find(
+        (characteristic) => characteristic.id === "rx",
+      )
+      if (transportService && notifyCharacteristic) {
+        await BleClient.stopNotifications(this.device.deviceId, transportService.uuid, notifyCharacteristic.uuid).catch(
+          () => undefined,
+        )
+      }
       await BleClient.disconnect(this.device.deviceId)
     }
+    this.onDisconnectCleanup()
   }
 
   override download = async (format: "csv" | "json" | "xml" = "csv"): Promise<void> => {
@@ -61,21 +74,45 @@ export class FrezDyno extends FrezDynoBase {
       throw new Error("Device is not available")
     }
 
-    const services = await BleClient.getServices(this.device.deviceId)
-    for (const service of services) {
-      const matchingService = this.services.find(
-        (configuredService) => configuredService.uuid.toLowerCase() === service.uuid.toLowerCase(),
-      )
-      const notifyCharacteristic = matchingService?.characteristics.find((characteristic) => characteristic.id === "rx")
-      if (!notifyCharacteristic) continue
+    const transportService = this.services.find((service) => service.id === "frez-dyno")
+    const notifyCharacteristic = transportService?.characteristics.find((characteristic) => characteristic.id === "rx")
+    const writeCharacteristic = transportService?.characteristics.find((characteristic) => characteristic.id === "tx")
+    if (!transportService || !notifyCharacteristic || !writeCharacteristic) {
+      throw new Error("Frez Dyno transport configuration is incomplete.")
+    }
 
-      await BleClient.startNotifications(
-        this.device.deviceId,
-        service.uuid,
-        notifyCharacteristic.uuid,
-        this.handleNotifications,
+    const discoveredServices = await BleClient.getServices(this.device.deviceId)
+    const discoveredService = discoveredServices.find(
+      (service) => service.uuid.toLowerCase() === transportService.uuid.toLowerCase(),
+    )
+    if (!discoveredService) throw new Error("Frez Dyno measurement service is unavailable.")
+
+    const hasNotify = discoveredService.characteristics.some(
+      (characteristic) => characteristic.uuid.toLowerCase() === notifyCharacteristic.uuid.toLowerCase(),
+    )
+    const hasWrite = discoveredService.characteristics.some(
+      (characteristic) => characteristic.uuid.toLowerCase() === writeCharacteristic.uuid.toLowerCase(),
+    )
+    if (!hasNotify || !hasWrite) {
+      const firmware = await this.software().catch(() => undefined)
+      throw new Error(
+        `Frez Dyno protocol v1 characteristics are unavailable${firmware ? ` (firmware ${firmware})` : ""}.`,
       )
     }
+
+    await BleClient.startNotifications(
+      this.device.deviceId,
+      discoveredService.uuid,
+      notifyCharacteristic.uuid,
+      (value) => {
+        try {
+          this.handleNotifications(value)
+        } catch (error) {
+          console.error(error)
+          void this.disconnect()
+        }
+      },
+    )
 
     onSuccess()
   }
@@ -135,11 +172,7 @@ export class FrezDyno extends FrezDynoBase {
     return this.device !== undefined
   }
 
-  protected override getCalibrationDeviceId(): string | undefined {
-    return this.device?.deviceId.trim() || undefined
-  }
-
-  protected override getCalibrationDeviceName(): string | undefined {
+  protected override getCoefficientDeviceName(): string | undefined {
     return this.device?.name?.trim() || undefined
   }
 }

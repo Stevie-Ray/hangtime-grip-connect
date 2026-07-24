@@ -1,12 +1,13 @@
 import { Buffer } from "buffer"
 import { FrezDyno as FrezDynoBase, type FrezDynoOptions } from "@hangtime/grip-connect"
 import type { WriteCallback } from "@hangtime/grip-connect/src/interfaces/callback.interface.js"
-import { BleManager, type Device as BleDevice } from "react-native-ble-plx"
+import { BleManager, type Device as BleDevice, type Subscription } from "react-native-ble-plx"
 
 /** Represents a Frez Dyno using React Native's native BLE transport. */
 export class FrezDyno extends FrezDynoBase {
   manager: BleManager
   device?: BleDevice
+  private notificationSubscription: Subscription | undefined
 
   constructor(options: FrezDynoOptions = {}) {
     super(options)
@@ -47,16 +48,16 @@ export class FrezDyno extends FrezDynoBase {
           }
 
           const name = scannedDevice?.localName ?? scannedDevice?.name
-          if (!scannedDevice || !name?.startsWith("FrezDyno") || connecting) return
+          if (!scannedDevice || !name?.startsWith("FrezDyno-") || connecting) return
 
           connecting = true
           this.device = scannedDevice
           stopScan()
           void scannedDevice
             .connect()
-            .then((connectedDevice) => {
-              this.device = connectedDevice
-              console.log(`Connected to device: ${connectedDevice.id}`)
+            .then(async (connectedDevice) => {
+              this.device = await connectedDevice.requestMTU(85).catch(() => connectedDevice)
+              console.log(`Connected to device: ${this.device.id}`)
               return this.onConnected(onSuccess)
             })
             .then(() => {
@@ -74,8 +75,12 @@ export class FrezDyno extends FrezDynoBase {
 
   override disconnect = async (): Promise<void> => {
     if (this.device) {
+      await this.stop().catch(() => undefined)
+      this.notificationSubscription?.remove()
+      this.notificationSubscription = undefined
       await this.manager.cancelDeviceConnection(this.device.id)
     }
+    this.onDisconnectCleanup()
   }
 
   override download = async (): Promise<void> => {
@@ -90,15 +95,37 @@ export class FrezDyno extends FrezDynoBase {
     }
 
     await this.device.discoverAllServicesAndCharacteristics()
-    const services = await this.device.services()
-    for (const service of services) {
-      const matchingService = this.services.find(
-        (configuredService) => configuredService.uuid.toLowerCase() === service.uuid.toLowerCase(),
-      )
-      const notifyCharacteristic = matchingService?.characteristics.find((characteristic) => characteristic.id === "rx")
-      if (!notifyCharacteristic) continue
+    const transportService = this.services.find((service) => service.id === "frez-dyno")
+    const notifyCharacteristic = transportService?.characteristics.find((characteristic) => characteristic.id === "rx")
+    const writeCharacteristic = transportService?.characteristics.find((characteristic) => characteristic.id === "tx")
+    if (!transportService || !notifyCharacteristic || !writeCharacteristic) {
+      throw new Error("Frez Dyno transport configuration is incomplete.")
+    }
 
-      this.device.monitorCharacteristicForService(service.uuid, notifyCharacteristic.uuid, (error, characteristic) => {
+    const discoveredServices = await this.device.services()
+    const discoveredService = discoveredServices.find(
+      (service) => service.uuid.toLowerCase() === transportService.uuid.toLowerCase(),
+    )
+    if (!discoveredService) throw new Error("Frez Dyno measurement service is unavailable.")
+
+    const discoveredCharacteristics = await this.device.characteristicsForService(discoveredService.uuid)
+    const hasNotify = discoveredCharacteristics.some(
+      (characteristic) => characteristic.uuid.toLowerCase() === notifyCharacteristic.uuid.toLowerCase(),
+    )
+    const hasWrite = discoveredCharacteristics.some(
+      (characteristic) => characteristic.uuid.toLowerCase() === writeCharacteristic.uuid.toLowerCase(),
+    )
+    if (!hasNotify || !hasWrite) {
+      const firmware = await this.software().catch(() => undefined)
+      throw new Error(
+        `Frez Dyno protocol v1 characteristics are unavailable${firmware ? ` (firmware ${firmware})` : ""}.`,
+      )
+    }
+
+    this.notificationSubscription = this.device.monitorCharacteristicForService(
+      discoveredService.uuid,
+      notifyCharacteristic.uuid,
+      (error, characteristic) => {
         if (error) {
           console.error(error)
           return
@@ -106,9 +133,14 @@ export class FrezDyno extends FrezDynoBase {
         if (!characteristic?.value) return
 
         const buffer = Buffer.from(characteristic.value, "base64")
-        this.handleNotifications(new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength))
-      })
-    }
+        try {
+          this.handleNotifications(new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength))
+        } catch (notificationError) {
+          console.error(notificationError)
+          void this.disconnect()
+        }
+      },
+    )
 
     onSuccess()
   }
@@ -169,11 +201,7 @@ export class FrezDyno extends FrezDynoBase {
     return this.device !== undefined
   }
 
-  protected override getCalibrationDeviceId(): string | undefined {
-    return this.device?.id.trim() || undefined
-  }
-
-  protected override getCalibrationDeviceName(): string | undefined {
+  protected override getCoefficientDeviceName(): string | undefined {
     return (this.device?.localName ?? this.device?.name)?.trim() || undefined
   }
 }

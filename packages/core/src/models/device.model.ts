@@ -959,7 +959,7 @@ export abstract class Device extends BaseModel implements IDevice {
    *   console.log('Device connected successfully');
    * });
    */
-  protected onConnected = async (onSuccess: () => void): Promise<void> => {
+  protected async onConnected(onSuccess: () => void): Promise<void> {
     this.updateTimestamp()
 
     if (!this.server) {

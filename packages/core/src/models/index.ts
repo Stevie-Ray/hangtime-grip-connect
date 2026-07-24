@@ -6,11 +6,7 @@ export { Entralpi } from "./device/entralpi.model.js"
 
 export { ForceBoard } from "./device/forceboard.model.js"
 
-export {
-  FrezDyno,
-  lookupFrezDynoRemoteCalibration,
-  lookupFrezDynoRemoteCalibrationData,
-} from "./device/frez-dyno.model.js"
+export { FrezDyno, lookupFrezDynoCoefficient } from "./device/frez-dyno.model.js"
 
 export { NordicDfuDevice, createNordicDfuService } from "./nordic.model.js"
 

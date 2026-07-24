@@ -1,67 +1,33 @@
 import type { IDevice } from "../device.interface.js"
 
-export interface FrezDynoCalibrationPoint {
-  /** Raw sensor count as emitted by the Frez Dyno. */
-  raw: number
-
-  /** Calibrated load in kilograms for the raw sensor count. */
-  weight: number
-}
-
-export interface FrezDynoCalibrationData {
-  points: FrezDynoCalibrationPoint[]
-  actualSampleRate?: number
-  zeroOffset?: number
-}
-
-export type FrezDynoPacketFormat = "auto" | "float" | "raw"
-
-export interface FrezDynoCalibrationLookupParams {
-  deviceId?: string
+export interface FrezDynoCoefficientLookupParams {
+  /** Bluetooth device name used by Web Bluetooth clients. */
   deviceName?: string
+
+  /** Public serial read from 0x2A25 by native clients. */
   deviceSerialNumber?: string
 }
 
-export type FrezDynoCalibrationLookup = (
-  params: FrezDynoCalibrationLookupParams,
-) => Promise<FrezDynoCalibrationPoint[] | FrezDynoCalibrationData | null>
+export type FrezDynoCoefficientLookup = (params: FrezDynoCoefficientLookupParams) => Promise<number>
 
 export interface FrezDynoOptions {
   /**
-   * Device-specific calibration points used to convert raw sensor counts to kg.
-   * The official Frez app loads these per device before starting measurements.
+   * Frez Developer Program access key. Keep it in FREZ_ACCESS_KEY or another
+   * secure runtime configuration source instead of committing it.
    */
-  calibrationPoints?: FrezDynoCalibrationPoint[]
+  accessKey?: string
+
+  /** Device-specific coefficient returned by the Frez coefficient API. */
+  coefficient?: number
 
   /**
-   * Optional serial number to use when loading factory calibration.
+   * Custom coefficient lookup, for example a server-side proxy used by a web
+   * application. When omitted, the official Frez API is called directly.
    */
+  coefficientLookup?: FrezDynoCoefficientLookup | null
+
+  /** Optional serial override for native coefficient lookup. */
   deviceSerialNumber?: string
-
-  /**
-   * Loads factory calibration by device name/serial. Defaults to the Frez app's
-   * public calibration RPC; pass null to disable automatic lookup.
-   */
-  calibrationLookup?: FrezDynoCalibrationLookup | null
-
-  /**
-   * Notification payload format. Defaults to "raw" because the official Frez
-   * app receives ADC values and converts them with device calibration points.
-   * Use "float" or "auto" only for compatibility experiments.
-   */
-  packetFormat?: FrezDynoPacketFormat
-
-  /**
-   * Require calibration before stream() starts. Defaults to true except when
-   * packetFormat is explicitly "float".
-   */
-  requireCalibration?: boolean
-
-  /**
-   * Actual device sample rate used to scale Frez packet counters to time.
-   * Defaults to the native app's 250 Hz fallback.
-   */
-  actualSampleRate?: number
 }
 
 /**
@@ -69,66 +35,62 @@ export interface FrezDynoOptions {
  */
 export interface IFrezDyno extends IDevice {
   /**
-   * Sets calibration points used to convert Frez raw sensor counts to kilograms.
-   * @param {FrezDynoCalibrationPoint[]} points - At least two unique raw/weight points.
+   * Sets a device-specific coefficient manually.
+   * @param coefficient - The linear coefficient `a` returned by Frez.
    */
-  setRawCalibration(points: FrezDynoCalibrationPoint[]): void
+  setCoefficient(coefficient: number): void
+
+  /** Clears the configured or API-loaded coefficient. */
+  clearCoefficient(): void
 
   /**
-   * Clears Frez raw sensor calibration points.
-   */
-  clearRawCalibration(): void
-
-  /**
-   * Sets an explicit serial number for factory-calibration lookup.
-   * This is needed on Web Bluetooth, which blocks the standard serial characteristic.
-   * Changing the serial invalidates factory-loaded calibration while preserving manual calibration points.
+   * Sets an explicit serial number for native coefficient lookup.
+   * Web Bluetooth uses the allowlisted Bluetooth name instead.
    */
   setDeviceSerialNumber(serialNumber: string | undefined): void
 
   /**
    * Retrieves battery level from the standard Battery service.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the battery percentage.
+   * @returns A Promise that resolves with the battery percentage.
    */
   battery(): Promise<string | undefined>
 
-  /**
-   * Compatibility alias for the standard Battery Level characteristic.
-   * The Frez app does not send a battery-voltage command.
-   */
+  /** Compatibility alias for the standard Battery Level characteristic. */
   batteryVoltage(): Promise<string | undefined>
 
   /**
    * Retrieves firmware version from the standard Software Revision characteristic.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the firmware version.
+   * @returns A Promise that resolves with the firmware version.
    */
   firmware(): Promise<string | undefined>
 
   /**
    * Retrieves the serial number from the standard Device Information service.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the serial number.
+   * @returns A Promise that resolves with the serial number.
    */
   serial(): Promise<string | undefined>
 
   /**
    * Retrieves software version from the standard Device Information service.
-   * @returns {Promise<string | undefined>} A Promise that resolves with the software version.
+   * @returns A Promise that resolves with the software version.
    */
   software(): Promise<string | undefined>
 
   /**
-   * Stops the data stream on the Frez Dyno.
-   * @returns {Promise<void>} A promise that resolves when the stream is stopped.
+   * Restarts the required sample-count tare while a measurement is active.
+   * The duration argument is ignored because Frez protocol v1 uses exactly 100 samples.
    */
+  tare(duration?: number): boolean
+
+  /** Stops the current measurement session. */
   stop(): Promise<void>
 
   /**
-   * Starts streaming data from the Frez Dyno.
-   * @param {number} [duration=0] - The duration of the stream in milliseconds. If set to 0, stream will continue indefinitely.
-   * @returns {Promise<void>} A promise that resolves when the streaming operation is completed.
+   * Starts a new measurement session and establishes tare from the first 100
+   * unloaded samples.
    */
   stream(duration?: number): Promise<void>
 
-  /** False because the Frez app tares in software during an active measurement. */
+  /** False because tare is performed from raw samples in the client. */
   readonly usesHardwareTare: false
 }

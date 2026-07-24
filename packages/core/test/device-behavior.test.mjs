@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { setTimeout as delay } from "node:timers/promises"
 import { describe, it } from "node:test"
 
-import { CTS500, ForceBoard, FrezDyno, lookupFrezDynoRemoteCalibration } from "../dist/index.js"
+import { CTS500, ForceBoard, FrezDyno, lookupFrezDynoCoefficient } from "../dist/index.js"
 import { captureNotifications, frezRawWeightPacket } from "./helpers.mjs"
 
 describe("device behavior", () => {
@@ -49,12 +49,7 @@ describe("device behavior", () => {
   })
 
   it("stops Frez Dyno finite-duration streams", async () => {
-    const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 2000, weight: 10 },
-      ],
-    })
+    const device = new FrezDyno({ coefficient: 0.01 })
     const writes = []
 
     device.write = async (_serviceId, _characteristicId, message) => {
@@ -64,318 +59,150 @@ describe("device behavior", () => {
     await device.stream(10)
 
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS, device.commands.STOP_WEIGHT_MEAS])
+    assert.deepEqual([...device.commands.START_WEIGHT_MEAS], [0x01, 0x00])
+    assert.deepEqual([...device.commands.STOP_WEIGHT_MEAS], [0x02, 0x00])
   })
 
-  it("requires Frez Dyno calibration before default raw streaming", async () => {
-    const device = new FrezDyno({ calibrationLookup: null })
+  it("requires a Frez Dyno coefficient before streaming", async () => {
+    const device = new FrezDyno({ coefficientLookup: null })
     const writes = []
 
     device.write = async (_serviceId, _characteristicId, message) => {
       writes.push(message)
     }
 
-    await assert.rejects(device.stream(), /without calibration data/)
+    await assert.rejects(device.stream(), /without a coefficient lookup or manual coefficient/)
     assert.deepEqual(writes, [])
   })
 
-  it("requires a serial or remote ID for the Frez Dyno calibration RPC", async () => {
+  it("calls the official Frez coefficient API with exactly one identifier", async () => {
     const originalFetch = globalThis.fetch
-    const requestBodies = []
+    const requests = []
 
-    globalThis.fetch = async (_url, init) => {
-      requestBodies.push(JSON.parse(init.body))
-      return new Response("null", {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      })
+    globalThis.fetch = async (url, init) => {
+      requests.push({ url: String(url), init })
+      return Response.json({ a: 0.000012345678 })
     }
 
     try {
-      assert.equal(await lookupFrezDynoRemoteCalibration({ deviceName: "FrezDyno-002318" }), null)
-      assert.equal(await lookupFrezDynoRemoteCalibration({ deviceSerialNumber: "002318" }), null)
-      assert.deepEqual(requestBodies, [
-        {
-          p_device_name: "FrezDyno",
-          p_device_serial_number: "002318",
-        },
-      ])
-    } finally {
-      globalThis.fetch = originalFetch
-    }
-  })
-
-  it("parses the Frez app's targetWeight and adcValue calibration fields", async () => {
-    const originalFetch = globalThis.fetch
-
-    globalThis.fetch = async () =>
-      new Response(
-        JSON.stringify({
-          calibration_points: [
-            { targetWeight: 0, adcValue: 1000 },
-            { targetWeight: 10, adcValue: 2000 },
-          ],
-        }),
-        {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        },
+      assert.equal(await lookupFrezDynoCoefficient({ deviceName: "FrezDyno-002318" }, "secret-key"), 0.000012345678)
+      assert.equal(
+        await lookupFrezDynoCoefficient(
+          { deviceName: "FrezDyno-002318", deviceSerialNumber: "FrezDyno-000123" },
+          "secret-key",
+        ),
+        0.000012345678,
       )
-
-    try {
-      assert.deepEqual(await lookupFrezDynoRemoteCalibration({ deviceSerialNumber: "002318" }), [
-        { raw: 1000, weight: 0 },
-        { raw: 2000, weight: 10 },
-      ])
+      assert.equal(requests[0].url, "https://api.frez.app/v1/dyno/coefficient?name=FrezDyno-002318")
+      assert.equal(requests[1].url, "https://api.frez.app/v1/dyno/coefficient?serial=FrezDyno-000123")
+      assert.equal(requests[0].init.headers["X-Frez-Access-Key"], "secret-key")
+      assert.equal(requests[0].init.method, undefined)
     } finally {
       globalThis.fetch = originalFetch
     }
   })
 
-  it("tries Frez serial before Bluetooth remote ID like the native app", async () => {
+  it("reports coefficient API and response errors clearly", async () => {
     const originalFetch = globalThis.fetch
-    const requestBodies = []
-
-    globalThis.fetch = async (_url, init) => {
-      const body = JSON.parse(init.body)
-      requestBodies.push(body)
-      const responseBody =
-        body.p_device_serial_number === "remote-id"
-          ? {
-              calibration_points: [
-                { targetWeight: 0, adcValue: 1000 },
-                { targetWeight: 10, adcValue: 2000 },
-              ],
-            }
-          : null
-      return Response.json(responseBody)
-    }
 
     try {
-      assert.deepEqual(
-        await lookupFrezDynoRemoteCalibration({
-          deviceId: "remote-id",
-          deviceName: "FrezDyno-002318",
-          deviceSerialNumber: "actual-serial",
-        }),
-        [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ],
+      await assert.rejects(lookupFrezDynoCoefficient({ deviceName: "FrezDyno-002318" }), /Missing FREZ_ACCESS_KEY/)
+      globalThis.fetch = async () => Response.json({ error: "developer_device_not_allowlisted" }, { status: 403 })
+      await assert.rejects(
+        lookupFrezDynoCoefficient({ deviceName: "FrezDyno-002318" }, "secret-key"),
+        /403: developer_device_not_allowlisted/,
       )
-      assert.deepEqual(requestBodies, [
-        {
-          p_device_name: "FrezDyno-002318",
-          p_device_serial_number: "actual-serial",
-        },
-        {
-          p_device_name: "FrezDyno-002318",
-          p_device_serial_number: "remote-id",
-        },
-      ])
+      globalThis.fetch = async () => Response.json({ a: "not-a-number" })
+      await assert.rejects(
+        lookupFrezDynoCoefficient({ deviceName: "FrezDyno-002318" }, "secret-key"),
+        /numeric field a/,
+      )
     } finally {
       globalThis.fetch = originalFetch
     }
   })
 
-  it("loads Frez Dyno calibration before streaming", async () => {
+  it("uses the allowlisted Bluetooth name for Web Bluetooth coefficient lookup", async () => {
     const lookupCalls = []
     const device = new FrezDyno({
-      calibrationLookup: async (params) => {
+      coefficientLookup: async (params) => {
         lookupCalls.push(params)
-        return [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ]
+        return 0.01
       },
     })
-    const notifications = captureNotifications(device)
     const writes = []
 
-    device.bluetooth = { name: "Frez Dyno 123" }
+    device.bluetooth = { id: "opaque-device-id", name: "FrezDyno-002318", gatt: { connected: true } }
+    device.read = async () => {
+      throw new Error('Characteristic "serial" not found in service "device"')
+    }
     device.write = async (_serviceId, _characteristicId, message) => {
       writes.push(message)
     }
 
     await device.stream()
-    device.handleNotifications(frezRawWeightPacket([{ raw: 1500, timestampUs: 1000 }]))
 
-    assert.deepEqual(lookupCalls, [{ deviceName: "Frez Dyno 123" }])
+    assert.deepEqual(lookupCalls, [{ deviceName: "FrezDyno-002318" }])
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
-    assert.equal(notifications.length, 1)
-    assert.equal(notifications[0].current, 5)
   })
 
-  it("uses Frez Dyno serial for calibration lookup before streaming", async () => {
+  it("uses the native serial for coefficient lookup before streaming", async () => {
     const lookupCalls = []
     const reads = []
-    const writes = []
-    const device = new FrezDyno({
-      calibrationLookup: async (params) => {
-        lookupCalls.push(params)
-        return [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ]
-      },
-    })
-
-    device.bluetooth = { id: "opaque-device-id", name: "Frez Dyno 123", gatt: { connected: true } }
-    device.read = async (serviceId, characteristicId, duration) => {
-      reads.push([serviceId, characteristicId, duration])
-      return "SER123"
-    }
-    device.write = async (_serviceId, _characteristicId, message) => {
-      writes.push(message)
-    }
-
-    await device.stream()
-
-    assert.deepEqual(reads, [["device", "serial", 250]])
-    assert.deepEqual(lookupCalls, [
-      { deviceId: "opaque-device-id", deviceName: "Frez Dyno 123", deviceSerialNumber: "SER123" },
-    ])
-    assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
-  })
-
-  it("lets native transports provide Frez Dyno calibration identifiers", async () => {
-    const lookupCalls = []
 
     class NativeFrezDyno extends FrezDyno {
       canReadDeviceSerial() {
         return true
       }
-
-      getCalibrationDeviceId() {
-        return "native-device-id"
-      }
-
-      getCalibrationDeviceName() {
-        return "FrezDyno Native"
-      }
     }
 
     const device = new NativeFrezDyno({
-      calibrationLookup: async (params) => {
+      coefficientLookup: async (params) => {
         lookupCalls.push(params)
-        return [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ]
-      },
-    })
-    device.read = async () => "NATIVE-SERIAL"
-    device.write = async () => undefined
-
-    await device.stream()
-
-    assert.deepEqual(lookupCalls, [
-      {
-        deviceId: "native-device-id",
-        deviceName: "FrezDyno Native",
-        deviceSerialNumber: "NATIVE-SERIAL",
-      },
-    ])
-  })
-
-  it("does not treat the advertised Frez Dyno name suffix as its serial", async () => {
-    const lookupCalls = []
-    const device = new FrezDyno({
-      calibrationLookup: async (params) => {
-        lookupCalls.push(params)
-        return [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ]
+        return 0.01
       },
     })
 
-    device.bluetooth = { id: "opaque-device-id", name: "FrezDyno-002318", gatt: { connected: true } }
-    device.read = async () => {
-      throw new Error('Characteristic "serial" not found in service "device"')
+    device.read = async (serviceId, characteristicId, duration) => {
+      reads.push([serviceId, characteristicId, duration])
+      return "FrezDyno-000123\0"
     }
     device.write = async () => undefined
 
-    assert.equal(await device.serial(), undefined)
     await device.stream()
 
-    assert.deepEqual(lookupCalls, [{ deviceId: "opaque-device-id", deviceName: "FrezDyno-002318" }])
+    assert.deepEqual(reads, [["device", "serial", 250]])
+    assert.deepEqual(lookupCalls, [{ deviceSerialNumber: "FrezDyno-000123" }])
   })
 
-  it("uses an explicit Frez Dyno serial override for calibration lookup", async () => {
-    const lookupCalls = []
-    const device = new FrezDyno({
-      calibrationLookup: async (params) => {
-        lookupCalls.push(params)
-        return [
-          { raw: 1000, weight: 0 },
-          { raw: 2000, weight: 10 },
-        ]
-      },
-    })
-
-    device.bluetooth = { id: "opaque-device-id", name: "FrezDyno-002318", gatt: { connected: true } }
-    device.read = async () => {
-      throw new Error('Characteristic "serial" not found in service "device"')
-    }
-    device.write = async () => undefined
-    device.setDeviceSerialNumber(" actual-serial ")
-
-    assert.equal(await device.serial(), "actual-serial")
-    await device.stream()
-    assert.deepEqual(lookupCalls, [
-      {
-        deviceId: "opaque-device-id",
-        deviceName: "FrezDyno-002318",
-        deviceSerialNumber: "actual-serial",
-      },
-    ])
-  })
-
-  it("reloads factory calibration when the Frez Dyno serial changes", async () => {
+  it("reloads an API coefficient when the Frez Dyno serial changes", async () => {
     const lookupCalls = []
     const device = new FrezDyno({
       deviceSerialNumber: "SERIAL-A",
-      calibrationLookup: async (params) => {
+      coefficientLookup: async (params) => {
         lookupCalls.push(params)
-        return {
-          points: [
-            { raw: 1000, weight: 0 },
-            { raw: 2000, weight: params.deviceSerialNumber === "SERIAL-A" ? 10 : 20 },
-          ],
-          actualSampleRate: params.deviceSerialNumber === "SERIAL-A" ? 200 : 100,
-        }
+        return params.deviceSerialNumber === "SERIAL-A" ? 0.01 : 0.02
       },
     })
-    const notifications = captureNotifications(device)
     device.write = async () => undefined
 
     await device.stream()
-    device.handleNotifications(frezRawWeightPacket([{ raw: 1500, timestampUs: 1 }]))
-
     device.setDeviceSerialNumber("SERIAL-B")
     await device.stream()
-    device.handleNotifications(frezRawWeightPacket([{ raw: 1500, timestampUs: 1 }]))
 
     assert.deepEqual(
       lookupCalls.map(({ deviceSerialNumber }) => deviceSerialNumber),
       ["SERIAL-A", "SERIAL-B"],
     )
-    assert.deepEqual(
-      notifications.map(({ current }) => current),
-      [5, 10],
-    )
   })
 
-  it("keeps manual Frez Dyno calibration when the serial changes", async () => {
+  it("keeps a manual Frez Dyno coefficient when the serial changes", async () => {
     let lookupCount = 0
     const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 2000, weight: 10 },
-      ],
-      calibrationLookup: async () => {
+      coefficient: 0.01,
+      coefficientLookup: async () => {
         lookupCount++
-        return null
+        return 0.02
       },
     })
     device.write = async () => undefined
@@ -388,13 +215,9 @@ describe("device behavior", () => {
     assert.equal(lookupCount, 0)
   })
 
-  it("tares Frez Dyno in software after measurement starts", async () => {
-    const device = new FrezDyno({
-      calibrationPoints: [
-        { raw: 1000, weight: 0 },
-        { raw: 2000, weight: 10 },
-      ],
-    })
+  it("tares Frez Dyno from the first 100 unloaded samples", async () => {
+    const device = new FrezDyno({ coefficient: 0.01 })
+    const notifications = captureNotifications(device)
     const writes = []
 
     device.write = async (_serviceId, _characteristicId, message) => {
@@ -412,7 +235,35 @@ describe("device behavior", () => {
     assert.deepEqual(writes, [])
 
     await device.stream()
-    assert.equal(device.tare(), true)
+    let elapsedMs = 0
+    for (let packet = 0; packet < 11; packet++) {
+      device.handleNotifications(
+        frezRawWeightPacket(
+          Array.from({ length: 9 }, () => {
+            const sample = { raw: 1000, elapsedMs }
+            elapsedMs += 4
+            return sample
+          }),
+        ),
+      )
+    }
+    assert.equal(notifications.length, 0)
+
+    device.handleNotifications(
+      frezRawWeightPacket(
+        Array.from({ length: 9 }, (_, index) => {
+          const sample = { raw: index === 0 ? 1000 : 1500, elapsedMs }
+          elapsedMs += 4
+          return sample
+        }),
+      ),
+    )
+    assert.equal(notifications.length, 8)
+    assert.equal(notifications[0].current, 5)
+    assert.equal(notifications[7].performance.sampleIndex, 428)
+    assert.equal(notifications[7].performance.samplesPerPacket, 9)
+
+    assert.equal(device.tare(5000), true)
     assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
   })
 
@@ -428,7 +279,7 @@ describe("device behavior", () => {
     assert.equal(await device.firmware(), "1.2.3")
     assert.deepEqual(reads, [["device", "software", 250]])
     assert.equal("GET_FIRMWARE_VERSION" in device.commands, false)
-    assert.deepEqual([...device.commands.SLEEP], [0xff])
+    assert.deepEqual([...device.commands.SLEEP], [0xff, 0x00])
   })
 
   it("stops CTS500 finite-duration streams", async () => {

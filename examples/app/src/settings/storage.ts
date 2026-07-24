@@ -1,9 +1,4 @@
-import type {
-  ForceUnit,
-  FrezDynoCalibrationData,
-  FrezDynoCalibrationLookupParams,
-  FrezDynoCalibrationPoint,
-} from "@hangtime/grip-connect"
+import type { ForceUnit, FrezDynoCoefficientLookupParams } from "@hangtime/grip-connect"
 import { parseBaudRate, parseSamplingRate, type DeviceBaudRate, type DeviceSamplingRate } from "./rates.js"
 
 export type CliLanguage = "en" | "es" | "de" | "it" | "no" | "fr" | "nl"
@@ -12,8 +7,8 @@ export interface ChartPreferences {
   unit: ForceUnit
   language: CliLanguage
   baudRate: DeviceBaudRate | null
-  frezDynoCalibrationCache: Record<string, FrezDynoCalibrationData>
-  frezDynoCalibrationPoints: FrezDynoCalibrationPoint[] | null
+  frezDynoCoefficient: number | null
+  frezDynoCoefficientCache: Record<string, number>
   frezDynoSerialNumbers: Record<string, string>
   sampleRate: DeviceSamplingRate | null
 }
@@ -24,8 +19,8 @@ const DEFAULT_SETTINGS: ChartPreferences = {
   unit: "kg",
   language: "en",
   baudRate: null,
-  frezDynoCalibrationCache: {},
-  frezDynoCalibrationPoints: null,
+  frezDynoCoefficient: null,
+  frezDynoCoefficientCache: {},
   frezDynoSerialNumbers: {},
   sampleRate: null,
 }
@@ -95,57 +90,26 @@ export function parseLanguage(value: unknown): CliLanguage | null {
   return null
 }
 
-export function parseFrezDynoCalibrationPoints(value: unknown): FrezDynoCalibrationPoint[] | null {
-  if (!Array.isArray(value) || value.length < 2) return null
-
-  const points: FrezDynoCalibrationPoint[] = []
-  for (const point of value) {
-    if (!point || typeof point !== "object") return null
-    const raw = Number((point as { raw?: unknown }).raw)
-    const weight = Number((point as { weight?: unknown }).weight)
-    if (!Number.isFinite(raw) || !Number.isFinite(weight)) return null
-    points.push({ raw, weight })
-  }
-
-  const rawValues = new Set(points.map(({ raw }) => raw))
-  if (rawValues.size !== points.length) return null
-
-  return points
+export function parseFrezDynoCoefficient(value: unknown): number | null {
+  const coefficient = Number(value)
+  return Number.isFinite(coefficient) && coefficient !== 0 ? coefficient : null
 }
 
-function parseFrezDynoCalibrationData(value: unknown): FrezDynoCalibrationData | null {
-  const record = value && typeof value === "object" && !Array.isArray(value) ? value : null
-  const points = parseFrezDynoCalibrationPoints(record ? (record as { points?: unknown }).points : value)
-  if (!points) return null
-
-  const calibration: FrezDynoCalibrationData = { points }
-  if (record) {
-    const actualSampleRate = Number((record as { actualSampleRate?: unknown }).actualSampleRate)
-    const zeroOffset = Number((record as { zeroOffset?: unknown }).zeroOffset)
-    if (Number.isFinite(actualSampleRate) && actualSampleRate > 0) calibration.actualSampleRate = actualSampleRate
-    if (Number.isFinite(zeroOffset)) calibration.zeroOffset = zeroOffset
-  }
-  return calibration
-}
-
-function parseFrezDynoCalibrationCache(value: unknown): Record<string, FrezDynoCalibrationData> {
+function parseFrezDynoCoefficientCache(value: unknown): Record<string, number> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {}
 
-  const cache: Record<string, FrezDynoCalibrationData> = {}
+  const cache: Record<string, number> = {}
   for (const [key, entryValue] of Object.entries(value)) {
-    const calibration = parseFrezDynoCalibrationData(entryValue)
-    if (calibration) cache[key] = calibration
+    const coefficient = parseFrezDynoCoefficient(entryValue)
+    if (coefficient) cache[key] = coefficient
   }
 
   return cache
 }
 
-function frezDynoCalibrationCacheKey(params: FrezDynoCalibrationLookupParams): string | null {
+function frezDynoCoefficientCacheKey(params: FrezDynoCoefficientLookupParams): string | null {
   const serial = params.deviceSerialNumber?.trim().toLowerCase()
   if (serial) return `serial:${serial}`
-
-  const id = params.deviceId?.trim().toLowerCase()
-  if (id) return `id:${id}`
 
   const name = params.deviceName?.trim().toLowerCase()
   if (name) return `name:${name}`
@@ -153,26 +117,23 @@ function frezDynoCalibrationCacheKey(params: FrezDynoCalibrationLookupParams): s
   return null
 }
 
-export function loadFrezDynoCalibrationCache(params: FrezDynoCalibrationLookupParams): FrezDynoCalibrationData | null {
-  const cacheKey = frezDynoCalibrationCacheKey(params)
+export function loadFrezDynoCoefficientCache(params: FrezDynoCoefficientLookupParams): number | null {
+  const cacheKey = frezDynoCoefficientCacheKey(params)
   if (!cacheKey) return null
 
-  return loadPreferences().frezDynoCalibrationCache[cacheKey] ?? null
+  return loadPreferences().frezDynoCoefficientCache[cacheKey] ?? null
 }
 
-export function saveFrezDynoCalibrationCache(
-  params: FrezDynoCalibrationLookupParams,
-  calibration: FrezDynoCalibrationData,
-): void {
-  const cacheKey = frezDynoCalibrationCacheKey(params)
-  const parsedCalibration = parseFrezDynoCalibrationData(calibration)
-  if (!cacheKey || !parsedCalibration) return
+export function saveFrezDynoCoefficientCache(params: FrezDynoCoefficientLookupParams, coefficient: number): void {
+  const cacheKey = frezDynoCoefficientCacheKey(params)
+  const parsedCoefficient = parseFrezDynoCoefficient(coefficient)
+  if (!cacheKey || !parsedCoefficient) return
 
   const current = loadPreferences()
   savePreferences({
-    frezDynoCalibrationCache: {
-      ...current.frezDynoCalibrationCache,
-      [cacheKey]: parsedCalibration,
+    frezDynoCoefficientCache: {
+      ...current.frezDynoCoefficientCache,
+      [cacheKey]: parsedCoefficient,
     },
   })
 }
@@ -185,24 +146,24 @@ export function loadPreferences(): ChartPreferences {
       unit?: unknown
       language?: unknown
       baudRate?: unknown
-      frezDynoCalibrationCache?: unknown
-      frezDynoCalibrationPoints?: unknown
+      frezDynoCoefficient?: unknown
+      frezDynoCoefficientCache?: unknown
       frezDynoSerialNumbers?: unknown
       sampleRate?: unknown
     }
     const unit = parseUnit(parsed.unit) ?? DEFAULT_SETTINGS.unit
     const language = parseLanguage(parsed.language) ?? DEFAULT_SETTINGS.language
     const baudRate = parseBaudRate(parsed.baudRate)
-    const frezDynoCalibrationCache = parseFrezDynoCalibrationCache(parsed.frezDynoCalibrationCache)
-    const frezDynoCalibrationPoints = parseFrezDynoCalibrationPoints(parsed.frezDynoCalibrationPoints)
+    const frezDynoCoefficient = parseFrezDynoCoefficient(parsed.frezDynoCoefficient)
+    const frezDynoCoefficientCache = parseFrezDynoCoefficientCache(parsed.frezDynoCoefficientCache)
     const frezDynoSerialNumbers = parseFrezDynoSerialNumbers(parsed.frezDynoSerialNumbers)
     const sampleRate = parseSamplingRate(parsed.sampleRate)
     return {
       unit,
       language,
       baudRate,
-      frezDynoCalibrationCache,
-      frezDynoCalibrationPoints,
+      frezDynoCoefficient,
+      frezDynoCoefficientCache,
       frezDynoSerialNumbers,
       sampleRate,
     }
@@ -217,14 +178,14 @@ export function savePreferences(patch: Partial<ChartPreferences>): ChartPreferen
     unit: parseUnit(patch.unit) ?? current.unit,
     language: parseLanguage(patch.language) ?? current.language,
     baudRate: patch.baudRate === undefined ? current.baudRate : parseBaudRate(patch.baudRate),
-    frezDynoCalibrationCache:
-      patch.frezDynoCalibrationCache === undefined
-        ? current.frezDynoCalibrationCache
-        : parseFrezDynoCalibrationCache(patch.frezDynoCalibrationCache),
-    frezDynoCalibrationPoints:
-      patch.frezDynoCalibrationPoints === undefined
-        ? current.frezDynoCalibrationPoints
-        : parseFrezDynoCalibrationPoints(patch.frezDynoCalibrationPoints),
+    frezDynoCoefficient:
+      patch.frezDynoCoefficient === undefined
+        ? current.frezDynoCoefficient
+        : parseFrezDynoCoefficient(patch.frezDynoCoefficient),
+    frezDynoCoefficientCache:
+      patch.frezDynoCoefficientCache === undefined
+        ? current.frezDynoCoefficientCache
+        : parseFrezDynoCoefficientCache(patch.frezDynoCoefficientCache),
     frezDynoSerialNumbers:
       patch.frezDynoSerialNumbers === undefined
         ? current.frezDynoSerialNumbers

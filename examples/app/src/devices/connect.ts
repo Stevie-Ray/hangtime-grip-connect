@@ -4,7 +4,6 @@ import {
   Entralpi,
   ForceBoard,
   FrezDyno,
-  lookupFrezDynoRemoteCalibrationData,
   Motherboard,
   PB700BT,
   Progressor,
@@ -15,10 +14,10 @@ import type { ConnectedDevice } from "./session.js"
 import { setActiveDevice } from "./session.js"
 import { getBluetoothDeviceId } from "./diagnostics.js"
 import {
-  loadFrezDynoCalibrationCache,
+  loadFrezDynoCoefficientCache,
   loadFrezDynoSerialNumber,
   loadPreferences,
-  saveFrezDynoCalibrationCache,
+  saveFrezDynoCoefficientCache,
 } from "../settings/storage.js"
 
 type SupportedDevice = ConnectedDevice
@@ -36,16 +35,21 @@ function createDevice(deviceKey: string): SupportedDevice | null {
   if (deviceKey === "forceboard") return new ForceBoard()
   if (deviceKey === "dyno") {
     const preferences = loadPreferences()
-    const calibrationPoints = preferences.frezDynoCalibrationPoints
     return new FrezDyno({
-      ...(calibrationPoints ? { calibrationPoints } : {}),
-      calibrationLookup: async (params) => {
-        const cachedCalibration = loadFrezDynoCalibrationCache(params)
-        if (cachedCalibration) return cachedCalibration
+      ...(preferences.frezDynoCoefficient ? { coefficient: preferences.frezDynoCoefficient } : {}),
+      coefficientLookup: async (params) => {
+        const cachedCoefficient = loadFrezDynoCoefficientCache(params)
+        if (cachedCoefficient) return cachedCoefficient
 
-        const remoteCalibration = await lookupFrezDynoRemoteCalibrationData(params)
-        if (remoteCalibration) saveFrezDynoCalibrationCache(params, remoteCalibration)
-        return remoteCalibration
+        const name = params.deviceName?.trim()
+        if (!name) throw new Error("Frez Dyno Web Bluetooth coefficient lookup requires the device name.")
+        const response = await fetch(`/api/frez-dyno/coefficient?name=${encodeURIComponent(name)}`)
+        const body = (await response.json()) as { a?: unknown; error?: unknown }
+        if (!response.ok || typeof body.a !== "number") {
+          throw new Error(typeof body.error === "string" ? body.error : "Frez Dyno coefficient request failed.")
+        }
+        saveFrezDynoCoefficientCache(params, body.a)
+        return body.a
       },
     })
   }

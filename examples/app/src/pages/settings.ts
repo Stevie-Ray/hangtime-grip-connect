@@ -38,8 +38,8 @@ interface CapabilityState {
   supportsSystemInfo: boolean
   supportsCalibrationRead: boolean
   supportsCalibrationSet: boolean
+  supportsFrezCoefficient: boolean
   supportsFrezSerial: boolean
-  supportsFrezRawCalibration: boolean
   supportsCalibrationAddPoint: boolean
   supportsCalibrationSave: boolean
   supportsErrorInfo: boolean
@@ -71,8 +71,8 @@ function readCapabilities(): CapabilityState {
     ),
     supportsCalibrationRead: Boolean(device?.calibration),
     supportsCalibrationSet: Boolean(device?.setCalibration),
+    supportsFrezCoefficient: Boolean(device?.setCoefficient),
     supportsFrezSerial: Boolean(device?.setDeviceSerialNumber),
-    supportsFrezRawCalibration: Boolean(device?.setRawCalibration),
     supportsCalibrationAddPoint: Boolean(device?.addCalibrationPoint),
     supportsCalibrationSave: Boolean(device?.saveCalibration),
     supportsErrorInfo: Boolean(device?.errorInfo),
@@ -106,8 +106,8 @@ function renderSettingsList(): string {
       enabled:
         capabilities.supportsCalibrationRead ||
         capabilities.supportsCalibrationSet ||
+        capabilities.supportsFrezCoefficient ||
         capabilities.supportsFrezSerial ||
-        capabilities.supportsFrezRawCalibration ||
         capabilities.supportsCalibrationAddPoint,
     },
     {
@@ -334,8 +334,7 @@ function renderCalibrationPage(): string {
   const capabilities = readCapabilities()
   const preferences = loadPreferences()
   const frezDynoSerialNumber = loadFrezDynoSerialNumber(getBluetoothDeviceId(getActiveDevice()))
-  const frezCalibrationValue =
-    preferences.frezDynoCalibrationPoints?.map(({ raw, weight }) => `${raw}:${weight}`).join(", ") ?? ""
+  const frezCoefficientValue = preferences.frezDynoCoefficient ?? ""
 
   return `
     <section class="session-page" aria-label="Settings">
@@ -356,10 +355,10 @@ function renderCalibrationPage(): string {
       <p>Chrome blocks the BLE serial characteristic. Enter the actual device serial to load its factory calibration.</p>
       <button type="button" data-settings-action="frez-serial-set" ${!capabilities.supportsFrezSerial ? "disabled" : ""}>Set Frez Serial</button>
       <label>
-        Frez calibration override
-        <input type="text" placeholder="e.g. 1000:0, 3000:20" value="${frezCalibrationValue}" data-settings-frez-calibration-input />
+        Frez coefficient override
+        <input type="number" step="any" placeholder="e.g. 0.000012345678" value="${frezCoefficientValue}" data-settings-frez-coefficient-input />
       </label>
-      <button type="button" data-settings-action="frez-raw-calibration-set" ${!capabilities.supportsFrezRawCalibration ? "disabled" : ""}>Set Frez Override</button>
+      <button type="button" data-settings-action="frez-coefficient-set" ${!capabilities.supportsFrezCoefficient ? "disabled" : ""}>Set Frez Coefficient</button>
       <button type="button" data-settings-action="calibration-add-point" ${!capabilities.supportsCalibrationAddPoint ? "disabled" : ""}>Add Calibration Point</button>
       <button type="button" data-settings-action="calibration-save" ${!capabilities.supportsCalibrationSave ? "disabled" : ""}>Save Calibration</button>
       <p id="settings-status">${getActiveDevice() ? "Ready." : "No connected device."}</p>

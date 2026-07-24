@@ -1,9 +1,13 @@
-import type { FrezDynoCalibrationPoint } from "@hangtime/grip-connect"
 import type { ConnectedDevice } from "../devices/session.js"
 import { getBluetoothDeviceId } from "../devices/diagnostics.js"
 import { setActiveDevice } from "../devices/session.js"
 import { parseBaudRate, parseSamplingRate } from "./rates.js"
-import { parseFrezDynoSerialNumber, saveFrezDynoSerialNumber, savePreferences } from "./storage.js"
+import {
+  parseFrezDynoCoefficient,
+  parseFrezDynoSerialNumber,
+  saveFrezDynoSerialNumber,
+  savePreferences,
+} from "./storage.js"
 import { loadNordicDfuPackage } from "./nordic-dfu-package.js"
 
 export type SettingsActionId =
@@ -14,7 +18,7 @@ export type SettingsActionId =
   | "calibration-read"
   | "calibration-set"
   | "frez-serial-set"
-  | "frez-raw-calibration-set"
+  | "frez-coefficient-set"
   | "calibration-add-point"
   | "calibration-save"
   | "errors-read"
@@ -40,32 +44,6 @@ function parseCalibrationCurveInput(raw: string): Uint8Array | null {
   })
   if (bytes.some((value) => Number.isNaN(value))) return null
   return new Uint8Array(bytes)
-}
-
-function parseFrezRawCalibrationInput(raw: string): FrezDynoCalibrationPoint[] | null {
-  const parts = raw
-    .trim()
-    .split(/[\n;,]+/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-
-  if (parts.length < 2) return null
-
-  const points: FrezDynoCalibrationPoint[] = []
-  for (const part of parts) {
-    const [rawText, weightText, extra] = part.split(/[:=]/)
-    if (extra !== undefined || rawText === undefined || weightText === undefined) return null
-
-    const rawValue = Number(rawText.trim())
-    const weight = Number(weightText.trim())
-    if (!Number.isFinite(rawValue) || !Number.isFinite(weight)) return null
-    points.push({ raw: rawValue, weight })
-  }
-
-  const rawValues = new Set(points.map(({ raw: rawValue }) => rawValue))
-  if (rawValues.size !== points.length) return null
-
-  return points
 }
 
 function formatDeviceDisplayName(device: ConnectedDevice): string {
@@ -411,22 +389,22 @@ export async function runSettingsAction(options: RunSettingsActionOptions): Prom
       return
     }
 
-    if (action === "frez-raw-calibration-set") {
-      if (!device.setRawCalibration) {
-        setFeedback("Frez calibration override is not supported by this device.")
+    if (action === "frez-coefficient-set") {
+      if (!device.setCoefficient) {
+        setFeedback("Frez coefficient override is not supported by this device.")
         return
       }
 
-      const input = appElement.querySelector<HTMLInputElement>("[data-settings-frez-calibration-input]")
-      const points = parseFrezRawCalibrationInput(input?.value ?? "")
-      if (!points) {
-        setFeedback("Invalid Frez override. Provide at least two raw:kg pairs.")
+      const input = appElement.querySelector<HTMLInputElement>("[data-settings-frez-coefficient-input]")
+      const coefficient = parseFrezDynoCoefficient(input?.value)
+      if (!coefficient) {
+        setFeedback("Invalid Frez coefficient. Provide a finite, non-zero number.")
         return
       }
 
-      device.setRawCalibration(points)
-      savePreferences({ frezDynoCalibrationPoints: points })
-      setFeedback("Frez calibration override updated.")
+      device.setCoefficient(coefficient)
+      savePreferences({ frezDynoCoefficient: coefficient })
+      setFeedback("Frez coefficient override updated.")
       return
     }
 
