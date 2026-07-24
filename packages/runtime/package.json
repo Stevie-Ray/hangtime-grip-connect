@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-runtime",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "Runtime adapter for Grip Connect devices",
   "keywords": [
     "auroraboard",
@@ -50,7 +50,7 @@
     "build": "npm run clean && tsc --build"
   },
   "dependencies": {
-    "@hangtime/grip-connect": "^0.13.2",
+    "@hangtime/grip-connect": "^0.14.0",
     "webbluetooth": "^3.7.0"
   },
   "devDependencies": {

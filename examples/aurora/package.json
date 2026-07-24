@@ -19,7 +19,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.3.0",
     "@fortawesome/free-regular-svg-icons": "^7.3.0",
     "@fortawesome/free-solid-svg-icons": "^7.3.0",
-    "@hangtime/grip-connect": "^0.13.4"
+    "@hangtime/grip-connect": "^0.14.0"
   },
   "devDependencies": {
     "@types/w3c-web-serial": "^1.0.8",

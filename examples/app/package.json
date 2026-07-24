@@ -13,7 +13,7 @@
     "@fortawesome/fontawesome-svg-core": "^7.3.0",
     "@fortawesome/free-brands-svg-icons": "^7.3.0",
     "@fortawesome/free-solid-svg-icons": "^7.3.0",
-    "@hangtime/grip-connect": "^0.13.4",
+    "@hangtime/grip-connect": "^0.14.0",
     "chart.js": "^4.5.1",
     "fflate": "^0.8.3"
   },

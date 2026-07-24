@@ -1,5 +1,11 @@
 # @hangtime/cli
 
+## 0.14.0
+
+### Patch Changes
+
+- @hangtime/grip-connect-runtime@0.14.0
+
 ## 0.13.0
 
 ### Minor Changes
@@ -65,6 +71,7 @@
   cleaner and more scalable stream/session configuration.
 
   Add configurable stream-session options in interactive flows:
+
   - `Peak Force / MVC`: mode selection (`Single mode` / `Left/Right`)
   - `Endurance`: duration and countdown
   - `RFD`: countdown and new `Enable Left/Right mode` toggle
@@ -113,6 +120,7 @@
 ### Patch Changes
 
 - Release 0.10.7
+
   - Core: Add RFD interface (`RfdMode`, `RfdOptions`, `RFD_TIME_WINDOWS`)
   - Core: RFD callback fields and device model updates
   - CLI: RFD and stream/live refinements
