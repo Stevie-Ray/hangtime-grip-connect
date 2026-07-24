@@ -1,5 +1,12 @@
 # @hangtime/grip-connect
 
+## 0.14.0
+
+### Minor Changes
+
+- 7e5beb8: Update Frez Dyno support to the official protocol v1 packet, command, coefficient API, tare, and
+  device-timestamp contracts.
+
 ## 0.13.4
 
 ### Patch Changes
