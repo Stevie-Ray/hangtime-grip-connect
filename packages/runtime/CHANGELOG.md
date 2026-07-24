@@ -1,5 +1,12 @@
 # @hangtime/grip-connect-runtime
 
+## 0.14.0
+
+### Patch Changes
+
+- Updated dependencies [7e5beb8]
+  - @hangtime/grip-connect@0.14.0
+
 ## 0.13.1
 
 ### Patch Changes
@@ -50,6 +57,7 @@
 ### Patch Changes
 
 - Release 0.10.7
+
   - Core: Add RFD interface (`RfdMode`, `RfdOptions`, `RFD_TIME_WINDOWS`)
   - Core: RFD callback fields and device model updates
   - CLI: RFD and stream/live refinements
