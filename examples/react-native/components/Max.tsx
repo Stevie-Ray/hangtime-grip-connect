@@ -32,15 +32,13 @@ export default function Max({ finishWorkout }: MaxProps) {
   const [error, setError] = useState<string | undefined>(undefined)
   const { settings } = useSettings()
 
-  const updateMax = (weight: number) => {
+  const updateMax = React.useCallback((weight: number) => {
     setCurrentMax((prev) => (weight > prev ? weight : prev))
-  }
+  }, [])
 
-  const updateConnectionStatus = () => {
+  const updateConnectionStatus = React.useCallback(() => {
     setIsConnected(true)
-    if (error) {
-      setError(undefined)
-    }
+    setError(undefined)
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
@@ -51,13 +49,16 @@ export default function Max({ finishWorkout }: MaxProps) {
       setIsConnected(false)
       setWeight(0)
     }, 2000) as unknown as NodeJS.Timeout
-  }
+  }, [])
 
-  const setNewWeight = (newWeight: number) => {
-    setWeight(newWeight)
-    updateMax(newWeight)
-    updateConnectionStatus()
-  }
+  const setNewWeight = React.useCallback(
+    (newWeight: number) => {
+      setWeight(newWeight)
+      updateMax(newWeight)
+      updateConnectionStatus()
+    },
+    [updateConnectionStatus, updateMax],
+  )
 
   useFocusEffect(
     React.useCallback(() => {
@@ -73,7 +74,7 @@ export default function Max({ finishWorkout }: MaxProps) {
           clearTimeout(timeoutRef.current)
         }
       }
-    }, [settings.deviceType]),
+    }, [settings.deviceType, setNewWeight]),
   )
 
   const finish = (save: boolean) => {

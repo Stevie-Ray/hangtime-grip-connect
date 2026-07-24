@@ -57,7 +57,6 @@ export function setupDevice(selectElement: HTMLSelectElement, outputElement: HTM
         if (
           device instanceof CTS500 ||
           device instanceof ForceBoard ||
-          device instanceof FrezDyno ||
           device instanceof Motherboard ||
           device instanceof Progressor
         ) {

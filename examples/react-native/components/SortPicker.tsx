@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { Animated, Easing, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { Colors } from "../constants/Colors"
 
@@ -11,7 +11,7 @@ interface CustomPickerProps {
 
 const CustomPicker: React.FC<CustomPickerProps> = ({ title, selectedValue, onValueChange, options }) => {
   const [isVisible, setIsVisible] = useState(false)
-  const slideAnim = useRef(new Animated.Value(0)).current
+  const [slideAnim] = useState(() => new Animated.Value(0))
 
   const openModal = () => {
     setIsVisible(true)

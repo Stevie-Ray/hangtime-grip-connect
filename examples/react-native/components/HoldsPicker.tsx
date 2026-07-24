@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { Animated, Easing, FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { useSettings } from "@/components/SettingContext"
@@ -16,7 +16,7 @@ interface HoldsPickerProps {
 
 const HoldsPicker: React.FC<HoldsPickerProps> = ({ onValueChange, setHoldsModalVisible }) => {
   const [isVisible, setIsVisible] = useState(false)
-  const slideAnim = useRef(new Animated.Value(0)).current
+  const [slideAnim] = useState(() => new Animated.Value(0))
   const { settings, updateSettings } = useSettings()
   const openModal = () => {
     setIsVisible(true)
