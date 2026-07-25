@@ -1,5 +1,12 @@
 # @hangtime/grip-connect-react-native
 
+## 0.15.0
+
+### Patch Changes
+
+- Updated dependencies [32d8f13]
+  - @hangtime/grip-connect@0.15.0
+
 ## 0.14.0
 
 ### Minor Changes

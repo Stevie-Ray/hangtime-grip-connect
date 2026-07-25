@@ -9,7 +9,7 @@
     "start": "node --env-file=.env index.js"
   },
   "dependencies": {
-    "@hangtime/grip-connect-runtime": "^0.14.0"
+    "@hangtime/grip-connect-runtime": "^0.15.0"
   },
   "trustedDependencies": [
     "@hangtime/grip-connect-runtime",

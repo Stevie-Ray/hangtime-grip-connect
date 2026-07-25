@@ -1,5 +1,12 @@
 # @hangtime/cli
 
+## 0.15.0
+
+### Patch Changes
+
+- Updated dependencies [a43528e]
+  - @hangtime/grip-connect-runtime@0.15.0
+
 ## 0.14.0
 
 ### Patch Changes
