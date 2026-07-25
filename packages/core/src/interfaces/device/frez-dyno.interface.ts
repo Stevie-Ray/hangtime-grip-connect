@@ -12,8 +12,10 @@ export type FrezDynoCoefficientLookup = (params: FrezDynoCoefficientLookupParams
 
 export interface FrezDynoOptions {
   /**
-   * Frez Developer Program access key. Keep it in FREZ_ACCESS_KEY or another
-   * secure runtime configuration source instead of committing it.
+   * Frez Developer Program access key. Keep it in FREZ_ACCESS_KEY,
+   * EXPO_PUBLIC_FREZ_ACCESS_KEY, or another secure runtime configuration source
+   * instead of committing it. Required on React Native, where bundlers never
+   * inline environment variables into node_modules.
    */
   accessKey?: string
 

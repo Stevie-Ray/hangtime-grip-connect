@@ -52,8 +52,8 @@ Create a local environment file in your project root:
 FREZ_ACCESS_KEY=your-access-key
 ```
 
-Add the file to `.gitignore`. Grip Connect reads `FREZ_ACCESS_KEY` automatically when your project loads the environment
-file into `process.env`.
+Add the file to `.gitignore`. Grip Connect reads `FREZ_ACCESS_KEY` or `EXPO_PUBLIC_FREZ_ACCESS_KEY` automatically when
+your project loads the environment file into `process.env`.
 
 ### 3. Create the Frez Dyno
 

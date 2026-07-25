@@ -122,6 +122,88 @@ describe("device behavior", () => {
     }
   })
 
+  it("reads the access key from FREZ_ACCESS_KEY or EXPO_PUBLIC_FREZ_ACCESS_KEY", async () => {
+    const originalFetch = globalThis.fetch
+    const originalKey = process.env.FREZ_ACCESS_KEY
+    const originalPublicKey = process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY
+    const requests = []
+
+    globalThis.fetch = async (url, init) => {
+      requests.push({ url: String(url), init })
+      return Response.json({ a: 0.01 })
+    }
+
+    try {
+      delete process.env.FREZ_ACCESS_KEY
+      process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY = "expo-key"
+      await lookupFrezDynoCoefficient({ deviceName: "FrezDyno-002318" })
+
+      process.env.FREZ_ACCESS_KEY = "node-key"
+      await lookupFrezDynoCoefficient({ deviceName: "FrezDyno-002318" })
+
+      assert.deepEqual(
+        requests.map(({ init }) => init.headers["X-Frez-Access-Key"]),
+        ["expo-key", "node-key"],
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+      if (originalKey === undefined) delete process.env.FREZ_ACCESS_KEY
+      else process.env.FREZ_ACCESS_KEY = originalKey
+      if (originalPublicKey === undefined) delete process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY
+      else process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY = originalPublicKey
+    }
+  })
+
+  it("retries the Frez Dyno coefficient lookup after a failed attempt", async () => {
+    let lookupCount = 0
+    const device = new FrezDyno({
+      coefficientLookup: async () => {
+        lookupCount++
+        if (lookupCount === 1) throw new Error("Coefficient request failed")
+        return 0.01
+      },
+    })
+    const writes = []
+
+    device.write = async (_serviceId, _characteristicId, message) => {
+      writes.push(message)
+    }
+
+    await assert.rejects(device.stream(), /Coefficient request failed/)
+    assert.deepEqual(writes, [])
+
+    await device.stream()
+
+    assert.equal(lookupCount, 2)
+    assert.deepEqual(writes, [device.commands.START_WEIGHT_MEAS])
+  })
+
+  it("coalesces overlapping Frez Dyno coefficient lookups into one request", async () => {
+    let lookupCount = 0
+    let releaseLookup
+    const pendingLookup = new Promise((resolve) => {
+      releaseLookup = resolve
+    })
+    const device = new FrezDyno({
+      coefficientLookup: async () => {
+        lookupCount++
+        await pendingLookup
+        return 0.01
+      },
+    })
+    device.write = async () => undefined
+
+    const streams = [device.stream(), device.stream()]
+    releaseLookup()
+    await Promise.all(streams)
+
+    assert.equal(lookupCount, 1)
+
+    await device.stream()
+
+    assert.equal(lookupCount, 1)
+  })
+
   it("uses the allowlisted Bluetooth name for Web Bluetooth coefficient lookup", async () => {
     const lookupCalls = []
     const device = new FrezDyno({

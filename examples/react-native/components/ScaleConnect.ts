@@ -34,10 +34,6 @@ if (Platform.OS !== "web") {
 }
 
 const { requestPermissions } = BluetoothPermissions()
-const frezAccessKey = process.env.EXPO_PUBLIC_FREZ_ACCESS_KEY
-if (frezAccessKey?.trim()) {
-  process.env.FREZ_ACCESS_KEY = frezAccessKey
-}
 
 const createDevice = (deviceType: DeviceType) => {
   switch (deviceType) {

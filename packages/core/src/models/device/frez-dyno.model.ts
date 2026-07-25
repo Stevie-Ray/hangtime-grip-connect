@@ -20,9 +20,22 @@ interface FrezDynoRawSample {
 
 type FrezDynoCoefficientSource = "api" | "manual" | "none"
 
+/**
+ * Environment variable names checked for the access key, in order of priority.
+ * Expo only exposes `EXPO_PUBLIC_` prefixed variables to application code.
+ */
+const FREZ_ACCESS_KEY_VARIABLES = ["FREZ_ACCESS_KEY", "EXPO_PUBLIC_FREZ_ACCESS_KEY"]
+
 function readEnvironmentAccessKey(): string | undefined {
   const processLike = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
-  return processLike?.env?.["FREZ_ACCESS_KEY"]?.trim() || undefined
+  const environment = processLike?.env
+  if (!environment) return undefined
+
+  for (const variable of FREZ_ACCESS_KEY_VARIABLES) {
+    const accessKey = environment[variable]?.trim()
+    if (accessKey) return accessKey
+  }
+  return undefined
 }
 
 function assertValidCoefficient(coefficient: number): void {
@@ -67,7 +80,7 @@ export async function lookupFrezDynoCoefficient(
   const normalizedAccessKey = accessKey?.trim()
   if (!normalizedAccessKey) {
     throw new Error(
-      "Missing FREZ_ACCESS_KEY. Store the Frez Developer Program access key in the environment or provide a coefficient lookup.",
+      "Missing FREZ_ACCESS_KEY. Set FREZ_ACCESS_KEY or EXPO_PUBLIC_FREZ_ACCESS_KEY in the environment, or pass accessKey, coefficient, or coefficientLookup to FrezDyno. Bundlers that skip node_modules, such as Metro, never inline either variable.",
     )
   }
 
@@ -101,7 +114,7 @@ export class FrezDyno extends Device implements IFrezDyno {
 
   private coefficientLookup: FrezDynoCoefficientLookup | null
 
-  private coefficientLookupAttempted = false
+  private coefficientLookupInFlight: Promise<void> | undefined
 
   private coefficientSource: FrezDynoCoefficientSource = "none"
 
@@ -193,13 +206,11 @@ export class FrezDyno extends Device implements IFrezDyno {
     assertValidCoefficient(coefficient)
     this.coefficient = coefficient
     this.coefficientSource = "manual"
-    this.coefficientLookupAttempted = false
   }
 
   clearCoefficient(): void {
     this.coefficient = undefined
     this.coefficientSource = "none"
-    this.coefficientLookupAttempted = false
   }
 
   setDeviceSerialNumber(serialNumber: string | undefined): void {
@@ -207,7 +218,6 @@ export class FrezDyno extends Device implements IFrezDyno {
     if (normalizedSerialNumber === this.deviceSerialNumber) return
 
     this.deviceSerialNumber = normalizedSerialNumber
-    this.coefficientLookupAttempted = false
     if (this.coefficientSource === "api") {
       this.coefficient = undefined
       this.coefficientSource = "none"
@@ -409,13 +419,19 @@ export class FrezDyno extends Device implements IFrezDyno {
 
   private async ensureCoefficientLoaded(): Promise<void> {
     if (this.coefficient !== undefined) return
-    if (this.coefficientLookupAttempted) {
-      throw new Error("Frez Dyno coefficient lookup did not return a usable coefficient.")
-    }
     if (!this.coefficientLookup) {
       throw new Error("Cannot start Frez Dyno measurement without a coefficient lookup or manual coefficient.")
     }
 
+    // Overlapping stream() calls share one request; clearing it on settlement
+    // keeps a later attempt retryable.
+    this.coefficientLookupInFlight ??= this.loadCoefficient(this.coefficientLookup).finally(() => {
+      this.coefficientLookupInFlight = undefined
+    })
+    await this.coefficientLookupInFlight
+  }
+
+  private async loadCoefficient(lookup: FrezDynoCoefficientLookup): Promise<void> {
     await this.ensureDeviceSerialNumber()
     const params: FrezDynoCoefficientLookupParams = {}
     if (this.deviceSerialNumber) {
@@ -425,8 +441,7 @@ export class FrezDyno extends Device implements IFrezDyno {
       if (deviceName) params.deviceName = deviceName
     }
 
-    this.coefficientLookupAttempted = true
-    const coefficient = await this.coefficientLookup(params)
+    const coefficient = await lookup(params)
     assertValidCoefficient(coefficient)
     this.coefficient = coefficient
     this.coefficientSource = "api"
