@@ -1,5 +1,16 @@
 # @hangtime/grip-connect-runtime
 
+## 0.15.0
+
+### Minor Changes
+
+- a43528e: Add Frez Dyno support to the runtime package and its Node.js, Bun, and Deno example.
+
+### Patch Changes
+
+- Updated dependencies [32d8f13]
+  - @hangtime/grip-connect@0.15.0
+
 ## 0.14.0
 
 ### Patch Changes
