@@ -47,7 +47,7 @@ jobs:
 
       - name: Version or Publish (Changesets)
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           version: npm run changeset:version:ci
           publish: npm run changeset:publish
