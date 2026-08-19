@@ -21,9 +21,7 @@ class MyBoard extends Device {
   constructor() {
     super({
       filters: [{ namePrefix: "MY-BOARD" }], // or { name: "Exact Name" } or { services: [uuid] }
-      services: [
-        /* ... */
-      ],
+      services: [/* ... */],
     })
   }
 }
@@ -69,9 +67,7 @@ class MyBoard extends Device {
   constructor() {
     super({
       filters: [{ namePrefix: "MY-BOARD" }],
-      services: [
-        /* ... */
-      ],
+      services: [/* ... */],
     })
   }
 }

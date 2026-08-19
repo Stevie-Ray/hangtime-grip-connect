@@ -214,7 +214,7 @@ export abstract class NordicDfuDevice extends Device implements INordicDfuDevice
     }
 
     // The bootloader may report an offset in the middle of an object; restart from that object's boundary.
-    for (let objectStart = offset - (offset % maxSize); objectStart < bytes.byteLength; ) {
+    for (let objectStart = offset - (offset % maxSize); objectStart < bytes.byteLength;) {
       const objectEnd = Math.min(objectStart + maxSize, bytes.byteLength)
       await this.dfuCreate(objectType, objectEnd - objectStart)
 
