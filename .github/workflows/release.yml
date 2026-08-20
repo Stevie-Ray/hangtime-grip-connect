@@ -49,10 +49,10 @@ jobs:
         id: changesets
         uses: changesets/action@v2
         with:
-          version: npm run changeset:version:ci
-          publish: npm run changeset:publish
-          commit: "chore: version packages"
-          title: "chore: version packages"
+          version-script: npm run changeset:version:ci
+          publish-script: npm run changeset:publish
+          commit-message: "chore: version packages"
+          pr-title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
