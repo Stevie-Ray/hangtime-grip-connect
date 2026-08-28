@@ -61,7 +61,7 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "husky": "^9.1.7",
     "oxfmt": "^0.64.0",
-    "oxlint": "^1.79.0",
+    "oxlint": "^1.80.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {

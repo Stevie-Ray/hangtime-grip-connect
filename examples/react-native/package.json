@@ -37,7 +37,7 @@
     "expo-web-browser": "~57.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-native": "0.86.2",
+    "react-native": "0.86.3",
     "react-native-ble-plx": "^3.5.1",
     "react-native-chart-kit": "^6.12.3",
     "react-native-gesture-handler": "~2.32.0",
