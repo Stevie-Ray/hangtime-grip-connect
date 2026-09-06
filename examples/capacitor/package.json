@@ -21,14 +21,14 @@
   },
   "dependencies": {
     "@capacitor-community/bluetooth-le": "^8.3.0",
-    "@capacitor/android": "^8.5.0",
-    "@capacitor/core": "^8.5.0",
-    "@capacitor/ios": "^8.5.0",
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/ios": "^8.5.1",
     "@capacitor/splash-screen": "^8.0.2",
     "@hangtime/grip-connect-capacitor": "^0.15.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.5.0",
+    "@capacitor/cli": "^8.5.1",
     "vite": "^8.2.2"
   }
 }
