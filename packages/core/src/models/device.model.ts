@@ -164,6 +164,9 @@ export abstract class Device extends BaseModel implements IDevice {
     this.packetCount = 0
     this.currentNotifyIntervalMs = undefined
     this.currentSamplesPerPacket = undefined
+    delete this.samplingRateHz
+    this.rateIntervalStart = 0
+    this.rateIntervalSamples = 0
   }
 
   /**
@@ -328,7 +331,7 @@ export abstract class Device extends BaseModel implements IDevice {
   protected buildZoneMeasurement(valueOrCurrent: number, peak?: number, mean?: number, min?: number): ForceMeasurement {
     const useFullStats = peak !== undefined && mean !== undefined
     const current = valueOrCurrent
-    const zonePeak = useFullStats ? (peak === 0 && current < 0 ? current : peak) : valueOrCurrent
+    const zonePeak = useFullStats ? peak : valueOrCurrent
     const zoneMean = useFullStats ? mean : valueOrCurrent
     const zoneMin = useFullStats ? (min ?? Math.min(zonePeak, current)) : current
     return {

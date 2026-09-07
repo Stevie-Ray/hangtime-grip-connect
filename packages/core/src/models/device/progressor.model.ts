@@ -349,7 +349,7 @@ export class Progressor extends NordicDfuDevice implements IProgressor {
    * @param {DataView} value - The notification event.
    */
   override handleNotifications = (value: DataView): void => {
-    if (!value?.buffer) return
+    if (!value?.buffer || value.byteLength < 2) return
     // Update timestamp
     this.updateTimestamp()
 
@@ -357,6 +357,8 @@ export class Progressor extends NordicDfuDevice implements IProgressor {
     // Read the first byte of the buffer to determine the kind of message
     const kind = value.getUint8(0)
     const payloadLength = value.getUint8(1)
+    // Validate the full frame before processing any samples or command responses.
+    if (value.byteLength < 2 + payloadLength) return
 
     const bytes = new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
     const payload = bytes.slice(2, 2 + payloadLength)
@@ -371,7 +373,7 @@ export class Progressor extends NordicDfuDevice implements IProgressor {
         const offset = 2 + i * 8
         const weight = value.getFloat32(offset, true)
         const timestampUs = value.getUint32(offset + 4, true)
-        if (Number.isNaN(weight)) continue
+        if (!Number.isFinite(weight)) continue
         const numericData = weight - this.applyTare(weight)
         const currentMassTotal = Math.max(-1000, Number(numericData))
 
@@ -407,6 +409,7 @@ export class Progressor extends NordicDfuDevice implements IProgressor {
 
       let output: string
       if (this.writeLast === this.commands.GET_BATTERY_VOLTAGE) {
+        if (payload.byteLength < 4) return
         output = new DataView(payload.buffer, payload.byteOffset, payload.byteLength).getUint32(0, true).toString()
       } else if (this.writeLast === this.commands.GET_FIRMWARE_VERSION) {
         output = new TextDecoder().decode(payload)

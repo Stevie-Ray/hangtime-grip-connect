@@ -80,6 +80,118 @@ function setInt24Le(bytes, offset, value) {
 }
 
 describe("device notification parsers", () => {
+  it("ignores truncated Progressor packets before emitting any samples", () => {
+    const device = new Progressor()
+    const notifications = captureNotifications(device)
+    const complete = progressorWeightPacket([
+      { weight: 10, timestampUs: 1000 },
+      { weight: 20, timestampUs: 2000 },
+    ])
+
+    for (let length = 0; length < complete.byteLength; length++) {
+      assert.doesNotThrow(() => device.handleNotifications(new DataView(complete.buffer, 0, length)))
+    }
+    assert.equal(notifications.length, 0)
+    assert.equal(device.downloadPackets.length, 0)
+
+    device.handleNotifications(complete)
+    assert.equal(notifications.length, 2)
+    assert.equal(notifications[1].mean, 15)
+    assert.equal(notifications[1].performance.packetIndex, 1)
+  })
+
+  it("ignores incomplete Progressor battery responses", () => {
+    const device = new Progressor()
+    const responses = []
+    device.writeLast = device.commands.GET_BATTERY_VOLTAGE
+    device.writeCallback = (response) => responses.push(response)
+
+    for (let length = 0; length < 4; length++) {
+      assert.doesNotThrow(() => device.handleNotifications(dataView([0, length, ...Array(length).fill(0)])))
+    }
+    assert.deepEqual(responses, [])
+    device.handleNotifications(dataView([0, 4, 0x74, 0x0e, 0, 0]))
+    assert.deepEqual(responses, ["3700"])
+  })
+
+  it("ignores non-finite Progressor weights without poisoning session statistics", () => {
+    const device = new Progressor()
+    const notifications = captureNotifications(device)
+    device.handleNotifications(
+      progressorWeightPacket([
+        { weight: Infinity, timestampUs: 1000 },
+        { weight: -Infinity, timestampUs: 2000 },
+        { weight: NaN, timestampUs: 3000 },
+        { weight: 10, timestampUs: 4000 },
+        { weight: 15, timestampUs: 5000 },
+      ]),
+    )
+
+    assert.equal(notifications.length, 2)
+    assert.equal(notifications[1].current, 15)
+    assert.equal(notifications[1].peak, 15)
+    assert.equal(notifications[1].mean, 12.5)
+    assert.equal(notifications[1].min, 10)
+    assert.equal(device.downloadPackets.length, 2)
+    assert.equal(device.downloadPackets[1].mean, 12.5)
+  })
+
+  it("ignores truncated Entralpi notifications and recovers on the next valid packet", () => {
+    const device = new Entralpi()
+    const notifications = captureNotifications(device)
+    for (const bytes of [[], [0x04]]) {
+      assert.doesNotThrow(() => device.handleNotifications(dataView(bytes)))
+    }
+    assert.equal(notifications.length, 0)
+    device.handleNotifications(dataView([0x04, 0xce]))
+    assert.equal(notifications[0].current, 12.3)
+    assert.equal(notifications[0].performance.packetIndex, 1)
+  })
+
+  it("preserves a zero Motherboard zone peak after force becomes negative", () => {
+    const device = new Motherboard()
+    const notifications = captureNotifications(device)
+    device.calibrationData = Array.from({ length: 4 }, () => [
+      [0, 0, 0],
+      [1, 100, 100],
+    ])
+
+    device.handleNotifications(textView(motherboardPacket(1, 0)))
+    device.handleNotifications(textView(motherboardPacket(2, -10)))
+
+    const zone = notifications[1].distribution.left
+    assert.equal(zone.current, -10)
+    assert.equal(zone.peak, 0)
+    assert.equal(zone.mean, -5)
+    assert.equal(zone.min, -10)
+    assert.equal(device.downloadPackets[1].distribution.left.peak, 0)
+  })
+
+  it("resets measured sampling rates when a ForceBoard stream restarts", async (t) => {
+    const device = new ForceBoard()
+    const notifications = captureNotifications(device)
+    device.write = async () => undefined
+    let now = 1000
+    t.mock.method(Date, "now", () => now)
+
+    device.handleNotifications(forceBoardPacket([10]))
+    now = 2000
+    device.handleNotifications(forceBoardPacket([20]))
+    assert.equal(notifications[1].performance.samplingRateHz, 2)
+
+    now = 12000
+    await device.stream()
+    device.handleNotifications(forceBoardPacket([30]))
+    assert.equal(notifications[2].performance.samplingRateHz, undefined)
+    assert.equal(notifications[2].performance.packetIndex, 1)
+    assert.equal(notifications[2].performance.notifyIntervalMs, undefined)
+    assert.equal(device.downloadPackets[0].performance.samplingRateHz, undefined)
+
+    now = 13000
+    device.handleNotifications(forceBoardPacket([40]))
+    assert.equal(notifications[3].performance.samplingRateHz, 2)
+  })
+
   it("parses Climbro battery and sensor packets", async () => {
     const device = new Climbro()
     const notifications = captureNotifications(device)

@@ -160,7 +160,7 @@ export class Entralpi extends Device implements IEntralpi {
    * @param {DataView} value - The notification event.
    */
   override handleNotifications = (value: DataView): void => {
-    if (value) {
+    if (value && value.byteLength >= 2) {
       this.updateTimestamp()
       if (value.buffer) {
         this.currentSamplesPerPacket = 1
