@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-runtime",
-  "version": "0.15.0",
+  "version": "0.15.2",
   "description": "Runtime adapter for Grip Connect devices",
   "keywords": [
     "auroraboard",

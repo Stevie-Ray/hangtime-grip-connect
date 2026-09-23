@@ -1,5 +1,12 @@
 # @hangtime/grip-connect-react-native
 
+## 0.15.2
+
+### Patch Changes
+
+- e78b4a7: Require Grip Connect core 0.15.1 or newer so Frez Dyno coefficient lookups use the updated API endpoint on
+  every supported platform.
+
 ## 0.15.0
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@hangtime/grip-connect-react-native",
-  "version": "0.15.0",
+  "version": "0.15.2",
   "description": "React Native module for Grip Connect devices",
   "keywords": [
     "auroraboard",
