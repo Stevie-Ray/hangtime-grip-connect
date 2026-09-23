@@ -1,5 +1,14 @@
 # @hangtime/grip-connect
 
+## 0.15.1
+
+### Patch Changes
+
+- a541a30: Update the Frez Dyno coefficient API URL before the old endpoint is retired on September 30, 2026.
+- 5881042: Ignore truncated Progressor and Entralpi packets and non-finite Progressor weights so malformed readings
+  cannot throw or corrupt session statistics. Preserve zero Motherboard zone peaks when force becomes negative, and
+  reset sampling-rate calculations when starting a new stream.
+
 ## 0.15.0
 
 ### Patch Changes
