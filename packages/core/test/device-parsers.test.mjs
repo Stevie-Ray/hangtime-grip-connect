@@ -602,6 +602,164 @@ describe("device notification parsers", () => {
     await assert.doesNotReject(() => device.stream(1))
   })
 
+  it("sends CTS500 STOP after stream() and waits for the answer before it closes the link", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    captureNotifications(device)
+    const events = []
+    const disconnectGatt = bluetoothDevice.gatt.disconnect.bind(bluetoothDevice.gatt)
+    bluetoothDevice.gatt.disconnect = () => {
+      events.push("gatt disconnect")
+      disconnectGatt()
+    }
+    device.write = async (_service, _characteristic, value) => {
+      events.push(`write ${value[1].toString(16)}`)
+      if (value[1] === 0xaa) {
+        rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+      } else if (value[1] === 0xab) {
+        // The real device answers STOP in about 50 ms.
+        setTimeout(() => {
+          events.push("stop answer")
+          rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xab, 0x00, 0x00, 0x00]))
+        }, 50)
+      }
+    }
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    await device.stream()
+    const disconnect = device.disconnect()
+    await new Promise((resolve) => setImmediate(resolve))
+
+    // The link stays up until the device answers STOP.
+    assert.deepEqual(events, ["write aa", "write ab"])
+    assert.equal(device.isConnected(), true)
+
+    t.mock.timers.tick(50)
+    await disconnect
+
+    assert.deepEqual(events, ["write aa", "write ab", "stop answer", "gatt disconnect"])
+    assert.equal(device.isConnected(), false)
+  })
+
+  it("sends CTS500 STOP before it closes the link when the device uploads from an earlier session", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    const notifications = captureNotifications(device)
+    const events = []
+    const disconnectGatt = bluetoothDevice.gatt.disconnect.bind(bluetoothDevice.gatt)
+    bluetoothDevice.gatt.disconnect = () => {
+      events.push("gatt disconnect")
+      disconnectGatt()
+    }
+    device.write = async (_service, _characteristic, value) => {
+      events.push(`write ${value[1].toString(16)}`)
+      if (value[1] === 0xab) {
+        // The upload goes on until the device handles STOP, so a weight frame arrives before the answer.
+        rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+        setTimeout(() => {
+          events.push("stop answer")
+          rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xab, 0x00, 0x00, 0x00]))
+        }, 50)
+      }
+    }
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    // The device keeps the upload state across a power cycle, so it sends weight frames before this client sends START.
+    rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+    rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+    assert.equal(notifications.length, 2)
+
+    const disconnect = device.disconnect()
+    await new Promise((resolve) => setImmediate(resolve))
+    t.mock.timers.tick(50)
+    await disconnect
+
+    assert.deepEqual(events, ["write ab", "stop answer", "gatt disconnect"])
+    assert.equal(device.isConnected(), false)
+  })
+
+  it("closes the CTS500 link after the STOP timeout when the device does not answer", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const events = []
+    const disconnectGatt = bluetoothDevice.gatt.disconnect.bind(bluetoothDevice.gatt)
+    bluetoothDevice.gatt.disconnect = () => {
+      events.push("gatt disconnect")
+      disconnectGatt()
+    }
+    device.write = async (_service, _characteristic, value) => {
+      events.push(`write ${value[1].toString(16)}`)
+    }
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    const disconnect = device.disconnect()
+    // The STOP request starts in a microtask. Let it register its timeout before the clock moves.
+    await new Promise((resolve) => setImmediate(resolve))
+    assert.deepEqual(events, ["write ab"])
+    t.mock.timers.tick(2000)
+
+    await assert.doesNotReject(disconnect)
+    assert.deepEqual(events, ["write ab", "gatt disconnect"])
+    assert.equal(device.isConnected(), false)
+  })
+
+  it("does not send CTS500 STOP when the link is already down", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    t.mock.method(console, "warn", () => undefined)
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push(value[1])
+    }
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    // The device drops the link. The gattserverdisconnected handler calls disconnect() itself.
+    bluetoothDevice.gatt.disconnect()
+    assert.equal(device.isConnected(), false)
+
+    let settled = false
+    void Promise.resolve(device.disconnect()).then(() => {
+      settled = true
+    })
+    // The clock stands still, so a wait for a STOP answer keeps the promise pending.
+    await new Promise((resolve) => setImmediate(resolve))
+
+    assert.equal(settled, true)
+    assert.deepEqual(writes, [])
+  })
+
   it("frees the CTS500 request queue when tare() gets the single weight frame that the device sends", async (t) => {
     const device = new CTS500()
     const bluetoothDevice = createDeviceMockFromGripDevice(device)

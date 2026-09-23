@@ -80,6 +80,9 @@ export class CTS500 extends Device implements ICTS500 {
   private requestQueue: Promise<void> = Promise.resolve()
   private isStreaming = false
   private commandOpcodes = new Set<number>()
+  // The base disconnect is a field, not a method, so super.disconnect() does not exist. Keep it before the override
+  // below replaces it. Fields initialize in declaration order. The cast reads the base field that is already set.
+  private readonly disconnectLink = (this as Device).disconnect
 
   constructor() {
     super({
@@ -194,6 +197,18 @@ export class CTS500 extends Device implements ICTS500 {
 
     const rawVoltage = (frame[4] << 8) | frame[5]
     return (rawVoltage / 100).toFixed(2)
+  }
+
+  /**
+   * Stops automatic weight uploads, then disconnects the device.
+   * The device keeps the upload state across a power cycle. Without STOP, it keeps uploading after the client is gone.
+   * @returns {Promise<void>} A promise that resolves once the link is closed. It does not reject.
+   */
+  override disconnect = async (): Promise<void> => {
+    if (this.isConnected()) {
+      await this.stopUploadBeforeDisconnect()
+    }
+    this.disconnectLink()
   }
 
   /**
@@ -461,6 +476,17 @@ export class CTS500 extends Device implements ICTS500 {
 
       this.bufferedFrames = this.bufferedFrames.slice(frame.length)
       this.handleFrame(frame)
+    }
+  }
+
+  /**
+   * Sends STOP before a disconnect. Platform wrappers that replace disconnect() call it too.
+   */
+  protected stopUploadBeforeDisconnect = async (): Promise<void> => {
+    try {
+      await this.stop()
+    } catch {
+      // The link can already be gone, or the device does not answer. Disconnect anyway.
     }
   }
 

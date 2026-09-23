@@ -16,6 +16,13 @@ export interface ICTS500 extends IDevice {
   battery(): Promise<string | undefined>
 
   /**
+   * Stops automatic weight uploads, then disconnects the device.
+   * The device keeps the upload state across a power cycle, so STOP goes out before the link closes.
+   * @returns {Promise<void>} A Promise that resolves once the link is closed. It does not reject.
+   */
+  disconnect(): Promise<void>
+
+  /**
    * Retrieves firmware version from the device.
    * @returns {Promise<string | undefined>} A Promise that resolves with the firmware version.
    */
