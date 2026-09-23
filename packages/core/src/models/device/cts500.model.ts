@@ -477,6 +477,9 @@ export class CTS500 extends Device implements ICTS500 {
         CTS500_RESPONSE_TIMEOUT_MS,
         message instanceof Uint8Array ? message[1] : undefined,
       )
+      // The wait can reject before it is awaited: when the write fails, or when the timeout fires during a slow write.
+      // Mark it as handled so Node does not report an unhandled rejection. The await below still rethrows the error.
+      waitForFrame.catch(() => undefined)
 
       try {
         await this.write("cts500", "tx", message, 0)

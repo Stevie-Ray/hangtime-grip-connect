@@ -788,11 +788,48 @@ describe("device notification parsers", () => {
 
   it("rejects CTS500 setSamplingRate() on an error that is not a timeout", async () => {
     const device = new CTS500()
-    device.queryFrame = async () => {
+    device.write = async () => {
       throw new Error("write failed")
     }
 
     await assert.rejects(() => device.setSamplingRate(80), /write failed/)
+  })
+
+  it("rejects a CTS500 command whose write fails without an unhandled rejection", async (t) => {
+    const device = new CTS500()
+    const unhandled = []
+    const onUnhandled = (reason) => unhandled.push(reason)
+    process.on("unhandledRejection", onUnhandled)
+    t.after(() => process.off("unhandledRejection", onUnhandled))
+    device.write = async () => {
+      throw new Error("write failed")
+    }
+
+    await assert.rejects(() => device.battery(), /write failed/)
+    // Node reports an unhandled rejection after the microtask queue drains.
+    await new Promise((resolve) => setImmediate(resolve))
+
+    assert.deepEqual(unhandled, [])
+  })
+
+  it("rejects a slow CTS500 write with a timeout without an unhandled rejection", async (t) => {
+    const device = new CTS500()
+    const unhandled = []
+    const onUnhandled = (reason) => unhandled.push(reason)
+    process.on("unhandledRejection", onUnhandled)
+    t.after(() => process.off("unhandledRejection", onUnhandled))
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+    // The write outlasts the 2000 ms response timeout, so the timeout fires while the write is still pending.
+    device.write = () => new Promise((resolve) => setTimeout(resolve, 3000))
+
+    const battery = device.battery()
+    await new Promise((resolve) => setImmediate(resolve))
+    t.mock.timers.tick(2000)
+    await new Promise((resolve) => setImmediate(resolve))
+    t.mock.timers.tick(1000)
+
+    await assert.rejects(battery, { name: "CTS500TimeoutError" })
+    assert.deepEqual(unhandled, [])
   })
 
   it("sends the mapped CTS500 baud rate payload without a console warning", async (t) => {
