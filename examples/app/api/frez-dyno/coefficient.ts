@@ -10,7 +10,7 @@ async function fetchCoefficient(request: Request): Promise<Response> {
     })
   }
 
-  const accessKey = process.env.FREZ_ACCESS_KEY?.trim()
+  const accessKey = process.env["FREZ_ACCESS_KEY"]?.trim()
   if (!accessKey) {
     return json({ error: "Missing FREZ_ACCESS_KEY." }, 503)
   }
