@@ -6,7 +6,7 @@ import type {
 } from "../../interfaces/device/frez-dyno.interface.js"
 import { Device } from "../device.model.js"
 
-const FREZ_COEFFICIENT_API = "https://api.frez.app/v1/dyno/coefficient"
+const FREZ_COEFFICIENT_API = "https://api.frez.app/functions/v1/dyno-coefficient"
 const FREZ_PACKET_BYTES = 74
 const FREZ_SAMPLES_PER_PACKET = 9
 const FREZ_SAMPLE_BYTES = 8

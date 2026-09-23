@@ -22,11 +22,14 @@ async function fetchCoefficient(request: Request): Promise<Response> {
   }
 
   try {
-    const upstream = await fetch(`https://api.frez.app/v1/dyno/coefficient?name=${encodeURIComponent(name)}`, {
-      headers: {
-        "X-Frez-Access-Key": accessKey,
+    const upstream = await fetch(
+      `https://api.frez.app/functions/v1/dyno-coefficient?name=${encodeURIComponent(name)}`,
+      {
+        headers: {
+          "X-Frez-Access-Key": accessKey,
+        },
       },
-    })
+    )
 
     return new Response(await upstream.text(), {
       headers: {

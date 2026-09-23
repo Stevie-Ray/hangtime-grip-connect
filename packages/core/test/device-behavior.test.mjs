@@ -93,8 +93,8 @@ describe("device behavior", () => {
         ),
         0.000012345678,
       )
-      assert.equal(requests[0].url, "https://api.frez.app/v1/dyno/coefficient?name=FrezDyno-002318")
-      assert.equal(requests[1].url, "https://api.frez.app/v1/dyno/coefficient?serial=FrezDyno-000123")
+      assert.equal(requests[0].url, "https://api.frez.app/functions/v1/dyno-coefficient?name=FrezDyno-002318")
+      assert.equal(requests[1].url, "https://api.frez.app/functions/v1/dyno-coefficient?serial=FrezDyno-000123")
       assert.equal(requests[0].init.headers["X-Frez-Access-Key"], "secret-key")
       assert.equal(requests[0].init.method, undefined)
     } finally {
