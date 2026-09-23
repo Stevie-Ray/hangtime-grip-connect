@@ -22,7 +22,7 @@
         "@fortawesome/fontawesome-svg-core": "^7.3.1",
         "@fortawesome/free-brands-svg-icons": "^7.3.1",
         "@fortawesome/free-solid-svg-icons": "^7.3.1",
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
         "chart.js": "^4.5.1",
         "fflate": "^0.8.3",
       },
@@ -41,7 +41,7 @@
         "@fortawesome/free-brands-svg-icons": "^7.3.1",
         "@fortawesome/free-regular-svg-icons": "^7.3.1",
         "@fortawesome/free-solid-svg-icons": "^7.3.1",
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
       },
       "devDependencies": {
         "@types/w3c-web-serial": "^1.0.8",
@@ -70,7 +70,7 @@
       "name": "@grip-connect/flappy-bird",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
       },
       "devDependencies": {
         "@typescript/native": "npm:typescript@^7.0.2",
@@ -83,7 +83,7 @@
       "name": "@grip-connect/pong",
       "version": "0.0.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
       },
       "devDependencies": {
         "@typescript/native": "npm:typescript@^7.0.2",
@@ -151,7 +151,7 @@
       "dependencies": {
         "@capacitor-community/bluetooth-le": "^8.3.0",
         "@capacitor/filesystem": "^8.1.3",
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
       },
       "devDependencies": {
         "@typescript/native": "npm:typescript@^7.0.2",
@@ -183,7 +183,7 @@
     },
     "packages/core": {
       "name": "@hangtime/grip-connect",
-      "version": "0.15.0",
+      "version": "0.15.1",
       "devDependencies": {
         "@typescript/native": "npm:typescript@^7.0.2",
         "typescript": "npm:@typescript/typescript6@^6.0.2",
@@ -199,7 +199,7 @@
       "name": "@hangtime/grip-connect-react-native",
       "version": "0.15.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
         "buffer": "^6.0.3",
         "react-native-ble-plx": "^3.5.1",
       },
@@ -212,7 +212,7 @@
       "name": "@hangtime/grip-connect-runtime",
       "version": "0.15.0",
       "dependencies": {
-        "@hangtime/grip-connect": "^0.15.0",
+        "@hangtime/grip-connect": "^0.15.1",
         "webbluetooth": "^3.7.0",
       },
       "devDependencies": {
