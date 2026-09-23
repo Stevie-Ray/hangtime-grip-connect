@@ -444,6 +444,291 @@ describe("device notification parsers", () => {
     assert.deepEqual(writes, [[0x05, 0x86, 0x00, 0x00, 0x00, 0x8b]])
   })
 
+  it("resolves CTS500 stop() on a typed command response", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    // The MCU that answers 0xA4 with 20 3A 96 answers STOP with 05 80 AB 00 00 00 30. It sends no 6-byte echo.
+    device.write = async () => {
+      rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xab, 0x00, 0x00, 0x00]))
+    }
+
+    await assert.doesNotReject(() => device.stop())
+  })
+
+  it("still resolves CTS500 stop() on a 6-byte echo", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    device.write = async () => {
+      rx.emitValueChanged(cts500Frame([0x05, 0xab, 0x00, 0x00, 0x00]))
+    }
+
+    await assert.doesNotReject(() => device.stop())
+  })
+
+  it("resolves CTS500 zero() on a typed command response and sends opcode 0x86", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push([...value])
+      rx.emitValueChanged(cts500Frame([0x05, 0x80, 0x86, 0x00, 0x00, 0x00]))
+    }
+
+    await assert.doesNotReject(() => device.zero())
+
+    assert.deepEqual(writes, [[0x05, 0x86, 0x00, 0x00, 0x00, 0x8b]])
+  })
+
+  it("resolves CTS500 peakMode() on a typed command response", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push([...value])
+      rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xca, 0x00, 0x00, 0x00]))
+    }
+
+    await assert.doesNotReject(() => device.peakMode(true))
+
+    assert.deepEqual(writes, [[0x05, 0xca, 0x00, 0x00, 0x01, 0xd0]])
+  })
+
+  it("resolves CTS500 powerOnReset() on a typed command response", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push([...value])
+      rx.emitValueChanged(cts500Frame([0x05, 0x80, 0x85, 0x00, 0x00, 0x00]))
+    }
+
+    await assert.doesNotReject(() => device.powerOnReset(true))
+
+    assert.deepEqual(writes, [[0x05, 0x85, 0x00, 0x00, 0x01, 0x8b]])
+  })
+
+  it("completes CTS500 stream() when start sends weight frames and stop gets a typed response", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    captureNotifications(device)
+    // As on the real device, START sends weight frames only and STOP gets a typed answer.
+    device.write = async (_service, _characteristic, value) => {
+      if (value[1] === 0xaa) {
+        rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+      } else if (value[1] === 0xab) {
+        rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xab, 0x00, 0x00, 0x00]))
+      }
+    }
+
+    // Before the fix, the stop() call inside stream() timed out after the device had answered.
+    await assert.doesNotReject(() => device.stream(1))
+  })
+
+  it("frees the CTS500 request queue when tare() gets the single weight frame that the device sends", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    captureNotifications(device)
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push(value[1])
+      if (value[1] === 0xa6) {
+        // Captured on hardware: an idle device answers TARE with one weight frame, not with a typed answer or an echo.
+        rx.emitValueChanged(cts500Frame([0x05, 0x40, 0x00, 0x00, 0x00, 0x00]))
+      } else if (value[1] === 0xc4) {
+        rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xc4, 0x00, 0x01, 0x63]))
+      }
+    }
+    // The clock stands still, so only the weight frame can free the queue for the battery request.
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    assert.equal(device.tare(), true)
+    const battery = device.battery()
+    await new Promise((resolve) => setImmediate(resolve))
+
+    assert.deepEqual(writes, [0xa6, 0xc4])
+    assert.equal(await battery, "3.55")
+  })
+
+  it("frees the CTS500 request queue when tare() gets a typed command response", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    captureNotifications(device)
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push(value[1])
+      if (value[1] === 0xa6) {
+        rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xa6, 0x00, 0x00, 0x00]))
+      } else if (value[1] === 0xc4) {
+        rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xc4, 0x00, 0x01, 0x63]))
+      }
+    }
+    // The clock stands still, so only the typed tare answer can free the queue for the battery request.
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    assert.equal(device.tare(), true)
+    const battery = device.battery()
+    await new Promise((resolve) => setImmediate(resolve))
+
+    assert.deepEqual(writes, [0xa6, 0xc4])
+    assert.equal(await battery, "3.55")
+  })
+
+  it("frees the CTS500 request queue on a weight frame when tare() runs during a stream", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    captureNotifications(device)
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push(value[1])
+      if (value[1] === 0xaa) {
+        rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+      } else if (value[1] === 0xc4) {
+        rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xc4, 0x00, 0x01, 0x63]))
+      }
+    }
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    await device.stream()
+    const responses = []
+    device.writeCallback = (response) => {
+      responses.push(response)
+    }
+
+    assert.equal(device.tare(), true)
+    await new Promise((resolve) => setImmediate(resolve))
+    // During a stream, the next weight frame arrives before the typed tare answer.
+    rx.emitValueChanged(dataView(cts500WeightFrameBytes(1)))
+    rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xa6, 0x00, 0x00, 0x00]))
+
+    // The late typed answer has no pending request. It is reported like an unmatched echo, not as raw hex.
+    assert.deepEqual(responses, ["1.00", "OK"])
+
+    const battery = device.battery()
+    await new Promise((resolve) => setImmediate(resolve))
+
+    assert.deepEqual(writes, [0xaa, 0xa6, 0xc4])
+    assert.equal(await battery, "3.55")
+  })
+
+  it("keeps the raw bytes of an unmatched CTS500 firmware answer", () => {
+    const device = new CTS500()
+    const responses = []
+
+    device.writeCallback = (response) => {
+      responses.push(response)
+    }
+
+    // Unmatched typed answers to other commands are reported as "OK". The firmware answer carries data.
+    device.handleNotifications(cts500Frame([0x05, 0x80, 0xa4, 0x20, 0x3a, 0x96]))
+
+    assert.deepEqual(responses, ["05 80 A4 20 3A 96 19"])
+  })
+
+  it("logs the CTS500 tare() timeout when the device stays silent", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    device.write = async () => undefined
+    const error = t.mock.method(console, "error", () => undefined)
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    assert.equal(device.tare(), true)
+    // The tare request starts in a microtask. Let it register its timeout before the clock moves.
+    await new Promise((resolve) => setImmediate(resolve))
+    t.mock.timers.tick(2000)
+    await new Promise((resolve) => setImmediate(resolve))
+
+    assert.equal(error.mock.calls.length, 1)
+    assert.match(error.mock.calls[0].arguments[0].message, /Timed out waiting for CTS500 response/)
+  })
+
   it("parses PB-700BT RPM notifications", () => {
     const device = new PB700BT()
     const notifications = captureNotifications(device)

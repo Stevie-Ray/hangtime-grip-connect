@@ -297,7 +297,9 @@ export class CTS500 extends Device implements ICTS500 {
         command,
         (frame) =>
           // The device can start auto-uploading before it echoes the start command, so the first weight frame also confirms success.
-          this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) || this.isWeightFrame(frame),
+          this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) ||
+          this.isCommandResponse(frame, command[1]) ||
+          this.isWeightFrame(frame),
       )
     } catch (error) {
       this.isStreaming = false
@@ -317,7 +319,13 @@ export class CTS500 extends Device implements ICTS500 {
   stop = async (): Promise<void> => {
     this.isStreaming = false
     const command = this.commands.STOP_WEIGHT_MEAS as Uint8Array
-    await this.queryFrame(command, (frame) => this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]))
+    await this.queryFrame(
+      command,
+      // Some devices answer STOP with a typed `05 80 AB` response instead of a 6-byte echo.
+      (frame) =>
+        this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) ||
+        this.isCommandResponse(frame, command[1]),
+    )
   }
 
   /**
@@ -350,8 +358,15 @@ export class CTS500 extends Device implements ICTS500 {
     this.updateTimestamp()
     this.clearTareOffset()
     const command = this.commands.TARE_SCALE as Uint8Array
-    void this.queryFrame(command, (frame) =>
-      this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]),
+    void this.queryFrame(
+      command,
+      // The software offset is cleared, so the tare relies on the device. The tested device answers TARE with one weight
+      // frame. Other firmware can answer with a typed `05 80 A6` response or a 6-byte echo. During a stream, any weight
+      // frame matches, so the match frees the request queue but does not prove that the device applied the tare.
+      (frame) =>
+        this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) ||
+        this.isCommandResponse(frame, command[1]) ||
+        this.isWeightFrame(frame),
     ).catch((error: Error) => {
       console.error(error)
     })
@@ -447,13 +462,16 @@ export class CTS500 extends Device implements ICTS500 {
   }
 
   /**
-   * Sends a command that should be acknowledged with a 6-byte echo frame.
+   * Sends a command that should be acknowledged with either a 6-byte echo frame or a typed `05 80 <opcode>` response.
    */
   private expectAck = async (
     opcode: number,
     payload: readonly [number, number, number] = [0x00, 0x00, 0x00],
   ): Promise<void> => {
-    await this.queryFrame(buildCommand(opcode, payload), (frame) => this.isAckFrame(frame, opcode, payload))
+    await this.queryFrame(
+      buildCommand(opcode, payload),
+      (frame) => this.isAckFrame(frame, opcode, payload) || this.isCommandResponse(frame, opcode),
+    )
   }
 
   /**
@@ -564,6 +582,18 @@ export class CTS500 extends Device implements ICTS500 {
       // Negative temperatures are sent as 0x80 + abs(value) instead of two's complement.
       const temperature = rawTemperature >= 0x80 ? -(rawTemperature - 0x80) : rawTemperature
       this.writeCallback(temperature.toString())
+      return
+    }
+
+    // Report an unmatched typed answer to a known command like an unmatched echo. The firmware answer carries data, so
+    // it keeps its raw bytes.
+    if (
+      !matchedPendingRequest &&
+      this.commandOpcodes.has(frame[2]) &&
+      frame[2] !== (this.commands.GET_FIRMWARE_VERSION as Uint8Array)[1] &&
+      this.isCommandResponse(frame, frame[2])
+    ) {
+      this.writeCallback("OK")
       return
     }
 
