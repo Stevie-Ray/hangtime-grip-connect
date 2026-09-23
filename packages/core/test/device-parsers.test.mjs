@@ -407,6 +407,30 @@ describe("device notification parsers", () => {
     assert.equal(notifications.length, 1)
   })
 
+  it("decodes a CTS500 weight frame with the 0x40 status byte that real hardware sends", () => {
+    const device = new CTS500()
+    const notifications = captureNotifications(device)
+
+    // Captured from a real device at zero load.
+    device.handleNotifications(dataView([0x05, 0x40, 0x00, 0x00, 0x00, 0x00, 0x45]))
+    device.handleNotifications(dataView(cts500WeightFrameBytes(12.34)))
+
+    assert.deepEqual([...cts500WeightFrameBytes(0)], [0x05, 0x40, 0x00, 0x00, 0x00, 0x00, 0x45])
+    assert.equal(notifications.length, 2)
+    assert.equal(notifications[0].current, 0)
+    assert.equal(notifications[1].current, 12.34)
+  })
+
+  it("still decodes a CTS500 weight frame with another status byte", () => {
+    const device = new CTS500()
+    const notifications = captureNotifications(device)
+
+    device.handleNotifications(dataView(cts500WeightFrameBytes(12.34, 0x01)))
+
+    assert.equal(notifications.length, 1)
+    assert.equal(notifications[0].current, 12.34)
+  })
+
   it("routes CTS500 command responses through the write callback", () => {
     const device = new CTS500()
     const responses = []
@@ -705,7 +729,7 @@ describe("device notification parsers", () => {
     assert.deepEqual(responses, ["05 80 A4 20 3A 96 19"])
   })
 
-  it("logs the CTS500 tare() timeout when the device stays silent", async (t) => {
+  it("warns when the device does not confirm the CTS500 tare() command", async (t) => {
     const device = new CTS500()
     const bluetoothDevice = createDeviceMockFromGripDevice(device)
     installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
@@ -717,6 +741,7 @@ describe("device notification parsers", () => {
 
     device.write = async () => undefined
     const error = t.mock.method(console, "error", () => undefined)
+    const warn = t.mock.method(console, "warn", () => undefined)
     t.mock.timers.enable({ apis: ["setTimeout"] })
 
     assert.equal(device.tare(), true)
@@ -725,8 +750,65 @@ describe("device notification parsers", () => {
     t.mock.timers.tick(2000)
     await new Promise((resolve) => setImmediate(resolve))
 
-    assert.equal(error.mock.calls.length, 1)
-    assert.match(error.mock.calls[0].arguments[0].message, /Timed out waiting for CTS500 response/)
+    assert.equal(warn.mock.calls.length, 1)
+    assert.match(String(warn.mock.calls[0].arguments[0]), /tare/)
+    assert.equal(error.mock.calls.length, 0)
+  })
+
+  it("rejects CTS500 stop() with a CTS500TimeoutError that names the command", async (t) => {
+    const device = new CTS500()
+    device.write = async () => undefined
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    const stop = device.stop()
+    // The stop request starts in a microtask. Let it register its timeout before the clock moves.
+    await new Promise((resolve) => setImmediate(resolve))
+    t.mock.timers.tick(2000)
+
+    await assert.rejects(stop, (error) => {
+      assert.equal(error.name, "CTS500TimeoutError")
+      assert.ok(error.message.startsWith("Timed out waiting for CTS500 response"))
+      assert.match(error.message, /0xAB/)
+      assert.doesNotMatch(error.message, /repair/)
+      return true
+    })
+  })
+
+  it("resolves CTS500 setSamplingRate() when the device sends no answer", async (t) => {
+    const device = new CTS500()
+    device.write = async () => undefined
+    t.mock.timers.enable({ apis: ["setTimeout"] })
+
+    const setSamplingRate = device.setSamplingRate(80)
+    await new Promise((resolve) => setImmediate(resolve))
+    t.mock.timers.tick(2000)
+
+    await assert.doesNotReject(setSamplingRate)
+  })
+
+  it("rejects CTS500 setSamplingRate() on an error that is not a timeout", async () => {
+    const device = new CTS500()
+    device.queryFrame = async () => {
+      throw new Error("write failed")
+    }
+
+    await assert.rejects(() => device.setSamplingRate(80), /write failed/)
+  })
+
+  it("sends the mapped CTS500 baud rate payload without a console warning", async (t) => {
+    const device = new CTS500()
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push([...value])
+      device.handleNotifications(dataView(value))
+    }
+    const warn = t.mock.method(console, "warn", () => undefined)
+
+    await device.setBaudRate(19200)
+
+    // The baud rate 19200 maps to the payload byte 0x01.
+    assert.deepEqual(writes, [[0x05, 0xc0, 0x00, 0x00, 0x01, 0xc6]])
+    assert.equal(warn.mock.calls.length, 0)
   })
 
   it("parses PB-700BT RPM notifications", () => {

@@ -53,15 +53,15 @@ export function cts500FrameBytes(bytesWithoutChecksum) {
   return Uint8Array.from([...bytesWithoutChecksum, checksum(bytesWithoutChecksum)])
 }
 
-export function cts500WeightFrame(weight) {
-  return dataView(cts500WeightFrameBytes(weight))
+export function cts500WeightFrame(weight, status = 0x40) {
+  return dataView(cts500WeightFrameBytes(weight, status))
 }
 
-export function cts500WeightFrameBytes(weight) {
+export function cts500WeightFrameBytes(weight, status = 0x40) {
   const rawWeight = Math.round(weight * 100)
   return cts500FrameBytes([
     0x05,
-    0x01,
+    status,
     (rawWeight >>> 24) & 0xff,
     (rawWeight >>> 16) & 0xff,
     (rawWeight >>> 8) & 0xff,
