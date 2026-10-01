@@ -16,6 +16,7 @@ import {
   assertAlmostEqual,
   captureNotifications,
   cts500Frame,
+  cts500FrameBytes,
   cts500WeightFrameBytes,
   dataView,
   forceBoardPacket,
@@ -379,6 +380,32 @@ describe("device notification parsers", () => {
     packet[0] = 2
 
     assert.throws(() => device.handleNotifications(dataView(packet)), /response code/)
+  })
+
+  it("reads the CTS500 weight sign from status bit 0x10", async () => {
+    const device = new CTS500()
+    const notifications = captureNotifications(device)
+    // Real frames: an empty scale after a tare under 2 kg sends 0x50 and 0x10. The same scale under 2 kg sends 0x40 and
+    // 0x00. Bit 0x10 is the sign. Bit 0x40 marks a steady value.
+    const frames = [
+      [0x05, 0x50, 0x00, 0x00, 0x00, 0xc8],
+      [0x05, 0x10, 0x00, 0x00, 0x00, 0xcd],
+      [0x05, 0x40, 0x00, 0x00, 0x00, 0xd2],
+      [0x05, 0x00, 0x00, 0x00, 0x00, 0xcd],
+      [0x05, 0x10, 0x00, 0x00, 0x00, 0x00],
+    ]
+
+    for (const frame of frames) {
+      device.handleNotifications(cts500Frame(frame))
+    }
+
+    assert.deepEqual(
+      notifications.map((notification) => notification.current),
+      [-2, -2.05, 2.1, 2.05, 0],
+    )
+
+    device.queryFrame = async () => cts500FrameBytes(frames[1])
+    assert.equal(await device.weight(), -2.05)
   })
 
   it("parses CTS500 fragmented weight frames and ignores invalid checksums", () => {
