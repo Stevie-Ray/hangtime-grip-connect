@@ -376,7 +376,8 @@ export class CTS500 extends Device implements ICTS500 {
    * @returns {Promise<void>} A promise that resolves when the command is acknowledged.
    */
   zero = async (): Promise<void> => {
-    await this.expectAck(this.commands.ZERO_SCALE as number)
+    // ZERO_SCALE is a full frame. Pass its opcode byte, not the whole frame.
+    await this.expectAck((this.commands.ZERO_SCALE as Uint8Array)[1])
   }
 
   /**
