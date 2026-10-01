@@ -3,6 +3,8 @@ import type { CTS500BaudRate, CTS500SamplingRate, ICTS500 } from "../../interfac
 
 const CTS500_HEADER = 0x05
 const CTS500_RESPONSE_FLAG = 0x80
+// Weight status bit in byte 1 that marks a negative weight. Bit 0x40 marks a steady value.
+const CTS500_NEGATIVE_WEIGHT_FLAG = 0x10
 const CTS500_ACK_FRAME_LENGTH = 6
 const CTS500_DATA_FRAME_LENGTH = 7
 const CTS500_RESPONSE_TIMEOUT_MS = 2000
@@ -368,7 +370,7 @@ export class CTS500 extends Device implements ICTS500 {
       return undefined
     }
 
-    return (frame[2] * 0x1000000 + frame[3] * 0x10000 + frame[4] * 0x100 + frame[5]) / 100
+    return this.readWeight(frame)
   }
 
   /**
@@ -545,8 +547,7 @@ export class CTS500 extends Device implements ICTS500 {
     const matchedPendingRequest = this.consumePendingFrame(frame)
 
     if (this.isWeightFrame(frame)) {
-      // Weight uploads carry a big-endian centi-unit value across bytes 2..5.
-      const weight = (frame[2] * 0x1000000 + frame[3] * 0x10000 + frame[4] * 0x100 + frame[5]) / 100
+      const weight = this.readWeight(frame)
       this.recordWeightMeasurement(weight)
       this.writeCallback(weight.toFixed(2))
       return
@@ -619,6 +620,16 @@ export class CTS500 extends Device implements ICTS500 {
       !this.commandOpcodes.has(frame[1]) &&
       this.isValidFrame(frame)
     )
+  }
+
+  /**
+   * Reads the signed weight from a weight frame.
+   */
+  private readWeight = (frame: Uint8Array): number => {
+    // Bytes 2..5 carry the big-endian magnitude in centi-units. The sign is a status bit in byte 1, not two's complement.
+    const magnitude = (frame[2] * 0x1000000 + frame[3] * 0x10000 + frame[4] * 0x100 + frame[5]) / 100
+    // A negative zero would print as "-0", so zero keeps a positive sign.
+    return (frame[1] & CTS500_NEGATIVE_WEIGHT_FLAG) !== 0 && magnitude !== 0 ? -magnitude : magnitude
   }
 
   /**
