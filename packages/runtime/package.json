@@ -53,10 +53,10 @@
   },
   "dependencies": {
     "@hangtime/grip-connect": "^0.15.1",
-    "webbluetooth": "^3.7.0"
+    "webbluetooth": "^7.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.20.4",
+    "@types/node": "^22.20.5",
     "@typescript/native": "npm:typescript@^7.0.2",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
