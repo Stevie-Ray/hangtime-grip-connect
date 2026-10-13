@@ -55,8 +55,8 @@
   },
   "dependencies": {
     "@hangtime/grip-connect-runtime": "^0.15.2",
-    "@inquirer/input": "^5.1.6",
-    "@inquirer/select": "^5.2.5",
+    "@inquirer/input": "^5.1.7",
+    "@inquirer/select": "^5.2.6",
     "asciichart": "^1.5.25",
     "commander": "^15.0.0",
     "ora": "^9.4.1",
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@types/asciichart": "^1.5.8",
-    "@types/node": "^22.20.4",
+    "@types/node": "^22.20.5",
     "@typescript/native": "npm:typescript@^7.0.2",
     "tsx": "^4.23.15",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
