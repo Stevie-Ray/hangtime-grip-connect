@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@hangtime/grip-connect": "^0.15.1",
-    "webbluetooth": "^3.7.0"
+    "webbluetooth": "^7.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
