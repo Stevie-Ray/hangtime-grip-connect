@@ -35,6 +35,8 @@ export class CTS500 extends CTS500Base {
 
   override disconnect = async (): Promise<void> => {
     if (this.device) {
+      // The device keeps uploading after the link closes unless it gets STOP first.
+      await this.stopUploadBeforeDisconnect()
       await BleClient.disconnect(this.device.deviceId)
     }
   }

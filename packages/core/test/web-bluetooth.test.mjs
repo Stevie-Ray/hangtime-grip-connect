@@ -15,7 +15,7 @@ import {
   SmartBoardPro,
   WHC06,
 } from "../dist/index.js"
-import { captureNotifications, progressorWeightPacket } from "./helpers.mjs"
+import { captureNotifications, cts500Frame, progressorWeightPacket } from "./helpers.mjs"
 import {
   BluetoothDeviceMock,
   createDeviceMockFromGripDevice,
@@ -41,6 +41,14 @@ describe("WebBluetoothMock", () => {
 
     const bluetoothDevices = devices.map((device) => createDeviceMockFromGripDevice(device))
     installWebBluetoothMock(t, new WebBluetoothMock(bluetoothDevices))
+    // The CTS500 sends STOP before it closes the link. Answer it like the real device.
+    const cts500Mock = bluetoothDevices[devices.findIndex((device) => device instanceof CTS500)]
+    const cts500Service = cts500Mock.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const cts500Rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    const cts500Tx = cts500Service.getCharacteristicMock("0000ffe2-0000-1000-8000-00805f9b34fb")
+    cts500Tx.writeValueWithoutResponse = async () => {
+      cts500Rx.emitValueChanged(cts500Frame([0x05, 0x80, 0xab, 0x00, 0x00, 0x00]))
+    }
 
     for (const device of devices) {
       let connected = false
@@ -59,7 +67,7 @@ describe("WebBluetoothMock", () => {
       assert.equal(connected, true, `${device.constructor.name} should call the success callback`)
       assert.equal(device.isConnected(), true, `${device.constructor.name} should report connected`)
 
-      device.disconnect()
+      await device.disconnect()
 
       assert.equal(device.isConnected(), false, `${device.constructor.name} should report disconnected`)
     }
