@@ -258,18 +258,20 @@ async function readSystemInfo(device: ConnectedDevice): Promise<string> {
 
   const header = `${formatDeviceDisplayName(device)} Info`
 
-  const values = await Promise.all(
-    availableRead.map(async (command) => {
-      try {
-        const value = await command.read(device)
-        if (value == null || value === "") return `${command.label}: Unavailable`
-        if (typeof value === "object") return `${command.label}: ${JSON.stringify(value)}`
-        return `${command.label}: ${String(value)}`
-      } catch (error: unknown) {
-        return `${command.label}: ${error instanceof Error ? error.message : "Read failed"}`
-      }
-    }),
-  )
+  // Read one field at a time. Firing every read at once opens several GATT operations on the
+  // same connection, and Chrome rejects the overlaps with "GATT operation failed for unknown
+  // reason". Sequential reads report the real values on devices such as the CTS500.
+  const values: string[] = []
+  for (const command of availableRead) {
+    try {
+      const value = await command.read(device)
+      if (value == null || value === "") values.push(`${command.label}: Unavailable`)
+      else if (typeof value === "object") values.push(`${command.label}: ${JSON.stringify(value)}`)
+      else values.push(`${command.label}: ${String(value)}`)
+    } catch (error: unknown) {
+      values.push(`${command.label}: ${error instanceof Error ? error.message : "Read failed"}`)
+    }
+  }
 
   return `${header}\n\n${values.join("\n")}`
 }
