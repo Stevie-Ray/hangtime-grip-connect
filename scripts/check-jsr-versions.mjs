@@ -20,35 +20,35 @@ async function main() {
     if (!dir.isDirectory()) continue
 
     const packageJsonPath = path.join(packagesDir, dir.name, "package.json")
-    const denoJsonPath = path.join(packagesDir, dir.name, "deno.json")
+    const jsrJsonPath = path.join(packagesDir, dir.name, "jsr.json")
 
-    if (!(await exists(packageJsonPath)) || !(await exists(denoJsonPath))) continue
+    if (!(await exists(packageJsonPath)) || !(await exists(jsrJsonPath))) continue
 
     const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8"))
-    const denoJson = JSON.parse(await readFile(denoJsonPath, "utf8"))
+    const jsrJson = JSON.parse(await readFile(jsrJsonPath, "utf8"))
 
     if (typeof packageJson.version !== "string") continue
-    if (typeof denoJson.version !== "string") continue
+    if (typeof jsrJson.version !== "string") continue
 
-    if (denoJson.version !== packageJson.version) {
+    if (jsrJson.version !== packageJson.version) {
       mismatches.push({
-        file: path.relative(process.cwd(), denoJsonPath),
-        denoVersion: denoJson.version,
+        file: path.relative(process.cwd(), jsrJsonPath),
+        jsrVersion: jsrJson.version,
         packageVersion: packageJson.version,
       })
     }
   }
 
   if (mismatches.length === 0) {
-    console.log("deno.json versions are in sync.")
+    console.log("jsr.json versions are in sync.")
     return
   }
 
-  console.error("deno.json version mismatches found:")
+  console.error("jsr.json version mismatches found:")
   for (const mismatch of mismatches) {
-    console.error(`- ${mismatch.file}: deno.json=${mismatch.denoVersion}, package.json=${mismatch.packageVersion}`)
+    console.error(`- ${mismatch.file}: jsr.json=${mismatch.jsrVersion}, package.json=${mismatch.packageVersion}`)
   }
-  console.error("Run: npm run sync:deno-versions")
+  console.error("Run: npm run sync:jsr-versions")
   process.exit(1)
 }
 

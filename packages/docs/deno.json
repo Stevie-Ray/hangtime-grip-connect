@@ -1,6 +1,0 @@
-{
-  "name": "@hangtime/grip-connect-docs",
-  "exports": {
-    ".": "./src/index.ts"
-  }
-}

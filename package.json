@@ -48,20 +48,20 @@
     "test:core": "npm run test --workspace ./packages/core",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:version:ci": "changeset version && npm run sync:deno-versions && npm run format",
+    "changeset:version:ci": "changeset version && npm run sync:jsr-versions && npm run format",
     "changeset:publish": "changeset publish",
-    "sync:deno-versions": "node scripts/sync-deno-versions.mjs",
-    "check:deno-versions": "node scripts/check-deno-versions.mjs",
+    "sync:jsr-versions": "node scripts/sync-jsr-versions.mjs",
+    "check:jsr-versions": "node scripts/check-jsr-versions.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
     "@types/node": "^22.20.5",
-    "@types/web-bluetooth": "^0.0.21",
+    "@types/web-bluetooth": "^0.0.22",
     "@typescript/native": "npm:typescript@^7.0.2",
     "husky": "^9.1.7",
-    "oxfmt": "^0.75.0",
-    "oxlint": "^1.90.0",
+    "oxfmt": "^0.79.0",
+    "oxlint": "^1.94.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "engines": {

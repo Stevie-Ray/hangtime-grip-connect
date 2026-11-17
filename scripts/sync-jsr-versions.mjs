@@ -20,26 +20,26 @@ async function main() {
     if (!dir.isDirectory()) continue
 
     const packageJsonPath = path.join(packagesDir, dir.name, "package.json")
-    const denoJsonPath = path.join(packagesDir, dir.name, "deno.json")
+    const jsrJsonPath = path.join(packagesDir, dir.name, "jsr.json")
 
-    if (!(await exists(packageJsonPath)) || !(await exists(denoJsonPath))) continue
+    if (!(await exists(packageJsonPath)) || !(await exists(jsrJsonPath))) continue
 
     const packageJson = JSON.parse(await readFile(packageJsonPath, "utf8"))
-    const denoJson = JSON.parse(await readFile(denoJsonPath, "utf8"))
+    const jsrJson = JSON.parse(await readFile(jsrJsonPath, "utf8"))
 
     if (typeof packageJson.version !== "string") continue
-    if (typeof denoJson.version !== "string") continue
+    if (typeof jsrJson.version !== "string") continue
 
-    if (denoJson.version === packageJson.version) continue
+    if (jsrJson.version === packageJson.version) continue
 
-    denoJson.version = packageJson.version
-    await writeFile(denoJsonPath, `${JSON.stringify(denoJson, null, 2)}\n`, "utf8")
+    jsrJson.version = packageJson.version
+    await writeFile(jsrJsonPath, `${JSON.stringify(jsrJson, null, 2)}\n`, "utf8")
     updated++
-    console.log(`Synced ${path.relative(process.cwd(), denoJsonPath)} -> ${packageJson.version}`)
+    console.log(`Synced ${path.relative(process.cwd(), jsrJsonPath)} -> ${packageJson.version}`)
   }
 
   if (updated === 0) {
-    console.log("All deno.json versions are already in sync.")
+    console.log("All jsr.json versions are already in sync.")
   }
 }
 
