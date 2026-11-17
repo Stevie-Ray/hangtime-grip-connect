@@ -1,6 +1,6 @@
 import { FrezDyno as FrezDynoBase, type FrezDynoOptions } from "@hangtime/grip-connect"
 import process from "node:process"
-import { bluetooth } from "webbluetooth"
+import { bluetooth, type Bluetooth } from "webbluetooth"
 import { writeDownloadFile } from "../../download.js"
 
 /** Represents a Frez Dyno using the runtime Bluetooth transport. */

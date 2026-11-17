@@ -1,6 +1,6 @@
 import { WHC06 as WHC06Base } from "@hangtime/grip-connect"
 import process from "node:process"
-import { bluetooth } from "webbluetooth"
+import { bluetooth, type Bluetooth } from "webbluetooth"
 
 /**
  * Represents a Weiheng - WH-C06 (or MAT Muscle Meter) device.

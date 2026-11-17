@@ -873,15 +873,12 @@ export abstract class Device extends BaseModel implements IDevice {
   }
 
   /**
-   * Returns the Bluetooth instance available for the current environment.
-   * In browsers, it returns the native Web Bluetooth API (i.e. `navigator.bluetooth`).
-   * In a Node, Bun, or Deno environment, it dynamically imports the `webbluetooth` package.
-   * {@link https://github.com/thegecko/webbluetooth}
+   * Returns the Bluetooth provider used to request a device.
+   * The browser implementation uses `navigator.bluetooth`.
    *
-   * @returns {Promise<Bluetooth>} A promise that resolves to the Bluetooth instance.
    * @throws {Error} If Web Bluetooth is not available in the current environment.
    */
-  protected async getBluetooth(): Promise<Bluetooth> {
+  protected async getBluetooth(): Promise<Pick<Bluetooth, "requestDevice">> {
     // If running in a browser with native Web Bluetooth support:
     if (typeof navigator !== "undefined" && navigator.bluetooth) {
       return navigator.bluetooth

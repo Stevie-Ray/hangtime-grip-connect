@@ -1,6 +1,6 @@
 import { mySmartBoard as mySmartBoardBase } from "@hangtime/grip-connect"
 import process from "node:process"
-import { bluetooth } from "webbluetooth"
+import { bluetooth, type Bluetooth } from "webbluetooth"
 import { writeDownloadFile } from "../../download.js"
 
 /**
