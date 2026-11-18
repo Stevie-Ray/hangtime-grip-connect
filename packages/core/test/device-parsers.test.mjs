@@ -27,6 +27,7 @@ import {
   textView,
   uint32BePacket,
 } from "./helpers.mjs"
+import { createDeviceMockFromGripDevice, installWebBluetoothMock, WebBluetoothMock } from "./web-bluetooth-helpers.mjs"
 
 function segmentPullupTrace(points, startMs, endMs, startForce, endForce, stepMs = 40) {
   const duration = Math.max(stepMs, endMs - startMs)
@@ -417,6 +418,30 @@ describe("device notification parsers", () => {
     device.handleNotifications(cts500Frame([0x05, 0x80, 0xc4, 0x00, 0x01, 0x63]))
 
     assert.deepEqual(responses, ["3.55"])
+  })
+
+  it("sends opcode 0x86 in CTS500 zero() and resolves on the 6-byte echo", async (t) => {
+    const device = new CTS500()
+    const bluetoothDevice = createDeviceMockFromGripDevice(device)
+    installWebBluetoothMock(t, new WebBluetoothMock([bluetoothDevice]))
+
+    await device.connect(
+      () => undefined,
+      (error) => assert.fail(error.message),
+    )
+
+    const cts500Service = bluetoothDevice.getServiceMock("0000ffe0-0000-1000-8000-00805f9b34fb")
+    const rx = cts500Service.getCharacteristicMock("0000ffe1-0000-1000-8000-00805f9b34fb")
+    const writes = []
+    device.write = async (_service, _characteristic, value) => {
+      writes.push([...value])
+      rx.emitValueChanged(cts500Frame([0x05, 0x86, 0x00, 0x00, 0x00]))
+    }
+
+    await assert.doesNotReject(() => device.zero())
+
+    // ZERO_SCALE is a full frame. Passing the whole frame as the opcode sends the malformed frame 05 00 00 00 00 05.
+    assert.deepEqual(writes, [[0x05, 0x86, 0x00, 0x00, 0x00, 0x8b]])
   })
 
   it("parses PB-700BT RPM notifications", () => {
