@@ -202,8 +202,8 @@ export interface RunOptions {
 export interface CliDevice {
   /** Connect to the device, invoking the callback on success. */
   connect(callback: () => Promise<void>): Promise<void>
-  /** Disconnect the device gracefully. */
-  disconnect(): void
+  /** Disconnect the device gracefully. Some devices, like the CTS500, send a command first and resolve later. */
+  disconnect(): void | Promise<void>
   /** Reboot the device immediately, when supported. */
   reboot?(): Promise<void>
   /** Register a callback for incoming force measurements. Optional unit: "kg" (default), "lbs", or "n". */

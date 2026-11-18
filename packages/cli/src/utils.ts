@@ -121,16 +121,35 @@ export function createDevice(deviceKey: string): { device: CliDevice; name: stri
   return { device: new def.class() as unknown as CliDevice, name: def.name }
 }
 
+/** Longest wait for a disconnect. The CTS500 sends STOP first and waits up to 2 seconds for the answer. */
+const DISCONNECT_TIMEOUT_MS = 3000
+
+/** Disconnect the device and wait for it, but not longer than DISCONNECT_TIMEOUT_MS. */
+async function disconnectDevice(device: CliDevice): Promise<void> {
+  let timeout: ReturnType<typeof setTimeout> | undefined
+  try {
+    await Promise.race([
+      device.disconnect(),
+      new Promise<void>((resolve) => {
+        timeout = setTimeout(resolve, DISCONNECT_TIMEOUT_MS)
+      }),
+    ])
+  } catch {
+    // best-effort cleanup
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 /** Register signal handlers and perform cleanup before exit. */
 export function setupSignalHandlers(device: CliDevice, onCleanup?: () => void): () => void {
+  let exiting = false
   const handler = () => {
+    // A second signal exits at once, without waiting for the disconnect.
+    if (exiting) process.exit(0)
+    exiting = true
     onCleanup?.()
-    try {
-      device.disconnect()
-    } catch {
-      // best-effort cleanup
-    }
-    process.exit(0)
+    void disconnectDevice(device).then(() => process.exit(0))
   }
 
   process.on("SIGINT", handler)
@@ -248,17 +267,23 @@ export async function connectAndRun(
           setupNotify(device, ctx)
         }
 
+        let failure: Error | undefined
         try {
           await callback(device)
-          resolve()
         } catch (error: unknown) {
-          reject(error instanceof Error ? error : new Error(String(error)))
+          failure = error instanceof Error ? error : new Error(String(error))
         } finally {
           cleanupSignalHandlers()
-          device.disconnect()
+          await disconnectDevice(device)
           if (!ctx.json && options.printDisconnectedMessage !== false) {
             console.log(pc.dim(`\n${t("menu.disconnected")}`))
           }
+        }
+        // Settle only after the disconnect, because the caller can exit the process right away.
+        if (failure) {
+          reject(failure)
+        } else {
+          resolve()
         }
       })
       .catch((error: unknown) => {
