@@ -46,6 +46,21 @@ function buildCommand(opcode: number, payload: readonly [number, number, number]
   return frame
 }
 
+/**
+ * Error thrown when a CTS500 command gets no matching answer in time.
+ * The message names the command opcode when it is known.
+ */
+class CTS500TimeoutError extends Error {
+  override name = "CTS500TimeoutError"
+
+  constructor(opcode?: number) {
+    const command = opcode === undefined ? "" : ` to command 0x${opcode.toString(16).padStart(2, "0").toUpperCase()}`
+    super(
+      `Timed out waiting for CTS500 response${command}. If every command times out, see the troubleshooting section of the CTS500 docs.`,
+    )
+  }
+}
+
 interface PendingFrame {
   match(frame: Uint8Array): boolean
   reject(error: Error): void
@@ -233,6 +248,9 @@ export class CTS500 extends Device implements ICTS500 {
 
   /**
    * Configures the device UART baud rate.
+   *
+   * Warning: this command changes the MCU UART speed. The Bluetooth module keeps its own speed. If the two speeds
+   * differ, the link between them can stop working, and recovery can need a programmer. This was not tested on hardware.
    * @param {CTS500BaudRate} baudRate - Desired baud rate.
    * @returns {Promise<void>} A promise that resolves when the command is acknowledged.
    */
@@ -297,7 +315,9 @@ export class CTS500 extends Device implements ICTS500 {
         command,
         (frame) =>
           // The device can start auto-uploading before it echoes the start command, so the first weight frame also confirms success.
-          this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) || this.isWeightFrame(frame),
+          this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) ||
+          this.isCommandResponse(frame, command[1]) ||
+          this.isWeightFrame(frame),
       )
     } catch (error) {
       this.isStreaming = false
@@ -317,7 +337,13 @@ export class CTS500 extends Device implements ICTS500 {
   stop = async (): Promise<void> => {
     this.isStreaming = false
     const command = this.commands.STOP_WEIGHT_MEAS as Uint8Array
-    await this.queryFrame(command, (frame) => this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]))
+    await this.queryFrame(
+      command,
+      // Some devices answer STOP with a typed `05 80 AB` response instead of a 6-byte echo.
+      (frame) =>
+        this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) ||
+        this.isCommandResponse(frame, command[1]),
+    )
   }
 
   /**
@@ -350,9 +376,21 @@ export class CTS500 extends Device implements ICTS500 {
     this.updateTimestamp()
     this.clearTareOffset()
     const command = this.commands.TARE_SCALE as Uint8Array
-    void this.queryFrame(command, (frame) =>
-      this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]),
+    void this.queryFrame(
+      command,
+      // The software offset is cleared, so the tare relies on the device. The tested device answers TARE with one weight
+      // frame. Other firmware can answer with a typed `05 80 A6` response or a 6-byte echo. During a stream, any weight
+      // frame matches, so the match frees the request queue but does not prove that the device applied the tare.
+      (frame) =>
+        this.isAckFrame(frame, command[1], [command[2], command[3], command[4]]) ||
+        this.isCommandResponse(frame, command[1]) ||
+        this.isWeightFrame(frame),
     ).catch((error: Error) => {
+      if (error instanceof CTS500TimeoutError) {
+        console.warn("CTS500 did not confirm the tare command.")
+        return
+      }
+
       console.error(error)
     })
     return true
@@ -376,7 +414,8 @@ export class CTS500 extends Device implements ICTS500 {
    * @returns {Promise<void>} A promise that resolves when the command is acknowledged.
    */
   zero = async (): Promise<void> => {
-    await this.expectAck(this.commands.ZERO_SCALE as number)
+    // ZERO_SCALE is a full frame. Pass its opcode byte, not the whole frame.
+    await this.expectAck((this.commands.ZERO_SCALE as Uint8Array)[1])
   }
 
   /**
@@ -433,7 +472,14 @@ export class CTS500 extends Device implements ICTS500 {
     match: (frame: Uint8Array) => boolean,
   ): Promise<Uint8Array | undefined> => {
     return await this.enqueueRequest(async () => {
-      const waitForFrame = this.waitForFrame(match)
+      const waitForFrame = this.waitForFrame(
+        match,
+        CTS500_RESPONSE_TIMEOUT_MS,
+        message instanceof Uint8Array ? message[1] : undefined,
+      )
+      // The wait can reject before it is awaited: when the write fails, or when the timeout fires during a slow write.
+      // Mark it as handled so Node does not report an unhandled rejection. The await below still rethrows the error.
+      waitForFrame.catch(() => undefined)
 
       try {
         await this.write("cts500", "tx", message, 0)
@@ -446,13 +492,16 @@ export class CTS500 extends Device implements ICTS500 {
   }
 
   /**
-   * Sends a command that should be acknowledged with a 6-byte echo frame.
+   * Sends a command that should be acknowledged with either a 6-byte echo frame or a typed `05 80 <opcode>` response.
    */
   private expectAck = async (
     opcode: number,
     payload: readonly [number, number, number] = [0x00, 0x00, 0x00],
   ): Promise<void> => {
-    await this.queryFrame(buildCommand(opcode, payload), (frame) => this.isAckFrame(frame, opcode, payload))
+    await this.queryFrame(
+      buildCommand(opcode, payload),
+      (frame) => this.isAckFrame(frame, opcode, payload) || this.isCommandResponse(frame, opcode),
+    )
   }
 
   /**
@@ -469,7 +518,7 @@ export class CTS500 extends Device implements ICTS500 {
       )
     } catch (error) {
       // Some CTS firmwares apply UART/A-D rate changes immediately and do not echo a matching confirmation frame back over BLE.
-      if (error instanceof Error && error.message === "Timed out waiting for CTS500 response") {
+      if (error instanceof CTS500TimeoutError) {
         return
       }
 
@@ -566,6 +615,18 @@ export class CTS500 extends Device implements ICTS500 {
       return
     }
 
+    // Report an unmatched typed answer to a known command like an unmatched echo. The firmware answer carries data, so
+    // it keeps its raw bytes.
+    if (
+      !matchedPendingRequest &&
+      this.commandOpcodes.has(frame[2]) &&
+      frame[2] !== (this.commands.GET_FIRMWARE_VERSION as Uint8Array)[1] &&
+      this.isCommandResponse(frame, frame[2])
+    ) {
+      this.writeCallback("OK")
+      return
+    }
+
     if (frame.length === CTS500_ACK_FRAME_LENGTH && !matchedPendingRequest) {
       this.writeCallback("OK")
       return
@@ -615,6 +676,7 @@ export class CTS500 extends Device implements ICTS500 {
     return (
       frame.length === CTS500_DATA_FRAME_LENGTH &&
       frame[0] === CTS500_HEADER &&
+      // Real hardware sends 0x40 in byte 1. This status byte is not part of the weight.
       frame[1] !== CTS500_RESPONSE_FLAG &&
       !this.commandOpcodes.has(frame[1]) &&
       this.isValidFrame(frame)
@@ -670,6 +732,7 @@ export class CTS500 extends Device implements ICTS500 {
   private waitForFrame = (
     match: (frame: Uint8Array) => boolean,
     timeoutMs = CTS500_RESPONSE_TIMEOUT_MS,
+    opcode?: number,
   ): Promise<Uint8Array> => {
     // CTS uses one transparent UART channel for both commands and telemetry, so only one response wait can be active at a time.
     if (this.pendingFrame) {
@@ -683,7 +746,7 @@ export class CTS500 extends Device implements ICTS500 {
         }
 
         this.pendingFrame = undefined
-        reject(new Error("Timed out waiting for CTS500 response"))
+        reject(new CTS500TimeoutError(opcode))
       }, timeoutMs)
 
       this.pendingFrame = {
