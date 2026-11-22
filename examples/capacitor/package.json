@@ -20,7 +20,7 @@
     "open:ios": "npx cap open ios"
   },
   "dependencies": {
-    "@capacitor-community/bluetooth-le": "^8.3.0",
+    "@capacitor-community/bluetooth-le": "^8.4.0",
     "@capacitor/android": "^8.6.2",
     "@capacitor/core": "^8.6.2",
     "@capacitor/ios": "^8.6.2",
